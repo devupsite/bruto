@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BRUTO — Produtos">
+  <title>Produto — BRUTO</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: auto 1fr auto;
+      min-height: 100vh;
+    }
+
+    .header {
+      grid-column: 1 / -1;
+    }
+
+    .footer {
+      grid-column: 1 / -1;
+    }
+
+    /* Sidebar esquerda */
+    .product-sidebar {
+      grid-row: 2;
+      grid-column: 1;
+      background: #fafafa;
+      border-right: 1px solid var(--line);
+      padding: 2rem 1.5rem;
+      overflow-y: auto;
+      max-height: calc(100vh - 80px - 180px);
+      position: sticky;
+      top: 80px;
+    }
+
+    .sidebar-section {
+      margin-bottom: 2rem;
+    }
+
+    .sidebar-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #666;
+      margin-bottom: 0.8rem;
+      display: block;
+    }
+
+    .sidebar-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar-item {
+      margin-bottom: 0.6rem;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0.8rem;
+      border-radius: 4px;
+      color: #333;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all .2s ease;
+      font-size: 0.95rem;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      background: rgba(0, 0, 0, 0.05);
+      border-left-color: var(--ferro);
+    }
+
+    .sidebar-link.active {
+      background: rgba(0, 0, 0, 0.08);
+      border-left-color: var(--ferro);
+      font-weight: 500;
+      color: var(--ferro);
+    }
+
+    .sidebar-count {
+      font-size: 0.8rem;
+      color: #999;
+    }
+
+    /* Main content */
+    .product-main {
+      grid-row: 2;
+      grid-column: 2;
+      padding: 3rem;
+    }
+
+    .product-breadcrumb {
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+
+    .product-breadcrumb a {
+      color: #888;
+      text-decoration: none;
+    }
+
+    .product-breadcrumb a:hover {
+      color: #333;
+    }
+
+    .product-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+
+    .carousel {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f5f5f5;
+    }
+
+    .carousel__viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+    }
+
+    .carousel__slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.4s ease-in-out;
+    }
+
+    .carousel__slide.active {
+      opacity: 1;
+    }
+
+    .carousel__slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel__controls {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.5rem;
+      z-index: 10;
+    }
+
+    .carousel__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .carousel__dot.active {
+      background: #fff;
+      width: 24px;
+      border-radius: 5px;
+    }
+
+    .carousel__button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.3);
+      border: none;
+      color: #fff;
+      width: 48px;
+      height: 48px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s ease;
+      z-index: 5;
+    }
+
+    .carousel__button:hover {
+      background: rgba(0,0,0,0.5);
+    }
+
+    .carousel__button--prev {
+      left: 1rem;
+    }
+
+    .carousel__button--next {
+      right: 1rem;
+    }
+
+    .carousel__zoom-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all .3s ease;
+      z-index: 10;
+    }
+
+    .carousel__zoom-btn:hover {
+      background: rgba(0, 0, 0, 0.7);
+      transform: scale(1.05);
+    }
+
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .product-info h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .product-info .sku {
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .product-info .price {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+
+    .product-info p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #555;
+      margin-bottom: 2rem;
+    }
+
+    .product-specs {
+      background: #f9f9f9;
+      padding: 2rem;
+      border-radius: 8px;
+      margin-top: 2rem;
+    }
+
+    .product-specs h3 {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .spec-item {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+    }
+
+    .spec-item strong {
+      color: #333;
+    }
+
+    .spec-item span {
+      color: #666;
+    }
+
+    .cta-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      padding: 1rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn--primary {
+      background: #333;
+      color: #fff;
+    }
+
+    .btn--primary:hover {
+      background: #555;
+    }
+
+    .btn--secondary {
+      background: transparent;
+      border: 2px solid #333;
+      color: #333;
+    }
+
+    .btn--secondary:hover {
+      background: #f0f0f0;
+    }
+
+    /* Modal lightbox */
+    .product-lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1001;
+      animation: fadeInModal .3s ease;
+      overflow-y: auto;
+    }
+
+    .product-lightbox.active {
+      display: flex;
+    }
+
+    @keyframes fadeInModal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .product-lightbox__content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .product-lightbox__image-container {
+      position: relative;
+      max-width: 90vw;
+      max-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .product-lightbox__image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 4px;
+      animation: zoomInImage .3s ease;
+    }
+
+    @keyframes zoomInImage {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .product-lightbox__close-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      width: 44px;
+      height: 44px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s ease;
+    }
+
+    .product-lightbox__close-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .product-lightbox__controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .product-lightbox__nav-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      width: 44px;
+      height: 44px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all .2s ease;
+    }
+
+    .product-lightbox__nav-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .product-lightbox__nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Mobile responsivo */
+    @media (max-width: 1024px) {
+      body {
+        grid-template-columns: 1fr;
+      }
+
+      .product-sidebar {
+        grid-column: 1;
+        grid-row: 1.5;
+        max-height: 200px;
+        padding: 1rem;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        border-bottom: 1px solid var(--line);
+        border-right: none;
+        position: static;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      .sidebar-section {
+        min-width: 150px;
+        margin-bottom: 0;
+      }
+
+      .product-main {
+        grid-column: 1;
+        grid-row: 3;
+        padding: 2rem;
+      }
+
+      .product-header {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .product-info h1 {
+        font-size: 1.8rem;
+      }
+
+      .cta-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .product-main {
+        padding: 1.5rem;
+      }
+
+      .product-header {
+        gap: 1rem;
+      }
+
+      .product-info h1 {
+        font-size: 1.4rem;
+      }
+
+      .carousel__button {
+        width: 40px;
+        height: 40px;
+      }
+
+      .cta-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="wrap header__inner">
+      <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+        <span class="logo-box">
+          <svg class="logo-mark" viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill-rule="evenodd" d="M 0 0 L 72 0 L 72 58 L 80 58 L 80 120 L 0 120 Z M 22 10 L 64 10 L 64 50 L 22 50 Z M 22 68 L 70 68 L 70 112 L 22 112 Z"/>
+          </svg>
+        </span>
+        <span class="logo-divider" aria-hidden="true"></span>
+        <span class="logo-word">Bruto</span>
+      </a>
+
+      <nav class="nav" id="main-nav" aria-label="Navegação principal">
+        <a href="colecoes.html">Coleções</a>
+        <a href="blog.html">Blog</a>
+        <a href="index.html#projetos">Projetos</a>
+        <a href="index.html#sobre">Sobre</a>
+        <a href="index.html#amostra">Contato</a>
+      </nav>
+
+      <a href="index.html#amostra" class="btn btn--outline header__cta">Solicitar amostra</a>
+
+      <button class="burger" id="menu-btn" aria-label="Abrir menu" aria-expanded="false">
+        <i class="ti ti-menu-2" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="product-sidebar" id="product-sidebar">
+    <!-- Preenchido dinamicamente -->
+  </aside>
+
+  <!-- MAIN -->
+  <main class="product-main">
+    <div class="product-breadcrumb">
+      <a href="colecoes.html">Coleções</a> /
+      <a href="#" id="category-link">Categoria</a> /
+      <span id="product-name">Produto</span>
+    </div>
+
+    <div class="product-header">
+      <div>
+        <div class="carousel">
+          <div class="carousel__viewport" id="carousel-viewport">
+            <!-- Slides preenchidos dinamicamente -->
+          </div>
+          <div class="carousel__controls" id="carousel-controls">
+            <!-- Dots preenchidos dinamicamente -->
+          </div>
+          <button class="carousel__button carousel__button--prev" aria-label="Imagem anterior">
+            <i class="ti ti-chevron-left"></i>
+          </button>
+          <button class="carousel__button carousel__button--next" aria-label="Próxima imagem">
+            <i class="ti ti-chevron-right"></i>
+          </button>
+          <button class="carousel__zoom-btn" aria-label="Expandir imagem" title="Expandir imagem">
+            <i class="ti ti-zoom-in"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="product-info">
+        <p class="sku" id="product-sku">SKU</p>
+        <h1 id="product-title">Título</h1>
+        <p class="price" id="product-price">R$ 0,00</p>
+        
+        <p id="product-description">Descrição</p>
+
+        <div class="product-specs">
+          <h3>Especificações</h3>
+          <div class="spec-item">
+            <strong>Dimensões:</strong>
+            <span id="spec-dimensoes">-</span>
+          </div>
+          <div class="spec-item">
+            <strong>Acabamento:</strong>
+            <span id="spec-acabamento">-</span>
+          </div>
+          <div class="spec-item">
+            <strong>Resistência:</strong>
+            <span id="spec-resistencia">-</span>
+          </div>
+          <div class="spec-item">
+            <strong>Aplicação:</strong>
+            <span id="spec-aplicacao">-</span>
+          </div>
+          <div class="spec-item">
+            <strong>Ambientes:</strong>
+            <span id="spec-ambientes">-</span>
+          </div>
+        </div>
+
+        <div class="cta-buttons">
+          <a href="index.html#amostra" class="btn btn--primary">
+            <i class="ti ti-file-text"></i>
+            Solicitar orçamento
+          </a>
+          <a href="index.html#amostra" class="btn btn--secondary">
+            <i class="ti ti-brand-whatsapp"></i>
+            Falar com consultor
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__grid">
+        <div>
+          <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+            <span class="logo-box">
+              <svg class="logo-mark" viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path fill-rule="evenodd" d="M 0 0 L 72 0 L 72 58 L 80 58 L 80 120 L 0 120 Z M 22 10 L 64 10 L 64 50 L 22 50 Z M 22 68 L 70 68 L 70 112 L 22 112 Z"/>
+              </svg>
+            </span>
+            <span class="logo-divider" aria-hidden="true"></span>
+            <span class="logo-word">Bruto</span>
+          </a>
+          <p class="footer__tagline">
+            Curadoria de revestimentos artesanais para projetos de alta exigência.
+          </p>
+        </div>
+
+        <div>
+          <p class="footer__col-title">Coleções</p>
+          <nav class="footer__links" aria-label="Categorias de produtos">
+            <a href="colecoes.html#brick">Brick</a>
+            <a href="colecoes.html#cimenticio">Cimentício</a>
+            <a href="colecoes.html#rockface">Rockface</a>
+          </nav>
+        </div>
+
+        <div>
+          <p class="footer__col-title">Navegação</p>
+          <nav class="footer__links" aria-label="Links de navegação">
+            <a href="index.html#ambientes">Ambientes</a>
+            <a href="blog.html">Blog</a>
+            <a href="index.html#projetos">Projetos</a>
+            <a href="index.html#sobre">Sobre</a>
+            <a href="index.html#amostra">Amostra</a>
+          </nav>
+        </div>
+
+        <div>
+          <p class="footer__col-title">Contato</p>
+          <nav class="footer__links" aria-label="Informações de contato">
+            <a href="#">contato@bruto.com.br</a>
+            <a href="#">+55 11 0000-0000</a>
+            <a href="#">Instagram</a>
+            <a href="#">WhatsApp</a>
+          </nav>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2025 Bruto. Todos os direitos reservados.</p>
+        <div class="footer__bottom-links">
+          <a href="#">Privacidade</a>
+          <a href="#">Termos</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="produtos-data.js"></script>
+  <script>
+    // Get product ID from URL parameter
+    function getProductIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id') || 'branco-rose'; // Default product
+    }
+
+    let currentProductId = getProductIdFromUrl();
+    let currentSlide = 0;
+
+    // Função pra renderizar sidebar
+    function renderSidebar() {
+      const sidebar = document.getElementById('product-sidebar');
+      sidebar.innerHTML = '';
+
+      Object.entries(produtosData).forEach(([categoryKey, products]) => {
+        const categoryName = products[0].categoria;
+        const section = document.createElement('div');
+        section.className = 'sidebar-section';
+        
+        const title = document.createElement('span');
+        title.className = 'sidebar-title';
+        title.textContent = categoryName;
+        section.appendChild(title);
+
+        const list = document.createElement('ul');
+        list.className = 'sidebar-list';
+        
+        products.forEach(product => {
+          const item = document.createElement('li');
+          item.className = 'sidebar-item';
+          
+          const link = document.createElement('a');
+          link.className = 'sidebar-link';
+          if (product.id === currentProductId) {
+            link.classList.add('active');
+          }
+          link.innerHTML = `
+            <span>${product.nome}</span>
+            <span class="sidebar-count">R$ ${product.preco}</span>
+          `;
+          
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentProductId = product.id;
+            const params = new URLSearchParams();
+            params.set('id', product.id);
+            window.history.pushState(null, '', `?${params.toString()}`);
+            loadProduct(product.id);
+            renderSidebar();
+          });
+          
+          item.appendChild(link);
+          list.appendChild(item);
+        });
+        
+        section.appendChild(list);
+        sidebar.appendChild(section);
+      });
+    }
+
+    // Função pra carregar produto
+    function loadProduct(productId) {
+      const product = getProductById(productId);
+      if (!product) return;
+
+      currentProductId = productId;
+      currentSlide = 0;
+
+      // Update breadcrumb
+      document.getElementById('category-link').textContent = product.categoria;
+      document.getElementById('category-link').href = `colecoes.html#${product.categoria.toLowerCase()}`;
+      document.getElementById('product-name').textContent = product.nome;
+
+      // Update product info
+      document.getElementById('product-sku').textContent = `SKU ${product.sku}`;
+      document.getElementById('product-title').textContent = product.nome;
+      document.getElementById('product-price').textContent = `R$ ${product.preco}`;
+      document.getElementById('product-description').textContent = product.descricaoLonga;
+
+      // Update specs
+      document.getElementById('spec-dimensoes').textContent = product.dimensoes;
+      document.getElementById('spec-acabamento').textContent = product.acabamento;
+      document.getElementById('spec-resistencia').textContent = product.resistencia;
+      document.getElementById('spec-aplicacao').textContent = product.aplicacao;
+      document.getElementById('spec-ambientes').textContent = product.ambientes;
+
+      // Update carousel
+      renderCarousel(product);
+      setupCarouselEvents();
+      setupLightbox(product);
+
+      // Update page title
+      document.title = `${product.nome} — BRUTO`;
+    }
+
+    // Função pra renderizar carousel
+    function renderCarousel(product) {
+      const viewport = document.getElementById('carousel-viewport');
+      const controls = document.getElementById('carousel-controls');
+      
+      viewport.innerHTML = '';
+      controls.innerHTML = '';
+
+      product.imagens.forEach((img, index) => {
+        const slide = document.createElement('div');
+        slide.className = `carousel__slide ${index === 0 ? 'active' : ''}`;
+        slide.innerHTML = `<img src="${img}" alt="${product.nome} - Imagem ${index + 1}" loading="lazy">`;
+        viewport.appendChild(slide);
+
+        const dot = document.createElement('button');
+        dot.className = `carousel__dot ${index === 0 ? 'active' : ''}`;
+        dot.setAttribute('aria-label', `Imagem ${index + 1}`);
+        dot.addEventListener('click', () => showSlide(index));
+        controls.appendChild(dot);
+      });
+    }
+
+    // Carousel functions
+    function showSlide(n) {
+      const slides = document.querySelectorAll('.carousel__slide');
+      const dots = document.querySelectorAll('.carousel__dot');
+      
+      if (n >= slides.length) currentSlide = 0;
+      if (n < 0) currentSlide = slides.length - 1;
+      
+      slides.forEach(slide => slide.classList.remove('active'));
+      dots.forEach(dot => dot.classList.remove('active'));
+      
+      slides[currentSlide].classList.add('active');
+      dots[currentSlide].classList.add('active');
+    }
+
+    function setupCarouselEvents() {
+      const slides = document.querySelectorAll('.carousel__slide');
+      const prevBtn = document.querySelector('.carousel__button--prev');
+      const nextBtn = document.querySelector('.carousel__button--next');
+      const dots = document.querySelectorAll('.carousel__dot');
+
+      prevBtn.addEventListener('click', () => {
+        currentSlide--;
+        if (currentSlide < 0) currentSlide = slides.length - 1;
+        showSlide(currentSlide);
+      });
+
+      nextBtn.addEventListener('click', () => {
+        currentSlide++;
+        if (currentSlide >= slides.length) currentSlide = 0;
+        showSlide(currentSlide);
+      });
+
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          currentSlide = index;
+          showSlide(currentSlide);
+        });
+      });
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+          currentSlide--;
+          if (currentSlide < 0) currentSlide = slides.length - 1;
+          showSlide(currentSlide);
+        }
+        if (e.key === 'ArrowRight') {
+          currentSlide++;
+          if (currentSlide >= slides.length) currentSlide = 0;
+          showSlide(currentSlide);
+        }
+      });
+    }
+
+    // Lightbox setup
+    function setupLightbox(product) {
+      const lightbox = createLightboxModal();
+      const zoomBtn = document.querySelector('.carousel__zoom-btn');
+
+      zoomBtn.addEventListener('click', () => {
+        updateLightbox(lightbox, product);
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+    }
+
+    function createLightboxModal() {
+      let lightbox = document.getElementById('product-lightbox-modal');
+      if (lightbox) return lightbox;
+
+      lightbox = document.createElement('div');
+      lightbox.className = 'product-lightbox';
+      lightbox.id = 'product-lightbox-modal';
+      lightbox.innerHTML = `
+        <div class="product-lightbox__content">
+          <button class="product-lightbox__close-btn" aria-label="Fechar modal">
+            <i class="ti ti-x" aria-hidden="true"></i>
+          </button>
+          <div class="product-lightbox__image-container">
+            <img class="product-lightbox__image" src="" alt="">
+          </div>
+          <div class="product-lightbox__controls">
+            <button class="product-lightbox__nav-btn" id="lightbox-prev" aria-label="Imagem anterior">
+              <i class="ti ti-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button class="product-lightbox__nav-btn" id="lightbox-next" aria-label="Próxima imagem">
+              <i class="ti ti-chevron-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(lightbox);
+
+      const closeBtn = lightbox.querySelector('.product-lightbox__close-btn');
+      closeBtn.addEventListener('click', () => {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+      });
+
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) {
+          lightbox.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+          lightbox.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+
+      return lightbox;
+    }
+
+    function updateLightbox(lightbox, product) {
+      const img = lightbox.querySelector('.product-lightbox__image');
+      const prevBtn = lightbox.querySelector('#lightbox-prev');
+      const nextBtn = lightbox.querySelector('#lightbox-next');
+
+      img.src = product.imagens[currentSlide];
+      img.alt = `${product.nome} - Imagem ${currentSlide + 1}`;
+
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === product.imagens.length - 1;
+
+      prevBtn.onclick = () => {
+        if (currentSlide > 0) {
+          currentSlide--;
+          updateLightbox(lightbox, product);
+        }
+      };
+
+      nextBtn.onclick = () => {
+        if (currentSlide < product.imagens.length - 1) {
+          currentSlide++;
+          updateLightbox(lightbox, product);
+        }
+      };
+    }
+
+    // Mobile menu
+    const menuBtn = document.getElementById('menu-btn');
+    const mainNav = document.getElementById('main-nav');
+    menuBtn.addEventListener('click', () => {
+      const isOpen = mainNav.classList.toggle('nav--open');
+      menuBtn.setAttribute('aria-expanded', isOpen);
+      menuBtn.querySelector('i').className = isOpen ? 'ti ti-x' : 'ti ti-menu-2';
+    });
+    mainNav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mainNav.classList.remove('nav--open');
+        menuBtn.setAttribute('aria-expanded', false);
+        menuBtn.querySelector('i').className = 'ti ti-menu-2';
+      });
+    });
+
+    // Initialize
+    renderSidebar();
+    loadProduct(currentProductId);
+  </script>
+
+</body>
+</html>
