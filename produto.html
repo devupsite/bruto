@@ -866,39 +866,61 @@
       const nextBtn = document.querySelector('.carousel__button--next');
       const dots = document.querySelectorAll('.carousel__dot');
 
-      // Usar função arrow pra manter contexto
-      const prevClickHandler = () => {
+      // Limpar TODOS os event listeners antigos
+      const newPrevBtn = prevBtn.cloneNode(true);
+      const newNextBtn = nextBtn.cloneNode(true);
+      prevBtn.parentNode.replaceChild(newPrevBtn, prevBtn);
+      nextBtn.parentNode.replaceChild(newNextBtn, nextBtn);
+
+      // Referenciar os novos botões
+      const prevBtnNew = document.querySelector('.carousel__button--prev');
+      const nextBtnNew = document.querySelector('.carousel__button--next');
+
+      prevBtnNew.addEventListener('click', () => {
         currentSlide--;
         if (currentSlide < 0) currentSlide = slides.length - 1;
         showSlide(currentSlide);
-      };
+      });
 
-      const nextClickHandler = () => {
+      nextBtnNew.addEventListener('click', () => {
         currentSlide++;
         if (currentSlide >= slides.length) currentSlide = 0;
         showSlide(currentSlide);
-      };
+      });
 
-      // Remover listeners antigos (importante!)
-      prevBtn.removeEventListener('click', prevBtn._prevHandler);
-      nextBtn.removeEventListener('click', nextBtn._nextHandler);
+      // Limpar e readicionar dots
+      document.querySelectorAll('.carousel__dot').forEach((oldDot, index) => {
+        const newDot = oldDot.cloneNode(true);
+        oldDot.parentNode.replaceChild(newDot, oldDot);
+      });
 
-      // Adicionar novos listeners
-      prevBtn._prevHandler = prevClickHandler;
-      nextBtn._nextHandler = nextClickHandler;
-      
-      prevBtn.addEventListener('click', prevClickHandler);
-      nextBtn.addEventListener('click', nextClickHandler);
-
-      dots.forEach((dot, index) => {
-        dot.removeEventListener('click', dot._clickHandler);
-        const handler = () => {
+      document.querySelectorAll('.carousel__dot').forEach((dot, index) => {
+        dot.addEventListener('click', () => {
           currentSlide = index;
           showSlide(currentSlide);
-        };
-        dot._clickHandler = handler;
-        dot.addEventListener('click', handler);
+        });
       });
+
+      // Keyboard navigation (com verificação pra evitar duplicação)
+      const handleKeyboard = (e) => {
+        const slides = document.querySelectorAll('.carousel__slide');
+        if (e.key === 'ArrowLeft') {
+          currentSlide--;
+          if (currentSlide < 0) currentSlide = slides.length - 1;
+          showSlide(currentSlide);
+        }
+        if (e.key === 'ArrowRight') {
+          currentSlide++;
+          if (currentSlide >= slides.length) currentSlide = 0;
+          showSlide(currentSlide);
+        }
+      };
+
+      // Remover handler antigo
+      document.removeEventListener('keydown', window._carouselKeyHandler);
+      // Adicionar novo
+      window._carouselKeyHandler = handleKeyboard;
+      document.addEventListener('keydown', handleKeyboard);
     }
 
     // Lightbox setup
