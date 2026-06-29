@@ -701,7 +701,7 @@
     let currentProductId = getProductIdFromUrl();
     let currentSlide = 0;
 
-    // Função pra renderizar sidebar
+    // Função pra renderizar sidebar COM COLLAPSE
     function renderSidebar() {
       const sidebar = document.getElementById('product-sidebar');
       sidebar.innerHTML = '';
@@ -711,13 +711,35 @@
         const section = document.createElement('div');
         section.className = 'sidebar-section';
         
+        // Header colapsável
+        const header = document.createElement('div');
+        header.style.cssText = 'display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 0.5rem 0; margin-bottom: 0.8rem; border-bottom: 1px solid #ddd;';
+        
         const title = document.createElement('span');
         title.className = 'sidebar-title';
         title.textContent = categoryName;
-        section.appendChild(title);
+        title.style.margin = '0';
+        
+        const toggle = document.createElement('i');
+        toggle.className = 'ti ti-chevron-down';
+        toggle.style.cssText = 'font-size: 0.9rem; color: #666; transition: transform 0.3s;';
+        
+        header.appendChild(title);
+        header.appendChild(toggle);
+        section.appendChild(header);
 
         const list = document.createElement('ul');
         list.className = 'sidebar-list';
+        list.style.cssText = 'display: none; max-height: 0; overflow: hidden; transition: all 0.3s ease;';
+        
+        // Verificar se deve abrir esta categoria
+        const currentProduct = getProductById(currentProductId);
+        const isOpen = currentProduct && currentProduct.categoria === categoryName;
+        
+        if (isOpen) {
+          list.style.cssText = 'display: block; max-height: 1000px; overflow: visible; transition: all 0.3s ease;';
+          toggle.style.transform = 'rotate(180deg)';
+        }
         
         products.forEach(product => {
           const item = document.createElement('li');
@@ -736,6 +758,7 @@
           link.addEventListener('click', (e) => {
             e.preventDefault();
             currentProductId = product.id;
+            currentSlide = 0; // RESET slide counter
             const params = new URLSearchParams();
             params.set('id', product.id);
             window.history.pushState(null, '', `?${params.toString()}`);
@@ -748,6 +771,19 @@
         });
         
         section.appendChild(list);
+        
+        // Toggle ao clicar header
+        header.addEventListener('click', () => {
+          const isVisible = list.style.display === 'block';
+          if (isVisible) {
+            list.style.cssText = 'display: none; max-height: 0; overflow: hidden; transition: all 0.3s ease;';
+            toggle.style.transform = 'rotate(0deg)';
+          } else {
+            list.style.cssText = 'display: block; max-height: 1000px; overflow: visible; transition: all 0.3s ease;';
+            toggle.style.transform = 'rotate(180deg)';
+          }
+        });
+        
         sidebar.appendChild(section);
       });
     }
@@ -830,37 +866,38 @@
       const nextBtn = document.querySelector('.carousel__button--next');
       const dots = document.querySelectorAll('.carousel__dot');
 
-      prevBtn.addEventListener('click', () => {
+      // Usar função arrow pra manter contexto
+      const prevClickHandler = () => {
         currentSlide--;
         if (currentSlide < 0) currentSlide = slides.length - 1;
         showSlide(currentSlide);
-      });
+      };
 
-      nextBtn.addEventListener('click', () => {
+      const nextClickHandler = () => {
         currentSlide++;
         if (currentSlide >= slides.length) currentSlide = 0;
         showSlide(currentSlide);
-      });
+      };
+
+      // Remover listeners antigos (importante!)
+      prevBtn.removeEventListener('click', prevBtn._prevHandler);
+      nextBtn.removeEventListener('click', nextBtn._nextHandler);
+
+      // Adicionar novos listeners
+      prevBtn._prevHandler = prevClickHandler;
+      nextBtn._nextHandler = nextClickHandler;
+      
+      prevBtn.addEventListener('click', prevClickHandler);
+      nextBtn.addEventListener('click', nextClickHandler);
 
       dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
+        dot.removeEventListener('click', dot._clickHandler);
+        const handler = () => {
           currentSlide = index;
           showSlide(currentSlide);
-        });
-      });
-
-      // Keyboard navigation
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') {
-          currentSlide--;
-          if (currentSlide < 0) currentSlide = slides.length - 1;
-          showSlide(currentSlide);
-        }
-        if (e.key === 'ArrowRight') {
-          currentSlide++;
-          if (currentSlide >= slides.length) currentSlide = 0;
-          showSlide(currentSlide);
-        }
+        };
+        dot._clickHandler = handler;
+        dot.addEventListener('click', handler);
       });
     }
 
