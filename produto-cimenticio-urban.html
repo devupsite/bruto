@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BRUTO — Urban">
+  <title>Urban — BRUTO</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .carousel {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f5f5f5;
+    }
+
+    .carousel__viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+    }
+
+    .carousel__slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.4s ease-in-out;
+    }
+
+    .carousel__slide.active {
+      opacity: 1;
+    }
+
+    .carousel__slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel__controls {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.5rem;
+      z-index: 10;
+    }
+
+    .carousel__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .carousel__dot.active {
+      background: #fff;
+      width: 24px;
+      border-radius: 5px;
+    }
+
+    .carousel__button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.3);
+      border: none;
+      color: #fff;
+      width: 48px;
+      height: 48px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s ease;
+      z-index: 5;
+    }
+
+    .carousel__button:hover {
+      background: rgba(0,0,0,0.5);
+    }
+
+    .carousel__button--prev {
+      left: 1rem;
+    }
+
+    .carousel__button--next {
+      right: 1rem;
+    }
+
+    .product-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .product-info h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .product-info .sku {
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .product-info .price {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+
+    .product-info p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #555;
+      margin-bottom: 2rem;
+    }
+
+    .product-specs {
+      background: #f9f9f9;
+      padding: 2rem;
+      border-radius: 8px;
+      margin-top: 2rem;
+    }
+
+    .product-specs h3 {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .spec-item {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+    }
+
+    .spec-item strong {
+      color: #333;
+    }
+
+    .spec-item span {
+      color: #666;
+    }
+
+    .cta-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      padding: 1rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn--primary {
+      background: #333;
+      color: #fff;
+    }
+
+    .btn--primary:hover {
+      background: #555;
+    }
+
+    .btn--secondary {
+      background: transparent;
+      border: 2px solid #333;
+      color: #333;
+    }
+
+    .btn--secondary:hover {
+      background: #f0f0f0;
+    }
+
+    .breadcrumb {
+      margin-bottom: 2rem;
+    }
+
+    .breadcrumb a {
+      color: #888;
+      text-decoration: none;
+      margin-right: 0.5rem;
+    }
+
+    .breadcrumb a:hover {
+      color: #333;
+    }
+
+    @media (max-width: 768px) {
+      .product-header {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .product-info h1 {
+        font-size: 1.8rem;
+      }
+
+      .carousel__button {
+        width: 40px;
+        height: 40px;
+      }
+
+      .carousel__button--prev {
+        left: 0.5rem;
+      }
+
+      .carousel__button--next {
+        right: 0.5rem;
+      }
+
+      .cta-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════ -->
+  <header class="header">
+    <div class="wrap header__inner">
+      <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+        <span class="logo-box">
+          <svg class="logo-mark" viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill-rule="evenodd" d="M 0 0 L 72 0 L 72 58 L 80 58 L 80 120 L 0 120 Z M 22 10 L 64 10 L 64 50 L 22 50 Z M 22 68 L 70 68 L 70 112 L 22 112 Z"/>
+          </svg>
+        </span>
+        <span class="logo-divider" aria-hidden="true"></span>
+        <span class="logo-word">Bruto</span>
+      </a>
+
+      <nav class="nav" id="main-nav" aria-label="Navegação principal">
+        <a href="colecoes.html">Coleções</a>
+        <a href="blog.html">Blog</a>
+        <a href="index.html#projetos">Projetos</a>
+        <a href="index.html#sobre">Sobre</a>
+        <a href="index.html#amostra">Contato</a>
+      </nav>
+
+      <a href="index.html#amostra" class="btn btn--outline header__cta">Solicitar amostra</a>
+
+      <button class="burger" id="menu-btn" aria-label="Abrir menu" aria-expanded="false">
+        <i class="ti ti-menu-2" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+
+  <!-- ══════════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════════ -->
+  <main class="wrap" style="padding: 3rem 0;">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="colecoes.html">Coleções</a> /
+      <a href="colecoes.html#cimenticio">Cimentício</a> /
+      <span>Urban</span>
+    </div>
+
+    <!-- Product Header -->
+    <div class="product-header">
+      
+      <!-- Carousel -->
+      <div>
+        <div class="carousel">
+          <div class="carousel__viewport">
+                        <div class="carousel__slide active">
+              <img src="cimenticio-urban-frontal.webp" alt="Urban - Imagem 1" loading="lazy">
+            </div>
+
+          </div>
+          <div class="carousel__controls">
+                        <button class="carousel__dot active" aria-label="Imagem 1"></button>
+
+          </div>
+          <button class="carousel__button carousel__button--prev" aria-label="Imagem anterior">
+            <i class="ti ti-chevron-left"></i>
+          </button>
+          <button class="carousel__button carousel__button--next" aria-label="Próxima imagem">
+            <i class="ti ti-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-info">
+        <p class="sku">SKU 82</p>
+        <h1>Urban</h1>
+        <p class="price">R$ 169,90</p>
+        
+        <p>Cimentício Urban combina estética urbana contemporânea com acabamento robusto, ideal para fachadas modernas.</p>
+
+        <!-- Specifications -->
+        <div class="product-specs">
+          <h3>Especificações</h3>
+          <div class="spec-item">
+            <strong>Dimensões:</strong>
+            <span>240mm x 65mm x 12mm</span>
+          </div>
+          <div class="spec-item">
+            <strong>Acabamento:</strong>
+            <span>Texturizado</span>
+          </div>
+          <div class="spec-item">
+            <strong>Resistência:</strong>
+            <span>Classe A</span>
+          </div>
+          <div class="spec-item">
+            <strong>Aplicação:</strong>
+            <span>Interno e externo</span>
+          </div>
+          <div class="spec-item">
+            <strong>Ambientes:</strong>
+            <span>Fachada, Cozinha, Área gourmet</span>
+          </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="cta-buttons">
+          <a href="index.html#amostra" class="btn btn--primary">
+            <i class="ti ti-file-text"></i>
+            Solicitar orçamento
+          </a>
+          <a href="index.html#amostra" class="btn btn--secondary">
+            <i class="ti ti-brand-whatsapp"></i>
+            Falar com consultor
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__grid">
+        <div>
+          <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+            <span class="logo-box">
+              <svg class="logo-mark" viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path fill-rule="evenodd" d="M 0 0 L 72 0 L 72 58 L 80 58 L 80 120 L 0 120 Z M 22 10 L 64 10 L 64 50 L 22 50 Z M 22 68 L 70 68 L 70 112 L 22 112 Z"/>
+              </svg>
+            </span>
+            <span class="logo-divider" aria-hidden="true"></span>
+            <span class="logo-word">Bruto</span>
+          </a>
+          <p class="footer__tagline">
+            Curadoria de revestimentos artesanais para projetos de alta exigência.
+          </p>
+        </div>
+
+        <div>
+          <p class="footer__col-title">Coleções</p>
+          <nav class="footer__links" aria-label="Categorias de produtos">
+            <a href="colecoes.html#brick">Brick</a>
+            <a href="colecoes.html#cimenticio">Cimentício</a>
+            <a href="colecoes.html#rockface">Rockface</a>
+          </nav>
+        </div>
+
+        <div>
+          <p class="footer__col-title">Navegação</p>
+          <nav class="footer__links" aria-label="Links de navegação">
+            <a href="index.html#ambientes">Ambientes</a>
+            <a href="blog.html">Blog</a>
+            <a href="index.html#projetos">Projetos</a>
+            <a href="index.html#sobre">Sobre</a>
+            <a href="index.html#amostra">Amostra</a>
+          </nav>
+        </div>
+
+        <div>
+          <p class="footer__col-title">Contato</p>
+          <nav class="footer__links" aria-label="Informações de contato">
+            <a href="#">contato@bruto.com.br</a>
+            <a href="#">+55 11 0000-0000</a>
+            <a href="#">Instagram</a>
+            <a href="#">WhatsApp</a>
+          </nav>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2025 Bruto. Todos os direitos reservados.</p>
+        <div class="footer__bottom-links">
+          <a href="#">Privacidade</a>
+          <a href="#">Termos</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    // Mobile menu toggle
+    const menuBtn = document.getElementById('menu-btn');
+    const mainNav = document.getElementById('main-nav');
+    menuBtn.addEventListener('click', () => {
+      const isOpen = mainNav.classList.toggle('nav--open');
+      menuBtn.setAttribute('aria-expanded', isOpen);
+      menuBtn.querySelector('i').className = isOpen ? 'ti ti-x' : 'ti ti-menu-2';
+    });
+    mainNav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mainNav.classList.remove('nav--open');
+        menuBtn.setAttribute('aria-expanded', false);
+        menuBtn.querySelector('i').className = 'ti ti-menu-2';
+      });
+    });
+
+    // Carousel functionality
+    const slides = document.querySelectorAll('.carousel__slide');
+    const dots = document.querySelectorAll('.carousel__dot');
+    const prevBtn = document.querySelector('.carousel__button--prev');
+    const nextBtn = document.querySelector('.carousel__button--next');
+    let currentSlide = 0;
+
+    function showSlide(n) {
+      slides.forEach(slide => slide.classList.remove('active'));
+      dots.forEach(dot => dot.classList.remove('active'));
+      
+      slides[n].classList.add('active');
+      dots[n].classList.add('active');
+      currentSlide = n;
+    }
+
+    function nextSlide() {
+      const n = (currentSlide + 1) % slides.length;
+      showSlide(n);
+    }
+
+    function prevSlide() {
+      const n = (currentSlide - 1 + slides.length) % slides.length;
+      showSlide(n);
+    }
+
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => showSlide(index));
+    });
+
+    // Initialize first slide
+    showSlide(0);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key === 'ArrowRight') nextSlide();
+    });
+  </script>
+
+</body>
+</html>
