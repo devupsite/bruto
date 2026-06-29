@@ -567,7 +567,7 @@
       .burger { display: block; }
       .header__cta { display: none; }
 
-      .grid-4 { grid-template-columns: 1fr; }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
       .proj-col { flex-direction: column; }
       .grid-3 { grid-template-columns: 1fr; }
 
