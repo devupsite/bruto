@@ -934,21 +934,20 @@
       img.src = product.imagens[currentSlide];
       img.alt = `${product.nome} - Imagem ${currentSlide + 1}`;
 
-      prevBtn.disabled = currentSlide === 0;
-      nextBtn.disabled = currentSlide === product.imagens.length - 1;
+      // Loop infinito - nunca desabilita os botões
+      prevBtn.disabled = false;
+      nextBtn.disabled = false;
 
       prevBtn.onclick = () => {
-        if (currentSlide > 0) {
-          currentSlide--;
-          updateLightbox(lightbox, product);
-        }
+        currentSlide--;
+        if (currentSlide < 0) currentSlide = product.imagens.length - 1;
+        updateLightbox(lightbox, product);
       };
 
       nextBtn.onclick = () => {
-        if (currentSlide < product.imagens.length - 1) {
-          currentSlide++;
-          updateLightbox(lightbox, product);
-        }
+        currentSlide++;
+        if (currentSlide >= product.imagens.length) currentSlide = 0;
+        updateLightbox(lightbox, product);
       };
     }
 
