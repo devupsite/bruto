@@ -105,6 +105,139 @@
       right: 1rem;
     }
 
+    /* Botão zoom carousel */
+    .carousel__zoom-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all .3s ease;
+      z-index: 10;
+    }
+
+    .carousel__zoom-btn:hover {
+      background: rgba(0, 0, 0, 0.7);
+      transform: scale(1.05);
+    }
+
+    /* Modal lightbox para produto */
+    .product-lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1001;
+      animation: fadeInModal .3s ease;
+      overflow-y: auto;
+    }
+
+    .product-lightbox.active {
+      display: flex;
+    }
+
+    @keyframes fadeInModal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .product-lightbox__content {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .product-lightbox__image-container {
+      position: relative;
+      max-width: 90vw;
+      max-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .product-lightbox__image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 4px;
+      animation: zoomInImage .3s ease;
+    }
+
+    @keyframes zoomInImage {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .product-lightbox__close-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      width: 44px;
+      height: 44px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s ease;
+    }
+
+    .product-lightbox__close-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .product-lightbox__controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .product-lightbox__nav-btn {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      width: 44px;
+      height: 44px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all .2s ease;
+    }
+
+    .product-lightbox__nav-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .product-lightbox__nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
     .product-header {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -321,6 +454,9 @@
           <button class="carousel__button carousel__button--next" aria-label="Próxima imagem">
             <i class="ti ti-chevron-right"></i>
           </button>
+          <button class="carousel__zoom-btn" aria-label="Expandir imagem" title="Expandir imagem">
+            <i class="ti ti-zoom-in"></i>
+          </button>
         </div>
       </div>
 
@@ -459,6 +595,7 @@
     const dots = document.querySelectorAll('.carousel__dot');
     const prevBtn = document.querySelector('.carousel__button--prev');
     const nextBtn = document.querySelector('.carousel__button--next');
+    const zoomBtn = document.querySelector('.carousel__zoom-btn');
     let currentSlide = 0;
 
     function showSlide(n) {
@@ -494,6 +631,100 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft') prevSlide();
       if (e.key === 'ArrowRight') nextSlide();
+    });
+
+    // Lightbox modal para produto
+    function createProductLightbox() {
+      const modal = document.createElement('div');
+      modal.className = 'product-lightbox';
+      modal.id = 'product-lightbox';
+      modal.innerHTML = `
+        <div class="product-lightbox__content">
+          <button class="product-lightbox__close-btn" aria-label="Fechar modal">
+            <i class="ti ti-x" aria-hidden="true"></i>
+          </button>
+          <div class="product-lightbox__image-container">
+            <img class="product-lightbox__image" src="" alt="">
+          </div>
+          <div class="product-lightbox__controls">
+            <button class="product-lightbox__nav-btn" id="lightbox-prev" aria-label="Imagem anterior">
+              <i class="ti ti-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button class="product-lightbox__nav-btn" id="lightbox-next" aria-label="Próxima imagem">
+              <i class="ti ti-chevron-right" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      return modal;
+    }
+
+    const productLightbox = createProductLightbox();
+    const lightboxImage = productLightbox.querySelector('.product-lightbox__image');
+    const lightboxPrevBtn = productLightbox.querySelector('#lightbox-prev');
+    const lightboxNextBtn = productLightbox.querySelector('#lightbox-next');
+    const lightboxCloseBtn = productLightbox.querySelector('.product-lightbox__close-btn');
+
+    // Get all slide images
+    const slideImages = Array.from(slides).map((slide, index) => ({
+      src: slide.querySelector('img').src,
+      alt: slide.querySelector('img').alt,
+      index: index
+    }));
+
+    function updateProductLightbox() {
+      const current = slideImages[currentSlide];
+      lightboxImage.src = current.src;
+      lightboxImage.alt = current.alt;
+      lightboxPrevBtn.disabled = currentSlide === 0;
+      lightboxNextBtn.disabled = currentSlide === slideImages.length - 1;
+    }
+
+    function openProductLightbox() {
+      updateProductLightbox();
+      productLightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeProductLightbox() {
+      productLightbox.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Zoom button
+    zoomBtn.addEventListener('click', openProductLightbox);
+
+    // Close button
+    lightboxCloseBtn.addEventListener('click', closeProductLightbox);
+
+    // Navigation in lightbox
+    lightboxPrevBtn.addEventListener('click', () => {
+      if (currentSlide > 0) {
+        prevSlide();
+        updateProductLightbox();
+      }
+    });
+
+    lightboxNextBtn.addEventListener('click', () => {
+      if (currentSlide < slideImages.length - 1) {
+        nextSlide();
+        updateProductLightbox();
+      }
+    });
+
+    // Close with ESC
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && productLightbox.classList.contains('active')) {
+        closeProductLightbox();
+      }
+    });
+
+    // Close on background click
+    productLightbox.addEventListener('click', (e) => {
+      if (e.target === productLightbox) {
+        closeProductLightbox();
+      }
     });
   </script>
 
