@@ -1,0 +1,417 @@
+{
+  "produtos": [
+    {
+      "id": "brick-branco-rose",
+      "nome": "Branco Rosé",
+      "categoria": "brick",
+      "sku": "56",
+      "preco": "139,90",
+      "descricao": "Tons de branco com nuances rosadas — leveza e luminosidade.",
+      "detalhes": "Revestimento cerâmico artesanal com tons brancos e rosados, selecionado para ambientes sofisticados. Cada peça é batida à mão e retificada individualmente, garantindo precisão no acabamento.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Natural",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Sala de estar, Dormitório, Cozinha"
+      },
+      "imagens": [
+        "brick-branco-rose-frontal.webp",
+        "brick-branco-rose-frontal-1.webp",
+        "brick-branco-rose-frontal-2.webp",
+        "brick-branco-rose-frontal-3.webp"
+      ]
+    },
+    {
+      "id": "brick-eco-palha",
+      "nome": "Eco Palha",
+      "categoria": "brick",
+      "sku": "57",
+      "preco": "139,90",
+      "descricao": "Tom palha claro, com pontos minerais naturais.",
+      "detalhes": "Brick Eco Palha oferece um tom palha claro com pontos minerais naturais característicos. Ideal para projetos que buscam acabamento artesanal com neutralidade de cor.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Natural",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Sala de estar, Cozinha, Varanda"
+      },
+      "imagens": [
+        "brick-eco-palha-frontal.webp",
+        "brick-eco-palha-frontal-1.webp",
+        "brick-eco-palha-frontal-2.webp",
+        "brick-eco-palha-frontal-3.webp",
+        "brick-eco-palha-frontal-4.webp",
+        "brick-eco-palha-frontal-5.webp"
+      ]
+    },
+    {
+      "id": "brick-lumus",
+      "nome": "Lumus",
+      "categoria": "brick",
+      "sku": "73",
+      "preco": "149,90",
+      "descricao": "Mescla de tons terrosos com nuances acinzentadas.",
+      "detalhes": "Brick Lumus combina tons terrosos com nuances acinzentadas, criando profundidade visual. Perfeito para projetos que exigem sofisticação e caráter.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Natural",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Sala de estar, Cozinha, Área gourmet"
+      },
+      "imagens": [
+        "brick-lumus-frontal.webp",
+        "brick-lumus-frontal-1.webp",
+        "brick-lumus-frontal-2.webp",
+        "brick-lumus-frontal-3.webp",
+        "brick-lumus-frontal-4.webp",
+        "brick-lumus-frontal-5.webp"
+      ]
+    },
+    {
+      "id": "brick-mescla-prime",
+      "nome": "Mescla Prime",
+      "categoria": "brick",
+      "sku": "54",
+      "preco": "139,90",
+      "descricao": "Mesclas escuras sobre base terrosa — profundidade em cada peça.",
+      "detalhes": "Brick Mescla Prime apresenta mesclas escuras sobre base terrosa, oferecendo profundidade visual única. Cada peça mantém característica artesanal.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Natural",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Sala de estar, Escritório, Cozinha"
+      },
+      "imagens": [
+        "brick-mescla-prime-frontal.webp",
+        "brick-mescla-prime-frontal-1.webp",
+        "brick-mescla-prime-frontal-2.webp",
+        "brick-mescla-prime-frontal-3.webp"
+      ]
+    },
+    {
+      "id": "brick-natura",
+      "nome": "Natura",
+      "categoria": "brick",
+      "sku": "48",
+      "preco": "94,90",
+      "descricao": "Terracota uniforme, extrudada e queimada a 950°C. Promoção especial.",
+      "detalhes": "Brick Natura é terracota uniforme, extrudada industrialmente e queimada a 950°C, garantindo alta resistência e consistência. Promoção especial com excelente custo-benefício.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Natural",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Área externa, Garagem, Fachada"
+      },
+      "imagens": [
+        "brick-natura-frontal.webp",
+        "brick-natura-frontal-1.webp",
+        "brick-natura-frontal-2.webp",
+        "brick-natura-frontal-3.webp",
+        "brick-natura-frontal-4.webp"
+      ]
+    },
+    {
+      "id": "brick-rosso-prime",
+      "nome": "Rosso Prime",
+      "categoria": "brick",
+      "sku": "53",
+      "preco": "129,90",
+      "descricao": "Vermelho terracota uniforme — o mais vendido da linha.",
+      "detalhes": "Brick Rosso Prime é o mais vendido da linha, oferecendo vermelho terracota uniforme com versatilidade comprovada. Ideal para projetos residenciais e comerciais.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Natural",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Fachada, Varanda, Área gourmet"
+      },
+      "imagens": [
+        "brick-rosso-prime-frontal.webp",
+        "brick-rosso-prime-frontal-1.webp",
+        "brick-rosso-prime-frontal-2.webp",
+        "brick-rosso-prime-frontal-3.webp",
+        "brick-rosso-prime-frontal-4.webp",
+        "brick-rosso-prime-frontal-5.webp"
+      ]
+    },
+    {
+      "id": "brick-rusticatto-sertao",
+      "nome": "Rusticatto do Sertão",
+      "categoria": "brick",
+      "sku": "61",
+      "preco": "149,90",
+      "descricao": "Laranja claro, textura alta e acabamento artesanal exclusivo.",
+      "detalhes": "Brick Rusticatto do Sertão combina laranja claro com textura alta, oferecendo acabamento artesanal exclusivo. Ideal para projetos que exigem caráter e personalidade.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Rústico alto",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Fachada, Área gourmet, Cozinha"
+      },
+      "imagens": [
+        "brick-rusticatto-sertao-frontal.webp",
+        "brick-rusticatto-sertao-frontal-1.webp",
+        "brick-rusticatto-sertao-frontal-2.webp",
+        "brick-rusticatto-sertao-frontal-3.webp",
+        "brick-rusticatto-sertao-frontal-4.webp"
+      ]
+    },
+    {
+      "id": "brick-rusticatto-fume",
+      "nome": "Rusticatto Fumê",
+      "categoria": "brick",
+      "sku": "72",
+      "preco": "169,90",
+      "descricao": "Extra rústico, tonalidade fumê escura e marcante.",
+      "detalhes": "Brick Rusticatto Fumê é extra rústico com tonalidade fumê escura, criando impacto visual marcante. Perfeito para fachadas de destaque.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Rústico muito alto",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Fachada principal, Entrada"
+      },
+      "imagens": [
+        "brick-rusticatto-fume-frontal.webp",
+        "brick-rusticatto-fume-frontal-1.webp",
+        "brick-rusticatto-fume-frontal-2.webp",
+        "brick-rusticatto-fume-frontal-3.webp",
+        "brick-rusticatto-fume-frontal-4.webp",
+        "brick-rusticatto-fume-frontal-5.webp"
+      ]
+    },
+    {
+      "id": "brick-rusticatto-rosso",
+      "nome": "Rusticatto Rosso",
+      "categoria": "brick",
+      "sku": "77",
+      "preco": "144,90",
+      "descricao": "Vermelho intenso, textura irregular e expressiva.",
+      "detalhes": "Brick Rusticatto Rosso oferece vermelho intenso com textura irregular e expressiva, ideal para projetos que buscam destaque.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Rústico alto",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Fachada, Área gourmet"
+      },
+      "imagens": [
+        "brick-rusticatto-rosso-frontal.webp",
+        "brick-rusticatto-rosso-frontal-1.webp",
+        "brick-rusticatto-rosso-frontal-2.webp",
+        "brick-rusticatto-rosso-frontal-3.webp"
+      ]
+    },
+    {
+      "id": "brick-rusticatto-terra-negra",
+      "nome": "Rusticatto Terra Negra",
+      "categoria": "brick",
+      "sku": "60",
+      "preco": "179,90",
+      "descricao": "Tonalidade escura, inspirada nos tijolos de demolição europeus.",
+      "detalhes": "Brick Rusticatto Terra Negra traz tonalidade escura inspirada em tijolos de demolição europeus, oferecendo sofisticação e história.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Rústico muito alto",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Fachada, Sala de estar moderna"
+      },
+      "imagens": [
+        "brick-rusticatto-terra-negra-frontal.webp",
+        "brick-rusticatto-terra-negra-frontal-1.webp",
+        "brick-rusticatto-terra-negra-frontal-2.webp",
+        "brick-rusticatto-terra-negra-frontal-3.webp",
+        "brick-rusticatto-terra-negra-frontal-4.webp",
+        "brick-rusticatto-terra-negra-frontal-5.webp"
+      ]
+    },
+    {
+      "id": "brick-terra-cerrado",
+      "nome": "Terra do Cerrado",
+      "categoria": "brick",
+      "sku": "47",
+      "preco": "134,90",
+      "descricao": "Mescla de laranja, vermelho e terroso — paginação única.",
+      "detalhes": "Brick Terra do Cerrado oferece mescla única de laranja, vermelho e tons terrosos, criando paginação visual acolhedora.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Natural",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Sala de estar, Cozinha, Varanda"
+      },
+      "imagens": [
+        "brick-terra-cerrado-frontal.webp",
+        "brick-terra-cerrado-frontal-1.webp",
+        "brick-terra-cerrado-frontal-2.webp",
+        "brick-terra-cerrado-frontal-3.webp"
+      ]
+    },
+    {
+      "id": "brick-vulcano",
+      "nome": "Vulcano",
+      "categoria": "brick",
+      "sku": "59",
+      "preco": "149,90",
+      "descricao": "Mescla de tons terrosos com nuances acinzentadas.",
+      "detalhes": "Brick Vulcano combina tons terrosos com nuances acinzentadas, oferecendo versatilidade para projetos residenciais e comerciais.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Natural",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Fachada, Sala de estar, Cozinha"
+      },
+      "imagens": [
+        "brick-vulcano-frontal.webp",
+        "brick-vulcano-frontal-1.webp",
+        "brick-vulcano-frontal-2.webp",
+        "brick-vulcano-frontal-3.webp",
+        "brick-vulcano-frontal-4.webp",
+        "brick-vulcano-frontal-5.webp",
+        "brick-vulcano-frontal-6.webp",
+        "brick-vulcano-frontal-7.webp"
+      ]
+    },
+    {
+      "id": "cimenticio-alpino",
+      "nome": "Alpino",
+      "categoria": "cimenticio",
+      "sku": "80",
+      "preco": "169,90",
+      "descricao": "Estética contemporânea cinzento claro para projetos residenciais e comerciais.",
+      "detalhes": "Cimentício Alpino oferece estética contemporânea em tons cinzento claro, perfeito para projetos modernos que exigem limpeza visual.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Liso",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Banheiro, Cozinha moderna, Fachada"
+      },
+      "imagens": [
+        "cimenticio-alpino-frontal.webp"
+      ]
+    },
+    {
+      "id": "cimenticio-grigio",
+      "nome": "Grigio",
+      "categoria": "cimenticio",
+      "sku": "81",
+      "preco": "169,90",
+      "descricao": "Estética contemporânea cinzento para projetos residenciais e comerciais.",
+      "detalhes": "Cimentício Grigio oferece estética contemporânea em tons cinzento médio, com acabamento industrial sofisticado.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Liso",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Banheiro, Cozinha moderna, Escritório"
+      },
+      "imagens": [
+        "cimenticio-grigio-frontal.webp"
+      ]
+    },
+    {
+      "id": "cimenticio-urban",
+      "nome": "Urban",
+      "categoria": "cimenticio",
+      "sku": "82",
+      "preco": "169,90",
+      "descricao": "Estética urbana e contemporânea com acabamento robusto.",
+      "detalhes": "Cimentício Urban combina estética urbana contemporânea com acabamento robusto, ideal para fachadas modernas.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Texturizado",
+        "resistencia": "Classe A",
+        "aplicacao": "Interno e externo",
+        "ambiente": "Fachada, Cozinha, Área gourmet"
+      },
+      "imagens": [
+        "cimenticio-urban-frontal.webp"
+      ]
+    },
+    {
+      "id": "rockface-brisa",
+      "nome": "Brisa",
+      "categoria": "rockface",
+      "sku": "90",
+      "preco": "169,90",
+      "descricao": "Acabamento contemporâneo com textura de pedra natural.",
+      "detalhes": "Rockface Brisa oferece acabamento contemporâneo com textura de pedra natural, perfeito para fachadas sofisticadas.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Texturizado",
+        "resistencia": "Classe A",
+        "aplicacao": "Externo",
+        "ambiente": "Fachada principal"
+      },
+      "imagens": [
+        "rockface-brisa-frontal.webp"
+      ]
+    },
+    {
+      "id": "rockface-alpino",
+      "nome": "Alpino",
+      "categoria": "rockface",
+      "sku": "91",
+      "preco": "229,90",
+      "descricao": "Ótimo custo-benefício, instalação prática e aparência natural.",
+      "detalhes": "Rockface Alpino oferece versão texturizada com custo-benefício otimizado e aparência de pedra natural autêntica.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Texturizado pedra",
+        "resistencia": "Classe A",
+        "aplicacao": "Externo",
+        "ambiente": "Fachada, Parede de destaque"
+      },
+      "imagens": [
+        "rockface-alpino-frontal.webp"
+      ]
+    },
+    {
+      "id": "rockface-grigio",
+      "nome": "Grigio",
+      "categoria": "rockface",
+      "sku": "92",
+      "preco": "229,90",
+      "descricao": "Ótimo custo-benefício, instalação prática e aparência natural.",
+      "detalhes": "Rockface Grigio oferece cinzento texturizado com profundidade visual natural e excelente custo-benefício.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Texturizado pedra",
+        "resistencia": "Classe A",
+        "aplicacao": "Externo",
+        "ambiente": "Fachada, Parede de destaque"
+      },
+      "imagens": [
+        "rockface-grigio-frontal.webp"
+      ]
+    },
+    {
+      "id": "rockface-urban",
+      "nome": "Urban",
+      "categoria": "rockface",
+      "sku": "93",
+      "preco": "229,90",
+      "descricao": "Ótimo custo-benefício, instalação prática e aparência natural.",
+      "detalhes": "Rockface Urban oferece texturização urbana com custo-benefício otimizado e resultado diferenciado.",
+      "especificacoes": {
+        "dimensoes": "240mm x 65mm x 12mm",
+        "acabamento": "Texturizado pedra",
+        "resistencia": "Classe A",
+        "aplicacao": "Externo",
+        "ambiente": "Fachada, Parede de destaque"
+      },
+      "imagens": [
+        "rockface-urban-frontal.webp"
+      ]
+    }
+  ]
+}
