@@ -207,7 +207,7 @@ const produtosData = {
       resistencia: 'Classe A',
       aplicacao: 'Interno e externo',
       ambientes: 'Sala de estar, Escritório, Fachada',
-      imagens: ['cimenticio-alpino-frontal.webp', 'cimenticio-alpino-frontal-.webp'],
+      imagens: ['cimenticio-alpino-frontal.webp', 'cimenticio-alpino-frontal-1.webp', 'cimenticio-alpino-frontal-2.webp', 'cimenticio-alpino-frontal-3.webp'],
       arquivo: 'produto-cimenticio-alpino.html'
     },
     {
@@ -223,7 +223,7 @@ const produtosData = {
       resistencia: 'Classe A',
       aplicacao: 'Interno e externo',
       ambientes: 'Sala de estar, Escritório, Fachada',
-      imagens: ['cimenticio-grigio-frontal.webp', 'cimenticio-grigio-frontal-.webp'],
+      imagens: ['cimenticio-grigio-frontal.webp', 'cimenticio-grigio-frontal-1.webp', 'cimenticio-grigio-frontal-2.webp', 'cimenticio-grigio-frontal-3.webp'],
       arquivo: 'produto-cimenticio-grigio.html'
     },
     {
@@ -239,7 +239,7 @@ const produtosData = {
       resistencia: 'Classe A',
       aplicacao: 'Interno e externo',
       ambientes: 'Sala de estar, Escritório, Fachada',
-      imagens: ['cimenticio-urban-frontal.webp', 'cimenticio-urban-frontal-.webp'],
+      imagens: ['cimenticio-urban-frontal.webp', 'cimenticio-urban-frontal-1.webp', 'cimenticio-urban-frontal-2.webp', 'cimenticio-urban-frontal-3.webp'],
       arquivo: 'produto-cimenticio-urban.html'
     }
   ],
@@ -257,7 +257,7 @@ const produtosData = {
       resistencia: 'Classe A',
       aplicacao: 'Interno e externo',
       ambientes: 'Fachada, Parede externa, Destaque',
-      imagens: ['rockface-brisa-frontal.webp', 'rockface-brisa-frontal-.webp'],
+      imagens: ['rockface-brisa-frontal.webp', 'rockface-brisa-frontal-1.webp', 'rockface-brisa-frontal-2.webp', 'rockface-brisa-frontal-3.webp'],
       arquivo: 'produto-rockface-brisa.html'
     },
     {
