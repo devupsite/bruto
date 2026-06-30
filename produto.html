@@ -849,13 +849,14 @@
     function showSlide(n) {
       const slides = document.querySelectorAll('.carousel__slide');
       const dots = document.querySelectorAll('.carousel__dot');
-      
-      if (n >= slides.length) currentSlide = 0;
-      if (n < 0) currentSlide = slides.length - 1;
-      
+
+      currentSlide = n;
+      if (currentSlide >= slides.length) currentSlide = 0;
+      if (currentSlide < 0) currentSlide = slides.length - 1;
+
       slides.forEach(slide => slide.classList.remove('active'));
       dots.forEach(dot => dot.classList.remove('active'));
-      
+
       slides[currentSlide].classList.add('active');
       dots[currentSlide].classList.add('active');
     }
@@ -1033,3 +1034,4 @@
 
 </body>
 </html>
+
