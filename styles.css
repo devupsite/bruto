@@ -676,6 +676,7 @@
     .item-card__img--photo {
       display: block;
       width: 100%;
+      height: auto;
       aspect-ratio: 4 / 3;
       object-fit: cover;
       border: 1px solid var(--line);
