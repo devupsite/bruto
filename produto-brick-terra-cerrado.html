@@ -538,7 +538,7 @@
       <div class="product-info">
         <p class="sku">SKU 47</p>
         <h1>Terra do Cerrado</h1>
-        <p class="price">R$ 134,90</p>
+        <p class="price">R$ 134,90<span class="price__unit"> /m²</span></p>
         
         <p>Brick Terra do Cerrado oferece mescla única de laranja, vermelho e tons terrosos, criando paginação visual acolhedora.</p>
 
@@ -567,6 +567,36 @@
           </div>
         </div>
 
+
+        <!-- Calculadora de m² -->
+        <div class="calc">
+          <p class="calc__label"><i class="ti ti-ruler-2" aria-hidden="true"></i> Calculadora de quantidade</p>
+          <div class="calc__inputs">
+            <div class="calc__field">
+              <label for="calc-larg">Largura (m)</label>
+              <input type="number" id="calc-larg" min="0" step="0.01" placeholder="ex: 3.5">
+            </div>
+            <span class="calc__x">×</span>
+            <div class="calc__field">
+              <label for="calc-alt">Altura (m)</label>
+              <input type="number" id="calc-alt" min="0" step="0.01" placeholder="ex: 2.8">
+            </div>
+          </div>
+          <label class="calc__perda">
+            <input type="checkbox" id="calc-perda" checked>
+            Incluir 10% de perda e cortes
+          </label>
+          <div class="calc__result" id="calc-result" hidden>
+            <div class="calc__stat">
+              <span class="calc__stat-val" id="calc-m2">—</span>
+              <span class="calc__stat-key">m² necessários</span>
+            </div>
+            <div class="calc__stat">
+              <span class="calc__stat-val" id="calc-total">—</span>
+              <span class="calc__stat-key">valor estimado</span>
+            </div>
+          </div>
+        </div>
         <!-- CTA Buttons -->
         <div class="cta-buttons">
           <a href="index.html#amostra" class="btn btn--primary">
@@ -808,6 +838,30 @@
         const dx = e.changedTouches[0].clientX - tsX;
         if (Math.abs(dx) > 50) { dx < 0 ? goNext() : goPrev(); }
       }, { passive: true });
+    })();
+    // Calculadora m²
+    (function() {
+      var priceEl = document.querySelector('.price');
+      var rawPrice = priceEl ? priceEl.textContent.replace(/[^0-9,]/g,'').replace(',','.') : '0';
+      var pricePerM2 = parseFloat(rawPrice) || 0;
+
+      function recalc() {
+        var larg = parseFloat(document.getElementById('calc-larg').value) || 0;
+        var alt  = parseFloat(document.getElementById('calc-alt').value)  || 0;
+        if (!larg || !alt) { document.getElementById('calc-result').hidden = true; return; }
+        var area = larg * alt;
+        var perda = document.getElementById('calc-perda').checked ? 1.10 : 1.00;
+        var total = area * perda;
+        var custo = total * pricePerM2;
+        document.getElementById('calc-m2').textContent    = total.toFixed(2).replace('.',',') + ' m²';
+        document.getElementById('calc-total').textContent = 'R$ ' + custo.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('calc-result').hidden = false;
+      }
+
+      ['calc-larg','calc-alt','calc-perda'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('input', recalc);
+      });
     })();
   </script>
 

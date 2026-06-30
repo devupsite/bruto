@@ -1099,3 +1099,118 @@
       .article-footer-cta .btn { width: 100%; justify-content: center; }
     }
 
+
+    /* ════════════════════════════════════════════
+       PREÇO / M² — produto
+    ════════════════════════════════════════════ */
+    .price__unit {
+      font-size: .65em;
+      font-weight: 400;
+      color: var(--concreto);
+      letter-spacing: 0;
+    }
+
+    /* ════════════════════════════════════════════
+       CALCULADORA DE M² — produto
+    ════════════════════════════════════════════ */
+    .calc {
+      margin-top: 2rem;
+      padding: 20px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+    }
+
+    .calc__label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ferro);
+      margin-bottom: 16px !important;
+    }
+
+    .calc__inputs {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .calc__field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .calc__field label {
+      font-size: 12px;
+      color: var(--concreto);
+    }
+
+    .calc__field input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      background: var(--argamassa);
+      font-family: var(--f-body);
+      font-size: 14px;
+      color: var(--ferro);
+      outline: none;
+      -moz-appearance: textfield;
+    }
+    .calc__field input::-webkit-outer-spin-button,
+    .calc__field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .calc__field input:focus { border-color: var(--ferro); }
+
+    .calc__x {
+      font-size: 18px;
+      color: var(--concreto);
+      padding-bottom: 10px;
+      flex-shrink: 0;
+    }
+
+    .calc__perda {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--concreto);
+      cursor: pointer;
+    }
+    .calc__perda input { accent-color: var(--ferro); cursor: pointer; }
+
+    .calc__result {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      margin-top: 16px;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+
+    .calc__stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px 10px;
+      background: var(--argamassa);
+    }
+
+    .calc__stat-val {
+      font-family: var(--f-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ferro);
+    }
+
+    .calc__stat-key {
+      font-size: 11px;
+      color: var(--concreto);
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
