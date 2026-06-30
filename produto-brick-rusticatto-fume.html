@@ -130,112 +130,112 @@
       transform: scale(1.05);
     }
 
-    /* Modal lightbox para produto */
+    /* ── Lightbox ────────────────────────────────── */
     .product-lightbox {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.95);
+      background: rgba(0,0,0,.96);
       z-index: 1001;
-      animation: fadeInModal .3s ease;
-      overflow-y: auto;
+      align-items: center;
+      justify-content: center;
+      animation: fadeInModal .25s ease;
     }
-
-    .product-lightbox.active {
-      display: flex;
-    }
+    .product-lightbox.active { display: flex; }
 
     @keyframes fadeInModal {
       from { opacity: 0; }
-      to { opacity: 1; }
+      to   { opacity: 1; }
     }
 
-    .product-lightbox__content {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .product-lightbox__image-container {
+    /* Imagem centralizada */
+    .product-lightbox__img-wrap {
       position: relative;
-      max-width: 90vw;
-      max-height: 80vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
+      width: 100vw;
+      height: 100dvh;
+      padding: 64px 72px;
+      box-sizing: border-box;
     }
-
     .product-lightbox__image {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
-      border-radius: 4px;
-      animation: zoomInImage .3s ease;
+      display: block;
+      user-select: none;
+      animation: lbZoom .25s ease;
+    }
+    @keyframes lbZoom {
+      from { opacity: 0; transform: scale(.96); }
+      to   { opacity: 1; transform: scale(1); }
     }
 
-    @keyframes zoomInImage {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
+    /* Fechar */
     .product-lightbox__close-btn {
-      position: absolute;
+      position: fixed;
       top: 16px;
       right: 16px;
-      background: rgba(255, 255, 255, 0.15);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.25);
       width: 44px;
       height: 44px;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 24px;
+      font-size: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all .2s ease;
+      transition: background .2s;
+      z-index: 10;
     }
+    .product-lightbox__close-btn:hover { background: rgba(255,255,255,.25); }
 
-    .product-lightbox__close-btn:hover {
-      background: rgba(255, 255, 255, 0.25);
-      border-color: rgba(255, 255, 255, 0.5);
-    }
-
-    .product-lightbox__controls {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      width: 100%;
-    }
-
+    /* Setas laterais */
     .product-lightbox__nav-btn {
-      background: rgba(255, 255, 255, 0.15);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      width: 44px;
-      height: 44px;
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.25);
+      width: 48px;
+      height: 48px;
       border-radius: 4px;
       cursor: pointer;
+      font-size: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
-      transition: all .2s ease;
+      transition: background .2s;
+      z-index: 10;
+    }
+    .product-lightbox__nav-btn:hover:not(:disabled) { background: rgba(255,255,255,.28); }
+    .product-lightbox__nav-btn:disabled { opacity: .25; cursor: default; pointer-events: none; }
+    #lightbox-prev { left: 16px; }
+    #lightbox-next { right: 16px; }
+
+    /* Contador */
+    .product-lightbox__counter {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,.6);
+      font-size: 12px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-family: inherit;
+      pointer-events: none;
     }
 
-    .product-lightbox__nav-btn:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.25);
-      border-color: rgba(255, 255, 255, 0.5);
-    }
-
-    .product-lightbox__nav-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
+    @media (max-width: 600px) {
+      .product-lightbox__img-wrap { padding: 56px 16px 48px; }
+      .product-lightbox__nav-btn { width: 40px; height: 40px; font-size: 18px; }
+      #lightbox-prev { left: 8px; }
+      #lightbox-next { right: 8px; }
     }
 
     .product-header {
@@ -729,98 +729,94 @@
     });
 
     // Lightbox modal para produto
-    function createProductLightbox() {
-      const modal = document.createElement('div');
-      modal.className = 'product-lightbox';
-      modal.id = 'product-lightbox';
-      modal.innerHTML = `
-        <div class="product-lightbox__content">
-          <button class="product-lightbox__close-btn" aria-label="Fechar modal">
-            <i class="ti ti-x" aria-hidden="true"></i>
-          </button>
-          <div class="product-lightbox__image-container">
-            <img class="product-lightbox__image" src="" alt="">
-          </div>
-          <div class="product-lightbox__controls">
-            <button class="product-lightbox__nav-btn" id="lightbox-prev" aria-label="Imagem anterior">
-              <i class="ti ti-chevron-left" aria-hidden="true"></i>
-            </button>
-            <button class="product-lightbox__nav-btn" id="lightbox-next" aria-label="Próxima imagem">
-              <i class="ti ti-chevron-right" aria-hidden="true"></i>
-            </button>
-          </div>
+    // ── Lightbox ─────────────────────────────────────────────────────────────
+    (function () {
+      // Monta o DOM do lightbox
+      const lb = document.createElement('div');
+      lb.className = 'product-lightbox';
+      lb.id = 'product-lightbox';
+      lb.innerHTML = `
+        <button class="product-lightbox__close-btn" aria-label="Fechar">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+        <button class="product-lightbox__nav-btn" id="lightbox-prev" aria-label="Anterior">
+          <i class="ti ti-chevron-left" aria-hidden="true"></i>
+        </button>
+        <div class="product-lightbox__img-wrap">
+          <img class="product-lightbox__image" src="" alt="" draggable="false">
         </div>
+        <button class="product-lightbox__nav-btn" id="lightbox-next" aria-label="Próxima">
+          <i class="ti ti-chevron-right" aria-hidden="true"></i>
+        </button>
+        <span class="product-lightbox__counter"></span>
       `;
-      document.body.appendChild(modal);
-      return modal;
-    }
+      document.body.appendChild(lb);
 
-    const productLightbox = createProductLightbox();
-    const lightboxImage = productLightbox.querySelector('.product-lightbox__image');
-    const lightboxPrevBtn = productLightbox.querySelector('#lightbox-prev');
-    const lightboxNextBtn = productLightbox.querySelector('#lightbox-next');
-    const lightboxCloseBtn = productLightbox.querySelector('.product-lightbox__close-btn');
+      const lbImg     = lb.querySelector('.product-lightbox__image');
+      const lbPrev    = lb.querySelector('#lightbox-prev');
+      const lbNext    = lb.querySelector('#lightbox-next');
+      const lbClose   = lb.querySelector('.product-lightbox__close-btn');
+      const lbCounter = lb.querySelector('.product-lightbox__counter');
 
-    // Get all slide images
-    const slideImages = Array.from(slides).map((slide, index) => ({
-      src: slide.querySelector('img').src,
-      alt: slide.querySelector('img').alt,
-      index: index
-    }));
+      // Coleta imagens do carousel
+      const slideImages = Array.from(slides).map(s => ({
+        src: s.querySelector('img').src,
+        alt: s.querySelector('img').alt
+      }));
 
-    function updateProductLightbox() {
-      const current = slideImages[currentSlide];
-      lightboxImage.src = current.src;
-      lightboxImage.alt = current.alt;
-      lightboxPrevBtn.disabled = currentSlide === 0;
-      lightboxNextBtn.disabled = currentSlide === slideImages.length - 1;
-    }
-
-    function openProductLightbox() {
-      updateProductLightbox();
-      productLightbox.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeProductLightbox() {
-      productLightbox.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-
-    // Zoom button
-    zoomBtn.addEventListener('click', openProductLightbox);
-
-    // Close button
-    lightboxCloseBtn.addEventListener('click', closeProductLightbox);
-
-    // Navigation in lightbox
-    lightboxPrevBtn.addEventListener('click', () => {
-      if (currentSlide > 0) {
-        prevSlide();
-        updateProductLightbox();
+      function updateLb() {
+        const img = slideImages[currentSlide];
+        lbImg.src = img.src;
+        lbImg.alt = img.alt;
+        lbPrev.disabled = currentSlide === 0;
+        lbNext.disabled = currentSlide === slideImages.length - 1;
+        lbCounter.textContent = (currentSlide + 1) + ' / ' + slideImages.length;
       }
-    });
 
-    lightboxNextBtn.addEventListener('click', () => {
-      if (currentSlide < slideImages.length - 1) {
-        nextSlide();
-        updateProductLightbox();
+      function openLb() {
+        updateLb();
+        lb.classList.add('active');
+        document.body.style.overflow = 'hidden';
       }
-    });
 
-    // Close with ESC
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && productLightbox.classList.contains('active')) {
-        closeProductLightbox();
+      function closeLb() {
+        lb.classList.remove('active');
+        document.body.style.overflow = '';
       }
-    });
 
-    // Close on background click
-    productLightbox.addEventListener('click', (e) => {
-      if (e.target === productLightbox) {
-        closeProductLightbox();
+      function goNext() {
+        if (currentSlide < slideImages.length - 1) { nextSlide(); updateLb(); }
       }
-    });
+
+      function goPrev() {
+        if (currentSlide > 0) { prevSlide(); updateLb(); }
+      }
+
+      // Gatilhos
+      zoomBtn.addEventListener('click', openLb);
+      lbClose.addEventListener('click', closeLb);
+      lbPrev.addEventListener('click', goPrev);
+      lbNext.addEventListener('click', goNext);
+
+      // Teclado
+      document.addEventListener('keydown', e => {
+        if (!lb.classList.contains('active')) return;
+        if (e.key === 'Escape')      closeLb();
+        if (e.key === 'ArrowLeft')   goPrev();
+        if (e.key === 'ArrowRight')  goNext();
+      });
+
+      // Click no fundo fecha
+      lb.addEventListener('click', e => { if (e.target === lb || e.target === lb.querySelector('.product-lightbox__img-wrap')) closeLb(); });
+
+      // Swipe mobile
+      let tsX = 0;
+      lb.addEventListener('touchstart', e => { tsX = e.touches[0].clientX; }, { passive: true });
+      lb.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - tsX;
+        if (Math.abs(dx) > 50) { dx < 0 ? goNext() : goPrev(); }
+      }, { passive: true });
+    })();
   </script>
 
 </body>
