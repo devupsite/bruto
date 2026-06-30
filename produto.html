@@ -927,7 +927,11 @@
     // Lightbox setup
     function setupLightbox(product) {
       const lightbox = createLightboxModal();
-      const zoomBtn = document.querySelector('.carousel__zoom-btn');
+
+      // Clonar remove todos os listeners anteriores — evita acumulação ao trocar de produto
+      const oldZoomBtn = document.querySelector('.carousel__zoom-btn');
+      const zoomBtn = oldZoomBtn.cloneNode(true);
+      oldZoomBtn.parentNode.replaceChild(zoomBtn, oldZoomBtn);
 
       zoomBtn.addEventListener('click', () => {
         updateLightbox(lightbox, product);
