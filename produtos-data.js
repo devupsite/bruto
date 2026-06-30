@@ -207,7 +207,7 @@ const produtosData = {
       resistencia: 'Classe A',
       aplicacao: 'Interno e externo',
       ambientes: 'Sala de estar, Escritório, Fachada',
-      imagens: ['cimenticio-alpino-frontal.webp'],
+      imagens: ['cimenticio-alpino-frontal.webp', 'cimenticio-alpino-frontal-.webp'],
       arquivo: 'produto-cimenticio-alpino.html'
     },
     {
@@ -223,7 +223,7 @@ const produtosData = {
       resistencia: 'Classe A',
       aplicacao: 'Interno e externo',
       ambientes: 'Sala de estar, Escritório, Fachada',
-      imagens: ['cimenticio-grigio-frontal.webp'],
+      imagens: ['cimenticio-grigio-frontal.webp', 'cimenticio-grigio-frontal-.webp'],
       arquivo: 'produto-cimenticio-grigio.html'
     },
     {
@@ -239,7 +239,7 @@ const produtosData = {
       resistencia: 'Classe A',
       aplicacao: 'Interno e externo',
       ambientes: 'Sala de estar, Escritório, Fachada',
-      imagens: ['cimenticio-urban-frontal.webp'],
+      imagens: ['cimenticio-urban-frontal.webp', 'cimenticio-urban-frontal-.webp'],
       arquivo: 'produto-cimenticio-urban.html'
     }
   ],
@@ -257,7 +257,7 @@ const produtosData = {
       resistencia: 'Classe A',
       aplicacao: 'Interno e externo',
       ambientes: 'Fachada, Parede externa, Destaque',
-      imagens: ['rockface-brisa-frontal.webp'],
+      imagens: ['rockface-brisa-frontal.webp', 'rockface-brisa-frontal-.webp'],
       arquivo: 'produto-rockface-brisa.html'
     },
     {
@@ -273,7 +273,7 @@ const produtosData = {
       resistencia: 'Classe A',
       aplicacao: 'Interno e externo',
       ambientes: 'Fachada, Parede externa, Destaque',
-      imagens: ['rockface-alpino-frontal.webp'],
+      imagens: ['rockface-alpino-frontal.webp', 'rockface-alpino-frontal-.webp'],
       arquivo: 'produto-rockface-alpino.html'
     },
     {
@@ -305,7 +305,7 @@ const produtosData = {
       resistencia: 'Classe A',
       aplicacao: 'Interno e externo',
       ambientes: 'Fachada, Parede externa, Destaque',
-      imagens: ['rockface-urban-frontal.webp'],
+      imagens: ['rockface-urban-frontal.webp', 'rockface-urban-frontal-.webp'],
       arquivo: 'produto-rockface-urban.html'
     }
   ]
