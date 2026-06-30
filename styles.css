@@ -190,6 +190,42 @@
     }
     .btn--outline:hover { background: var(--ferro); color: var(--argamassa); }
 
+    .btn--primary {
+      background: var(--ferro);
+      color: var(--argamassa);
+      border-color: var(--ferro);
+    }
+    .btn--primary:hover { background: var(--grafite); border-color: var(--grafite); }
+
+    /* ════════════════════════════════════════════
+       BLOG FILTERS
+    ════════════════════════════════════════════ */
+    .blog-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+    .blog-filter {
+      padding: 10px 22px;
+      background: transparent;
+      border: 1px solid var(--titanio);
+      color: var(--ferro);
+      font-family: var(--f-body);
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .blog-filter:hover { border-color: var(--ferro); }
+    .blog-filter.is-active {
+      background: var(--ferro);
+      color: var(--argamassa);
+      border-color: var(--ferro);
+    }
+
     /* sobre fundo escuro — "negativo" */
     .btn--solid-light {
       background: var(--argamassa);
