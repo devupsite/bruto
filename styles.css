@@ -35,6 +35,7 @@
       color: var(--grafite);
       line-height: 1.6;
       letter-spacing: .01em;
+      overflow-x: hidden;
     }
     a { text-decoration: none; color: inherit; }
     img { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -189,6 +190,16 @@
       border-color: var(--ferro);
     }
     .btn--outline:hover { background: var(--ferro); color: var(--argamassa); }
+
+    .btn--solid {
+      background: var(--ferro);
+      color: var(--argamassa);
+      border-color: var(--ferro);
+    }
+    .btn--solid:hover {
+      background: transparent;
+      color: var(--ferro);
+    }
 
     .btn--primary {
       background: var(--ferro);
@@ -711,7 +722,7 @@
 
     @media (max-width: 600px) {
       .nav { display: none; }
-      .burger { display: block; }
+      .burger { display: block; margin-left: auto; }
       .header__cta { display: none; }
 
       .grid-4 { grid-template-columns: repeat(2, 1fr); }
