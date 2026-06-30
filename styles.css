@@ -345,9 +345,45 @@
 
     .hero .text-link { margin-top: 36px; }
 
-    .hero__media {
+    .hero__showcase {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(10px, 1.5vw, 20px);
+      align-self: center;
+    }
+
+    .hero__card {
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .hero__card-img {
       aspect-ratio: 3 / 4;
+      overflow: hidden;
+    }
+
+    .hero__card-img img {
       width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .hero__card:hover .hero__card-img img { transform: scale(1.04); }
+
+    .hero__card .eyebrow { margin-top: 14px; }
+
+    .hero__card-name {
+      font-family: var(--f-display);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-top: 4px;
+      color: var(--ferro);
     }
 
     /* ════════════════════════════════════════════
@@ -626,7 +662,7 @@
     ════════════════════════════════════════════ */
     @media (max-width: 960px) {
       .hero__grid { grid-template-columns: 1fr; gap: 48px; }
-      .hero__media { aspect-ratio: 16 / 10; order: -1; }
+      .hero__showcase { order: -1; }
       .hero__body, .hero__philosophy { max-width: 100%; }
 
       .grid-4 { grid-template-columns: repeat(2, 1fr); }
@@ -947,4 +983,5 @@
     @media (max-width: 600px) {
       .article-footer-cta .btn { width: 100%; justify-content: center; }
     }
+
 
