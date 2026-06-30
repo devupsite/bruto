@@ -346,32 +346,22 @@
     .hero .text-link { margin-top: 36px; }
 
     .hero__showcase {
-      display: grid;
-      grid-template-columns: 1.1fr 1fr;
-      gap: clamp(8px, 1.2vw, 16px);
-      align-self: center;
+      display: flex;
+      gap: clamp(8px, 1vw, 14px);
+      align-self: stretch;
     }
 
     .hero__card {
-      display: flex;
-      flex-direction: column;
+      position: relative;
+      flex: 1;
+      overflow: hidden;
       text-decoration: none;
-      color: inherit;
+      min-height: 340px;
     }
-
-    .hero__card--main .hero__card-img { aspect-ratio: 3 / 4; }
-
-    .hero__card-col {
-      display: flex;
-      flex-direction: column;
-      gap: clamp(8px, 1.2vw, 16px);
-    }
-
-    .hero__card-col .hero__card-img { aspect-ratio: 4 / 3; }
 
     .hero__card-img {
-      overflow: hidden;
-      width: 100%;
+      position: absolute;
+      inset: 0;
     }
 
     .hero__card-img img {
@@ -382,18 +372,48 @@
       transition: transform 0.5s ease;
     }
 
-    .hero__card:hover .hero__card-img img { transform: scale(1.04); }
+    .hero__card:hover .hero__card-img img { transform: scale(1.06); }
 
-    .hero__card-label { padding: 10px 2px 0; }
+    /* Gradiente escuro no rodapé do card */
+    .hero__card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top,
+        rgba(0,0,0,.72) 0%,
+        rgba(0,0,0,.18) 45%,
+        transparent 100%);
+      pointer-events: none;
+    }
+
+    /* Label sobreposta — texto vertical de baixo pra cima */
+    .hero__card-label {
+      position: absolute;
+      bottom: 20px;
+      left: 16px;
+      z-index: 2;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 6px;
+    }
+
+    .hero__card-label .eyebrow {
+      color: rgba(255,255,255,.65);
+      font-size: 9px;
+      letter-spacing: .16em;
+      margin: 0;
+    }
 
     .hero__card-name {
       font-family: var(--f-display);
-      font-size: 12px;
+      font-size: 15px;
       font-weight: 600;
-      letter-spacing: .08em;
+      letter-spacing: .12em;
       text-transform: uppercase;
-      margin-top: 2px;
-      color: var(--ferro);
+      color: #fff;
+      margin: 0;
     }
 
     /* ════════════════════════════════════════════
