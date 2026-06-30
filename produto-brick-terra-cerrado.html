@@ -388,6 +388,51 @@
         grid-template-columns: 1fr;
       }
     }
+
+    .wa-banner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 20px;
+      padding: 16px 20px;
+      background: #f5f3f0;
+      border-left: 3px solid #25D366;
+    }
+    .wa-banner__icon {
+      font-size: 22px;
+      color: #25D366;
+      flex-shrink: 0;
+    }
+    .wa-banner__text {
+      flex: 1;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #333;
+    }
+    .wa-banner__text strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #111;
+      margin-bottom: 2px;
+    }
+    .wa-banner__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      background: #25D366;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      text-decoration: none;
+      transition: background .2s;
+      flex-shrink: 0;
+    }
+    .wa-banner__btn:hover { background: #1ebe5a; }
   </style>
 </head>
 <body>
@@ -519,6 +564,19 @@
             <i class="ti ti-brand-whatsapp"></i>
             Falar com consultor
           </a>
+
+        <!-- WhatsApp Banner -->
+        <div class="wa-banner">
+          <i class="ti ti-brand-whatsapp wa-banner__icon" aria-hidden="true"></i>
+          <div class="wa-banner__text">
+            <strong>Amostra grátis em 9 a 12 dias</strong>
+            Pedido do produto em até 10 dias úteis — frete calculado por região.
+          </div>
+          <a href="https://wa.me/XXXXXXXXXXX?text=Olá%21%20Tenho%20interesse%20em%20solicitar%20uma%20amostra%20do%20Brick%20Terra%20do%20Cerrado%20%28SKU%2047%29.%20Poderia%20me%20ajudar%3F" target="_blank" rel="noopener" class="wa-banner__btn">
+            <i class="ti ti-brand-whatsapp" aria-hidden="true"></i>
+            Pedir pelo WhatsApp
+          </a>
+        </div>
         </div>
       </div>
     </div>
