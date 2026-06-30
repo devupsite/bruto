@@ -768,7 +768,7 @@
       position: relative;
       display: block;
       overflow: hidden;
-      aspect-ratio: 2 / 3;
+      aspect-ratio: 3 / 4;
       background: var(--ferro);
     }
 
@@ -853,12 +853,12 @@
 
     @media (max-width: 960px) {
       .linhas { grid-template-columns: repeat(3, 1fr); }
-      .linha-card { aspect-ratio: 3 / 4; }
+      .linha-card { aspect-ratio: 2 / 3; }
     }
 
     @media (max-width: 600px) {
       .linhas { grid-template-columns: 1fr; }
-      .linha-card { aspect-ratio: 4 / 3; }
+      .linha-card { aspect-ratio: 3 / 2; }
       .linha-card + .linha-card {
         border-left: none;
         border-top: 1px solid rgba(240,238,236,.12);
