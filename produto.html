@@ -59,6 +59,33 @@
       list-style: none;
       padding: 0;
       margin: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .sidebar-list.open {
+      max-height: 1000px;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 0.5rem 0;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .sidebar-header .ti-chevron-down {
+      font-size: 0.9rem;
+      color: #666;
+      transition: transform 0.3s;
+    }
+
+    .sidebar-header.open .ti-chevron-down {
+      transform: rotate(180deg);
     }
 
     .sidebar-item {
@@ -656,7 +683,332 @@
     </div>
   </footer>
 
-  <script src="produtos-data.js"></script>
+  <script>
+const produtosData = {
+  brick: [
+    {
+      id: 'branco-rose',
+      nome: 'Branco Rosé',
+      categoria: 'Brick',
+      sku: '56',
+      preco: '139,90',
+      descricao: 'Tons de branco com nuances rosadas — leveza e luminosidade.',
+      descricaoLonga: 'Revestimento cerâmico artesanal com tons brancos e rosados, selecionado para ambientes sofisticados. Cada peça é batida à mão e retificada individualmente, garantindo precisão no acabamento.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Natural',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Dormitório, Cozinha',
+      imagens: ['brick-branco-rose-frontal.webp', 'brick-branco-rose-frontal-1.webp', 'brick-branco-rose-frontal-2.webp', 'brick-branco-rose-frontal-3.webp'],
+      arquivo: 'produto-brick-branco-rose.html'
+    },
+    {
+      id: 'eco-palha',
+      nome: 'Eco Palha',
+      categoria: 'Brick',
+      sku: '57',
+      preco: '139,90',
+      descricao: 'Tom palha claro, com pontos minerais naturais.',
+      descricaoLonga: 'Revestimento em tom palha claro com pontos minerais naturais visíveis. Cada peça é batida à mão e retificada individualmente.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Natural',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Cozinha, Varanda',
+      imagens: ['brick-eco-palha-frontal.webp', 'brick-eco-palha-frontal-1.webp', 'brick-eco-palha-frontal-2.webp', 'brick-eco-palha-frontal-3.webp'],
+      arquivo: 'produto-brick-eco-palha.html'
+    },
+    {
+      id: 'lumus',
+      nome: 'Lumus',
+      categoria: 'Brick',
+      sku: '73',
+      preco: '149,90',
+      descricao: 'Mescla de tons terrosos com nuances acinzentadas.',
+      descricaoLonga: 'Revestimento com mescla de tons terrosos e nuances acinzentadas. Ideal para projetos que buscam profundidade visual.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Natural',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Escritório, Fachada',
+      imagens: ['brick-lumus-frontal.webp', 'brick-lumus-frontal-1.webp', 'brick-lumus-frontal-2.webp', 'brick-lumus-frontal-3.webp'],
+      arquivo: 'produto-brick-lumus.html'
+    },
+    {
+      id: 'mescla-prime',
+      nome: 'Mescla Prime',
+      categoria: 'Brick',
+      sku: '54',
+      preco: '139,90',
+      descricao: 'Mesclas escuras sobre base terrosa — profundidade em cada peça.',
+      descricaoLonga: 'Revestimento com mesclas escuras sobre base terrosa que proporciona profundidade visual única em cada peça.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Natural',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Dormitório, Fachada',
+      imagens: ['brick-mescla-prime-frontal.webp', 'brick-mescla-prime-frontal-1.webp', 'brick-mescla-prime-frontal-2.webp', 'brick-mescla-prime-frontal-3.webp'],
+      arquivo: 'produto-brick-mescla-prime.html'
+    },
+    {
+      id: 'natura',
+      nome: 'Natura',
+      categoria: 'Brick',
+      sku: '48',
+      preco: '94,90',
+      descricao: 'Terracota uniforme, extrudada e queimada a 950°C. Promoção especial.',
+      descricaoLonga: 'Revestimento terracota uniforme, extrudado e queimado a 950°C. Oferece excelente custo-benefício com qualidade garantida.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Natural',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Cozinha, Área gourmet',
+      imagens: ['brick-natura-frontal.webp', 'brick-natura-frontal-1.webp', 'brick-natura-frontal-2.webp', 'brick-natura-frontal-3.webp'],
+      arquivo: 'produto-brick-natura.html'
+    },
+    {
+      id: 'rosso-prime',
+      nome: 'Rosso Prime',
+      categoria: 'Brick',
+      sku: '53',
+      preco: '129,90',
+      descricao: 'Vermelho terracota uniforme — o mais vendido da linha.',
+      descricaoLonga: 'Revestimento vermelho terracota uniforme, o mais vendido da linha da BRUTO. Versátil e ideal para diversos ambientes.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Natural',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Cozinha, Fachada',
+      imagens: ['brick-rosso-prime-frontal.webp', 'brick-rosso-prime-frontal-1.webp', 'brick-rosso-prime-frontal-2.webp', 'brick-rosso-prime-frontal-3.webp'],
+      arquivo: 'produto-brick-rosso-prime.html'
+    },
+    {
+      id: 'rusticatto-sertao',
+      nome: 'Rusticatto do Sertão',
+      categoria: 'Brick',
+      sku: '61',
+      preco: '149,90',
+      descricao: 'Laranja claro, textura alta e acabamento artesanal exclusivo.',
+      descricaoLonga: 'Revestimento laranja claro com textura alta e acabamento artesanal exclusivo. Perfeito para projetos de destaque.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Rústico',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Área gourmet, Fachada',
+      imagens: ['brick-rusticatto-sertao-frontal.webp', 'brick-rusticatto-sertao-frontal-1.webp', 'brick-rusticatto-sertao-frontal-2.webp', 'brick-rusticatto-sertao-frontal-3.webp'],
+      arquivo: 'produto-brick-rusticatto-sertao.html'
+    },
+    {
+      id: 'rusticatto-fume',
+      nome: 'Rusticatto Fumê',
+      categoria: 'Brick',
+      sku: '72',
+      preco: '169,90',
+      descricao: 'Extra rústico, tonalidade fumê escura e marcante.',
+      descricaoLonga: 'Revestimento extra rústico com tonalidade fumê escura e muito marcante. Ideal para projetos contemporâneos.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Rústico',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Dormitório, Fachada',
+      imagens: ['brick-rusticatto-fume-frontal.webp', 'brick-rusticatto-fume-frontal-1.webp', 'brick-rusticatto-fume-frontal-2.webp', 'brick-rusticatto-fume-frontal-3.webp'],
+      arquivo: 'produto-brick-rusticatto-fume.html'
+    },
+    {
+      id: 'rusticatto-rosso',
+      nome: 'Rusticatto Rosso',
+      categoria: 'Brick',
+      sku: '77',
+      preco: '144,90',
+      descricao: 'Vermelho intenso, textura irregular e expressiva.',
+      descricaoLonga: 'Revestimento vermelho intenso com textura irregular e muito expressiva. Perfeito para criar destaque.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Rústico',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Cozinha, Fachada',
+      imagens: ['brick-rusticatto-rosso-frontal.webp', 'brick-rusticatto-rosso-frontal-1.webp', 'brick-rusticatto-rosso-frontal-2.webp', 'brick-rusticatto-rosso-frontal-3.webp'],
+      arquivo: 'produto-brick-rusticatto-rosso.html'
+    },
+    {
+      id: 'rusticatto-terra-negra',
+      nome: 'Rusticatto Terra Negra',
+      categoria: 'Brick',
+      sku: '60',
+      preco: '179,90',
+      descricao: 'Tonalidade escura, inspirada nos tijolos de demolição europeus.',
+      descricaoLonga: 'Revestimento com tonalidade escura inspirada nos tijolos de demolição europeus. Oferece elegância e sofisticação.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Rústico',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Dormitório, Fachada',
+      imagens: ['brick-rusticatto-terra-negra-frontal.webp', 'brick-rusticatto-terra-negra-frontal-1.webp', 'brick-rusticatto-terra-negra-frontal-2.webp', 'brick-rusticatto-terra-negra-frontal-3.webp'],
+      arquivo: 'produto-brick-rusticatto-terra-negra.html'
+    },
+    {
+      id: 'terra-cerrado',
+      nome: 'Terra do Cerrado',
+      categoria: 'Brick',
+      sku: '47',
+      preco: '134,90',
+      descricao: 'Mescla de laranja, vermelho e terroso — paginação única.',
+      descricaoLonga: 'Revestimento com mescla de laranja, vermelho e terroso que oferece paginação única e acolhedora.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Natural',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Área gourmet, Fachada',
+      imagens: ['brick-terra-cerrado-frontal.webp', 'brick-terra-cerrado-frontal-1.webp', 'brick-terra-cerrado-frontal-2.webp', 'brick-terra-cerrado-frontal-3.webp'],
+      arquivo: 'produto-brick-terra-cerrado.html'
+    },
+    {
+      id: 'vulcano',
+      nome: 'Vulcano',
+      categoria: 'Brick',
+      sku: '59',
+      preco: '149,90',
+      descricao: 'Mescla de tons terrosos com nuances acinzentadas.',
+      descricaoLonga: 'Revestimento com mescla de tons terrosos e nuances acinzentadas. Versátil para projetos residenciais e comerciais.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Natural',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Escritório, Fachada',
+      imagens: ['brick-vulcano-frontal.webp', 'brick-vulcano-frontal-1.webp', 'brick-vulcano-frontal-2.webp', 'brick-vulcano-frontal-3.webp'],
+      arquivo: 'produto-brick-vulcano.html'
+    }
+  ],
+  cimenticio: [
+    {
+      id: 'alpino',
+      nome: 'Alpino',
+      categoria: 'Cimentício',
+      sku: 'Cimentício',
+      preco: '169,90',
+      descricao: 'Estética contemporânea cinzento claro para projetos residenciais e comerciais.',
+      descricaoLonga: 'Revestimento com estética contemporânea em tons cinzento claro. Ideal para projetos modernos e minimalistas.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Liso',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Escritório, Fachada',
+      imagens: ['cimenticio-alpino-frontal.webp'],
+      arquivo: 'produto-cimenticio-alpino.html'
+    },
+    {
+      id: 'grigio',
+      nome: 'Grigio',
+      categoria: 'Cimentício',
+      sku: 'Cimentício',
+      preco: '169,90',
+      descricao: 'Estética contemporânea cinzento para projetos residenciais e comerciais.',
+      descricaoLonga: 'Revestimento com estética contemporânea em tons cinzento. Oferece acabamento industrial sofisticado.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Liso',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Escritório, Fachada',
+      imagens: ['cimenticio-grigio-frontal.webp'],
+      arquivo: 'produto-cimenticio-grigio.html'
+    },
+    {
+      id: 'urban',
+      nome: 'Urban',
+      categoria: 'Cimentício',
+      sku: 'Cimentício',
+      preco: '169,90',
+      descricao: 'Estética urbana e contemporânea com acabamento robusto.',
+      descricaoLonga: 'Revestimento com estética urbana e contemporânea que oferece acabamento robusto para fachadas modernas.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Liso',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Sala de estar, Escritório, Fachada',
+      imagens: ['cimenticio-urban-frontal.webp'],
+      arquivo: 'produto-cimenticio-urban.html'
+    }
+  ],
+  rockface: [
+    {
+      id: 'brisa',
+      nome: 'Brisa',
+      categoria: 'Rockface',
+      sku: 'Rockface',
+      preco: '169,90',
+      descricao: 'Acabamento contemporâneo com textura de pedra natural.',
+      descricaoLonga: 'Revestimento com acabamento contemporâneo e textura de pedra natural. Perfeito para fachadas sofisticadas.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Texturado',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Fachada, Parede externa, Destaque',
+      imagens: ['rockface-brisa-frontal.webp'],
+      arquivo: 'produto-rockface-brisa.html'
+    },
+    {
+      id: 'alpino-rockface',
+      nome: 'Alpino',
+      categoria: 'Rockface',
+      sku: 'Rockface',
+      preco: '229,90',
+      descricao: 'Ótimo custo-benefício, instalação prática e aparência natural.',
+      descricaoLonga: 'Revestimento rockface com ótimo custo-benefício e instalação prática. Oferece aparência natural e durável.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Texturado',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Fachada, Parede externa, Destaque',
+      imagens: ['rockface-alpino-frontal.webp'],
+      arquivo: 'produto-rockface-alpino.html'
+    },
+    {
+      id: 'grigio-rockface',
+      nome: 'Grigio',
+      categoria: 'Rockface',
+      sku: 'Rockface',
+      preco: '229,90',
+      descricao: 'Ótimo custo-benefício, instalação prática e aparência natural.',
+      descricaoLonga: 'Revestimento rockface cinzento com ótimo custo-benefício. Oferece profundidade visual natural.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Texturado',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Fachada, Parede externa, Destaque',
+      imagens: ['rockface-grigio-frontal.webp'],
+      arquivo: 'produto-rockface-grigio.html'
+    },
+    {
+      id: 'urban-rockface',
+      nome: 'Urban',
+      categoria: 'Rockface',
+      sku: 'Rockface',
+      preco: '229,90',
+      descricao: 'Ótimo custo-benefício, instalação prática e aparência natural.',
+      descricaoLonga: 'Revestimento rockface urbano com ótimo custo-benefício. Oferece resultado diferenciado e sofisticado.',
+      dimensoes: '240mm x 65mm x 12mm',
+      acabamento: 'Texturado',
+      resistencia: 'Classe A',
+      aplicacao: 'Interno e externo',
+      ambientes: 'Fachada, Parede externa, Destaque',
+      imagens: ['rockface-urban-frontal.webp'],
+      arquivo: 'produto-rockface-urban.html'
+    }
+  ]
+};
+
+// Função pra pegar todos os produtos em ordem
+function getAllProducts() {
+  return [...produtosData.brick, ...produtosData.cimenticio, ...produtosData.rockface];
+}
+
+// Função pra pegar produto por ID
+function getProductById(id) {
+  const allProducts = getAllProducts();
+  return allProducts.find(p => p.id === id);
+}
+
+  </script>
   <script>
     // Get product ID from URL parameter
     function getProductIdFromUrl() {
@@ -670,86 +1022,63 @@
     // Função pra renderizar sidebar COM COLLAPSE
     function renderSidebar() {
       const sidebar = document.getElementById('product-sidebar');
+      if (!sidebar) return;
       sidebar.innerHTML = '';
 
-      Object.entries(produtosData).forEach(([categoryKey, products]) => {
+      const currentProduct = getProductById(currentProductId);
+
+      Object.keys(produtosData).forEach((categoryKey) => {
+        const products = produtosData[categoryKey];
         const categoryName = products[0].categoria;
+        const isOpen = currentProduct && currentProduct.categoria === categoryName;
+
         const section = document.createElement('div');
         section.className = 'sidebar-section';
-        
-        // Header colapsável
+
         const header = document.createElement('div');
-        header.style.cssText = 'display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 0.5rem 0; margin-bottom: 0.8rem; border-bottom: 1px solid #ddd;';
-        
-        const title = document.createElement('span');
-        title.className = 'sidebar-title';
-        title.textContent = categoryName;
-        title.style.margin = '0';
-        
-        const toggle = document.createElement('i');
-        toggle.className = 'ti ti-chevron-down';
-        toggle.style.cssText = 'font-size: 0.9rem; color: #666; transition: transform 0.3s;';
-        
-        header.appendChild(title);
-        header.appendChild(toggle);
-        section.appendChild(header);
+        header.className = 'sidebar-header' + (isOpen ? ' open' : '');
+        header.innerHTML = `
+          <span class="sidebar-title" style="margin:0;">${categoryName}</span>
+          <i class="ti ti-chevron-down" aria-hidden="true"></i>
+        `;
 
         const list = document.createElement('ul');
-        list.className = 'sidebar-list';
-        list.style.cssText = 'display: none; max-height: 0; overflow: hidden; transition: all 0.3s ease;';
-        
-        // Verificar se deve abrir esta categoria
-        const currentProduct = getProductById(currentProductId);
-        const isOpen = currentProduct && currentProduct.categoria === categoryName;
-        
-        if (isOpen) {
-          list.style.cssText = 'display: block; max-height: 1000px; overflow: visible; transition: all 0.3s ease;';
-          toggle.style.transform = 'rotate(180deg)';
-        }
-        
+        list.className = 'sidebar-list' + (isOpen ? ' open' : '');
+
         products.forEach(product => {
           const item = document.createElement('li');
           item.className = 'sidebar-item';
-          
+
           const link = document.createElement('a');
-          link.className = 'sidebar-link';
-          if (product.id === currentProductId) {
-            link.classList.add('active');
-          }
+          link.className = 'sidebar-link' + (product.id === currentProductId ? ' active' : '');
+          link.href = `?id=${product.id}`;
           link.innerHTML = `
             <span>${product.nome}</span>
             <span class="sidebar-count">R$ ${product.preco}</span>
           `;
-          
+
           link.addEventListener('click', (e) => {
             e.preventDefault();
             currentProductId = product.id;
-            currentSlide = 0; // RESET slide counter
+            currentSlide = 0;
             const params = new URLSearchParams();
             params.set('id', product.id);
             window.history.pushState(null, '', `?${params.toString()}`);
             loadProduct(product.id);
             renderSidebar();
           });
-          
+
           item.appendChild(link);
           list.appendChild(item);
         });
-        
-        section.appendChild(list);
-        
-        // Toggle ao clicar header
+
         header.addEventListener('click', () => {
-          const isVisible = list.style.display === 'block';
-          if (isVisible) {
-            list.style.cssText = 'display: none; max-height: 0; overflow: hidden; transition: all 0.3s ease;';
-            toggle.style.transform = 'rotate(0deg)';
-          } else {
-            list.style.cssText = 'display: block; max-height: 1000px; overflow: visible; transition: all 0.3s ease;';
-            toggle.style.transform = 'rotate(180deg)';
-          }
+          header.classList.toggle('open');
+          list.classList.toggle('open');
         });
-        
+
+        section.appendChild(header);
+        section.appendChild(list);
         sidebar.appendChild(section);
       });
     }
