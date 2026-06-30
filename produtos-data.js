@@ -291,22 +291,6 @@ const produtosData = {
       ambientes: 'Fachada, Parede externa, Destaque',
       imagens: ['rockface-grigio-frontal.webp', 'rockface-grigio-frontal-1.webp', 'rockface-grigio-frontal-2.webp', 'rockface-grigio-frontal-3.webp'],
       arquivo: 'produto-rockface-grigio.html'
-    },
-    {
-      id: 'urban-rockface',
-      nome: 'Urban',
-      categoria: 'Rockface',
-      sku: 'Rockface',
-      preco: '229,90',
-      descricao: 'Ótimo custo-benefício, instalação prática e aparência natural.',
-      descricaoLonga: 'Revestimento rockface urbano com ótimo custo-benefício. Oferece resultado diferenciado e sofisticado.',
-      dimensoes: '240mm x 65mm x 12mm',
-      acabamento: 'Texturado',
-      resistencia: 'Classe A',
-      aplicacao: 'Interno e externo',
-      ambientes: 'Fachada, Parede externa, Destaque',
-      imagens: ['rockface-urban-frontal.webp', 'rockface-urban-frontal-.webp'],
-      arquivo: 'produto-rockface-urban.html'
     }
   ]
 };
