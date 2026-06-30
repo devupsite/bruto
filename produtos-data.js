@@ -289,7 +289,7 @@ const produtosData = {
       resistencia: 'Classe A',
       aplicacao: 'Interno e externo',
       ambientes: 'Fachada, Parede externa, Destaque',
-      imagens: ['rockface-grigio-frontal.webp'],
+      imagens: ['rockface-grigio-frontal.webp', 'rockface-grigio-frontal-1.webp', 'rockface-grigio-frontal-2.webp', 'rockface-grigio-frontal-3.webp'],
       arquivo: 'produto-rockface-grigio.html'
     },
     {
