@@ -415,6 +415,105 @@
 
 
   <!-- ══════════════════════════════════════════
+       FAQ
+  ══════════════════════════════════════════ -->
+  <section class="faq">
+    <div class="wrap">
+
+      <div class="faq__head section-head reveal">
+        <span class="eyebrow">Dúvidas frequentes</span>
+        <h2 class="display-title">Perguntas frequentes</h2>
+        <p class="section-sub">Tudo o que você precisa saber antes de escolher o seu revestimento.</p>
+      </div>
+
+      <div class="faq__grid">
+
+        <div class="faq__col">
+
+          <div class="faq__item reveal">
+            <button class="faq__q" aria-expanded="false">
+              <span>Como funciona o processo de amostra?</span>
+              <i class="ti ti-plus faq__icon" aria-hidden="true"></i>
+            </button>
+            <div class="faq__a" hidden>
+              Você solicita pelo site ou WhatsApp. Selecionamos as peças da coleção de interesse, embalamos com cuidado e enviamos diretamente ao seu endereço. O frete da amostra é por nossa conta.
+            </div>
+          </div>
+
+          <div class="faq__item reveal reveal-delay-1">
+            <button class="faq__q" aria-expanded="false">
+              <span>Qual o prazo de entrega para São Paulo?</span>
+              <i class="ti ti-plus faq__icon" aria-hidden="true"></i>
+            </button>
+            <div class="faq__a" hidden>
+              Para a Grande São Paulo, em média 3 a 5 dias úteis após a confirmação do pagamento. Demais regiões do Brasil de 7 a 12 dias úteis, dependendo da transportadora.
+            </div>
+          </div>
+
+          <div class="faq__item reveal reveal-delay-2">
+            <button class="faq__q" aria-expanded="false">
+              <span>Vocês atendem construtoras e projetos maiores?</span>
+              <i class="ti ti-plus faq__icon" aria-hidden="true"></i>
+            </button>
+            <div class="faq__a" hidden>
+              Sim. Temos condições especiais para projetos de grande volume — construtoras, incorporadoras e escritórios de arquitetura. Entre em contato pelo WhatsApp para atendimento personalizado.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="faq__col">
+
+          <div class="faq__item reveal">
+            <button class="faq__q" aria-expanded="false">
+              <span>Os produtos são certificados e têm garantia?</span>
+              <i class="ti ti-plus faq__icon" aria-hidden="true"></i>
+            </button>
+            <div class="faq__a" hidden>
+              Todos os revestimentos passam por curadoria rigorosa. Os produtos vêm com certificação técnica do fabricante e garantia de 12 meses contra defeitos de fabricação.
+            </div>
+          </div>
+
+          <div class="faq__item reveal reveal-delay-1">
+            <button class="faq__q" aria-expanded="false">
+              <span>Qual a diferença entre Brick, Cimentício e Rockface?</span>
+              <i class="ti ti-plus faq__icon" aria-hidden="true"></i>
+            </button>
+            <div class="faq__a" hidden>
+              Brick remete ao tijolo artesanal, com texturas irregulares e tons quentes. Cimentício é contemporâneo — superfícies lisas com pigmentação industrial. Rockface imita a pedra natural com relevo marcado, ideal para fachadas de alto impacto.
+            </div>
+          </div>
+
+          <div class="faq__item reveal reveal-delay-2">
+            <button class="faq__q" aria-expanded="false">
+              <span>Consigo parcelar a compra?</span>
+              <i class="ti ti-plus faq__icon" aria-hidden="true"></i>
+            </button>
+            <div class="faq__a" hidden>
+              Sim. Aceitamos cartão de crédito em até 12x sem juros, boleto bancário à vista e PIX com 3% de desconto. O atendimento via WhatsApp pode indicar a melhor opção para o seu pedido.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="faq__footer reveal">
+        <div>
+          <p class="faq__footer-title">Ainda tem dúvidas?</p>
+          <p class="faq__footer-sub">Fale diretamente com nosso time pelo WhatsApp.</p>
+        </div>
+        <a href="#" class="btn btn--outline">
+          <i class="ti ti-brand-whatsapp" aria-hidden="true"></i>
+          Falar com consultor
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
        FOOTER
   ══════════════════════════════════════════ -->
   <footer class="footer">
@@ -507,6 +606,25 @@
         mainNav.classList.remove('nav--open');
         menuBtn.setAttribute('aria-expanded', false);
         menuBtn.querySelector('i').className = 'ti ti-menu-2';
+      });
+    });
+
+    // FAQ accordion
+    document.querySelectorAll('.faq__q').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq__item');
+        const answer = item.querySelector('.faq__a');
+        const isOpen = btn.getAttribute('aria-expanded') === 'true';
+        document.querySelectorAll('.faq__item').forEach(i => {
+          i.querySelector('.faq__q').setAttribute('aria-expanded', 'false');
+          i.querySelector('.faq__a').hidden = true;
+          i.classList.remove('faq__item--open');
+        });
+        if (!isOpen) {
+          btn.setAttribute('aria-expanded', 'true');
+          answer.hidden = false;
+          item.classList.add('faq__item--open');
+        }
       });
     });
   </script>
