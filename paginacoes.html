@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BRUTO — Padrões de Paginação para Brick">
+  <title>Paginações Brick — BRUTO</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .pag-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: clamp(20px, 2.6vw, 32px);
+      margin-top: clamp(28px, 4vw, 48px);
+    }
+
+    .pag-card {
+      border: 1px solid var(--line, #e0e0e0);
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fafafa;
+      transition: box-shadow 0.25s ease, transform 0.25s ease;
+      cursor: pointer;
+    }
+
+    .pag-card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      transform: translateY(-2px);
+    }
+
+    .pag-card__preview {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      display: block;
+      background: #f0eeeb;
+    }
+
+    .pag-card__info {
+      padding: 1.2rem 1.4rem 1.4rem;
+    }
+
+    .pag-card__num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 0.3rem;
+    }
+
+    .pag-card__title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin: 0 0 0.5rem;
+      letter-spacing: 0.01em;
+    }
+
+    .pag-card__desc {
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.9rem;
+      color: #666;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .pag-card__tags {
+      margin-top: 0.9rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tag {
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid #ddd;
+      border-radius: 2px;
+      color: #555;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header" style="position:relative">
+    <div class="wrap header__inner">
+      <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+        <span class="logo-box">
+          <svg class="logo-mark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+          </svg>
+        </span>
+        <span class="logo-divider" aria-hidden="true"></span>
+        <span class="logo-word">Bruto</span>
+      </a>
+      <nav class="nav" id="main-nav" aria-label="Navegação principal">
+        <a href="colecoes.html">Coleções</a>
+        <a href="paginacoes.html" aria-current="page">Paginações</a>
+        <a href="blog.html">Blog</a>
+        <a href="index.html#projetos">Projetos</a>
+        <a href="index.html#sobre">Sobre</a>
+        <a href="index.html#amostra">Contato</a>
+      </nav>
+      <a href="index.html#amostra" class="btn btn--outline header__cta">Solicitar amostra</a>
+      <button class="burger" id="menu-btn" aria-label="Abrir menu" aria-expanded="false">
+        <i class="ti ti-menu-2" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+
+  <section class="page-head">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Guia de aplicação</span>
+        <h1 class="display-title">Paginações</h1>
+        <p class="section-sub">
+          10 padrões de assentamento para os tijolos Brick — do mais clássico ao contemporâneo.
+          Cada paginação muda completamente a leitura visual do ambiente.
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="cat-section" style="border-top: 1px solid var(--line, #e0e0e0); padding: clamp(48px,6vw,80px) 0;">
+    <div class="wrap">
+      <div class="pag-grid">
+
+        <!-- 01 AMARRADO TRADICIONAL -->
+        <div class="pag-card reveal">
+          <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="#f0eeeb"/>
+            <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
+              <!-- Row 1 -->
+              <rect x="0"   y="20"  width="88" height="32" rx="1"/>
+              <rect x="92"  y="20"  width="88" height="32" rx="1"/>
+              <rect x="184" y="20"  width="88" height="32" rx="1"/>
+              <rect x="276" y="20"  width="88" height="32" rx="1"/>
+              <rect x="368" y="20"  width="88" height="32" rx="1"/>
+              <!-- Row 2 (offset -44) -->
+              <rect x="-44" y="56"  width="88" height="32" rx="1"/>
+              <rect x="48"  y="56"  width="88" height="32" rx="1"/>
+              <rect x="140" y="56"  width="88" height="32" rx="1"/>
+              <rect x="232" y="56"  width="88" height="32" rx="1"/>
+              <rect x="324" y="56"  width="88" height="32" rx="1"/>
+              <!-- Row 3 -->
+              <rect x="0"   y="92"  width="88" height="32" rx="1"/>
+              <rect x="92"  y="92"  width="88" height="32" rx="1"/>
+              <rect x="184" y="92"  width="88" height="32" rx="1"/>
+              <rect x="276" y="92"  width="88" height="32" rx="1"/>
+              <rect x="368" y="92"  width="88" height="32" rx="1"/>
+              <!-- Row 4 -->
+              <rect x="-44" y="128" width="88" height="32" rx="1"/>
+              <rect x="48"  y="128" width="88" height="32" rx="1"/>
+              <rect x="140" y="128" width="88" height="32" rx="1"/>
+              <rect x="232" y="128" width="88" height="32" rx="1"/>
+              <rect x="324" y="128" width="88" height="32" rx="1"/>
+              <!-- Row 5 -->
+              <rect x="0"   y="164" width="88" height="32" rx="1"/>
+              <rect x="92"  y="164" width="88" height="32" rx="1"/>
+              <rect x="184" y="164" width="88" height="32" rx="1"/>
+              <rect x="276" y="164" width="88" height="32" rx="1"/>
+              <rect x="368" y="164" width="88" height="32" rx="1"/>
+              <!-- Row 6 -->
+              <rect x="-44" y="200" width="88" height="32" rx="1"/>
+              <rect x="48"  y="200" width="88" height="32" rx="1"/>
+              <rect x="140" y="200" width="88" height="32" rx="1"/>
+              <rect x="232" y="200" width="88" height="32" rx="1"/>
+              <rect x="324" y="200" width="88" height="32" rx="1"/>
+              <!-- Row 7 -->
+              <rect x="0"   y="236" width="88" height="32" rx="1"/>
+              <rect x="92"  y="236" width="88" height="32" rx="1"/>
+              <rect x="184" y="236" width="88" height="32" rx="1"/>
+              <rect x="276" y="236" width="88" height="32" rx="1"/>
+              <rect x="368" y="236" width="88" height="32" rx="1"/>
+            </g>
+          </svg>
+          <div class="pag-card__info">
+            <p class="pag-card__num">01</p>
+            <h2 class="pag-card__title">Amarrado Tradicional</h2>
+            <p class="pag-card__desc">O padrão mais clássico da construção civil. Cada fiada é deslocada em meia peça, criando travamento estrutural e ritmo visual uniforme.</p>
+            <div class="pag-card__tags">
+              <span class="tag">Clássico</span>
+              <span class="tag">Alta resistência</span>
+              <span class="tag">Interno e externo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 02 JUNTA A PRUMO -->
+        <div class="pag-card reveal reveal-delay-1">
+          <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="#f0eeeb"/>
+            <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
+              <rect x="0"   y="20"  width="88" height="32" rx="1"/>
+              <rect x="92"  y="20"  width="88" height="32" rx="1"/>
+              <rect x="184" y="20"  width="88" height="32" rx="1"/>
+              <rect x="276" y="20"  width="88" height="32" rx="1"/>
+              <rect x="368" y="20"  width="88" height="32" rx="1"/>
+              <rect x="0"   y="56"  width="88" height="32" rx="1"/>
+              <rect x="92"  y="56"  width="88" height="32" rx="1"/>
+              <rect x="184" y="56"  width="88" height="32" rx="1"/>
+              <rect x="276" y="56"  width="88" height="32" rx="1"/>
+              <rect x="368" y="56"  width="88" height="32" rx="1"/>
+              <rect x="0"   y="92"  width="88" height="32" rx="1"/>
+              <rect x="92"  y="92"  width="88" height="32" rx="1"/>
+              <rect x="184" y="92"  width="88" height="32" rx="1"/>
+              <rect x="276" y="92"  width="88" height="32" rx="1"/>
+              <rect x="368" y="92"  width="88" height="32" rx="1"/>
+              <rect x="0"   y="128" width="88" height="32" rx="1"/>
+              <rect x="92"  y="128" width="88" height="32" rx="1"/>
+              <rect x="184" y="128" width="88" height="32" rx="1"/>
+              <rect x="276" y="128" width="88" height="32" rx="1"/>
+              <rect x="368" y="128" width="88" height="32" rx="1"/>
+              <rect x="0"   y="164" width="88" height="32" rx="1"/>
+              <rect x="92"  y="164" width="88" height="32" rx="1"/>
+              <rect x="184" y="164" width="88" height="32" rx="1"/>
+              <rect x="276" y="164" width="88" height="32" rx="1"/>
+              <rect x="368" y="164" width="88" height="32" rx="1"/>
+              <rect x="0"   y="200" width="88" height="32" rx="1"/>
+              <rect x="92"  y="200" width="88" height="32" rx="1"/>
+              <rect x="184" y="200" width="88" height="32" rx="1"/>
+              <rect x="276" y="200" width="88" height="32" rx="1"/>
+              <rect x="368" y="200" width="88" height="32" rx="1"/>
+              <rect x="0"   y="236" width="88" height="32" rx="1"/>
+              <rect x="92"  y="236" width="88" height="32" rx="1"/>
+              <rect x="184" y="236" width="88" height="32" rx="1"/>
+              <rect x="276" y="236" width="88" height="32" rx="1"/>
+              <rect x="368" y="236" width="88" height="32" rx="1"/>
+            </g>
+          </svg>
+          <div class="pag-card__info">
+            <p class="pag-card__num">02</p>
+            <h2 class="pag-card__title">Junta a Prumo</h2>
+            <p class="pag-card__desc">Juntas verticais alinhadas em todas as fiadas. Efeito contemporâneo e geométrico, com linhas contínuas que alongam o espaço verticalmente.</p>
+            <div class="pag-card__tags">
+              <span class="tag">Contemporâneo</span>
+              <span class="tag">Interno</span>
+              <span class="tag">Destaque</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 03 ESPINHA DE PEIXE -->
+        <div class="pag-card reveal reveal-delay-2">
+          <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="#f0eeeb"/>
+            <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
+              <!-- Herringbone: alternating vertical and horizontal at 45° approximated as rotated groups -->
+              <!-- Row A: left-leaning -->
+              <rect x="30"  y="10"  width="60" height="22" rx="1" transform="rotate(45 60 21)"/>
+              <rect x="90"  y="10"  width="60" height="22" rx="1" transform="rotate(45 120 21)"/>
+              <rect x="150" y="10"  width="60" height="22" rx="1" transform="rotate(45 180 21)"/>
+              <rect x="210" y="10"  width="60" height="22" rx="1" transform="rotate(45 240 21)"/>
+              <rect x="270" y="10"  width="60" height="22" rx="1" transform="rotate(45 300 21)"/>
+              <rect x="330" y="10"  width="60" height="22" rx="1" transform="rotate(45 360 21)"/>
+              <!-- Row A: right-leaning -->
+              <rect x="30"  y="10"  width="60" height="22" rx="1" transform="rotate(-45 90 55)"/>
+              <rect x="90"  y="10"  width="60" height="22" rx="1" transform="rotate(-45 150 55)"/>
+              <rect x="150" y="10"  width="60" height="22" rx="1" transform="rotate(-45 210 55)"/>
+              <rect x="210" y="10"  width="60" height="22" rx="1" transform="rotate(-45 270 55)"/>
+              <rect x="270" y="10"  width="60" height="22" rx="1" transform="rotate(-45 330 55)"/>
+              <!-- Row B -->
+              <rect x="30"  y="100" width="60" height="22" rx="1" transform="rotate(45 60 111)"/>
+              <rect x="90"  y="100" width="60" height="22" rx="1" transform="rotate(45 120 111)"/>
+              <rect x="150" y="100" width="60" height="22" rx="1" transform="rotate(45 180 111)"/>
+              <rect x="210" y="100" width="60" height="22" rx="1" transform="rotate(45 240 111)"/>
+              <rect x="270" y="100" width="60" height="22" rx="1" transform="rotate(45 300 111)"/>
+              <rect x="330" y="100" width="60" height="22" rx="1" transform="rotate(45 360 111)"/>
+              <rect x="30"  y="100" width="60" height="22" rx="1" transform="rotate(-45 90 145)"/>
+              <rect x="90"  y="100" width="60" height="22" rx="1" transform="rotate(-45 150 145)"/>
+              <rect x="150" y="100" width="60" height="22" rx="1" transform="rotate(-45 210 145)"/>
+              <rect x="210" y="100" width="60" height="22" rx="1" transform="rotate(-45 270 145)"/>
+              <rect x="270" y="100" width="60" height="22" rx="1" transform="rotate(-45 330 145)"/>
+              <!-- Row C -->
+              <rect x="30"  y="190" width="60" height="22" rx="1" transform="rotate(45 60 201)"/>
+              <rect x="90"  y="190" width="60" height="22" rx="1" transform="rotate(45 120 201)"/>
+              <rect x="150" y="190" width="60" height="22" rx="1" transform="rotate(45 180 201)"/>
+              <rect x="210" y="190" width="60" height="22" rx="1" transform="rotate(45 240 201)"/>
+              <rect x="270" y="190" width="60" height="22" rx="1" transform="rotate(45 300 201)"/>
+              <rect x="330" y="190" width="60" height="22" rx="1" transform="rotate(45 360 201)"/>
+              <rect x="30"  y="190" width="60" height="22" rx="1" transform="rotate(-45 90 235)"/>
+              <rect x="90"  y="190" width="60" height="22" rx="1" transform="rotate(-45 150 235)"/>
+              <rect x="150" y="190" width="60" height="22" rx="1" transform="rotate(-45 210 235)"/>
+              <rect x="210" y="190" width="60" height="22" rx="1" transform="rotate(-45 270 235)"/>
+              <rect x="270" y="190" width="60" height="22" rx="1" transform="rotate(-45 330 235)"/>
+            </g>
+          </svg>
+          <div class="pag-card__info">
+            <p class="pag-card__num">03</p>
+            <h2 class="pag-card__title">Espinha de Peixe</h2>
+            <p class="pag-card__desc">Peças assentadas em 45° em direções alternadas. Padrão de alto impacto visual, muito usado em pisos e paredes de destaque em projetos premium.</p>
+            <div class="pag-card__tags">
+              <span class="tag">Premium</span>
+              <span class="tag">Alto impacto</span>
+              <span class="tag">Piso e parede</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 04 DIAGONAL -->
+        <div class="pag-card reveal">
+          <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="#f0eeeb"/>
+            <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8" transform="rotate(-30 200 150)">
+              <rect x="-50" y="20"  width="88" height="32" rx="1"/>
+              <rect x="42"  y="20"  width="88" height="32" rx="1"/>
+              <rect x="134" y="20"  width="88" height="32" rx="1"/>
+              <rect x="226" y="20"  width="88" height="32" rx="1"/>
+              <rect x="318" y="20"  width="88" height="32" rx="1"/>
+              <rect x="410" y="20"  width="88" height="32" rx="1"/>
+              <rect x="-94" y="56"  width="88" height="32" rx="1"/>
+              <rect x="-2"  y="56"  width="88" height="32" rx="1"/>
+              <rect x="90"  y="56"  width="88" height="32" rx="1"/>
+              <rect x="182" y="56"  width="88" height="32" rx="1"/>
+              <rect x="274" y="56"  width="88" height="32" rx="1"/>
+              <rect x="366" y="56"  width="88" height="32" rx="1"/>
+              <rect x="-50" y="92"  width="88" height="32" rx="1"/>
+              <rect x="42"  y="92"  width="88" height="32" rx="1"/>
+              <rect x="134" y="92"  width="88" height="32" rx="1"/>
+              <rect x="226" y="92"  width="88" height="32" rx="1"/>
+              <rect x="318" y="92"  width="88" height="32" rx="1"/>
+              <rect x="410" y="92"  width="88" height="32" rx="1"/>
+              <rect x="-94" y="128" width="88" height="32" rx="1"/>
+              <rect x="-2"  y="128" width="88" height="32" rx="1"/>
+              <rect x="90"  y="128" width="88" height="32" rx="1"/>
+              <rect x="182" y="128" width="88" height="32" rx="1"/>
+              <rect x="274" y="128" width="88" height="32" rx="1"/>
+              <rect x="366" y="128" width="88" height="32" rx="1"/>
+              <rect x="-50" y="164" width="88" height="32" rx="1"/>
+              <rect x="42"  y="164" width="88" height="32" rx="1"/>
+              <rect x="134" y="164" width="88" height="32" rx="1"/>
+              <rect x="226" y="164" width="88" height="32" rx="1"/>
+              <rect x="318" y="164" width="88" height="32" rx="1"/>
+              <rect x="410" y="164" width="88" height="32" rx="1"/>
+              <rect x="-94" y="200" width="88" height="32" rx="1"/>
+              <rect x="-2"  y="200" width="88" height="32" rx="1"/>
+              <rect x="90"  y="200" width="88" height="32" rx="1"/>
+              <rect x="182" y="200" width="88" height="32" rx="1"/>
+              <rect x="274" y="200" width="88" height="32" rx="1"/>
+              <rect x="366" y="200" width="88" height="32" rx="1"/>
+            </g>
+          </svg>
+          <div class="pag-card__info">
+            <p class="pag-card__num">04</p>
+            <h2 class="pag-card__title">Diagonal</h2>
+            <p class="pag-card__desc">Paginação amarrada aplicada em 30° ou 45°. Dinamiza o espaço e rompe com a horizontalidade tradicional, gerando tensão visual interessante.</p>
+            <div class="pag-card__tags">
+              <span class="tag">Dinâmico</span>
+              <span class="tag">Destaque</span>
+              <span class="tag">Parede</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 05 TERÇO CORRIDO -->
+        <div class="pag-card reveal reveal-delay-1">
+          <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="#f0eeeb"/>
+            <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
+              <!-- Offset 1/3 per row -->
+              <rect x="0"   y="20"  width="88" height="32" rx="1"/>
+              <rect x="92"  y="20"  width="88" height="32" rx="1"/>
+              <rect x="184" y="20"  width="88" height="32" rx="1"/>
+              <rect x="276" y="20"  width="88" height="32" rx="1"/>
+              <rect x="368" y="20"  width="88" height="32" rx="1"/>
+
+              <rect x="-60" y="56"  width="88" height="32" rx="1"/>
+              <rect x="32"  y="56"  width="88" height="32" rx="1"/>
+              <rect x="124" y="56"  width="88" height="32" rx="1"/>
+              <rect x="216" y="56"  width="88" height="32" rx="1"/>
+              <rect x="308" y="56"  width="88" height="32" rx="1"/>
+              <rect x="400" y="56"  width="88" height="32" rx="1"/>
+
+              <rect x="-30" y="92"  width="88" height="32" rx="1"/>
+              <rect x="62"  y="92"  width="88" height="32" rx="1"/>
+              <rect x="154" y="92"  width="88" height="32" rx="1"/>
+              <rect x="246" y="92"  width="88" height="32" rx="1"/>
+              <rect x="338" y="92"  width="88" height="32" rx="1"/>
+
+              <rect x="0"   y="128" width="88" height="32" rx="1"/>
+              <rect x="92"  y="128" width="88" height="32" rx="1"/>
+              <rect x="184" y="128" width="88" height="32" rx="1"/>
+              <rect x="276" y="128" width="88" height="32" rx="1"/>
+              <rect x="368" y="128" width="88" height="32" rx="1"/>
+
+              <rect x="-60" y="164" width="88" height="32" rx="1"/>
+              <rect x="32"  y="164" width="88" height="32" rx="1"/>
+              <rect x="124" y="164" width="88" height="32" rx="1"/>
+              <rect x="216" y="164" width="88" height="32" rx="1"/>
+              <rect x="308" y="164" width="88" height="32" rx="1"/>
+              <rect x="400" y="164" width="88" height="32" rx="1"/>
+
+              <rect x="-30" y="200" width="88" height="32" rx="1"/>
+              <rect x="62"  y="200" width="88" height="32" rx="1"/>
+              <rect x="154" y="200" width="88" height="32" rx="1"/>
+              <rect x="246" y="200" width="88" height="32" rx="1"/>
+              <rect x="338" y="200" width="88" height="32" rx="1"/>
+
+              <rect x="0"   y="236" width="88" height="32" rx="1"/>
+              <rect x="92"  y="236" width="88" height="32" rx="1"/>
+              <rect x="184" y="236" width="88" height="32" rx="1"/>
+              <rect x="276" y="236" width="88" height="32" rx="1"/>
+              <rect x="368" y="236" width="88" height="32" rx="1"/>
+            </g>
+          </svg>
+          <div class="pag-card__info">
+            <p class="pag-card__num">05</p>
+            <h2 class="pag-card__title">Terço Corrido</h2>
+            <p class="pag-card__desc">Deslocamento de ⅓ do comprimento da peça a cada fiada. Cria um ritmo mais sutil que o meio-tijolo, com juntas verticais em progressão diagonal suave.</p>
+            <div class="pag-card__tags">
+              <span class="tag">Sutil</span>
+              <span class="tag">Contemporâneo</span>
+              <span class="tag">Interno</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 06 VERTICAL (de pé) -->
+        <div class="pag-card reveal reveal-delay-2">
+          <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="#f0eeeb"/>
+            <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
+              <!-- Bricks standing vertical (rotated 90°) -->
+              <rect x="10"  y="0"   width="32" height="88" rx="1"/>
+              <rect x="46"  y="0"   width="32" height="88" rx="1"/>
+              <rect x="82"  y="0"   width="32" height="88" rx="1"/>
+              <rect x="118" y="0"   width="32" height="88" rx="1"/>
+              <rect x="154" y="0"   width="32" height="88" rx="1"/>
+              <rect x="190" y="0"   width="32" height="88" rx="1"/>
+              <rect x="226" y="0"   width="32" height="88" rx="1"/>
+              <rect x="262" y="0"   width="32" height="88" rx="1"/>
+              <rect x="298" y="0"   width="32" height="88" rx="1"/>
+              <rect x="334" y="0"   width="32" height="88" rx="1"/>
+              <rect x="370" y="0"   width="32" height="88" rx="1"/>
+
+              <rect x="10"  y="92"  width="32" height="88" rx="1"/>
+              <rect x="46"  y="92"  width="32" height="88" rx="1"/>
+              <rect x="82"  y="92"  width="32" height="88" rx="1"/>
+              <rect x="118" y="92"  width="32" height="88" rx="1"/>
+              <rect x="154" y="92"  width="32" height="88" rx="1"/>
+              <rect x="190" y="92"  width="32" height="88" rx="1"/>
+              <rect x="226" y="92"  width="32" height="88" rx="1"/>
+              <rect x="262" y="92"  width="32" height="88" rx="1"/>
+              <rect x="298" y="92"  width="32" height="88" rx="1"/>
+              <rect x="334" y="92"  width="32" height="88" rx="1"/>
+              <rect x="370" y="92"  width="32" height="88" rx="1"/>
+
+              <rect x="10"  y="184" width="32" height="88" rx="1"/>
+              <rect x="46"  y="184" width="32" height="88" rx="1"/>
+              <rect x="82"  y="184" width="32" height="88" rx="1"/>
+              <rect x="118" y="184" width="32" height="88" rx="1"/>
+              <rect x="154" y="184" width="32" height="88" rx="1"/>
+              <rect x="190" y="184" width="32" height="88" rx="1"/>
+              <rect x="226" y="184" width="32" height="88" rx="1"/>
+              <rect x="262" y="184" width="32" height="88" rx="1"/>
+              <rect x="298" y="184" width="32" height="88" rx="1"/>
+              <rect x="334" y="184" width="32" height="88" rx="1"/>
+              <rect x="370" y="184" width="32" height="88" rx="1"/>
+            </g>
+          </svg>
+          <div class="pag-card__info">
+            <p class="pag-card__num">06</p>
+            <h2 class="pag-card__title">Vertical</h2>
+            <p class="pag-card__desc">Peças assentadas de pé, com o comprimento na vertical. Cria ritmo de linhas verticais marcadas, amplia a percepção de altura do ambiente.</p>
+            <div class="pag-card__tags">
+              <span class="tag">Verticaliza</span>
+              <span class="tag">Moderno</span>
+              <span class="tag">Parede</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 07 FLANDRÊS -->
+        <div class="pag-card reveal">
+          <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="#f0eeeb"/>
+            <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
+              <!-- Flandres: alternating 1 header + 1 stretcher per row -->
+              <!-- Row 1: stretcher, header, stretcher, header... -->
+              <rect x="0"   y="20"  width="60" height="32" rx="1"/>
+              <rect x="64"  y="20"  width="30" height="32" rx="1"/>
+              <rect x="98"  y="20"  width="60" height="32" rx="1"/>
+              <rect x="162" y="20"  width="30" height="32" rx="1"/>
+              <rect x="196" y="20"  width="60" height="32" rx="1"/>
+              <rect x="260" y="20"  width="30" height="32" rx="1"/>
+              <rect x="294" y="20"  width="60" height="32" rx="1"/>
+              <rect x="358" y="20"  width="30" height="32" rx="1"/>
+              <!-- Row 2: header, stretcher, header, stretcher... offset -->
+              <rect x="0"   y="56"  width="30" height="32" rx="1"/>
+              <rect x="34"  y="56"  width="60" height="32" rx="1"/>
+              <rect x="98"  y="56"  width="30" height="32" rx="1"/>
+              <rect x="132" y="56"  width="60" height="32" rx="1"/>
+              <rect x="196" y="56"  width="30" height="32" rx="1"/>
+              <rect x="230" y="56"  width="60" height="32" rx="1"/>
+              <rect x="294" y="56"  width="30" height="32" rx="1"/>
+              <rect x="328" y="56"  width="60" height="32" rx="1"/>
+              <!-- Row 3 same as 1 -->
+              <rect x="0"   y="92"  width="60" height="32" rx="1"/>
+              <rect x="64"  y="92"  width="30" height="32" rx="1"/>
+              <rect x="98"  y="92"  width="60" height="32" rx="1"/>
+              <rect x="162" y="92"  width="30" height="32" rx="1"/>
+              <rect x="196" y="92"  width="60" height="32" rx="1"/>
+              <rect x="260" y="92"  width="30" height="32" rx="1"/>
+              <rect x="294" y="92"  width="60" height="32" rx="1"/>
+              <rect x="358" y="92"  width="30" height="32" rx="1"/>
+              <!-- Row 4 -->
+              <rect x="0"   y="128" width="30" height="32" rx="1"/>
+              <rect x="34"  y="128" width="60" height="32" rx="1"/>
+              <rect x="98"  y="128" width="30" height="32" rx="1"/>
+              <rect x="132" y="128" width="60" height="32" rx="1"/>
+              <rect x="196" y="128" width="30" height="32" rx="1"/>
+              <rect x="230" y="128" width="60" height="32" rx="1"/>
+              <rect x="294" y="128" width="30" height="32" rx="1"/>
+              <rect x="328" y="128" width="60" height="32" rx="1"/>
+              <!-- Row 5 -->
+              <rect x="0"   y="164" width="60" height="32" rx="1"/>
+              <rect x="64"  y="164" width="30" height="32" rx="1"/>
+              <rect x="98"  y="164" width="60" height="32" rx="1"/>
+              <rect x="162" y="164" width="30" height="32" rx="1"/>
+              <rect x="196" y="164" width="60" height="32" rx="1"/>
+              <rect x="260" y="164" width="30" height="32" rx="1"/>
+              <rect x="294" y="164" width="60" height="32" rx="1"/>
+              <rect x="358" y="164" width="30" height="32" rx="1"/>
+              <!-- Row 6 -->
+              <rect x="0"   y="200" width="30" height="32" rx="1"/>
+              <rect x="34"  y="200" width="60" height="32" rx="1"/>
+              <rect x="98"  y="200" width="30" height="32" rx="1"/>
+              <rect x="132" y="200" width="60" height="32" rx="1"/>
+              <rect x="196" y="200" width="30" height="32" rx="1"/>
+              <rect x="230" y="200" width="60" height="32" rx="1"/>
+              <rect x="294" y="200" width="30" height="32" rx="1"/>
+              <rect x="328" y="200" width="60" height="32" rx="1"/>
+              <!-- Row 7 -->
+              <rect x="0"   y="236" width="60" height="32" rx="1"/>
+              <rect x="64"  y="236" width="30" height="32" rx="1"/>
+              <rect x="98"  y="236" width="60" height="32" rx="1"/>
+              <rect x="162" y="236" width="30" height="32" rx="1"/>
+              <rect x="196" y="236" width="60" height="32" rx="1"/>
+              <rect x="260" y="236" width="30" height="32" rx="1"/>
+              <rect x="294" y="236" width="60" height="32" rx="1"/>
+              <rect x="358" y="236" width="30" height="32" rx="1"/>
+            </g>
+          </svg>
+          <div class="pag-card__info">
+            <p class="pag-card__num">07</p>
+            <h2 class="pag-card__title">Flandrês</h2>
+            <p class="pag-card__desc">Alternância de uma peça deitada e uma de topo em cada fiada. Padrão europeu clássico com textura visual rica, muito valorizado em projetos históricos.</p>
+            <div class="pag-card__tags">
+              <span class="tag">Europeu</span>
+              <span class="tag">Clássico</span>
+              <span class="tag">Externo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 08 AMERICANO -->
+        <div class="pag-card reveal reveal-delay-1">
+          <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="#f0eeeb"/>
+            <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
+              <!-- American: 3 stretcher rows + 1 header row -->
+              <!-- 3 rows amarrado -->
+              <rect x="0"   y="8"   width="88" height="28" rx="1"/>
+              <rect x="92"  y="8"   width="88" height="28" rx="1"/>
+              <rect x="184" y="8"   width="88" height="28" rx="1"/>
+              <rect x="276" y="8"   width="88" height="28" rx="1"/>
+              <rect x="368" y="8"   width="88" height="28" rx="1"/>
+
+              <rect x="-44" y="40"  width="88" height="28" rx="1"/>
+              <rect x="48"  y="40"  width="88" height="28" rx="1"/>
+              <rect x="140" y="40"  width="88" height="28" rx="1"/>
+              <rect x="232" y="40"  width="88" height="28" rx="1"/>
+              <rect x="324" y="40"  width="88" height="28" rx="1"/>
+
+              <rect x="0"   y="72"  width="88" height="28" rx="1"/>
+              <rect x="92"  y="72"  width="88" height="28" rx="1"/>
+              <rect x="184" y="72"  width="88" height="28" rx="1"/>
+              <rect x="276" y="72"  width="88" height="28" rx="1"/>
+              <rect x="368" y="72"  width="88" height="28" rx="1"/>
+
+              <!-- Header row (tijolos de topo) -->
+              <rect x="2"   y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="34"  y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="66"  y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="98"  y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="130" y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="162" y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="194" y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="226" y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="258" y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="290" y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="322" y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="354" y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="386" y="104" width="28" height="28" rx="1" fill="#b8987a"/>
+
+              <!-- 3 more amarrado -->
+              <rect x="0"   y="136" width="88" height="28" rx="1"/>
+              <rect x="92"  y="136" width="88" height="28" rx="1"/>
+              <rect x="184" y="136" width="88" height="28" rx="1"/>
+              <rect x="276" y="136" width="88" height="28" rx="1"/>
+              <rect x="368" y="136" width="88" height="28" rx="1"/>
+
+              <rect x="-44" y="168" width="88" height="28" rx="1"/>
+              <rect x="48"  y="168" width="88" height="28" rx="1"/>
+              <rect x="140" y="168" width="88" height="28" rx="1"/>
+              <rect x="232" y="168" width="88" height="28" rx="1"/>
+              <rect x="324" y="168" width="88" height="28" rx="1"/>
+
+              <rect x="0"   y="200" width="88" height="28" rx="1"/>
+              <rect x="92"  y="200" width="88" height="28" rx="1"/>
+              <rect x="184" y="200" width="88" height="28" rx="1"/>
+              <rect x="276" y="200" width="88" height="28" rx="1"/>
+              <rect x="368" y="200" width="88" height="28" rx="1"/>
+
+              <!-- header row 2 -->
+              <rect x="2"   y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="34"  y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="66"  y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="98"  y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="130" y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="162" y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="194" y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="226" y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="258" y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="290" y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="322" y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="354" y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+              <rect x="386" y="232" width="28" height="28" rx="1" fill="#b8987a"/>
+            </g>
+          </svg>
+          <div class="pag-card__info">
+            <p class="pag-card__num">08</p>
+            <h2 class="pag-card__title">Americano</h2>
+            <p class="pag-card__desc">A cada 3 a 5 fiadas amarradas, uma fiada de topo (cabeça). Cria listras horizontais de textura diferenciada, muito usado em construções históricas americanas.</p>
+            <div class="pag-card__tags">
+              <span class="tag">Histórico</span>
+              <span class="tag">Listrado</span>
+              <span class="tag">Externo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 09 QUARTO CORRIDO -->
+        <div class="pag-card reveal reveal-delay-2">
+          <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="#f0eeeb"/>
+            <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
+              <!-- Quarter offset: each row offset by 1/4 brick -->
+              <rect x="0"   y="20"  width="88" height="32" rx="1"/>
+              <rect x="92"  y="20"  width="88" height="32" rx="1"/>
+              <rect x="184" y="20"  width="88" height="32" rx="1"/>
+              <rect x="276" y="20"  width="88" height="32" rx="1"/>
+              <rect x="368" y="20"  width="88" height="32" rx="1"/>
+
+              <rect x="-22" y="56"  width="88" height="32" rx="1"/>
+              <rect x="70"  y="56"  width="88" height="32" rx="1"/>
+              <rect x="162" y="56"  width="88" height="32" rx="1"/>
+              <rect x="254" y="56"  width="88" height="32" rx="1"/>
+              <rect x="346" y="56"  width="88" height="32" rx="1"/>
+
+              <rect x="-44" y="92"  width="88" height="32" rx="1"/>
+              <rect x="48"  y="92"  width="88" height="32" rx="1"/>
+              <rect x="140" y="92"  width="88" height="32" rx="1"/>
+              <rect x="232" y="92"  width="88" height="32" rx="1"/>
+              <rect x="324" y="92"  width="88" height="32" rx="1"/>
+
+              <rect x="-66" y="128" width="88" height="32" rx="1"/>
+              <rect x="26"  y="128" width="88" height="32" rx="1"/>
+              <rect x="118" y="128" width="88" height="32" rx="1"/>
+              <rect x="210" y="128" width="88" height="32" rx="1"/>
+              <rect x="302" y="128" width="88" height="32" rx="1"/>
+              <rect x="394" y="128" width="88" height="32" rx="1"/>
+
+              <rect x="0"   y="164" width="88" height="32" rx="1"/>
+              <rect x="92"  y="164" width="88" height="32" rx="1"/>
+              <rect x="184" y="164" width="88" height="32" rx="1"/>
+              <rect x="276" y="164" width="88" height="32" rx="1"/>
+              <rect x="368" y="164" width="88" height="32" rx="1"/>
+
+              <rect x="-22" y="200" width="88" height="32" rx="1"/>
+              <rect x="70"  y="200" width="88" height="32" rx="1"/>
+              <rect x="162" y="200" width="88" height="32" rx="1"/>
+              <rect x="254" y="200" width="88" height="32" rx="1"/>
+              <rect x="346" y="200" width="88" height="32" rx="1"/>
+
+              <rect x="-44" y="236" width="88" height="32" rx="1"/>
+              <rect x="48"  y="236" width="88" height="32" rx="1"/>
+              <rect x="140" y="236" width="88" height="32" rx="1"/>
+              <rect x="232" y="236" width="88" height="32" rx="1"/>
+              <rect x="324" y="236" width="88" height="32" rx="1"/>
+            </g>
+          </svg>
+          <div class="pag-card__info">
+            <p class="pag-card__num">09</p>
+            <h2 class="pag-card__title">Quarto Corrido</h2>
+            <p class="pag-card__desc">Deslocamento de ¼ da peça a cada fiada, criando um escalonamento progressivo em diagonal. Leitura visual diferenciada com junta em zigue-zague suave.</p>
+            <div class="pag-card__tags">
+              <span class="tag">Progressivo</span>
+              <span class="tag">Contemporâneo</span>
+              <span class="tag">Interno</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10 MISTO -->
+        <div class="pag-card reveal">
+          <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <rect width="400" height="300" fill="#f0eeeb"/>
+            <g stroke="#b8987a" stroke-width="0.8">
+              <!-- Mix: alternating horizontal and vertical rows -->
+              <!-- Row 1: horizontal (deitado) -->
+              <rect x="0"   y="20"  width="88" height="32" rx="1" fill="#c4a882"/>
+              <rect x="92"  y="20"  width="88" height="32" rx="1" fill="#c4a882"/>
+              <rect x="184" y="20"  width="88" height="32" rx="1" fill="#c4a882"/>
+              <rect x="276" y="20"  width="88" height="32" rx="1" fill="#c4a882"/>
+              <rect x="368" y="20"  width="88" height="32" rx="1" fill="#c4a882"/>
+
+              <!-- Row 2: vertical (de pé) - darker accent -->
+              <rect x="4"   y="56"  width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="38"  y="56"  width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="72"  y="56"  width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="106" y="56"  width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="140" y="56"  width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="174" y="56"  width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="208" y="56"  width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="242" y="56"  width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="276" y="56"  width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="310" y="56"  width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="344" y="56"  width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="378" y="56"  width="30" height="50" rx="1" fill="#b8987a"/>
+
+              <!-- Row 3: horizontal -->
+              <rect x="-44" y="110" width="88" height="32" rx="1" fill="#c4a882"/>
+              <rect x="48"  y="110" width="88" height="32" rx="1" fill="#c4a882"/>
+              <rect x="140" y="110" width="88" height="32" rx="1" fill="#c4a882"/>
+              <rect x="232" y="110" width="88" height="32" rx="1" fill="#c4a882"/>
+              <rect x="324" y="110" width="88" height="32" rx="1" fill="#c4a882"/>
+
+              <!-- Row 4: vertical -->
+              <rect x="4"   y="146" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="38"  y="146" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="72"  y="146" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="106" y="146" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="140" y="146" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="174" y="146" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="208" y="146" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="242" y="146" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="276" y="146" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="310" y="146" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="344" y="146" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="378" y="146" width="30" height="50" rx="1" fill="#b8987a"/>
+
+              <!-- Row 5: horizontal -->
+              <rect x="0"   y="200" width="88" height="32" rx="1" fill="#c4a882"/>
+              <rect x="92"  y="200" width="88" height="32" rx="1" fill="#c4a882"/>
+              <rect x="184" y="200" width="88" height="32" rx="1" fill="#c4a882"/>
+              <rect x="276" y="200" width="88" height="32" rx="1" fill="#c4a882"/>
+              <rect x="368" y="200" width="88" height="32" rx="1" fill="#c4a882"/>
+
+              <!-- Row 6: vertical -->
+              <rect x="4"   y="236" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="38"  y="236" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="72"  y="236" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="106" y="236" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="140" y="236" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="174" y="236" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="208" y="236" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="242" y="236" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="276" y="236" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="310" y="236" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="344" y="236" width="30" height="50" rx="1" fill="#b8987a"/>
+              <rect x="378" y="236" width="30" height="50" rx="1" fill="#b8987a"/>
+            </g>
+          </svg>
+          <div class="pag-card__info">
+            <p class="pag-card__num">10</p>
+            <h2 class="pag-card__title">Misto</h2>
+            <p class="pag-card__desc">Alternância entre fiadas horizontais e fiadas verticais. Cria um padrão com dois planos de textura distintos, de alto valor decorativo e exclusividade.</p>
+            <div class="pag-card__tags">
+              <span class="tag">Exclusivo</span>
+              <span class="tag">Decorativo</span>
+              <span class="tag">Destaque</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <section class="cta">
+    <svg class="cta__watermark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+    </svg>
+    <div class="wrap cta__inner">
+      <div class="reveal">
+        <h2 class="cta__title">Qual paginação combina com seu projeto?</h2>
+        <p class="cta__body">Nosso time pode ajudar a escolher o padrão ideal para cada ambiente. Solicite uma amostra e visualize o resultado antes de decidir.</p>
+      </div>
+      <div class="cta__actions reveal reveal-delay-1">
+        <a href="index.html#amostra" class="btn btn--solid-light">
+          <i class="ti ti-file-text" aria-hidden="true"></i>
+          Solicitar amostra
+        </a>
+        <a href="colecoes.html" class="btn btn--outline-dark">
+          <i class="ti ti-layout-grid" aria-hidden="true"></i>
+          Ver coleções
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__grid">
+        <div>
+          <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+            <span class="logo-box">
+              <svg class="logo-mark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+              </svg>
+            </span>
+            <span class="logo-divider" aria-hidden="true"></span>
+            <span class="logo-word">Bruto</span>
+          </a>
+          <p class="footer__tagline">Curadoria de revestimentos artesanais para projetos de alta exigência.</p>
+        </div>
+        <div>
+          <p class="footer__col-title">Coleções</p>
+          <nav class="footer__links">
+            <a href="colecoes.html#brick">Brick</a>
+            <a href="colecoes.html#cimenticio">Cimentício</a>
+            <a href="colecoes.html#rockface">Rockface</a>
+          </nav>
+        </div>
+        <div>
+          <p class="footer__col-title">Navegação</p>
+          <nav class="footer__links">
+            <a href="paginacoes.html">Paginações</a>
+            <a href="blog.html">Blog</a>
+            <a href="index.html#projetos">Projetos</a>
+            <a href="index.html#sobre">Sobre</a>
+          </nav>
+        </div>
+        <div>
+          <p class="footer__col-title">Contato</p>
+          <nav class="footer__links">
+            <a href="#">contato@bruto.com.br</a>
+            <a href="#">Instagram</a>
+            <a href="#">WhatsApp</a>
+          </nav>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2026 Bruto. Todos os direitos reservados.</p>
+        <div class="footer__bottom-links">
+          <a href="#">Privacidade</a>
+          <a href="#">Termos</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const revealEls = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => obs.observe(el));
+
+    const menuBtn = document.getElementById('menu-btn');
+    const mainNav = document.getElementById('main-nav');
+    menuBtn.addEventListener('click', () => {
+      const isOpen = mainNav.classList.toggle('nav--open');
+      menuBtn.setAttribute('aria-expanded', isOpen);
+      menuBtn.querySelector('i').className = isOpen ? 'ti ti-x' : 'ti ti-menu-2';
+    });
+  </script>
+
+</body>
+</html>
