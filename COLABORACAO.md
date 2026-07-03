@@ -133,3 +133,34 @@ se disponível na conversa, ou o próprio `styles.css`.
 
 Pergunte à pessoa antes de agir, em vez de assumir. Ela está transitando
 entre sessões — é a única que tem visão de tudo o que está acontecendo.
+
+---
+
+## 10. Incidente real — o que acontece quando o item 2 é pulado
+
+Em 03/07/2026, um commit (`1d1e39e`, "CSS do sidebar de filtro") foi feito
+em cima de uma cópia local do `styles.css` **desatualizada em 2 commits** —
+sem `git fetch`/`git pull` antes. Não houve conflito de merge (o push foi
+linear, sem rejeição), então o problema passou batido silenciosamente.
+
+O resultado: 273 linhas do `styles.css` foram sobrescritas por uma versão
+antiga, apagando sem querer — junto com a feature nova e legítima do
+sidebar — seções inteiras que já estavam em produção:
+
+- FAQ inteiro (`faq__grid`, `faq__item`, accordion) — sem estilo no `index.html`
+- Calculadora de m² (`.calc` e sub-classes) — quebrada em 18 páginas de produto
+- `.price__unit` (badge de preço/m²) — quebrado em 18 páginas
+- Avatar redondo dos depoimentos, hover de zoom em imagens de blog, e mais
+
+Ninguém percebeu na hora porque **o git não acusa erro nesse cenário** —
+sobrescrever um arquivo inteiro com uma versão antiga é um push válido,
+não um conflito. Só apareceu ao rodar `git fetch` + comparar classes CSS
+contra o HTML numa sessão seguinte, várias interações depois.
+
+**A lição prática:** o item 2 ("antes de commitar") não é burocracia — é
+a única coisa que teria pego isso na hora. Rodar `git log HEAD..origin/main`
+antes de cada commit custa uma chamada de ferramenta e evita horas de
+arqueologia depois. Se o diff que você está prestes a commitar em um
+arquivo compartilhado (`styles.css`, `COLABORACAO.md`) tiver muito mais
+linhas removidas do que você lembra de ter apagado, **pare e investigue
+antes de dar push** — pode ser exatamente isso acontecendo de novo.
