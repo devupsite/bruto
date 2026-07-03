@@ -88,6 +88,80 @@
       color: #555;
       background: #fff;
     }
+
+    /* ── Filtros ─────────────────────────────── */
+    .pag-filters {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: clamp(20px, 3vw, 40px);
+      padding-bottom: clamp(20px, 3vw, 32px);
+      border-bottom: 1px solid var(--line, rgba(10,10,10,.14));
+    }
+
+    .pag-filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .pag-filter-group__label {
+      font-family: var(--f-display, 'Barlow Condensed', sans-serif);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--concreto, #6E6E6E);
+      margin-right: 0.2rem;
+    }
+
+    .chip {
+      font-family: var(--f-body, 'Barlow', sans-serif);
+      font-size: 0.85rem;
+      padding: 0.4rem 0.9rem;
+      border: 1px solid var(--line, rgba(10,10,10,.14));
+      border-radius: 999px;
+      background: transparent;
+      color: var(--grafite, #1E1E1E);
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      line-height: 1.2;
+    }
+
+    .chip:hover {
+      border-color: var(--ferro, #0A0A0A);
+    }
+
+    .chip.is-active {
+      background: var(--ferro, #0A0A0A);
+      border-color: var(--ferro, #0A0A0A);
+      color: #fff;
+    }
+
+    .pag-filters__count {
+      margin-left: auto;
+      font-family: var(--f-body, 'Barlow', sans-serif);
+      font-size: 0.85rem;
+      color: var(--concreto, #6E6E6E);
+      white-space: nowrap;
+    }
+
+    .pag-card[hidden] { display: none; }
+
+    .pag-empty {
+      display: none;
+      padding: clamp(48px, 8vw, 96px) 0;
+      text-align: center;
+      font-family: var(--f-body, 'Barlow', sans-serif);
+      color: var(--concreto, #6E6E6E);
+    }
+
+    .pag-empty.is-visible { display: block; }
+
+    @media (max-width: 640px) {
+      .pag-filters__count { margin-left: 0; width: 100%; }
+    }
   </style>
 </head>
 <body>
@@ -135,10 +209,29 @@
 
   <section class="cat-section" style="border-top: 1px solid var(--line, #e0e0e0); padding: clamp(48px,6vw,80px) 0;">
     <div class="wrap">
-      <div class="pag-grid">
+
+      <div class="pag-filters" role="group" aria-label="Filtrar padrões de paginação">
+        <div class="pag-filter-group" data-filter-group="style">
+          <span class="pag-filter-group__label">Estilo</span>
+          <button type="button" class="chip is-active" data-filter-value="all">Todos</button>
+          <button type="button" class="chip" data-filter-value="corrido">Corrido</button>
+          <button type="button" class="chip" data-filter-value="classico">Clássico</button>
+          <button type="button" class="chip" data-filter-value="geometrico">Geométrico</button>
+          <button type="button" class="chip" data-filter-value="especial">Especial</button>
+        </div>
+        <div class="pag-filter-group" data-filter-group="ambiente">
+          <span class="pag-filter-group__label">Ambiente</span>
+          <button type="button" class="chip is-active" data-filter-value="all">Todos</button>
+          <button type="button" class="chip" data-filter-value="interno">Interno</button>
+          <button type="button" class="chip" data-filter-value="externo">Externo</button>
+        </div>
+        <p class="pag-filters__count" id="pag-count">25 padrões</p>
+      </div>
+
+      <div class="pag-grid" id="pag-grid">
 
         <!-- 01 AMARRADO TRADICIONAL -->
-        <div class="pag-card reveal">
+        <div class="pag-card reveal" data-style="corrido" data-ambiente="interno externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
@@ -199,7 +292,7 @@
         </div>
 
         <!-- 02 JUNTA A PRUMO -->
-        <div class="pag-card reveal reveal-delay-1">
+        <div class="pag-card reveal reveal-delay-1" data-style="corrido" data-ambiente="interno">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
@@ -253,7 +346,7 @@
         </div>
 
         <!-- 03 ESPINHA DE PEIXE -->
-        <div class="pag-card reveal reveal-delay-2">
+        <div class="pag-card reveal reveal-delay-2" data-style="geometrico" data-ambiente="interno externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
@@ -310,7 +403,7 @@
         </div>
 
         <!-- 04 DIAGONAL -->
-        <div class="pag-card reveal">
+        <div class="pag-card reveal" data-style="geometrico" data-ambiente="interno externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8" transform="rotate(-30 200 150)">
@@ -365,7 +458,7 @@
         </div>
 
         <!-- 05 TERÇO CORRIDO -->
-        <div class="pag-card reveal reveal-delay-1">
+        <div class="pag-card reveal reveal-delay-1" data-style="corrido" data-ambiente="interno">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
@@ -428,7 +521,7 @@
         </div>
 
         <!-- 06 VERTICAL (de pé) -->
-        <div class="pag-card reveal reveal-delay-2">
+        <div class="pag-card reveal reveal-delay-2" data-style="especial" data-ambiente="interno externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
@@ -483,7 +576,7 @@
         </div>
 
         <!-- 07 FLANDRÊS -->
-        <div class="pag-card reveal">
+        <div class="pag-card reveal" data-style="classico" data-ambiente="externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
@@ -566,7 +659,7 @@
         </div>
 
         <!-- 08 AMERICANO -->
-        <div class="pag-card reveal reveal-delay-1">
+        <div class="pag-card reveal reveal-delay-1" data-style="classico" data-ambiente="externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
@@ -653,7 +746,7 @@
         </div>
 
         <!-- 09 QUARTO CORRIDO -->
-        <div class="pag-card reveal reveal-delay-2">
+        <div class="pag-card reveal reveal-delay-2" data-style="corrido" data-ambiente="interno">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
@@ -715,7 +808,7 @@
         </div>
 
         <!-- 10 MISTO -->
-        <div class="pag-card reveal">
+        <div class="pag-card reveal" data-style="especial" data-ambiente="interno externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g stroke="#b8987a" stroke-width="0.8">
@@ -798,7 +891,7 @@
 
       
         <!-- 11 INGLÊS -->
-        <div class="pag-card reveal reveal-delay-1">
+        <div class="pag-card reveal reveal-delay-1" data-style="classico" data-ambiente="externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g stroke="#b8987a" stroke-width="0.8">
@@ -876,7 +969,7 @@
         </div>
 
         <!-- 12 INGLÊS CRUZADO -->
-        <div class="pag-card reveal reveal-delay-2">
+        <div class="pag-card reveal reveal-delay-2" data-style="classico" data-ambiente="externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g stroke="#b8987a" stroke-width="0.8">
@@ -949,7 +1042,7 @@
         </div>
 
         <!-- 13 CESTA (BASKET WEAVE) -->
-        <div class="pag-card reveal">
+        <div class="pag-card reveal" data-style="geometrico" data-ambiente="externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
@@ -1022,7 +1115,7 @@
         </div>
 
         <!-- 14 CATA-VENTO -->
-        <div class="pag-card reveal reveal-delay-1">
+        <div class="pag-card reveal reveal-delay-1" data-style="geometrico" data-ambiente="interno externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g stroke="#b8987a" stroke-width="0.8">
@@ -1104,7 +1197,7 @@
         </div>
 
         <!-- 15 MONGE -->
-        <div class="pag-card reveal reveal-delay-2">
+        <div class="pag-card reveal reveal-delay-2" data-style="classico" data-ambiente="externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g stroke="#b8987a" stroke-width="0.8">
@@ -1185,7 +1278,7 @@
         </div>
 
         <!-- 16 JARDIM -->
-        <div class="pag-card reveal">
+        <div class="pag-card reveal" data-style="classico" data-ambiente="externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g stroke="#b8987a" stroke-width="0.8">
@@ -1266,7 +1359,7 @@
         </div>
 
         <!-- 17 LOSANGO -->
-        <div class="pag-card reveal reveal-delay-1">
+        <div class="pag-card reveal reveal-delay-1" data-style="geometrico" data-ambiente="interno">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8" transform="rotate(45 200 150) scale(0.72) translate(80 0)">
@@ -1311,7 +1404,7 @@
         </div>
 
         <!-- 18 ALEATÓRIO -->
-        <div class="pag-card reveal reveal-delay-2">
+        <div class="pag-card reveal reveal-delay-2" data-style="especial" data-ambiente="interno">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
@@ -1367,7 +1460,7 @@
         </div>
 
         <!-- 19 FIADAS DUPLAS -->
-        <div class="pag-card reveal">
+        <div class="pag-card reveal" data-style="corrido" data-ambiente="interno">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g stroke="#b8987a" stroke-width="0.8">
@@ -1436,7 +1529,7 @@
         </div>
 
         <!-- 20 DIAGONAL CRUZADA -->
-        <div class="pag-card reveal reveal-delay-1">
+        <div class="pag-card reveal reveal-delay-1" data-style="geometrico" data-ambiente="interno">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8" transform="rotate(30 200 150) scale(0.85) translate(30 -20)">
@@ -1497,7 +1590,7 @@
         </div>
 
         <!-- 21 ESCAMA -->
-        <div class="pag-card reveal reveal-delay-2">
+        <div class="pag-card reveal reveal-delay-2" data-style="geometrico" data-ambiente="interno">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
@@ -1563,7 +1656,7 @@
         </div>
 
         <!-- 22 CORRIDA COM JUNTA LARGA -->
-        <div class="pag-card reveal">
+        <div class="pag-card reveal" data-style="corrido" data-ambiente="interno">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g fill="#c4a882" stroke="#b8987a" stroke-width="0.8">
@@ -1620,7 +1713,7 @@
         </div>
 
         <!-- 23 XADREZ BICOLOR -->
-        <div class="pag-card reveal reveal-delay-1">
+        <div class="pag-card reveal reveal-delay-1" data-style="geometrico" data-ambiente="interno">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g stroke="#b8987a" stroke-width="0.8">
@@ -1677,7 +1770,7 @@
         </div>
 
         <!-- 24 MÓDULO QUADRADO -->
-        <div class="pag-card reveal reveal-delay-2">
+        <div class="pag-card reveal reveal-delay-2" data-style="geometrico" data-ambiente="interno externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g stroke="#b8987a" stroke-width="0.8">
@@ -1744,7 +1837,7 @@
         </div>
 
         <!-- 25 GÓTICO -->
-        <div class="pag-card reveal">
+        <div class="pag-card reveal" data-style="classico" data-ambiente="externo">
           <svg class="pag-card__preview" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
             <rect width="400" height="300" fill="#f0eeeb"/>
             <g stroke="#b8987a" stroke-width="0.8">
@@ -1828,7 +1921,10 @@
           </div>
         </div>
 
-</div>
+      </div>
+
+      <p class="pag-empty" id="pag-empty">Nenhum padrão encontrado para essa combinação de filtros.</p>
+
     </div>
   </section>
 
@@ -1923,6 +2019,43 @@
       menuBtn.setAttribute('aria-expanded', isOpen);
       menuBtn.querySelector('i').className = isOpen ? 'ti ti-x' : 'ti ti-menu-2';
     });
+
+    // Filtro de padrões por estilo e ambiente
+    (function () {
+      const cards = Array.from(document.querySelectorAll('#pag-grid .pag-card'));
+      const countEl = document.getElementById('pag-count');
+      const emptyEl = document.getElementById('pag-empty');
+      const groups = document.querySelectorAll('.pag-filter-group');
+
+      const state = { style: 'all', ambiente: 'all' };
+
+      function applyFilters() {
+        let visible = 0;
+        cards.forEach(card => {
+          const style = card.dataset.style || '';
+          const ambiente = (card.dataset.ambiente || '').split(' ');
+          const styleMatch = state.style === 'all' || style === state.style;
+          const ambienteMatch = state.ambiente === 'all' || ambiente.includes(state.ambiente);
+          const show = styleMatch && ambienteMatch;
+          card.hidden = !show;
+          if (show) visible++;
+        });
+        countEl.textContent = visible === 1 ? '1 padrão' : `${visible} padrões`;
+        emptyEl.classList.toggle('is-visible', visible === 0);
+      }
+
+      groups.forEach(group => {
+        const key = group.dataset.filterGroup;
+        group.addEventListener('click', (e) => {
+          const btn = e.target.closest('.chip');
+          if (!btn) return;
+          group.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          state[key] = btn.dataset.filterValue;
+          applyFilters();
+        });
+      });
+    })();
   </script>
 
 </body>
