@@ -551,6 +551,11 @@
     }
 
     /* ════════════════════════════════════════════
+       PADRÃO DE ESPECIFICAÇÃO
+    ════════════════════════════════════════════ */
+    .especificacao { padding: var(--sec-pad) 0; border-top: 1px solid var(--line); }
+
+    /* ════════════════════════════════════════════
        DIFERENCIAIS
     ════════════════════════════════════════════ */
     .diferenciais { padding: var(--sec-pad) 0; border-top: 1px solid var(--line); }
