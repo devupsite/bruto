@@ -89,6 +89,43 @@
       background: #fff;
     }
 
+    .pag-card__meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.3rem;
+    }
+
+    .pag-card__num { margin-bottom: 0; }
+
+    .pag-level {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: var(--f-body, 'Barlow', sans-serif);
+      font-size: 0.72rem;
+      letter-spacing: 0.01em;
+      color: var(--concreto, #6E6E6E);
+    }
+
+    .pag-level__dots {
+      display: inline-flex;
+      gap: 2px;
+    }
+
+    .pag-level__dots i {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--line, rgba(10,10,10,.18));
+      font-size: 0;
+    }
+
+    .pag-level--facil .pag-level__dots i:nth-child(1) { background: var(--ferro, #0A0A0A); }
+    .pag-level--medio .pag-level__dots i:nth-child(1),
+    .pag-level--medio .pag-level__dots i:nth-child(2) { background: var(--ferro, #0A0A0A); }
+    .pag-level--avancado .pag-level__dots i { background: var(--ferro, #0A0A0A); }
+
     /* ── Filtros ─────────────────────────────── */
     .pag-filters {
       display: flex;
@@ -202,6 +239,10 @@
           25 padrões de assentamento para os tijolos Brick — do mais clássico ao contemporâneo.
           Cada paginação muda completamente a leitura visual do ambiente.
         </p>
+        <a href="colecoes.html#brick" class="btn btn--outline" style="margin-top: clamp(20px, 3vw, 32px);">
+          <i class="ti ti-layout-grid" aria-hidden="true"></i>
+          Ver modelos de Brick
+        </a>
       </div>
     </div>
   </section>
@@ -280,7 +321,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">01</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">01</p>
+              <span class="pag-level pag-level--facil" title="Dificuldade de execução: Fácil"><span class="pag-level__dots"><i></i><i></i><i></i></span>Fácil</span>
+            </div>
             <h2 class="pag-card__title">Amarrado Tradicional</h2>
             <p class="pag-card__desc">O padrão mais clássico da construção civil. Cada fiada é deslocada em meia peça, criando travamento estrutural e ritmo visual uniforme.</p>
             <div class="pag-card__tags">
@@ -334,7 +378,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">02</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">02</p>
+              <span class="pag-level pag-level--medio" title="Dificuldade de execução: Médio"><span class="pag-level__dots"><i></i><i></i><i></i></span>Médio</span>
+            </div>
             <h2 class="pag-card__title">Junta a Prumo</h2>
             <p class="pag-card__desc">Juntas verticais alinhadas em todas as fiadas. Efeito contemporâneo e geométrico, com linhas contínuas que alongam o espaço verticalmente.</p>
             <div class="pag-card__tags">
@@ -391,7 +438,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">03</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">03</p>
+              <span class="pag-level pag-level--avancado" title="Dificuldade de execução: Avançado"><span class="pag-level__dots"><i></i><i></i><i></i></span>Avançado</span>
+            </div>
             <h2 class="pag-card__title">Espinha de Peixe</h2>
             <p class="pag-card__desc">Peças assentadas em 45° em direções alternadas. Padrão de alto impacto visual, muito usado em pisos e paredes de destaque em projetos premium.</p>
             <div class="pag-card__tags">
@@ -446,7 +496,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">04</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">04</p>
+              <span class="pag-level pag-level--avancado" title="Dificuldade de execução: Avançado"><span class="pag-level__dots"><i></i><i></i><i></i></span>Avançado</span>
+            </div>
             <h2 class="pag-card__title">Diagonal</h2>
             <p class="pag-card__desc">Paginação amarrada aplicada em 30° ou 45°. Dinamiza o espaço e rompe com a horizontalidade tradicional, gerando tensão visual interessante.</p>
             <div class="pag-card__tags">
@@ -509,7 +562,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">05</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">05</p>
+              <span class="pag-level pag-level--facil" title="Dificuldade de execução: Fácil"><span class="pag-level__dots"><i></i><i></i><i></i></span>Fácil</span>
+            </div>
             <h2 class="pag-card__title">Terço Corrido</h2>
             <p class="pag-card__desc">Deslocamento de ⅓ do comprimento da peça a cada fiada. Cria um ritmo mais sutil que o meio-tijolo, com juntas verticais em progressão diagonal suave.</p>
             <div class="pag-card__tags">
@@ -564,7 +620,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">06</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">06</p>
+              <span class="pag-level pag-level--medio" title="Dificuldade de execução: Médio"><span class="pag-level__dots"><i></i><i></i><i></i></span>Médio</span>
+            </div>
             <h2 class="pag-card__title">Vertical</h2>
             <p class="pag-card__desc">Peças assentadas de pé, com o comprimento na vertical. Cria ritmo de linhas verticais marcadas, amplia a percepção de altura do ambiente.</p>
             <div class="pag-card__tags">
@@ -647,7 +706,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">07</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">07</p>
+              <span class="pag-level pag-level--medio" title="Dificuldade de execução: Médio"><span class="pag-level__dots"><i></i><i></i><i></i></span>Médio</span>
+            </div>
             <h2 class="pag-card__title">Flandrês</h2>
             <p class="pag-card__desc">Alternância de uma peça deitada e uma de topo em cada fiada. Padrão europeu clássico com textura visual rica, muito valorizado em projetos históricos.</p>
             <div class="pag-card__tags">
@@ -734,7 +796,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">08</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">08</p>
+              <span class="pag-level pag-level--medio" title="Dificuldade de execução: Médio"><span class="pag-level__dots"><i></i><i></i><i></i></span>Médio</span>
+            </div>
             <h2 class="pag-card__title">Americano</h2>
             <p class="pag-card__desc">A cada 3 a 5 fiadas amarradas, uma fiada de topo (cabeça). Cria listras horizontais de textura diferenciada, muito usado em construções históricas americanas.</p>
             <div class="pag-card__tags">
@@ -796,7 +861,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">09</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">09</p>
+              <span class="pag-level pag-level--facil" title="Dificuldade de execução: Fácil"><span class="pag-level__dots"><i></i><i></i><i></i></span>Fácil</span>
+            </div>
             <h2 class="pag-card__title">Quarto Corrido</h2>
             <p class="pag-card__desc">Deslocamento de ¼ da peça a cada fiada, criando um escalonamento progressivo em diagonal. Leitura visual diferenciada com junta em zigue-zague suave.</p>
             <div class="pag-card__tags">
@@ -878,7 +946,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">10</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">10</p>
+              <span class="pag-level pag-level--avancado" title="Dificuldade de execução: Avançado"><span class="pag-level__dots"><i></i><i></i><i></i></span>Avançado</span>
+            </div>
             <h2 class="pag-card__title">Misto</h2>
             <p class="pag-card__desc">Alternância entre fiadas horizontais e fiadas verticais. Cria um padrão com dois planos de textura distintos, de alto valor decorativo e exclusividade.</p>
             <div class="pag-card__tags">
@@ -961,7 +1032,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">11</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">11</p>
+              <span class="pag-level pag-level--medio" title="Dificuldade de execução: Médio"><span class="pag-level__dots"><i></i><i></i><i></i></span>Médio</span>
+            </div>
             <h2 class="pag-card__title">Inglês</h2>
             <p class="pag-card__desc">Fiadas alternadas de peças deitadas e fiadas inteiras de topo. Um dos padrões mais antigos da alvenaria, muito usado em construções históricas europeias.</p>
             <div class="pag-card__tags"><span class="tag">Histórico</span><span class="tag">Estrutural</span><span class="tag">Externo</span></div>
@@ -1034,7 +1108,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">12</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">12</p>
+              <span class="pag-level pag-level--avancado" title="Dificuldade de execução: Avançado"><span class="pag-level__dots"><i></i><i></i><i></i></span>Avançado</span>
+            </div>
             <h2 class="pag-card__title">Inglês Cruzado</h2>
             <p class="pag-card__desc">Variação do Inglês onde as fiadas de topo se alternam com meio-tijolo de offset. Cria cruzamentos diagonais sutis entre as juntas verticais das fiadas de cabeça.</p>
             <div class="pag-card__tags"><span class="tag">Europeu</span><span class="tag">Refinado</span><span class="tag">Externo</span></div>
@@ -1107,7 +1184,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">13</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">13</p>
+              <span class="pag-level pag-level--medio" title="Dificuldade de execução: Médio"><span class="pag-level__dots"><i></i><i></i><i></i></span>Médio</span>
+            </div>
             <h2 class="pag-card__title">Cesta</h2>
             <p class="pag-card__desc">Pares de peças horizontais e verticais se alternam em blocos de 2×2. O resultado imita a trama de uma cesta — padrão muito usado em pisos e jardins.</p>
             <div class="pag-card__tags"><span class="tag">Decorativo</span><span class="tag">Piso</span><span class="tag">Jardim</span></div>
@@ -1189,7 +1269,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">14</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">14</p>
+              <span class="pag-level pag-level--avancado" title="Dificuldade de execução: Avançado"><span class="pag-level__dots"><i></i><i></i><i></i></span>Avançado</span>
+            </div>
             <h2 class="pag-card__title">Cata-vento</h2>
             <p class="pag-card__desc">Quatro peças envolvem um quadrado central em rotação. Padrão geométrico sofisticado com forte identidade visual — ideal para paredes de destaque e nichos.</p>
             <div class="pag-card__tags"><span class="tag">Geométrico</span><span class="tag">Sofisticado</span><span class="tag">Destaque</span></div>
@@ -1270,7 +1353,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">15</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">15</p>
+              <span class="pag-level pag-level--avancado" title="Dificuldade de execução: Avançado"><span class="pag-level__dots"><i></i><i></i><i></i></span>Avançado</span>
+            </div>
             <h2 class="pag-card__title">Monge</h2>
             <p class="pag-card__desc">Dois tijolos deitados seguidos de um de topo em cada fiada, alternando o offset. Padrão tradicional do norte europeu com textura rica e aparência robusta.</p>
             <div class="pag-card__tags"><span class="tag">Nórdico</span><span class="tag">Robusto</span><span class="tag">Externo</span></div>
@@ -1351,7 +1437,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">16</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">16</p>
+              <span class="pag-level pag-level--medio" title="Dificuldade de execução: Médio"><span class="pag-level__dots"><i></i><i></i><i></i></span>Médio</span>
+            </div>
             <h2 class="pag-card__title">Jardim</h2>
             <p class="pag-card__desc">Três tijolos deitados para cada um de topo. Variação mais discreta do Monge — a textura de topo aparece com menos frequência, criando um padrão mais sutil.</p>
             <div class="pag-card__tags"><span class="tag">Sutil</span><span class="tag">Clássico</span><span class="tag">Externo</span></div>
@@ -1396,7 +1485,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">17</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">17</p>
+              <span class="pag-level pag-level--avancado" title="Dificuldade de execução: Avançado"><span class="pag-level__dots"><i></i><i></i><i></i></span>Avançado</span>
+            </div>
             <h2 class="pag-card__title">Losango</h2>
             <p class="pag-card__desc">Paginação amarrada girada 45°, formando losangos entre as juntas. Efeito visualmente dinâmico e elegante, especialmente em paredes de destaque internas.</p>
             <div class="pag-card__tags"><span class="tag">Elegante</span><span class="tag">45°</span><span class="tag">Interno</span></div>
@@ -1452,7 +1544,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">18</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">18</p>
+              <span class="pag-level pag-level--medio" title="Dificuldade de execução: Médio"><span class="pag-level__dots"><i></i><i></i><i></i></span>Médio</span>
+            </div>
             <h2 class="pag-card__title">Aleatório</h2>
             <p class="pag-card__desc">Peças em comprimentos variados sem padrão fixo de offset. Imita a irregularidade de alvenarias antigas e rústicas — resultado orgânico e cheio de personalidade.</p>
             <div class="pag-card__tags"><span class="tag">Rústico</span><span class="tag">Orgânico</span><span class="tag">Interno</span></div>
@@ -1521,7 +1616,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">19</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">19</p>
+              <span class="pag-level pag-level--medio" title="Dificuldade de execução: Médio"><span class="pag-level__dots"><i></i><i></i><i></i></span>Médio</span>
+            </div>
             <h2 class="pag-card__title">Fiadas Duplas</h2>
             <p class="pag-card__desc">Alternância entre pares de fiadas finas e uma fiada larga. Cria faixas horizontais que modulam o ritmo visual — efeito contemporâneo de grande impacto.</p>
             <div class="pag-card__tags"><span class="tag">Contemporâneo</span><span class="tag">Faixas</span><span class="tag">Interno</span></div>
@@ -1582,7 +1680,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">20</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">20</p>
+              <span class="pag-level pag-level--avancado" title="Dificuldade de execução: Avançado"><span class="pag-level__dots"><i></i><i></i><i></i></span>Avançado</span>
+            </div>
             <h2 class="pag-card__title">Diagonal Cruzada</h2>
             <p class="pag-card__desc">Duas camadas em diagonais opostas (+30° e −30°) sobrepostas. Cria uma trama visual complexa, exclusiva para painéis decorativos e instalações artísticas.</p>
             <div class="pag-card__tags"><span class="tag">Artístico</span><span class="tag">Painel</span><span class="tag">Exclusivo</span></div>
@@ -1648,7 +1749,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">21</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">21</p>
+              <span class="pag-level pag-level--medio" title="Dificuldade de execução: Médio"><span class="pag-level__dots"><i></i><i></i><i></i></span>Médio</span>
+            </div>
             <h2 class="pag-card__title">Escama</h2>
             <p class="pag-card__desc">Peças quadradas sobrepostas em offset diagonal, imitando escamas de peixe. Padrão de alto valor decorativo, muito utilizado em projetos de design de interiores.</p>
             <div class="pag-card__tags"><span class="tag">Decorativo</span><span class="tag">Design</span><span class="tag">Interno</span></div>
@@ -1705,7 +1809,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">22</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">22</p>
+              <span class="pag-level pag-level--facil" title="Dificuldade de execução: Fácil"><span class="pag-level__dots"><i></i><i></i><i></i></span>Fácil</span>
+            </div>
             <h2 class="pag-card__title">Junta Larga</h2>
             <p class="pag-card__desc">Paginação amarrada com rejunte generoso (8–12mm). A junta se torna elemento visual tão importante quanto o brick — resultado limpo e contemporâneo.</p>
             <div class="pag-card__tags"><span class="tag">Contemporâneo</span><span class="tag">Rejunte</span><span class="tag">Interno</span></div>
@@ -1762,7 +1869,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">23</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">23</p>
+              <span class="pag-level pag-level--facil" title="Dificuldade de execução: Fácil"><span class="pag-level__dots"><i></i><i></i><i></i></span>Fácil</span>
+            </div>
             <h2 class="pag-card__title">Xadrez Bicolor</h2>
             <p class="pag-card__desc">Alternância de dois tons de brick no padrão amarrado. Explora cores contrastantes da mesma linha — ideal para combinar produtos como Rosso Prime e Terra Negra.</p>
             <div class="pag-card__tags"><span class="tag">Bicolor</span><span class="tag">Criativo</span><span class="tag">Interno</span></div>
@@ -1829,7 +1939,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">24</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">24</p>
+              <span class="pag-level pag-level--medio" title="Dificuldade de execução: Médio"><span class="pag-level__dots"><i></i><i></i><i></i></span>Médio</span>
+            </div>
             <h2 class="pag-card__title">Módulo Quadrado</h2>
             <p class="pag-card__desc">Grupos de três peças formam módulos verticais, alternados em dois tons. Cria uma grade regular com ritmo bicolor equilibrado — efeito modular e preciso.</p>
             <div class="pag-card__tags"><span class="tag">Modular</span><span class="tag">Bicolor</span><span class="tag">Design</span></div>
@@ -1914,7 +2027,10 @@
             </g>
           </svg>
           <div class="pag-card__info">
-            <p class="pag-card__num">25</p>
+            <div class="pag-card__meta">
+              <p class="pag-card__num">25</p>
+              <span class="pag-level pag-level--avancado" title="Dificuldade de execução: Avançado"><span class="pag-level__dots"><i></i><i></i><i></i></span>Avançado</span>
+            </div>
             <h2 class="pag-card__title">Gótico</h2>
             <p class="pag-card__desc">Uma peça deitada e uma de topo em cada fiada, bicolor. Padrão medieval de grande riqueza visual — o contraste de cores e tamanhos cria textura densa e marcante.</p>
             <div class="pag-card__tags"><span class="tag">Medieval</span><span class="tag">Bicolor</span><span class="tag">Externo</span></div>
