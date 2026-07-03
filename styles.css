@@ -650,6 +650,8 @@
       width: 36px; height: 36px; flex-shrink: 0;
       background: var(--surface);
       border: 1px solid var(--line);
+      border-radius: 50%;
+      object-fit: cover;
     }
     .dep__name {
       font-family: var(--f-display);
