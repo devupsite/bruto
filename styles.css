@@ -637,15 +637,16 @@
     ════════════════════════════════════════════ */
     .depoimentos { padding: var(--sec-pad) 0; border-top: 1px solid var(--line); }
 
-    .dep { border: 1px solid var(--line); padding: 28px; }
+    .dep { border: 1px solid var(--line); padding: 28px; display: flex; flex-direction: column; }
     .dep__quote {
       font-size: 14px;
       font-style: italic;
       line-height: 1.8;
       color: var(--grafite);
       margin-bottom: 26px;
+      flex: 1;
     }
-    .dep__author { display: flex; align-items: center; gap: 12px; }
+    .dep__author { display: flex; align-items: center; gap: 12px; margin-top: auto; }
     .dep__avatar {
       width: 36px; height: 36px; flex-shrink: 0;
       background: var(--surface);
