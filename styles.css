@@ -1114,70 +1114,119 @@
       }
     }
 
+
     /* ════════════════════════════════════════════
-       BANNER WHATSAPP — páginas de produto
+       CALCULADORA DE QUANTIDADE — páginas de produto
     ════════════════════════════════════════════ */
-    .wa-banner {
+    .calc {
+      margin-top: 28px;
+      padding: 22px 24px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+    }
+
+    .calc__label {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-top: 20px;
-      padding: 16px 20px;
-      background: var(--surface);
-      border-left: 3px solid var(--ferro);
-    }
-    .wa-banner__icon {
-      font-size: 22px;
-      color: var(--ferro);
-      flex-shrink: 0;
-    }
-    .wa-banner__text {
-      flex: 1;
-      min-width: 0;
-      font-size: 13px;
-      line-height: 1.5;
-      color: var(--grafite);
-    }
-    .wa-banner__text strong {
-      display: block;
+      gap: 8px;
       font-family: var(--f-display);
       font-size: 13px;
       font-weight: 600;
-      letter-spacing: .02em;
-      color: var(--ferro);
-      margin-bottom: 3px;
-    }
-    .wa-banner__btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 18px;
-      background: var(--ferro);
-      color: var(--argamassa);
-      font-size: 11px;
-      font-weight: 600;
       letter-spacing: .06em;
       text-transform: uppercase;
-      white-space: nowrap;
-      text-decoration: none;
-      border: 1px solid var(--ferro);
-      transition: all .2s ease;
-      flex-shrink: 0;
+      color: var(--ferro);
+      margin-bottom: 18px;
     }
-    .wa-banner__btn:hover {
-      background: transparent;
+    .calc__label i { font-size: 16px; }
+
+    .calc__inputs {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+    }
+
+    .calc__field {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .calc__field label {
+      font-size: 12px;
+      color: var(--grafite);
+    }
+
+    .calc__field input[type="number"] {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      background: var(--argamassa);
+      font-family: var(--f-body);
+      font-size: 14px;
+      color: var(--ferro);
+    }
+    .calc__field input[type="number"]:focus {
+      outline: none;
+      border-color: var(--ferro);
+    }
+
+    .calc__x {
+      padding-bottom: 12px;
+      font-size: 14px;
+      color: var(--grafite);
+    }
+
+    .calc__perda {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--grafite);
+      cursor: pointer;
+    }
+    .calc__perda input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--ferro);
+      cursor: pointer;
+    }
+
+    .calc__result {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      margin-top: 18px;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+
+    .calc__stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 16px 12px;
+      background: var(--argamassa);
+      text-align: center;
+    }
+
+    .calc__stat-val {
+      font-family: var(--f-display);
+      font-size: 20px;
+      font-weight: 600;
       color: var(--ferro);
     }
 
-    @media (max-width: 768px) {
-      .wa-banner {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-      }
-      .wa-banner__btn {
-        width: 100%;
-        justify-content: center;
-        padding: 13px 18px;
-      }
+    .calc__stat-key {
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--grafite);
+    }
+
+    @media (max-width: 480px) {
+      .calc__inputs { flex-direction: column; align-items: stretch; }
+      .calc__x { display: none; }
     }
