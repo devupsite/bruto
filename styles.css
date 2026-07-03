@@ -69,22 +69,13 @@
     ════════════════════════════════════════════ */
     .reveal {
       opacity: 0;
-      transform: translateY(16px) scale(.98);
-      transition: opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1);
+      transform: translateY(16px);
+      transition: opacity .7s ease, transform .7s ease;
     }
     .reveal.visible { opacity: 1; transform: none; }
     .reveal-delay-1 { transition-delay: .1s; }
     .reveal-delay-2 { transition-delay: .2s; }
     .reveal-delay-3 { transition-delay: .3s; }
-
-    /* Utilitário opcional: auto-stagger via nth-child, para grids novos.
-       Não substitui reveal-delay-N nos 136 usos existentes no site —
-       aplicar apenas em blocos novos, item por item, para não alterar
-       sequenciamentos manuais já calibrados (ex.: Hero, Sobre). */
-    .stagger > .reveal:nth-child(1) { transition-delay: .08s; }
-    .stagger > .reveal:nth-child(2) { transition-delay: .16s; }
-    .stagger > .reveal:nth-child(3) { transition-delay: .24s; }
-    .stagger > .reveal:nth-child(4) { transition-delay: .32s; }
 
     @media (prefers-reduced-motion: reduce) {
       .reveal { transition: none; opacity: 1; transform: none; }
@@ -447,13 +438,6 @@
       flex-direction: column;
       min-width: 0;
     }
-    .grid-4 > a > article,
-    .grid-3 > a > article {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
     .item-card__img { aspect-ratio: 4 / 3; overflow: hidden; }
     .item-card__img img {
       width: 100%;
@@ -560,11 +544,6 @@
     }
 
     /* ════════════════════════════════════════════
-       PADRÃO DE ESPECIFICAÇÃO
-    ════════════════════════════════════════════ */
-    .especificacao { padding: var(--sec-pad) 0; border-top: 1px solid var(--line); }
-
-    /* ════════════════════════════════════════════
        DIFERENCIAIS
     ════════════════════════════════════════════ */
     .diferenciais { padding: var(--sec-pad) 0; border-top: 1px solid var(--line); }
@@ -646,22 +625,19 @@
     ════════════════════════════════════════════ */
     .depoimentos { padding: var(--sec-pad) 0; border-top: 1px solid var(--line); }
 
-    .dep { border: 1px solid var(--line); padding: 28px; display: flex; flex-direction: column; }
+    .dep { border: 1px solid var(--line); padding: 28px; }
     .dep__quote {
       font-size: 14px;
       font-style: italic;
       line-height: 1.8;
       color: var(--grafite);
       margin-bottom: 26px;
-      flex: 1;
     }
-    .dep__author { display: flex; align-items: center; gap: 12px; margin-top: auto; }
+    .dep__author { display: flex; align-items: center; gap: 12px; }
     .dep__avatar {
       width: 36px; height: 36px; flex-shrink: 0;
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 50%;
-      object-fit: cover;
     }
     .dep__name {
       font-family: var(--f-display);
@@ -672,80 +648,6 @@
       color: var(--ferro);
     }
     .dep__role { font-size: 12px; color: var(--concreto); margin-top: 2px; }
-
-    /* ════════════════════════════════════════════
-       FAQ
-    ════════════════════════════════════════════ */
-    .faq { padding: var(--sec-pad) 0; border-top: 1px solid var(--line); }
-
-    .faq__grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0 clamp(32px, 5vw, 80px);
-    }
-
-    .faq__item { border-top: 1px solid var(--line); }
-    .faq__item:last-child { border-bottom: 1px solid var(--line); }
-
-    .faq__q {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      width: 100%;
-      padding: 20px 0;
-      text-align: left;
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--ferro);
-      line-height: 1.4;
-      cursor: pointer;
-    }
-    .faq__q:hover { color: var(--concreto); }
-
-    .faq__icon {
-      flex-shrink: 0;
-      font-size: 18px;
-      margin-top: 1px;
-      color: var(--concreto);
-      transition: transform .22s ease, color .22s ease;
-    }
-    .faq__item--open .faq__icon {
-      transform: rotate(45deg);
-      color: var(--ferro);
-    }
-
-    .faq__a {
-      padding-bottom: 20px;
-      font-size: 14px;
-      line-height: 1.8;
-      color: var(--concreto);
-    }
-
-    .faq__footer {
-      margin-top: clamp(36px, 5vw, 56px);
-      padding-top: clamp(28px, 4vw, 40px);
-      border-top: 1px solid var(--line);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-    }
-    .faq__footer-title {
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--ferro);
-    }
-    .faq__footer-sub {
-      margin-top: 4px;
-      font-size: 14px;
-      color: var(--concreto);
-    }
-
-    @media (max-width: 720px) {
-      .faq__grid { grid-template-columns: 1fr; }
-      .faq__footer { flex-direction: column; align-items: flex-start; }
-    }
 
     /* ════════════════════════════════════════════
        FOOTER
@@ -1035,16 +937,7 @@
       aspect-ratio: 16 / 10;
       border: 1px solid var(--line);
       background: var(--surface);
-      overflow: hidden;
     }
-    .item-card__img--wide img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform .4s ease;
-    }
-    a:hover .item-card__img--wide img { transform: scale(1.04); }
     .post-card__title {
       margin-top: 6px;
       font-family: var(--f-display);
@@ -1092,13 +985,6 @@
       border: 1px solid var(--line);
       background: var(--surface);
       margin-bottom: var(--sec-pad);
-      overflow: hidden;
-    }
-    .article-hero img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
     }
 
     .article-body { max-width: 680px; padding-bottom: var(--sec-pad); }
@@ -1137,122 +1023,6 @@
 
     @media (max-width: 600px) {
       .article-footer-cta .btn { width: 100%; justify-content: center; }
-    }
-
-
-    /* ════════════════════════════════════════════
-       PREÇO / M² — produto
-    ════════════════════════════════════════════ */
-    .price__unit {
-      font-size: .65em;
-      font-weight: 400;
-      color: var(--concreto);
-      letter-spacing: 0;
-    }
-
-    /* ════════════════════════════════════════════
-       CALCULADORA DE M² — produto
-    ════════════════════════════════════════════ */
-    .calc {
-      margin-top: 2rem;
-      padding: 20px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-    }
-
-    .calc__label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--ferro);
-      margin-bottom: 16px !important;
-    }
-
-    .calc__inputs {
-      display: flex;
-      align-items: flex-end;
-      gap: 10px;
-    }
-
-    .calc__field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex: 1;
-    }
-
-    .calc__field label {
-      font-size: 12px;
-      color: var(--concreto);
-    }
-
-    .calc__field input {
-      width: 100%;
-      padding: 9px 12px;
-      border: 1px solid var(--line);
-      background: var(--argamassa);
-      font-family: var(--f-body);
-      font-size: 14px;
-      color: var(--ferro);
-      outline: none;
-      -moz-appearance: textfield;
-    }
-    .calc__field input::-webkit-outer-spin-button,
-    .calc__field input::-webkit-inner-spin-button { -webkit-appearance: none; }
-    .calc__field input:focus { border-color: var(--ferro); }
-
-    .calc__x {
-      font-size: 18px;
-      color: var(--concreto);
-      padding-bottom: 10px;
-      flex-shrink: 0;
-    }
-
-    .calc__perda {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 14px;
-      font-size: 13px;
-      color: var(--concreto);
-      cursor: pointer;
-    }
-    .calc__perda input { accent-color: var(--ferro); cursor: pointer; }
-
-    .calc__result {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      margin-top: 16px;
-      background: var(--line);
-      border: 1px solid var(--line);
-    }
-
-    .calc__stat {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 14px 10px;
-      background: var(--argamassa);
-    }
-
-    .calc__stat-val {
-      font-family: var(--f-display);
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--ferro);
-    }
-
-    .calc__stat-key {
-      font-size: 11px;
-      color: var(--concreto);
-      margin-top: 3px;
-      text-transform: uppercase;
-      letter-spacing: .06em;
     }
 
 
@@ -1341,5 +1111,73 @@
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 2px 16px;
+      }
+    }
+
+    /* ════════════════════════════════════════════
+       BANNER WHATSAPP — páginas de produto
+    ════════════════════════════════════════════ */
+    .wa-banner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 20px;
+      padding: 16px 20px;
+      background: var(--surface);
+      border-left: 3px solid var(--ferro);
+    }
+    .wa-banner__icon {
+      font-size: 22px;
+      color: var(--ferro);
+      flex-shrink: 0;
+    }
+    .wa-banner__text {
+      flex: 1;
+      min-width: 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--grafite);
+    }
+    .wa-banner__text strong {
+      display: block;
+      font-family: var(--f-display);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .02em;
+      color: var(--ferro);
+      margin-bottom: 3px;
+    }
+    .wa-banner__btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 18px;
+      background: var(--ferro);
+      color: var(--argamassa);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      text-decoration: none;
+      border: 1px solid var(--ferro);
+      transition: all .2s ease;
+      flex-shrink: 0;
+    }
+    .wa-banner__btn:hover {
+      background: transparent;
+      color: var(--ferro);
+    }
+
+    @media (max-width: 768px) {
+      .wa-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .wa-banner__btn {
+        width: 100%;
+        justify-content: center;
+        padding: 13px 18px;
       }
     }
