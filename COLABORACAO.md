@@ -109,8 +109,18 @@ ficar desatualizado, corrija — não deixe a próxima sessão repetir o erro.
 - **`paginacoes.html`** tem CSS próprio embutido no `<head>`, separado do
   `styles.css` global — os cards de padrão de assentamento (`.pag-card`)
   não herdam do design system principal.
-- Menu de filtro que existia numa versão anterior do `colecoes.html` **não
-  está no repositório atual** — se for reconstruído, é do zero.
+- **Menu de filtro em `colecoes.html`**: implementado em 04/07/2026. Sidebar
+  sticky com checkboxes (Linha / Ambiente / Tom / Faixa de preço), filtro
+  cumulativo via JS puro (sem framework), drawer mobile abaixo de 900px.
+  Cards têm `data-linha`, `data-ambiente`, `data-tom`, `data-preco` — ao
+  adicionar produto novo ao catálogo, lembrar de preencher esses atributos
+  ou o filtro vai simplesmente ignorar o card (nunca aparece nos resultados
+  filtrados, mas aparece sem filtro nenhum ativo).
+- **Sidebar de navegação nas páginas `produto-*.html`** (`product-sidebar-static`)
+  é diferente do filtro acima — é só navegação por categoria (accordion
+  com lista de produtos da linha), sem checkboxes nem lógica de filtro.
+  As duas coisas coexistem por design: navegação simples na página de
+  produto individual, filtro robusto na página de catálogo geral.
 
 ---
 

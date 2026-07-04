@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 
@@ -69,10 +69,66 @@
 
 
   <!-- ══════════════════════════════════════════
+       CATÁLOGO COM FILTRO SIDEBAR
+  ══════════════════════════════════════════ -->
+  <section class="catalogo">
+    <div class="wrap catalogo__layout">
+
+      <!-- SIDEBAR DE FILTRO -->
+      <aside class="filtro" id="filtro-sidebar" aria-label="Filtros de produto">
+
+        <div class="filtro__header">
+          <span class="filtro__titulo"><i class="ti ti-adjustments-horizontal" aria-hidden="true"></i> Filtros</span>
+          <button class="filtro__limpar" id="btn-limpar" type="button">Limpar</button>
+        </div>
+
+        <div class="filtro__grupo">
+          <p class="filtro__grupo-label">Linha</p>
+          <label class="filtro__check"><input type="checkbox" name="linha" value="brick"> <span>Brick</span></label>
+          <label class="filtro__check"><input type="checkbox" name="linha" value="cimenticio"> <span>Cimentício</span></label>
+          <label class="filtro__check"><input type="checkbox" name="linha" value="rockface"> <span>Rockface</span></label>
+        </div>
+
+        <div class="filtro__grupo">
+          <p class="filtro__grupo-label">Ambiente</p>
+          <label class="filtro__check"><input type="checkbox" name="ambiente" value="interno"> <span>Interno</span></label>
+          <label class="filtro__check"><input type="checkbox" name="ambiente" value="externo"> <span>Externo</span></label>
+          <label class="filtro__check"><input type="checkbox" name="ambiente" value="ambos"> <span>Interno e externo</span></label>
+        </div>
+
+        <div class="filtro__grupo">
+          <p class="filtro__grupo-label">Tom</p>
+          <label class="filtro__check"><input type="checkbox" name="tom" value="claro"> <span>Claro</span></label>
+          <label class="filtro__check"><input type="checkbox" name="tom" value="medio"> <span>Médio</span></label>
+          <label class="filtro__check"><input type="checkbox" name="tom" value="escuro"> <span>Escuro</span></label>
+        </div>
+
+        <div class="filtro__grupo">
+          <p class="filtro__grupo-label">Faixa de preço /m²</p>
+          <label class="filtro__check"><input type="checkbox" name="preco" value="ate100"> <span>Até R$ 100</span></label>
+          <label class="filtro__check"><input type="checkbox" name="preco" value="100a150"> <span>R$ 100 – R$ 150</span></label>
+          <label class="filtro__check"><input type="checkbox" name="preco" value="acima150"> <span>Acima de R$ 150</span></label>
+        </div>
+
+      </aside>
+
+      <!-- COLUNA PRINCIPAL -->
+      <div class="catalogo__main">
+
+        <div class="filtro__mobile-bar">
+          <button class="btn btn--outline filtro__mobile-btn" id="btn-filtro-mobile" type="button">
+            <i class="ti ti-adjustments-horizontal" aria-hidden="true"></i>
+            Filtrar
+            <span class="filtro__badge" id="filtro-badge" hidden>0</span>
+          </button>
+          <p class="filtro__contagem" id="filtro-contagem">18 produtos</p>
+        </div>
+
+  <!-- ══════════════════════════════════════════
        BRICK
   ══════════════════════════════════════════ -->
   <section class="cat-section" id="brick">
-    <div class="wrap">
+    <div>
 
       <div class="section-head reveal">
         <h2 class="display-title">Brick</h2>
@@ -80,7 +136,7 @@
       </div>
 
       <div class="grid-4">
-        <a href="produto-brick-branco-rose.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-brick-branco-rose.html" class="prod-card" data-linha="brick" data-ambiente="interno" data-tom="claro" data-preco="100a150" style="text-decoration: none; color: inherit;">
           <article class="reveal">
             <img class="item-card__img--photo" loading="lazy" src="brick-branco-rose-frontal-thumb.webp" alt="Branco Rosé">
             <p class="item-card__eyebrow eyebrow">SKU 56 · R$ 139,90</p>
@@ -89,7 +145,7 @@
           </article>
         </a>
 
-        <a href="produto-brick-eco-palha.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-brick-eco-palha.html" class="prod-card" data-linha="brick" data-ambiente="interno" data-tom="claro" data-preco="100a150" style="text-decoration: none; color: inherit;">
           <article class="reveal reveal-delay-1">
             <img class="item-card__img--photo" loading="lazy" src="brick-eco-palha-frontal-thumb.webp" alt="Eco Palha">
             <p class="item-card__eyebrow eyebrow">SKU 57 · R$ 139,90</p>
@@ -98,7 +154,7 @@
           </article>
         </a>
 
-        <a href="produto-brick-lumus.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-brick-lumus.html" class="prod-card" data-linha="brick" data-ambiente="interno" data-tom="medio" data-preco="100a150" style="text-decoration: none; color: inherit;">
           <article class="reveal reveal-delay-2">
             <img class="item-card__img--photo" loading="lazy" src="brick-lumus-frontal-thumb.webp" alt="Lumus">
             <p class="item-card__eyebrow eyebrow">SKU 73 · R$ 149,90</p>
@@ -107,7 +163,7 @@
           </article>
         </a>
 
-        <a href="produto-brick-mescla-prime.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-brick-mescla-prime.html" class="prod-card" data-linha="brick" data-ambiente="interno" data-tom="medio" data-preco="100a150" style="text-decoration: none; color: inherit;">
           <article class="reveal">
             <img class="item-card__img--photo" loading="lazy" src="brick-mescla-prime-frontal-thumb.webp" alt="Mescla Prime">
             <p class="item-card__eyebrow eyebrow">SKU 54 · R$ 139,90</p>
@@ -116,7 +172,7 @@
           </article>
         </a>
 
-        <a href="produto-brick-natura.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-brick-natura.html" class="prod-card" data-linha="brick" data-ambiente="ambos" data-tom="medio" data-preco="ate100" style="text-decoration: none; color: inherit;">
           <article class="reveal reveal-delay-1">
             <img class="item-card__img--photo" loading="lazy" src="brick-natura-frontal-thumb.webp" alt="Natura">
             <p class="item-card__eyebrow eyebrow">SKU 48 · R$ 94,90</p>
@@ -125,7 +181,7 @@
           </article>
         </a>
 
-        <a href="produto-brick-rosso-prime.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-brick-rosso-prime.html" class="prod-card" data-linha="brick" data-ambiente="ambos" data-tom="medio" data-preco="100a150" style="text-decoration: none; color: inherit;">
           <article class="reveal reveal-delay-2">
             <img class="item-card__img--photo" loading="lazy" src="brick-rosso-prime-frontal-thumb.webp" alt="Rosso Prime">
             <p class="item-card__eyebrow eyebrow">SKU 53 · R$ 129,90</p>
@@ -134,7 +190,7 @@
           </article>
         </a>
 
-        <a href="produto-brick-rusticatto-sertao.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-brick-rusticatto-sertao.html" class="prod-card" data-linha="brick" data-ambiente="ambos" data-tom="medio" data-preco="100a150" style="text-decoration: none; color: inherit;">
           <article class="reveal">
             <img class="item-card__img--photo" loading="lazy" src="brick-rusticatto-sertao-frontal-thumb.webp" alt="Rusticatto do Sertão">
             <p class="item-card__eyebrow eyebrow">SKU 61 · R$ 149,90</p>
@@ -143,7 +199,7 @@
           </article>
         </a>
 
-        <a href="produto-brick-rusticatto-fume.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-brick-rusticatto-fume.html" class="prod-card" data-linha="brick" data-ambiente="ambos" data-tom="escuro" data-preco="100a150" style="text-decoration: none; color: inherit;">
           <article class="reveal reveal-delay-1">
             <img class="item-card__img--photo" loading="lazy" src="brick-rusticatto-fume-frontal-thumb.webp" alt="Rusticatto Fumê">
             <p class="item-card__eyebrow eyebrow">SKU 72 · R$ 169,90</p>
@@ -152,7 +208,7 @@
           </article>
         </a>
 
-        <a href="produto-brick-rusticatto-rosso.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-brick-rusticatto-rosso.html" class="prod-card" data-linha="brick" data-ambiente="ambos" data-tom="medio" data-preco="100a150" style="text-decoration: none; color: inherit;">
           <article class="reveal reveal-delay-2">
             <img class="item-card__img--photo" loading="lazy" src="brick-rusticatto-rosso-frontal-thumb.webp" alt="Rusticatto Rosso">
             <p class="item-card__eyebrow eyebrow">SKU 77 · R$ 144,90</p>
@@ -161,7 +217,7 @@
           </article>
         </a>
 
-        <a href="produto-brick-rusticatto-terra-negra.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-brick-rusticatto-terra-negra.html" class="prod-card" data-linha="brick" data-ambiente="ambos" data-tom="escuro" data-preco="acima150" style="text-decoration: none; color: inherit;">
           <article class="reveal">
             <img class="item-card__img--photo" loading="lazy" src="brick-rusticatto-terra-negra-frontal-thumb.webp" alt="Rusticatto Terra Negra">
             <p class="item-card__eyebrow eyebrow">SKU 60 · R$ 179,90</p>
@@ -170,7 +226,7 @@
           </article>
         </a>
 
-        <a href="produto-brick-terra-cerrado.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-brick-terra-cerrado.html" class="prod-card" data-linha="brick" data-ambiente="ambos" data-tom="medio" data-preco="100a150" style="text-decoration: none; color: inherit;">
           <article class="reveal reveal-delay-1">
             <img class="item-card__img--photo" loading="lazy" src="brick-terra-cerrado-frontal-thumb.webp" alt="Terra do Cerrado">
             <p class="item-card__eyebrow eyebrow">SKU 47 · R$ 134,90</p>
@@ -179,7 +235,7 @@
           </article>
         </a>
 
-        <a href="produto-brick-vulcano.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-brick-vulcano.html" class="prod-card" data-linha="brick" data-ambiente="ambos" data-tom="escuro" data-preco="100a150" style="text-decoration: none; color: inherit;">
           <article class="reveal reveal-delay-2">
             <img class="item-card__img--photo" loading="lazy" src="brick-vulcano-frontal-thumb.webp" alt="Vulcano">
             <p class="item-card__eyebrow eyebrow">SKU 59 · R$ 149,90</p>
@@ -197,7 +253,7 @@
        CIMENTÍCIO
   ══════════════════════════════════════════ -->
   <section class="cat-section" id="cimenticio">
-    <div class="wrap">
+    <div>
 
       <div class="section-head reveal">
         <h2 class="display-title">Cimentício</h2>
@@ -206,7 +262,7 @@
 
       <div class="grid-3">
 
-        <a href="produto-cimenticio-alpino.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-cimenticio-alpino.html" class="prod-card" data-linha="cimenticio" data-ambiente="ambos" data-tom="claro" data-preco="acima150" style="text-decoration: none; color: inherit;">
           <article class="reveal">
             <img class="item-card__img--photo" loading="lazy" src="cimenticio-alpino-frontal-thumb.webp" alt="Alpino">
             <p class="item-card__eyebrow eyebrow">Cimentício · R$ 169,90</p>
@@ -215,7 +271,7 @@
           </article>
         </a>
 
-        <a href="produto-cimenticio-grigio.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-cimenticio-grigio.html" class="prod-card" data-linha="cimenticio" data-ambiente="ambos" data-tom="medio" data-preco="acima150" style="text-decoration: none; color: inherit;">
           <article class="reveal reveal-delay-1">
             <img class="item-card__img--photo" loading="lazy" src="cimenticio-grigio-frontal-thumb.webp" alt="Grigio">
             <p class="item-card__eyebrow eyebrow">Cimentício · R$ 169,90</p>
@@ -224,7 +280,7 @@
           </article>
         </a>
 
-        <a href="produto-cimenticio-urban.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-cimenticio-urban.html" class="prod-card" data-linha="cimenticio" data-ambiente="ambos" data-tom="escuro" data-preco="acima150" style="text-decoration: none; color: inherit;">
           <article class="reveal reveal-delay-2">
             <img class="item-card__img--photo" loading="lazy" src="cimenticio-urban-frontal-thumb.webp" alt="Urban">
             <p class="item-card__eyebrow eyebrow">Cimentício · R$ 169,90</p>
@@ -242,7 +298,7 @@
        ROCKFACE
   ══════════════════════════════════════════ -->
   <section class="cat-section" id="rockface">
-    <div class="wrap">
+    <div>
 
       <div class="section-head reveal">
         <h2 class="display-title">Rockface</h2>
@@ -251,7 +307,7 @@
 
       <div class="grid-3">
 
-        <a href="produto-rockface-brisa.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-rockface-brisa.html" class="prod-card" data-linha="rockface" data-ambiente="externo" data-tom="claro" data-preco="acima150" style="text-decoration: none; color: inherit;">
           <article class="reveal">
             <img class="item-card__img--photo" loading="lazy" src="rockface-brisa-frontal-thumb.webp" alt="Brisa">
             <p class="item-card__eyebrow eyebrow">Rockface · R$ 169,90</p>
@@ -260,7 +316,7 @@
           </article>
         </a>
 
-        <a href="produto-rockface-alpino.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-rockface-alpino.html" class="prod-card" data-linha="rockface" data-ambiente="externo" data-tom="claro" data-preco="acima150" style="text-decoration: none; color: inherit;">
           <article class="reveal reveal-delay-1">
             <img class="item-card__img--photo" loading="lazy" src="rockface-alpino-frontal-thumb.webp" alt="Alpino">
             <p class="item-card__eyebrow eyebrow">Rockface · R$ 229,90</p>
@@ -269,7 +325,7 @@
           </article>
         </a>
 
-        <a href="produto-rockface-grigio.html" style="text-decoration: none; color: inherit;">
+        <a href="produto-rockface-grigio.html" class="prod-card" data-linha="rockface" data-ambiente="externo" data-tom="medio" data-preco="acima150" style="text-decoration: none; color: inherit;">
           <article class="reveal reveal-delay-2">
             <img class="item-card__img--photo" loading="lazy" src="rockface-grigio-frontal-thumb.webp" alt="Grigio">
             <p class="item-card__eyebrow eyebrow">Rockface · R$ 229,90</p>
@@ -281,6 +337,20 @@
       </div>
     </div>
   </section>
+
+
+        <p class="filtro__vazio" id="filtro-vazio" hidden>
+          Nenhum produto encontrado para os filtros selecionados.
+        </p>
+
+      </div>
+      <!-- fim .catalogo__main -->
+
+    </div>
+  </section>
+
+
+  <div class="filtro__overlay" id="filtro-overlay" aria-hidden="true"></div>
 
 
   <!-- ══════════════════════════════════════════
@@ -412,6 +482,69 @@
         menuBtn.querySelector('i').className = 'ti ti-menu-2';
       });
     });
+
+    // ── FILTRO DE PRODUTOS ──
+    const prodCards   = document.querySelectorAll('.prod-card');
+    const contagemEl  = document.getElementById('filtro-contagem');
+    const vazioEl     = document.getElementById('filtro-vazio');
+    const badgeEl     = document.getElementById('filtro-badge');
+    const btnLimpar   = document.getElementById('btn-limpar');
+
+    function getFiltrosAtivos() {
+      const ativos = { linha: [], ambiente: [], tom: [], preco: [] };
+      document.querySelectorAll('.filtro input[type=checkbox]:checked').forEach(cb => {
+        ativos[cb.name].push(cb.value);
+      });
+      return ativos;
+    }
+
+    function aplicarFiltro() {
+      const f = getFiltrosAtivos();
+      let visivel = 0;
+      prodCards.forEach(card => {
+        const passa =
+          (!f.linha.length    || f.linha.includes(card.dataset.linha))    &&
+          (!f.ambiente.length || f.ambiente.includes(card.dataset.ambiente)) &&
+          (!f.tom.length      || f.tom.includes(card.dataset.tom))        &&
+          (!f.preco.length    || f.preco.includes(card.dataset.preco));
+        const article = card.querySelector('article');
+        card.style.display = passa ? '' : 'none';
+        visivel += passa ? 1 : 0;
+      });
+      contagemEl.textContent = visivel === 1 ? '1 produto' : `${visivel} produtos`;
+      vazioEl.hidden = visivel > 0;
+
+      const total = Object.values(f).flat().length;
+      badgeEl.hidden = total === 0;
+      badgeEl.textContent = total;
+    }
+
+    document.querySelectorAll('.filtro input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', aplicarFiltro);
+    });
+
+    btnLimpar.addEventListener('click', () => {
+      document.querySelectorAll('.filtro input[type=checkbox]').forEach(cb => cb.checked = false);
+      aplicarFiltro();
+    });
+
+    // Drawer mobile
+    const filtroOverlay = document.getElementById('filtro-overlay');
+    const filtroSidebar = document.getElementById('filtro-sidebar');
+    const btnFiltroMobile = document.getElementById('btn-filtro-mobile');
+
+    function abrirFiltroDrawer() {
+      filtroSidebar.classList.add('filtro--open');
+      filtroOverlay.classList.add('filtro__overlay--visivel');
+      document.body.style.overflow = 'hidden';
+    }
+    function fecharFiltroDrawer() {
+      filtroSidebar.classList.remove('filtro--open');
+      filtroOverlay.classList.remove('filtro__overlay--visivel');
+      document.body.style.overflow = '';
+    }
+    btnFiltroMobile.addEventListener('click', abrirFiltroDrawer);
+    filtroOverlay.addEventListener('click', fecharFiltroDrawer);
   </script>
 
   <script defer src="promo-frete-gratis.js?v=1"></script>
