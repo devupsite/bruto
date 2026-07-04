@@ -175,8 +175,10 @@ cópia em cache — sem isso, quem já visitou o site (principalmente no
 celular, que cacheia mais agressivamente) pode continuar vendo o CSS
 antigo por dias, mesmo com o `git push` já feito e o Pages já atualizado.
 
-**Regra:** toda vez que você editar `styles.css`, incremente o `?v=N` em
-**todas** as páginas que o referenciam (ver lista com
-`grep -l "styles.css?v=" *.html`). Já aconteceu de duas rodadas de fix
-seguidas no CSS saírem sem bumpar a versão — quem tinha cacheado a v=2
-não via nada das mudanças até a v=3 sair.
+**Regra:** toda vez que você editar `styles.css` **ou qualquer um dos
+scripts compartilhados** (`promo-frete-gratis.js`, `header-scroll.js`,
+`back-to-top.js`), incremente o `?v=N` correspondente em **todas** as
+páginas que o referenciam (`grep -l "nome-do-arquivo?v=" *.html`). Já
+aconteceu de duas rodadas de fix seguidas no CSS saírem sem bumpar a
+versão — quem tinha cacheado a v=2 não via nada das mudanças até a v=3
+sair. O mesmo vale pros `.js`.
