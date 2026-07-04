@@ -664,11 +664,18 @@
     }
     .dep__author { display: flex; align-items: center; gap: 12px; margin-top: auto; }
     .dep__avatar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 36px; height: 36px; flex-shrink: 0;
-      background: var(--surface);
-      border: 1px solid var(--line);
+      background: var(--ferro);
+      color: var(--argamassa);
       border-radius: 50%;
-      object-fit: cover;
+      font-family: var(--f-display);
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0;
     }
     .dep__name {
       font-family: var(--f-display);
