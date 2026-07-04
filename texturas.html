@@ -609,6 +609,17 @@
       aplicarFiltro();
     });
 
+    // ── DEEP LINK VIA HASH (ex: texturas.html#brick) ──
+    // Mantém compatibilidade com links antigos de colecoes.html#brick/#cimenticio/#rockface
+    const hashLinha = window.location.hash.replace('#', '');
+    if (['brick', 'cimenticio', 'rockface'].includes(hashLinha)) {
+      const cb = document.querySelector(`.filtro input[name="linha"][value="${hashLinha}"]`);
+      if (cb) {
+        cb.checked = true;
+        aplicarFiltro();
+      }
+    }
+
     // Drawer mobile
     const filtroOverlay = document.getElementById('filtro-overlay');
     const filtroSidebar = document.getElementById('filtro-sidebar');
