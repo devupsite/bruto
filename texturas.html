@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BRUTO — Comparador de Texturas entre as coleções Brick, Cimentício e Rockface">
+  <title>Comparador de Texturas — BRUTO</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="styles.css?v=10">
+
+  <style>
+    .tex-filters {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: clamp(20px, 3vw, 40px);
+      padding-bottom: clamp(20px, 3vw, 32px);
+      border-bottom: 1px solid var(--line, rgba(10,10,10,.14));
+    }
+
+    .tex-filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .tex-filter-group__label {
+      font-family: var(--f-display, 'Barlow Condensed', sans-serif);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--concreto, #6E6E6E);
+      margin-right: 0.2rem;
+    }
+
+    .tex-filters__count {
+      margin-left: auto;
+      font-family: var(--f-body, 'Barlow', sans-serif);
+      font-size: 0.85rem;
+      color: var(--concreto, #6E6E6E);
+      white-space: nowrap;
+    }
+
+    .tex-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: clamp(20px, 2.6vw, 32px);
+      margin-top: clamp(28px, 4vw, 48px);
+    }
+
+    .tex-card {
+      border: 1px solid var(--line, #e0e0e0);
+      border-radius: 4px;
+      overflow: hidden;
+      background: #fafafa;
+      transition: box-shadow 0.25s ease, transform 0.25s ease;
+    }
+
+    .tex-card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      transform: translateY(-2px);
+    }
+
+    .tex-card[hidden] { display: none; }
+
+    .tex-card__preview {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      display: block;
+      background-color: #f0eeeb;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .tex-card__info { padding: 1.2rem 1.4rem 1.4rem; }
+
+    .tex-card__familia {
+      font-family: var(--f-display, 'Barlow Condensed', sans-serif);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--concreto, #6E6E6E);
+    }
+
+    .tex-card__title {
+      font-family: var(--f-display, 'Barlow Condensed', sans-serif);
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--ferro, #1a1a1a);
+      margin: 0.2rem 0 0.7rem;
+      letter-spacing: 0.01em;
+    }
+
+    .tex-card__specs {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .tex-card__specs span {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--f-body, 'Barlow', sans-serif);
+      font-size: 0.85rem;
+      color: var(--grafite, #444);
+    }
+
+    .tex-card__specs i { color: var(--concreto, #999); font-size: 1rem; }
+
+    .tex-card__price {
+      font-family: var(--f-display, 'Barlow Condensed', sans-serif);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ferro, #1a1a1a);
+      margin: 0 0 0.9rem;
+    }
+
+    .tex-card__price span {
+      font-family: var(--f-body, 'Barlow', sans-serif);
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--concreto, #999);
+    }
+
+    .tex-card__link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--f-body, 'Barlow', sans-serif);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--ferro, #1a1a1a);
+      text-decoration: none;
+      border-bottom: 1px solid var(--ferro, #1a1a1a);
+      padding-bottom: 1px;
+      transition: gap 0.2s ease;
+    }
+
+    .tex-card__link:hover { gap: 0.6rem; }
+
+    .tex-empty {
+      display: none;
+      padding: clamp(48px, 8vw, 96px) 0;
+      text-align: center;
+      font-family: var(--f-body, 'Barlow', sans-serif);
+      color: var(--concreto, #6E6E6E);
+    }
+
+    .tex-empty.is-visible { display: block; }
+
+    @media (max-width: 640px) {
+      .tex-filters__count { margin-left: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="wrap header__inner">
+      <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+        <span class="logo-box">
+          <svg class="logo-mark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+          </svg>
+        </span>
+        <span class="logo-divider" aria-hidden="true"></span>
+        <span class="logo-word">Bruto</span>
+      </a>
+      <nav class="nav" id="main-nav" aria-label="Navegação principal">
+        <a href="colecoes.html">Coleções</a>
+        <a href="paginacoes.html">Paginações</a>
+        <a href="texturas.html" aria-current="page">Texturas</a>
+        <a href="blog.html">Blog</a>
+        <a href="index.html#projetos">Projetos</a>
+        <a href="index.html#sobre">Sobre</a>
+        <a href="index.html#amostra">Contato</a>
+      </nav>
+      <a href="index.html#amostra" class="btn btn--outline header__cta">Solicitar amostra</a>
+      <button class="burger" id="menu-btn" aria-label="Abrir menu" aria-expanded="false">
+        <i class="ti ti-menu-2" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+
+  <section class="page-head">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Comparador</span>
+        <h1 class="display-title">Texturas</h1>
+        <p class="section-sub">
+          As 18 texturas das coleções Brick, Cimentício e Rockface lado a lado — acabamento,
+          resistência e aplicação de cada uma, para comparar antes de decidir.
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="cat-section" style="border-top: 1px solid var(--line, #e0e0e0); padding: clamp(48px,6vw,80px) 0;">
+    <div class="wrap">
+
+      <div class="tex-filters" role="group" aria-label="Filtrar por família">
+        <div class="tex-filter-group" data-filter-group="familia">
+          <span class="tex-filter-group__label">Família</span>
+          <button type="button" class="chip is-active" data-filter-value="all">Todas</button>
+          <button type="button" class="chip" data-filter-value="brick">Brick</button>
+          <button type="button" class="chip" data-filter-value="cimenticio">Cimentício</button>
+          <button type="button" class="chip" data-filter-value="rockface">Rockface</button>
+        </div>
+        <p class="tex-filters__count" id="tex-count">18 texturas</p>
+      </div>
+
+      <div class="tex-grid" id="tex-grid">
+
+        <div class="tex-card reveal" data-familia="brick" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('brick-branco-rose-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Brick</span>
+            <h3 class="tex-card__title">Branco Rosé</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Natural</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 139,90 <span>/m²</span></p>
+            <a href="produto-brick-branco-rose.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="brick" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('brick-eco-palha-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Brick</span>
+            <h3 class="tex-card__title">Eco Palha</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Natural</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 139,90 <span>/m²</span></p>
+            <a href="produto-brick-eco-palha.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="brick" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('brick-lumus-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Brick</span>
+            <h3 class="tex-card__title">Lumus</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Natural</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 149,90 <span>/m²</span></p>
+            <a href="produto-brick-lumus.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="brick" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('brick-mescla-prime-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Brick</span>
+            <h3 class="tex-card__title">Mescla Prime</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Natural</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 139,90 <span>/m²</span></p>
+            <a href="produto-brick-mescla-prime.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="brick" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('brick-natura-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Brick</span>
+            <h3 class="tex-card__title">Natura</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Natural</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 94,90 <span>/m²</span></p>
+            <a href="produto-brick-natura.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="brick" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('brick-rosso-prime-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Brick</span>
+            <h3 class="tex-card__title">Rosso Prime</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Natural</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 129,90 <span>/m²</span></p>
+            <a href="produto-brick-rosso-prime.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="brick" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('brick-rusticatto-fume-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Brick</span>
+            <h3 class="tex-card__title">Rusticatto Fumê</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Rústico muito alto</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 169,90 <span>/m²</span></p>
+            <a href="produto-brick-rusticatto-fume.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="brick" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('brick-rusticatto-rosso-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Brick</span>
+            <h3 class="tex-card__title">Rusticatto Rosso</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Rústico alto</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 144,90 <span>/m²</span></p>
+            <a href="produto-brick-rusticatto-rosso.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="brick" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('brick-rusticatto-sertao-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Brick</span>
+            <h3 class="tex-card__title">Rusticatto do Sertão</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Rústico alto</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 149,90 <span>/m²</span></p>
+            <a href="produto-brick-rusticatto-sertao.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="brick" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('brick-rusticatto-terra-negra-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Brick</span>
+            <h3 class="tex-card__title">Rusticatto Terra Negra</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Rústico muito alto</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 179,90 <span>/m²</span></p>
+            <a href="produto-brick-rusticatto-terra-negra.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="brick" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('brick-terra-cerrado-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Brick</span>
+            <h3 class="tex-card__title">Terra do Cerrado</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Natural</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 134,90 <span>/m²</span></p>
+            <a href="produto-brick-terra-cerrado.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="brick" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('brick-vulcano-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Brick</span>
+            <h3 class="tex-card__title">Vulcano</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Natural</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 149,90 <span>/m²</span></p>
+            <a href="produto-brick-vulcano.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="cimenticio" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('cimenticio-alpino-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Cimentício</span>
+            <h3 class="tex-card__title">Alpino</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Liso</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 169,90 <span>/m²</span></p>
+            <a href="produto-cimenticio-alpino.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="cimenticio" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('cimenticio-grigio-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Cimentício</span>
+            <h3 class="tex-card__title">Grigio</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Liso</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 169,90 <span>/m²</span></p>
+            <a href="produto-cimenticio-grigio.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="cimenticio" data-aplicacao="interno externo">
+          <div class="tex-card__preview" style="background-image:url('cimenticio-urban-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Cimentício</span>
+            <h3 class="tex-card__title">Urban</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Texturizado</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Interno e externo</span>
+            </div>
+            <p class="tex-card__price">R$ 169,90 <span>/m²</span></p>
+            <a href="produto-cimenticio-urban.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="rockface" data-aplicacao="externo">
+          <div class="tex-card__preview" style="background-image:url('rockface-alpino-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Rockface</span>
+            <h3 class="tex-card__title">Alpino</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Texturizado pedra</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Externo</span>
+            </div>
+            <p class="tex-card__price">R$ 229,90 <span>/m²</span></p>
+            <a href="produto-rockface-alpino.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="rockface" data-aplicacao="externo">
+          <div class="tex-card__preview" style="background-image:url('rockface-brisa-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Rockface</span>
+            <h3 class="tex-card__title">Brisa</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Texturizado</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Externo</span>
+            </div>
+            <p class="tex-card__price">R$ 169,90 <span>/m²</span></p>
+            <a href="produto-rockface-brisa.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        <div class="tex-card reveal" data-familia="rockface" data-aplicacao="externo">
+          <div class="tex-card__preview" style="background-image:url('rockface-grigio-frontal.webp')"></div>
+          <div class="tex-card__info">
+            <span class="tex-card__familia">Rockface</span>
+            <h3 class="tex-card__title">Grigio</h3>
+            <div class="tex-card__specs">
+              <span><i class="ti ti-brush" aria-hidden="true"></i> Texturizado pedra</span>
+              <span><i class="ti ti-shield-check" aria-hidden="true"></i> Classe A</span>
+              <span><i class="ti ti-home" aria-hidden="true"></i> Externo</span>
+            </div>
+            <p class="tex-card__price">R$ 229,90 <span>/m²</span></p>
+            <a href="produto-rockface-grigio.html" class="tex-card__link">Ver produto <i class="ti ti-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+      </div>
+
+      <p class="tex-empty" id="tex-empty">Nenhuma textura encontrada com esse filtro.</p>
+
+    </div>
+  </section>
+
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__grid">
+        <div>
+          <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+            <span class="logo-box">
+              <svg class="logo-mark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+              </svg>
+            </span>
+            <span class="logo-divider" aria-hidden="true"></span>
+            <span class="logo-word">Bruto</span>
+          </a>
+          <p class="footer__tagline">Curadoria de revestimentos artesanais para projetos de alta exigência.</p>
+        </div>
+        <div>
+          <p class="footer__col-title">Coleções</p>
+          <nav class="footer__links">
+            <a href="colecoes.html#brick">Brick</a>
+            <a href="colecoes.html#cimenticio">Cimentício</a>
+            <a href="colecoes.html#rockface">Rockface</a>
+          </nav>
+        </div>
+        <div>
+          <p class="footer__col-title">Navegação</p>
+          <nav class="footer__links">
+            <a href="paginacoes.html">Paginações</a>
+            <a href="texturas.html">Texturas</a>
+            <a href="blog.html">Blog</a>
+            <a href="index.html#projetos">Projetos</a>
+            <a href="index.html#sobre">Sobre</a>
+          </nav>
+        </div>
+        <div>
+          <p class="footer__col-title">Contato</p>
+          <nav class="footer__links">
+            <a href="#">contato@bruto.com.br</a>
+            <a href="#">Instagram</a>
+            <a href="#">WhatsApp</a>
+          </nav>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2026 Bruto. Todos os direitos reservados.</p>
+        <div class="footer__bottom-links">
+          <a href="#">Privacidade</a>
+          <a href="#">Termos</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const revealEls = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => obs.observe(el));
+
+    const menuBtn = document.getElementById('menu-btn');
+    const mainNav = document.getElementById('main-nav');
+    menuBtn.addEventListener('click', () => {
+      const isOpen = mainNav.classList.toggle('nav--open');
+      menuBtn.setAttribute('aria-expanded', isOpen);
+      menuBtn.querySelector('i').className = isOpen ? 'ti ti-x' : 'ti ti-menu-2';
+    });
+
+    // Filtro de texturas por família
+    (function () {
+      const cards = Array.from(document.querySelectorAll('#tex-grid .tex-card'));
+      const countEl = document.getElementById('tex-count');
+      const emptyEl = document.getElementById('tex-empty');
+      const groups = document.querySelectorAll('.tex-filter-group');
+
+      const state = { familia: 'all' };
+
+      function applyFilters() {
+        let visible = 0;
+        cards.forEach(card => {
+          const familia = card.dataset.familia || '';
+          const show = state.familia === 'all' || familia === state.familia;
+          card.hidden = !show;
+          if (show) visible++;
+        });
+        countEl.textContent = visible === 1 ? '1 textura' : `${visible} texturas`;
+        emptyEl.classList.toggle('is-visible', visible === 0);
+      }
+
+      groups.forEach(group => {
+        const key = group.dataset.filterGroup;
+        group.addEventListener('click', (e) => {
+          const btn = e.target.closest('.chip');
+          if (!btn) return;
+          group.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          state[key] = btn.dataset.filterValue;
+          applyFilters();
+        });
+      });
+    })();
+  </script>
+
+  <script defer src="promo-frete-gratis.js?v=1"></script>
+  <script defer src="header-scroll.js?v=3"></script>
+  <script defer src="back-to-top.js?v=1"></script>
+</body>
+</html>
