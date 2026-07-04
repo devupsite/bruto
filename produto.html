@@ -551,7 +551,7 @@
   <!-- MAIN -->
   <main class="product-main">
     <div class="product-breadcrumb">
-      <a href="colecoes.html">Coleções</a> /
+      <a href="texturas.html">Coleções</a> /
       <a href="#" id="category-link">Categoria</a> /
       <span id="product-name">Produto</span>
     </div>
@@ -644,9 +644,9 @@
         <div>
           <p class="footer__col-title">Coleções</p>
           <nav class="footer__links" aria-label="Categorias de produtos">
-            <a href="colecoes.html#brick">Brick</a>
-            <a href="colecoes.html#cimenticio">Cimentício</a>
-            <a href="colecoes.html#rockface">Rockface</a>
+            <a href="texturas.html#brick">Brick</a>
+            <a href="texturas.html#cimenticio">Cimentício</a>
+            <a href="texturas.html#rockface">Rockface</a>
           </nav>
         </div>
 
@@ -1076,7 +1076,7 @@ function getProductById(id) {
 
       // Update breadcrumb
       document.getElementById('category-link').textContent = product.categoria;
-      document.getElementById('category-link').href = `colecoes.html#${product.categoria.toLowerCase()}`;
+      document.getElementById('category-link').href = `texturas.html#${product.categoria.toLowerCase()}`;
       document.getElementById('product-name').textContent = product.nome;
 
       // Update product info
