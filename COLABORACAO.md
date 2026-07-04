@@ -104,12 +104,23 @@ ficar desatualizado, corrija — não deixe a próxima sessão repetir o erro.
 - **`produto-template.html`** é o molde-fonte das 19 páginas de produto
   (tem placeholders tipo `[PRODUTO_NOME]`). Mudança estrutural que vale para
   todas as páginas de produto deve começar por ali, não só numa página.
-- **`colecoes.html.backup`** existe no repo — versão anterior do catálogo,
-  mantida como referência. Não é a página em produção.
+- **`colecoes.html` foi removida** (04/07/2026). Foi substituída por
+  `texturas.html`, que assumiu o mesmo papel (catálogo com filtro), sob novo
+  nome/design. Todos os ~29 arquivos que linkavam para `colecoes.html`
+  (blog, index, paginacoes, as 18 `produto-*.html`) foram migrados para
+  `texturas.html`. Links antigos com âncora (`#brick`, `#cimenticio`,
+  `#rockface`) continuam funcionando — `texturas.html` lê o hash na carga
+  da página e marca o checkbox de Linha correspondente. Se encontrar algum
+  link antigo pra `colecoes.html` que passou batido nessa migração, é bug —
+  trocar para `texturas.html`.
+- **`colecoes.html.backup`** ainda existe no repo — versão anterior do
+  catálogo, mantida como referência histórica. Não é a página em produção
+  (a página em produção agora é `texturas.html`).
 - **`paginacoes.html`** tem CSS próprio embutido no `<head>`, separado do
   `styles.css` global — os cards de padrão de assentamento (`.pag-card`)
   não herdam do design system principal.
-- **Menu de filtro em `colecoes.html`**: implementado em 04/07/2026. Sidebar
+- **Menu de filtro em `texturas.html`**: implementado em 04/07/2026 (época
+  em que a página ainda se chamava `colecoes.html`; migrada depois). Sidebar
   sticky com checkboxes (Linha / Ambiente / Tom / Faixa de preço), filtro
   cumulativo via JS puro (sem framework), drawer mobile abaixo de 900px.
   Cards têm `data-linha`, `data-ambiente`, `data-tom`, `data-preco` — ao
