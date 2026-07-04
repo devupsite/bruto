@@ -306,118 +306,6 @@
       color: #666;
     }
 
-    /* Calculadora de quantidade */
-    .calc {
-      background: #f9f9f9;
-      padding: 1.5rem 2rem 1.75rem;
-      border-radius: 8px;
-      margin-top: 1.5rem;
-    }
-
-    .calc__label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 1rem;
-    }
-
-    .calc__inputs {
-      display: flex;
-      align-items: end;
-      gap: 0.75rem;
-    }
-
-    .calc__field {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-
-    .calc__field label {
-      font-size: 0.8rem;
-      color: #666;
-    }
-
-    .calc__field input {
-      width: 100%;
-      padding: 0.65rem 0.75rem;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1rem;
-      font-family: inherit;
-      color: #333;
-      background: #fff;
-    }
-
-    .calc__field input:focus {
-      outline: none;
-      border-color: #333;
-    }
-
-    .calc__x {
-      padding-bottom: 0.65rem;
-      color: #999;
-      font-size: 1.1rem;
-    }
-
-    .calc__perda {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 0.9rem;
-      font-size: 0.85rem;
-      color: #666;
-      cursor: pointer;
-    }
-
-    .calc__perda input {
-      accent-color: #333;
-    }
-
-    .calc__result {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem;
-      margin-top: 1.25rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid #e5e5e5;
-    }
-
-    .calc__stat {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-      text-align: center;
-    }
-
-    .calc__stat-val {
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .calc__stat-key {
-      font-size: 0.72rem;
-      color: #888;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-    }
-
-    .calc__note {
-      margin-top: 0.85rem;
-      font-size: 0.78rem;
-      color: #999;
-      text-align: center;
-    }
-
-    @media (max-width: 480px) {
-      .calc__result { grid-template-columns: 1fr; gap: 0.9rem; }
-    }
-
     .cta-buttons {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -694,15 +582,10 @@
               <span class="calc__stat-key">m² necessários</span>
             </div>
             <div class="calc__stat">
-              <span class="calc__stat-val" id="calc-pecas">—</span>
-              <span class="calc__stat-key">peças necessárias</span>
-            </div>
-            <div class="calc__stat">
               <span class="calc__stat-val" id="calc-total">—</span>
               <span class="calc__stat-key">valor estimado</span>
             </div>
           </div>
-          <p class="calc__note" id="calc-note" hidden></p>
         </div>
         <!-- CTA Buttons -->
         <div class="cta-buttons">
@@ -935,49 +818,23 @@
         if (Math.abs(dx) > 50) { dx < 0 ? goNext() : goPrev(); }
       }, { passive: true });
     })();
-    // Calculadora m² e peças
+    // Calculadora m²
     (function() {
       var priceEl = document.querySelector('.price');
       var rawPrice = priceEl ? priceEl.textContent.replace(/[^0-9,]/g,'').replace(',','.') : '0';
       var pricePerM2 = parseFloat(rawPrice) || 0;
 
-      // Lê a dimensão real da peça direto da ficha técnica (ex: "240mm x 65mm x 12mm")
-      // em vez de fixar um valor no script -- assim nunca fica dessincronizado do produto.
-      var pecaComprM = 0.24, pecaAltM = 0.065; // fallback caso a ficha técnica não seja encontrada
-      document.querySelectorAll('.product-specs .spec-item').forEach(function(item) {
-        var label = item.querySelector('strong');
-        if (label && /Dimens/i.test(label.textContent)) {
-          var span = item.querySelector('span');
-          var nums = span ? span.textContent.match(/\d+(?:[.,]\d+)?/g) : null;
-          if (nums && nums.length >= 2) {
-            pecaComprM = parseFloat(nums[0].replace(',', '.')) / 1000;
-            pecaAltM   = parseFloat(nums[1].replace(',', '.')) / 1000;
-          }
-        }
-      });
-
-      var JUNTA_M = 0.008; // 8mm de junta de assentamento (padrão de mercado)
-      var areaPecaComJunta = (pecaComprM + JUNTA_M) * (pecaAltM + JUNTA_M);
-      var pecasPorM2 = areaPecaComJunta > 0 ? (1 / areaPecaComJunta) : 0;
-
       function recalc() {
         var larg = parseFloat(document.getElementById('calc-larg').value) || 0;
         var alt  = parseFloat(document.getElementById('calc-alt').value)  || 0;
-        if (!larg || !alt) { document.getElementById('calc-result').hidden = true; document.getElementById('calc-note').hidden = true; return; }
+        if (!larg || !alt) { document.getElementById('calc-result').hidden = true; return; }
         var area = larg * alt;
         var perda = document.getElementById('calc-perda').checked ? 1.10 : 1.00;
         var total = area * perda;
         var custo = total * pricePerM2;
-        var pecas = Math.ceil(total * pecasPorM2);
-
         document.getElementById('calc-m2').textContent    = total.toFixed(2).replace('.',',') + ' m²';
-        document.getElementById('calc-pecas').textContent = pecas.toLocaleString('pt-BR') + ' un.';
         document.getElementById('calc-total').textContent = 'R$ ' + custo.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
         document.getElementById('calc-result').hidden = false;
-
-        var noteEl = document.getElementById('calc-note');
-        noteEl.textContent = '≈ ' + pecasPorM2.toFixed(0) + ' peças/m² · considerando junta de 8mm entre peças';
-        noteEl.hidden = false;
       }
 
       ['calc-larg','calc-alt','calc-perda'].forEach(function(id) {
