@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=6">
   <style>
     .carousel {
       position: relative;
@@ -599,6 +599,39 @@
       </div>
     </div>
 
+  <section class="pgn-section" id="paginacao" data-current="brick-eco-palha">
+    <div class="wrap">
+      <div class="pgn-head reveal">
+        <span class="eyebrow">Simule na parede</span>
+        <h2 class="pgn-title">Paginação &amp; cor — <span class="pgn-current-name"></span></h2>
+        <p class="pgn-sub">Veja como este tijolo se comporta em diferentes padrões de assentamento, na textura real do produto, e compare com as outras cores da coleção Brick.</p>
+      </div>
+
+      <div class="pgn-widget reveal reveal-delay-1">
+        <div class="pgn-preview-wrap pgn-ambient--claro">
+          <div class="pgn-ambient-toggle" role="group" aria-label="Ambiente">
+            <button type="button" class="pgn-chip is-active" data-ambient="claro">Claro</button>
+            <button type="button" class="pgn-chip" data-ambient="escuro">Escuro</button>
+          </div>
+          <div class="pgn-wall" aria-label="Pré-visualização da parede simulada"></div>
+          <p class="pgn-grout-note"><i class="ti ti-line-dashed" aria-hidden="true"></i> Junta em argamassa clara</p>
+        </div>
+
+        <div class="pgn-controls">
+          <div class="pgn-control-group">
+            <span class="pgn-control-label">Padrão de assentamento</span>
+            <div class="pgn-pattern-list" role="group" aria-label="Padrão de assentamento"></div>
+            <p class="pgn-pattern-desc"></p>
+          </div>
+          <div class="pgn-control-group">
+            <span class="pgn-control-label">Cor — coleção Brick</span>
+            <div class="pgn-swatches" role="group" aria-label="Selecionar cor"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   </div>
 
   </main>
@@ -843,6 +876,7 @@
   </script>
 
   <script defer src="promo-frete-gratis.js?v=1"></script>
+  <script defer src="paginacoes.js?v=1"></script>
   <script defer src="header-scroll.js?v=2"></script>
   <script defer src="back-to-top.js?v=1"></script>
 </body>
