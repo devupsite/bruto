@@ -1333,7 +1333,7 @@
 
     .calc__result {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 1px;
       margin-top: 18px;
       background: var(--line);
@@ -1364,9 +1364,17 @@
       color: var(--grafite);
     }
 
+    .calc__note {
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--concreto);
+      text-align: center;
+    }
+
     @media (max-width: 480px) {
       .calc__inputs { flex-direction: column; align-items: stretch; }
       .calc__x { display: none; }
+      .calc__result { grid-template-columns: 1fr; }
     }
 
     /* ════════════════════════════════════════════

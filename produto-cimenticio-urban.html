@@ -582,10 +582,15 @@
               <span class="calc__stat-key">m² necessários</span>
             </div>
             <div class="calc__stat">
+              <span class="calc__stat-val" id="calc-pecas">—</span>
+              <span class="calc__stat-key">peças necessárias</span>
+            </div>
+            <div class="calc__stat">
               <span class="calc__stat-val" id="calc-total">—</span>
               <span class="calc__stat-key">valor estimado</span>
             </div>
           </div>
+          <p class="calc__note" id="calc-note" hidden></p>
         </div>
         <!-- CTA Buttons -->
         <div class="cta-buttons">
@@ -818,23 +823,52 @@
         if (Math.abs(dx) > 50) { dx < 0 ? goNext() : goPrev(); }
       }, { passive: true });
     })();
-    // Calculadora m²
+    // Calculadora m² e peças
     (function() {
       var priceEl = document.querySelector('.price');
       var rawPrice = priceEl ? priceEl.textContent.replace(/[^0-9,]/g,'').replace(',','.') : '0';
       var pricePerM2 = parseFloat(rawPrice) || 0;
 
+      // Lê a dimensão real da peça direto da ficha técnica (ex: "240mm x 65mm x 12mm")
+      var pecaComprM = 0.24, pecaAltM = 0.065; // fallback
+      document.querySelectorAll('.product-specs .spec-item').forEach(function(item) {
+        var label = item.querySelector('strong');
+        if (label && /Dimens/i.test(label.textContent)) {
+          var span = item.querySelector('span');
+          var nums = span ? span.textContent.match(/\d+(?:[.,]\d+)?/g) : null;
+          if (nums && nums.length >= 2) {
+            pecaComprM = parseFloat(nums[0].replace(',', '.')) / 1000;
+            pecaAltM   = parseFloat(nums[1].replace(',', '.')) / 1000;
+          }
+        }
+      });
+
+      var JUNTA_M = 0.008; // 8mm de junta de assentamento
+      var areaPecaComJunta = (pecaComprM + JUNTA_M) * (pecaAltM + JUNTA_M);
+      var pecasPorM2 = areaPecaComJunta > 0 ? (1 / areaPecaComJunta) : 0;
+
       function recalc() {
         var larg = parseFloat(document.getElementById('calc-larg').value) || 0;
         var alt  = parseFloat(document.getElementById('calc-alt').value)  || 0;
-        if (!larg || !alt) { document.getElementById('calc-result').hidden = true; return; }
+        if (!larg || !alt) {
+          document.getElementById('calc-result').hidden = true;
+          document.getElementById('calc-note').hidden = true;
+          return;
+        }
         var area = larg * alt;
         var perda = document.getElementById('calc-perda').checked ? 1.10 : 1.00;
         var total = area * perda;
         var custo = total * pricePerM2;
+        var pecas = Math.ceil(total * pecasPorM2);
+
         document.getElementById('calc-m2').textContent    = total.toFixed(2).replace('.',',') + ' m²';
+        document.getElementById('calc-pecas').textContent = pecas.toLocaleString('pt-BR') + ' un.';
         document.getElementById('calc-total').textContent = 'R$ ' + custo.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
         document.getElementById('calc-result').hidden = false;
+
+        var noteEl = document.getElementById('calc-note');
+        noteEl.textContent = '≈ ' + pecasPorM2.toFixed(0) + ' peças/m² · considerando junta de 8mm';
+        noteEl.hidden = false;
       }
 
       ['calc-larg','calc-alt','calc-perda'].forEach(function(id) {
