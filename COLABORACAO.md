@@ -164,3 +164,19 @@ arqueologia depois. Se o diff que você está prestes a commitar em um
 arquivo compartilhado (`styles.css`, `COLABORACAO.md`) tiver muito mais
 linhas removidas do que você lembra de ter apagado, **pare e investigue
 antes de dar push** — pode ser exatamente isso acontecendo de novo.
+
+---
+
+## 11. Cache-busting do styles.css — sempre bumpar a versão
+
+Todas as páginas carregam `styles.css?v=N`. Esse `?v=N` existe só pra
+forçar o navegador a buscar a versão nova do arquivo em vez de usar uma
+cópia em cache — sem isso, quem já visitou o site (principalmente no
+celular, que cacheia mais agressivamente) pode continuar vendo o CSS
+antigo por dias, mesmo com o `git push` já feito e o Pages já atualizado.
+
+**Regra:** toda vez que você editar `styles.css`, incremente o `?v=N` em
+**todas** as páginas que o referenciam (ver lista com
+`grep -l "styles.css?v=" *.html`). Já aconteceu de duas rodadas de fix
+seguidas no CSS saírem sem bumpar a versão — quem tinha cacheado a v=2
+não via nada das mudanças até a v=3 sair.
