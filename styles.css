@@ -27,7 +27,7 @@
        RESET
     ════════════════════════════════════════════ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
     body {
       font-family: var(--f-body);
       font-weight: 400;
@@ -35,7 +35,6 @@
       color: var(--grafite);
       line-height: 1.6;
       letter-spacing: .01em;
-      overflow-x: hidden;
     }
     a { text-decoration: none; color: inherit; }
     img { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -292,13 +291,17 @@
       z-index: 100;
       background: var(--argamassa);
       border-bottom: 1px solid var(--line);
+      transition: box-shadow .25s ease;
     }
+    .header.is-scrolled { box-shadow: 0 2px 16px rgba(0,0,0,.08); }
     .header__inner {
       display: flex;
       align-items: center;
       height: 76px;
       gap: clamp(20px, 4vw, 48px);
+      transition: height .25s ease;
     }
+    .header.is-scrolled .header__inner { height: 56px; }
     .nav { display: flex; gap: clamp(20px, 3vw, 36px); margin-left: auto; }
     .nav a {
       font-family: var(--f-body);
