@@ -289,11 +289,15 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: var(--argamassa);
-      border-bottom: 1px solid var(--line);
-      transition: box-shadow .25s ease;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition: background .25s ease, border-color .25s ease, box-shadow .25s ease;
     }
-    .header.is-scrolled { box-shadow: 0 2px 16px rgba(0,0,0,.08); }
+    .header.is-scrolled {
+      background: var(--argamassa);
+      border-bottom-color: var(--line);
+      box-shadow: 0 2px 16px rgba(0,0,0,.08);
+    }
     .header__inner {
       display: flex;
       align-items: center;
@@ -841,7 +845,7 @@
       display: flex !important;
       flex-direction: column;
       position: absolute;
-      top: 76px;
+      top: 100%;
       left: 0; right: 0;
       background: var(--argamassa);
       border-bottom: 1px solid var(--line);
@@ -1501,4 +1505,39 @@
 
     @media (prefers-reduced-motion: reduce) {
       .promo-modal, .promo-modal__card { transition: none; }
+    }
+
+    /* ════════════════════════════════════════════
+       BACK TO TOP — seta flutuante
+       Injetado via back-to-top.js em todas as páginas
+    ════════════════════════════════════════════ */
+    .back-to-top {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--ferro);
+      color: var(--argamassa);
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: opacity .25s ease, transform .25s ease, visibility .25s, background .2s ease;
+      z-index: 90;
+    }
+    .back-to-top.is-visible { opacity: 1; visibility: visible; transform: none; }
+    .back-to-top:hover { background: var(--grafite); }
+
+    @media (max-width: 600px) {
+      .back-to-top { right: 16px; bottom: 16px; width: 40px; height: 40px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .back-to-top { transition: opacity .01s linear; }
     }
