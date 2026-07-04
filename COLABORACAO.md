@@ -135,11 +135,25 @@ ficar desatualizado, corrija — não deixe a próxima sessão repetir o erro.
   "Baixar guia em PDF" no topo de `paginacoes.html`. Se os textos ou a
   dificuldade de algum padrão mudarem no HTML, o PDF fica desatualizado —
   não há geração automática, é preciso regenerar e re-subir manualmente.
-- **`paginacoes.js`** (visto em 04/07/2026): simulador de padrão + cor com
-  textura real de foto, linkado em `produto-template.html` e em
-  `produto-brick-rusticatto-terra-negra.html`, mas **sem container HTML**
-  (`.pgn-wall`, `.pgn-swatches` etc.) em nenhuma página ainda — script sem
-  onde montar. Parece trabalho em andamento de outra sessão, não mexi nele.
+- **`paginacoes.js`** (concluído em 04/07/2026): simulador de padrão + cor
+  com textura real de foto (técnica de "janela reveladora" via
+  background-position para padrões retos; recorte simples via background-size
+  cover para peças rotacionadas no espinha de peixe). Seção `.pgn-section`
+  já está inserida nas 12 páginas `produto-brick-*.html` **e** no
+  `produto-template.html`, com `data-current="[id-do-tijolo]"` setado por
+  página. CSS em `styles.css` (bloco "SIMULADOR DE PAGINAÇÃO & COR").
+  **Cuidado com a classe `.reveal`:** ela só fica visível se algo adicionar
+  `.visible` via IntersectionObserver — esse observer existe na homepage e
+  em `paginacoes.html`, mas **não existe nas páginas `produto-*.html`**.
+  Colocar `.reveal` num elemento de página de produto o deixa com
+  `opacity:0` permanente (bug real, já aconteceu e foi corrigido removendo
+  a classe do `.pgn-head`/`.pgn-widget`). Se for adicionar algo novo a uma
+  página de produto, não copiar a classe `.reveal` de `paginacoes.html`/
+  `index.html` sem also portar o observer, ou simplesmente não usar a classe
+  nessas páginas.
+  Cimentício ativo: Alpino, Grigio, Urban (3). Rockface ativo: Alpino,
+  Brisa, Grigio (3) — Urban foi descontinuado, não confundir com o Cimentício
+  Urban, que é um produto diferente e continua ativo.
 
 ---
 
