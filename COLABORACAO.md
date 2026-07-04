@@ -225,3 +225,22 @@ páginas que o referenciam (`grep -l "nome-do-arquivo?v=" *.html`). Já
 aconteceu de duas rodadas de fix seguidas no CSS saírem sem bumpar a
 versão — quem tinha cacheado a v=2 não via nada das mudanças até a v=3
 sair. O mesmo vale pros `.js`.
+
+---
+
+## 12. Incidente real — pgn-section desaparecendo em edições isoladas
+
+Em 04/07/2026, `produto-brick-rusticatto-sertao.html` e
+`produto-brick-rusticatto-terra-negra.html` perderam inteiramente a seção
+`.pgn-section` (simulador de paginação e cor) que já estava publicada nas
+12 páginas de Brick. As outras 10 páginas continuaram intactas. A causa mais
+provável: alguma sessão reescreveu esses dois arquivos por completo (`create_file`
+ou equivalente) para uma tarefa não relacionada, sem perceber que apagava a
+seção — reforça o item 3 ("prefira str_replace a reescrever o arquivo inteiro").
+
+**Se for mexer em qualquer `produto-brick-*.html`, confirme antes e depois
+que `pgn-section` e `paginacoes.js` continuam presentes** — não assuma que
+uma feature já publicada vai continuar lá só porque estava lá da última vez
+que alguém checou. Um `grep -c pgn-section` rápido nas 12 páginas de Brick
+resolve.
+
