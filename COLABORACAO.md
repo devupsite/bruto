@@ -121,6 +121,25 @@ ficar desatualizado, corrija — não deixe a próxima sessão repetir o erro.
   com lista de produtos da linha), sem checkboxes nem lógica de filtro.
   As duas coisas coexistem por design: navegação simples na página de
   produto individual, filtro robusto na página de catálogo geral.
+- **`paginacoes.html`** (04/07/2026): os 25 cards têm `data-style`
+  (corrido/classico/geometrico/especial) e `data-ambiente`
+  (interno/externo/"interno externo") usados pelos chips de filtro no topo
+  da página, mais um selo de dificuldade (`.pag-level--facil|medio|avancado`)
+  por card. O padrão **03 Espinha de Peixe** foi redesenhado sem `rotate()`
+  (usa duas orientações de retângulo, sem rotação) porque a versão original
+  sobrepunha as peças e renderizava como um bloco sólido — se for mexer
+  nesse card de novo, não voltar para a versão com `transform="rotate(...)"`.
+- **`guia-paginacoes-bruto.pdf`** (04/07/2026): PDF gerado com reportlab a
+  partir dos mesmos 25 padrões/textos/dificuldade de `paginacoes.html`
+  (script fonte não versionado no repo, só o PDF final). Linkado via botão
+  "Baixar guia em PDF" no topo de `paginacoes.html`. Se os textos ou a
+  dificuldade de algum padrão mudarem no HTML, o PDF fica desatualizado —
+  não há geração automática, é preciso regenerar e re-subir manualmente.
+- **`paginacoes.js`** (visto em 04/07/2026): simulador de padrão + cor com
+  textura real de foto, linkado em `produto-template.html` e em
+  `produto-brick-rusticatto-terra-negra.html`, mas **sem container HTML**
+  (`.pgn-wall`, `.pgn-swatches` etc.) em nenhuma página ainda — script sem
+  onde montar. Parece trabalho em andamento de outra sessão, não mexi nele.
 
 ---
 
