@@ -23,7 +23,7 @@
     { id: 'brick-vulcano',              nome: 'Vulcano' }
   ];
 
-  function textureUrl(id)  { return id + '-frontal-1.webp'; }
+  function textureUrl(id)  { return id + '-textura.webp'; }
   function thumbUrl(id)    { return id + '-frontal-thumb.webp'; }
   function findBrick(id)   { return BRICKS.filter(function (b) { return b.id === id; })[0] || BRICKS[0]; }
 
@@ -90,13 +90,15 @@
     var mw = Math.max(48, wallW / 7.5);
     var mh = mw / 3.65;
     var gap = Math.max(1.5, mw * 0.045);
+    var rects;
     switch (patternId) {
-      case 'corrido13': return genCorrido(wallW, wallH, mw, mh, gap, 1 / 3);
-      case 'empilhado':  return genEmpilhado(wallW, wallH, mw, mh, gap);
-      case 'espinha':    return genEspinha(wallW, wallH, mw * 1.35);
+      case 'corrido13': rects = genCorrido(wallW, wallH, mw, mh, gap, 1 / 3); break;
+      case 'empilhado':  rects = genEmpilhado(wallW, wallH, mw, mh, gap); break;
+      case 'espinha':    rects = genEspinha(wallW, wallH, mw * 1.35); break;
       case 'corrido12':
-      default:           return genCorrido(wallW, wallH, mw, mh, gap, 0.5);
+      default:           rects = genCorrido(wallW, wallH, mw, mh, gap, 0.5);
     }
+    return { rects: rects, mw: mw, mh: mh };
   }
 
   /* ---------- Renderização ---------- */
@@ -109,7 +111,8 @@
     var rectH = wallEl.clientHeight;
     if (!rectW || !rectH) return;
 
-    var layout = buildLayout(state.pattern, rectW, rectH);
+    var built = buildLayout(state.pattern, rectW, rectH);
+    var layout = built.rects;
     var url = "url('" + textureUrl(state.brickId) + "')";
     var frag = document.createDocumentFragment();
 
@@ -128,11 +131,12 @@
         el.style.backgroundSize = 'cover';
         el.style.backgroundPosition = '50% 50%';
       } else {
-        // truque de "janela reveladora": a textura cobre toda a
-        // parede numa única escala e cada peça revela seu recorte,
-        // criando continuidade fotográfica entre as peças.
+        // textura no tamanho real do módulo, repetida — cada peça mostra
+        // o recorte certo da MESMA textura contínua (sem esticar 1 foto
+        // por toda a parede, que é o que causava o efeito "imagem grande").
         el.style.backgroundImage = url;
-        el.style.backgroundSize = rectW + 'px ' + rectH + 'px';
+        el.style.backgroundSize = built.mw + 'px ' + built.mh + 'px';
+        el.style.backgroundRepeat = 'repeat';
         el.style.backgroundPosition = (-b.x) + 'px ' + (-b.y) + 'px';
       }
       frag.appendChild(el);
