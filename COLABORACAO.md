@@ -136,10 +136,15 @@ ficar desatualizado, corrija — não deixe a próxima sessão repetir o erro.
   (corrido/classico/geometrico/especial) e `data-ambiente`
   (interno/externo/"interno externo") usados pelos chips de filtro no topo
   da página, mais um selo de dificuldade (`.pag-level--facil|medio|avancado`)
-  por card. O padrão **03 Espinha de Peixe** foi redesenhado sem `rotate()`
-  (usa duas orientações de retângulo, sem rotação) porque a versão original
-  sobrepunha as peças e renderizava como um bloco sólido — se for mexer
-  nesse card de novo, não voltar para a versão com `transform="rotate(...)"`.
+  por card. O padrão **03 Espinha de Peixe** passou por duas versões: a
+  original usava `rotate()` por peça individual com espaçamento errado e
+  virava um bloco sólido; a correção seguinte trocou pra retângulos sem
+  rotação (sem bug, mas ficou com cara de "trançado" 90°, não de espinha de
+  peixe de verdade). A versão final gira o **grupo inteiro** em 45°
+  (`transform="translate(...) rotate(45) scale(1.05) translate(...)"`) por
+  cima de uma malha sem sobreposição — isso preserva o ângulo diagonal
+  correto sem reintroduzir o bug de overlap. Se for mexer nesse card de
+  novo, manter a rotação do grupo, não voltar a rotacionar peça por peça.
 - **`guia-paginacoes-bruto.pdf`** (04/07/2026): PDF gerado com reportlab a
   partir dos mesmos 25 padrões/textos/dificuldade de `paginacoes.html`
   (script fonte não versionado no repo, só o PDF final). Linkado via botão
