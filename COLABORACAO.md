@@ -289,3 +289,24 @@ considerar o site pronto para ir ao ar de verdade:
    (que gera o orçamento pro *cliente final*, não a ordem de serviço pro
    *fornecedor*).
 
+3. **`lead-pdf.js` agora tem um "modo estático"** (04/07/2026, a pedido do
+   Ewerson) — além do fluxo dinâmico original (PDF gerado com jsPDF a
+   partir da calculadora + simulador), o script aceita um botão gatilho
+   com `data-static-pdf="arquivo.pdf"` que pula a calculadora/simulador e
+   simplesmente: captura o lead, dispara o download do PDF já existente
+   no repo, e abre o WhatsApp com uma mensagem genérica. Usado hoje em
+   `paginacoes.html` (botão "Baixar guia em PDF" → `guia-paginacoes-bruto.pdf`).
+   Mesmo `FORMSPREE_ENDPOINT`/`WHATSAPP_NUMBER` do topo do arquivo vale
+   pros dois modos — configurar uma vez resolve ambos. `?v=` do script
+   bumpado de 2 pra 3 em todas as 19 páginas de produto + `paginacoes.html`.
+
+4. **`produto-template.html` está bem mais desatualizado do que o
+   esperado** (percebido em 04/07/2026): além de não ter o botão/script do
+   `lead-pdf.js` (só isso já era sabido), ele **não tem a calculadora de
+   quantidade nenhuma** (`.calc__*`, `#calc-m2`, `#calc-pecas` etc. — nada
+   disso existe no template, só nas 19 páginas já geradas). Se alguém gerar
+   um produto novo a partir do template hoje, sai sem calculadora e sem
+   botão de PDF. Não mexi nisso agora porque é fora do escopo do que foi
+   pedido (o pedido era só ligar o gate de lead, e as 19 páginas reais já
+   funcionam) — mas fica registrado como dívida técnica real.
+
