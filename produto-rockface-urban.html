@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="BRUTO — Urban">
+  <title>Urban — BRUTO</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+  <link rel="stylesheet" href="styles.css?v=11">
+  <style>
+    .carousel {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f5f5f5;
+    }
+
+    .carousel__viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+    }
+
+    .carousel__slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.4s ease-in-out;
+    }
+
+    .carousel__slide.active {
+      opacity: 1;
+    }
+
+    .carousel__slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel__controls {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 0.5rem;
+      z-index: 10;
+    }
+
+    .carousel__dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .carousel__dot.active {
+      background: #fff;
+      width: 24px;
+      border-radius: 5px;
+    }
+
+    .carousel__button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.3);
+      border: none;
+      color: #fff;
+      width: 48px;
+      height: 48px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s ease;
+      z-index: 5;
+    }
+
+    .carousel__button:hover {
+      background: rgba(0,0,0,0.5);
+    }
+
+    .carousel__button--prev {
+      left: 1rem;
+    }
+
+    .carousel__button--next {
+      right: 1rem;
+    }
+
+    /* Botão zoom carousel */
+    .carousel__zoom-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all .3s ease;
+      z-index: 10;
+    }
+
+    .carousel__zoom-btn:hover {
+      background: rgba(0, 0, 0, 0.7);
+      transform: scale(1.05);
+    }
+
+    /* ── Lightbox ────────────────────────────────── */
+    .product-lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.96);
+      z-index: 1001;
+      align-items: center;
+      justify-content: center;
+      animation: fadeInModal .25s ease;
+    }
+    .product-lightbox.active { display: flex; }
+
+    @keyframes fadeInModal {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Imagem centralizada */
+    .product-lightbox__img-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100vw;
+      height: 100dvh;
+      padding: 64px 72px;
+      box-sizing: border-box;
+    }
+    .product-lightbox__image {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      animation: lbZoom .25s ease;
+    }
+    @keyframes lbZoom {
+      from { opacity: 0; transform: scale(.96); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* Fechar */
+    .product-lightbox__close-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.25);
+      width: 44px;
+      height: 44px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s;
+      z-index: 10;
+    }
+    .product-lightbox__close-btn:hover { background: rgba(255,255,255,.25); }
+
+    /* Setas laterais */
+    .product-lightbox__nav-btn {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.25);
+      width: 48px;
+      height: 48px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s;
+      z-index: 10;
+    }
+    .product-lightbox__nav-btn:hover:not(:disabled) { background: rgba(255,255,255,.28); }
+    .product-lightbox__nav-btn:disabled { opacity: .25; cursor: default; pointer-events: none; }
+    #lightbox-prev { left: 16px; }
+    #lightbox-next { right: 16px; }
+
+    /* Contador */
+    .product-lightbox__counter {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,.6);
+      font-size: 12px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-family: inherit;
+      pointer-events: none;
+    }
+
+    @media (max-width: 600px) {
+      .product-lightbox__img-wrap { padding: 56px 16px 48px; }
+      .product-lightbox__nav-btn { width: 40px; height: 40px; font-size: 18px; }
+      #lightbox-prev { left: 8px; }
+      #lightbox-next { right: 8px; }
+    }
+
+    .product-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 4rem;
+    }
+
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .product-info h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .product-info .sku {
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .product-info .price {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 1.5rem;
+    }
+
+    .product-info p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #555;
+      margin-bottom: 2rem;
+    }
+
+    .product-specs {
+      background: #f9f9f9;
+      padding: 2rem;
+      border-radius: 8px;
+      margin-top: 2rem;
+    }
+
+    .product-specs h3 {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .spec-item {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      margin-bottom: 0.8rem;
+      font-size: 0.95rem;
+    }
+
+    .spec-item strong {
+      color: #333;
+    }
+
+    .spec-item span {
+      color: #666;
+    }
+
+    .cta-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .pd-btn {
+      padding: 1rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .pd-btn--primary {
+      background: #333;
+      color: #fff;
+    }
+
+    .pd-btn--primary:hover {
+      background: #555;
+    }
+
+    .pd-btn--secondary {
+      background: transparent;
+      border: 2px solid #333;
+      color: #333;
+    }
+
+    .pd-btn--secondary:hover {
+      background: #f0f0f0;
+    }
+
+    .breadcrumb {
+      margin-bottom: 2rem;
+    }
+
+    .breadcrumb a {
+      color: #888;
+      text-decoration: none;
+      margin-right: 0.5rem;
+    }
+
+    .breadcrumb a:hover {
+      color: #333;
+    }
+
+    @media (max-width: 768px) {
+      .product-header {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      main.wrap {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+      }
+      .product-info h1 {
+        font-size: 1.8rem;
+      }
+      .carousel__button {
+        width: 40px;
+        height: 40px;
+      }
+      .carousel__button--prev {
+        left: 0.5rem;
+      }
+      .carousel__button--next {
+        right: 0.5rem;
+      }
+      .cta-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════ -->
+  <header class="header">
+    <div class="wrap header__inner">
+      <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+        <span class="logo-box">
+          <svg class="logo-mark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+          </svg>
+        </span>
+        <span class="logo-divider" aria-hidden="true"></span>
+        <span class="logo-word">Bruto</span>
+      </a>
+
+      <nav class="nav" id="main-nav" aria-label="Navegação principal">
+        <a href="texturas.html">Coleções &amp; Texturas</a>
+        <a href="paginacoes.html">Paginações</a>
+        <a href="blog.html">Blog</a>
+        <a href="index.html#projetos">Projetos</a>
+        <a href="index.html#sobre">Sobre</a>
+        <a href="index.html#amostra">Contato</a>
+      </nav>
+
+      <a href="index.html#amostra" class="btn btn--outline header__cta">Solicitar amostra</a>
+
+      <button class="burger" id="menu-btn" aria-label="Abrir menu" aria-expanded="false">
+        <i class="ti ti-menu-2" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+
+  <!-- ══════════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════════ -->
+  <main class="wrap product-page-layout" style="padding: 3rem 0;">
+
+  <aside class="product-sidebar-static" aria-label="Filtrar produtos por coleção">
+    <details class="sidebar-cat">
+      <summary class="sidebar-cat__title">Brick</summary>
+      <ul class="sidebar-cat__list">
+        <li><a href="produto-brick-branco-rose.html">Branco Rosé</a></li>
+        <li><a href="produto-brick-eco-palha.html">Eco Palha</a></li>
+        <li><a href="produto-brick-lumus.html">Lumus</a></li>
+        <li><a href="produto-brick-mescla-prime.html">Mescla Prime</a></li>
+        <li><a href="produto-brick-natura.html">Natura</a></li>
+        <li><a href="produto-brick-rosso-prime.html">Rosso Prime</a></li>
+        <li><a href="produto-brick-rusticatto-sertao.html">Rusticatto do Sertão</a></li>
+        <li><a href="produto-brick-rusticatto-fume.html">Rusticatto Fumê</a></li>
+        <li><a href="produto-brick-rusticatto-rosso.html">Rusticatto Rosso</a></li>
+        <li><a href="produto-brick-rusticatto-terra-negra.html">Rusticatto Terra Negra</a></li>
+        <li><a href="produto-brick-terra-cerrado.html">Terra do Cerrado</a></li>
+        <li><a href="produto-brick-vulcano.html">Vulcano</a></li>
+      </ul>
+    </details>
+    <details class="sidebar-cat">
+      <summary class="sidebar-cat__title">Cimentício</summary>
+      <ul class="sidebar-cat__list">
+        <li><a href="produto-cimenticio-alpino.html">Alpino</a></li>
+        <li><a href="produto-cimenticio-grigio.html">Grigio</a></li>
+        <li><a href="produto-cimenticio-urban.html">Urban</a></li>
+      </ul>
+    </details>
+    <details class="sidebar-cat" open>
+      <summary class="sidebar-cat__title">Rockface</summary>
+      <ul class="sidebar-cat__list">
+        <li><a href="produto-rockface-brisa.html">Brisa</a></li>
+        <li><a href="produto-rockface-alpino.html">Alpino</a></li>
+        <li><a href="produto-rockface-grigio.html">Grigio</a></li>
+        <li><a href="produto-rockface-urban.html" class="active">Urban</a></li>
+      </ul>
+    </details>
+  </aside>
+
+  <div class="product-page-content">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a href="texturas.html">Coleções</a> /
+      <a href="texturas.html#rockface">Rockface</a> /
+      <span>Urban</span>
+    </div>
+
+    <!-- Product Header -->
+    <div class="product-header">
+      
+      <!-- Carousel -->
+      <div>
+        <div class="carousel">
+          <div class="carousel__viewport">
+                        <div class="carousel__slide active">
+              <img src="rockface-urban-frontal.webp" alt="Urban - Imagem 1" loading="lazy">
+            </div>
+            <div class="carousel__slide ">
+              <img src="rockface-urban-frontal-1.webp" alt="Urban - Imagem 2" loading="lazy">
+            </div>
+            <div class="carousel__slide ">
+              <img src="rockface-urban-frontal-2.webp" alt="Urban - Imagem 3" loading="lazy">
+            </div>
+            <div class="carousel__slide ">
+              <img src="rockface-urban-frontal-3.webp" alt="Urban - Imagem 4" loading="lazy">
+            </div>
+
+
+          </div>
+          <div class="carousel__controls">
+                        <button class="carousel__dot active" aria-label="Imagem 1"></button>
+            <button class="carousel__dot " aria-label="Imagem 2"></button>
+            <button class="carousel__dot " aria-label="Imagem 3"></button>
+            <button class="carousel__dot " aria-label="Imagem 4"></button>
+
+
+          </div>
+          <button class="carousel__button carousel__button--prev" aria-label="Imagem anterior">
+            <i class="ti ti-chevron-left"></i>
+          </button>
+          <button class="carousel__button carousel__button--next" aria-label="Próxima imagem">
+            <i class="ti ti-chevron-right"></i>
+          </button>
+          <button class="carousel__zoom-btn" aria-label="Expandir imagem" title="Expandir imagem">
+            <i class="ti ti-zoom-in"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-info">
+        <p class="sku">SKU 93</p>
+        <h1>Urban</h1>
+        <p class="price">R$ 229,90<span class="price__unit"> /m²</span></p>
+        
+        <p>Rockface Urban oferece cinza grafite com textura irregular e acabamento contemporâneo, unindo resistência e sofisticação em projetos residenciais e comerciais.</p>
+
+        <!-- Specifications -->
+        <div class="product-specs">
+          <h3>Especificações</h3>
+          <div class="spec-item">
+            <strong>Dimensões:</strong>
+            <span>290mm x 95mm x 20mm</span>
+          </div>
+          <div class="spec-item">
+            <strong>Acabamento:</strong>
+            <span>Texturizado pedra</span>
+          </div>
+          <div class="spec-item">
+            <strong>Resistência:</strong>
+            <span>Classe A</span>
+          </div>
+          <div class="spec-item">
+            <strong>Aplicação:</strong>
+            <span>Externo</span>
+          </div>
+          <div class="spec-item">
+            <strong>Ambientes:</strong>
+            <span>Fachada, Parede de destaque</span>
+          </div>
+        </div>
+
+
+        <!-- Calculadora de m² -->
+        <div class="calc">
+          <p class="calc__label"><i class="ti ti-ruler-2" aria-hidden="true"></i> Calculadora de quantidade</p>
+          <div class="calc__inputs">
+            <div class="calc__field">
+              <label for="calc-larg">Largura (m)</label>
+              <input type="number" id="calc-larg" min="0" step="0.01" placeholder="ex: 3.5">
+            </div>
+            <span class="calc__x">×</span>
+            <div class="calc__field">
+              <label for="calc-alt">Altura (m)</label>
+              <input type="number" id="calc-alt" min="0" step="0.01" placeholder="ex: 2.8">
+            </div>
+          </div>
+          <label class="calc__perda">
+            <input type="checkbox" id="calc-perda" checked>
+            Incluir 10% de perda e cortes
+          </label>
+          <div class="calc__result" id="calc-result" hidden>
+            <div class="calc__stat">
+              <span class="calc__stat-val" id="calc-m2">—</span>
+              <span class="calc__stat-key">m² necessários</span>
+            </div>
+            <div class="calc__stat">
+              <span class="calc__stat-val" id="calc-pecas">—</span>
+              <span class="calc__stat-key">peças necessárias</span>
+            </div>
+            <div class="calc__stat">
+              <span class="calc__stat-val" id="calc-total">—</span>
+              <span class="calc__stat-key">valor estimado</span>
+            </div>
+          </div>
+          <p class="calc__note" id="calc-note" hidden></p>
+          <button type="button" class="btn btn--outline lead-pdf__trigger" id="lead-pdf-open" data-product-name="Urban" data-product-line="Rockface" data-product-price="229,90">
+            <i class="ti ti-file-download" aria-hidden="true"></i>
+            Baixar PDF com meus dados
+          </button>
+        </div>
+
+        <div class="ambiente-icons">
+          <p class="ambiente-icons__label">Onde aplicar</p>
+          <div class="ambiente-icons__row">
+            <span class="ambiente-chip ambiente-chip--principal"><i class="ti ti-sun" aria-hidden="true"></i> Externo</span><span class="ambiente-chip"><i class="ti ti-building" aria-hidden="true"></i> Fachada</span><span class="ambiente-chip"><i class="ti ti-frame" aria-hidden="true"></i> Parede de destaque</span>
+          </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="cta-buttons">
+          <a href="https://wa.me/5511990049468?text=Ol%C3%A1%21%20Gostaria%20de%20solicitar%20um%20or%C3%A7amento%20para%20o%20Urban." target="_blank" rel="noopener" class="pd-btn pd-btn--primary">
+            <i class="ti ti-file-text"></i>
+            Solicitar orçamento
+          </a>
+          <a href="https://wa.me/5511990049468?text=Ol%C3%A1%21%20Tenho%20interesse%20no%20Urban%2C%20poderia%20me%20ajudar%3F" target="_blank" rel="noopener" class="pd-btn pd-btn--secondary">
+            <i class="ti ti-brand-whatsapp"></i>
+            Falar com consultor
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  </main>
+
+
+
+
+  <!-- ══════════════════════════════════════════
+       COMBINA COM
+  ══════════════════════════════════════════ -->
+  <section class="combina-com">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Combina com</span>
+        <h2 class="display-title">Combina com estes também</h2>
+      </div>
+      <div class="grid-3">
+          <a href="produto-rockface-brisa.html" style="text-decoration: none; color: inherit;">
+            <article>
+              <img class="item-card__img--photo" loading="lazy" src="rockface-brisa-frontal-thumb.webp" alt="Brisa">
+              <p class="item-card__eyebrow eyebrow">Rockface · R$ 169,90/m²</p>
+              <h3 class="item-card__title">Brisa</h3>
+            </article>
+          </a>
+          <a href="produto-cimenticio-urban.html" style="text-decoration: none; color: inherit;">
+            <article>
+              <img class="item-card__img--photo" loading="lazy" src="cimenticio-urban-frontal-thumb.webp" alt="Urban">
+              <p class="item-card__eyebrow eyebrow">Cimentício · R$ 169,90/m²</p>
+              <h3 class="item-card__title">Urban</h3>
+            </article>
+          </a>
+          <a href="produto-brick-vulcano.html" style="text-decoration: none; color: inherit;">
+            <article>
+              <img class="item-card__img--photo" loading="lazy" src="brick-vulcano-frontal-thumb.webp" alt="Vulcano">
+              <p class="item-card__eyebrow eyebrow">Brick · R$ 149,90/m²</p>
+              <h3 class="item-card__title">Vulcano</h3>
+            </article>
+          </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__grid">
+        <div>
+          <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+            <span class="logo-box">
+              <svg class="logo-mark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+          </svg>
+            </span>
+            <span class="logo-divider" aria-hidden="true"></span>
+            <span class="logo-word">Bruto</span>
+          </a>
+          <p class="footer__tagline">
+            Curadoria de revestimentos artesanais para projetos de alta exigência.
+          </p>
+        </div>
+
+        <div>
+          <p class="footer__col-title">Coleções</p>
+          <nav class="footer__links" aria-label="Categorias de produtos">
+            <a href="texturas.html#brick">Brick</a>
+            <a href="texturas.html#cimenticio">Cimentício</a>
+            <a href="texturas.html#rockface">Rockface</a>
+          </nav>
+        </div>
+
+        <div>
+          <p class="footer__col-title">Navegação</p>
+          <nav class="footer__links" aria-label="Links de navegação">
+            <a href="index.html#ambientes">Ambientes</a>
+            <a href="blog.html">Blog</a>
+            <a href="index.html#projetos">Projetos</a>
+            <a href="index.html#sobre">Sobre</a>
+            <a href="index.html#amostra">Amostra</a>
+          </nav>
+        </div>
+
+        <div>
+          <p class="footer__col-title">Contato</p>
+          <nav class="footer__links" aria-label="Informações de contato">
+            <a href="#">contato@bruto.com.br</a>
+            <a href="tel:+5511990049468">+55 11 99004-9468</a>
+            <a href="#">Instagram</a>
+            <a href="https://wa.me/5511990049468" target="_blank" rel="noopener">WhatsApp</a>
+          </nav>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <p>© 2026 Bruto. Todos os direitos reservados.</p>
+        <div class="footer__bottom-links">
+          <a href="privacidade.html">Privacidade</a>
+          <a href="termos.html">Termos</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    // Mobile menu toggle
+    const menuBtn = document.getElementById('menu-btn');
+    const mainNav = document.getElementById('main-nav');
+    menuBtn.addEventListener('click', () => {
+      const isOpen = mainNav.classList.toggle('nav--open');
+      menuBtn.setAttribute('aria-expanded', isOpen);
+      menuBtn.querySelector('i').className = isOpen ? 'ti ti-x' : 'ti ti-menu-2';
+    });
+    mainNav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mainNav.classList.remove('nav--open');
+        menuBtn.setAttribute('aria-expanded', false);
+        menuBtn.querySelector('i').className = 'ti ti-menu-2';
+      });
+    });
+
+    // Carousel functionality
+    const slides = document.querySelectorAll('.carousel__slide');
+    const dots = document.querySelectorAll('.carousel__dot');
+    const prevBtn = document.querySelector('.carousel__button--prev');
+    const nextBtn = document.querySelector('.carousel__button--next');
+    const zoomBtn = document.querySelector('.carousel__zoom-btn');
+    let currentSlide = 0;
+
+    function showSlide(n) {
+      slides.forEach(slide => slide.classList.remove('active'));
+      dots.forEach(dot => dot.classList.remove('active'));
+      
+      slides[n].classList.add('active');
+      dots[n].classList.add('active');
+      currentSlide = n;
+    }
+
+    function nextSlide() {
+      const n = (currentSlide + 1) % slides.length;
+      showSlide(n);
+    }
+
+    function prevSlide() {
+      const n = (currentSlide - 1 + slides.length) % slides.length;
+      showSlide(n);
+    }
+
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => showSlide(index));
+    });
+
+    // Initialize first slide
+    showSlide(0);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key === 'ArrowRight') nextSlide();
+    });
+
+    // Lightbox modal para produto
+    // ── Lightbox ─────────────────────────────────────────────────────────────
+    (function () {
+      // Monta o DOM do lightbox
+      const lb = document.createElement('div');
+      lb.className = 'product-lightbox';
+      lb.id = 'product-lightbox';
+      lb.innerHTML = `
+        <button class="product-lightbox__close-btn" aria-label="Fechar">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+        <button class="product-lightbox__nav-btn" id="lightbox-prev" aria-label="Anterior">
+          <i class="ti ti-chevron-left" aria-hidden="true"></i>
+        </button>
+        <div class="product-lightbox__img-wrap">
+          <img class="product-lightbox__image" src="" alt="" draggable="false">
+        </div>
+        <button class="product-lightbox__nav-btn" id="lightbox-next" aria-label="Próxima">
+          <i class="ti ti-chevron-right" aria-hidden="true"></i>
+        </button>
+        <span class="product-lightbox__counter"></span>
+      `;
+      document.body.appendChild(lb);
+
+      const lbImg     = lb.querySelector('.product-lightbox__image');
+      const lbPrev    = lb.querySelector('#lightbox-prev');
+      const lbNext    = lb.querySelector('#lightbox-next');
+      const lbClose   = lb.querySelector('.product-lightbox__close-btn');
+      const lbCounter = lb.querySelector('.product-lightbox__counter');
+
+      // Coleta imagens do carousel
+      const slideImages = Array.from(slides).map(s => ({
+        src: s.querySelector('img').src,
+        alt: s.querySelector('img').alt
+      }));
+
+      function updateLb() {
+        const img = slideImages[currentSlide];
+        lbImg.src = img.src;
+        lbImg.alt = img.alt;
+        lbPrev.disabled = currentSlide === 0;
+        lbNext.disabled = currentSlide === slideImages.length - 1;
+        lbCounter.textContent = (currentSlide + 1) + ' / ' + slideImages.length;
+      }
+
+      function openLb() {
+        updateLb();
+        lb.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeLb() {
+        lb.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+
+      function goNext() {
+        if (currentSlide < slideImages.length - 1) { nextSlide(); updateLb(); }
+      }
+
+      function goPrev() {
+        if (currentSlide > 0) { prevSlide(); updateLb(); }
+      }
+
+      // Gatilhos
+      zoomBtn.addEventListener('click', openLb);
+      lbClose.addEventListener('click', closeLb);
+      lbPrev.addEventListener('click', goPrev);
+      lbNext.addEventListener('click', goNext);
+
+      // Teclado
+      document.addEventListener('keydown', e => {
+        if (!lb.classList.contains('active')) return;
+        if (e.key === 'Escape')      closeLb();
+        if (e.key === 'ArrowLeft')   goPrev();
+        if (e.key === 'ArrowRight')  goNext();
+      });
+
+      // Click no fundo fecha
+      lb.addEventListener('click', e => { if (e.target === lb || e.target === lb.querySelector('.product-lightbox__img-wrap')) closeLb(); });
+
+      // Swipe mobile
+      let tsX = 0;
+      lb.addEventListener('touchstart', e => { tsX = e.touches[0].clientX; }, { passive: true });
+      lb.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - tsX;
+        if (Math.abs(dx) > 50) { dx < 0 ? goNext() : goPrev(); }
+      }, { passive: true });
+    })();
+    // Calculadora m² e peças
+    (function() {
+      var priceEl = document.querySelector('.price');
+      var rawPrice = priceEl ? priceEl.textContent.replace(/[^0-9,]/g,'').replace(',','.') : '0';
+      var pricePerM2 = parseFloat(rawPrice) || 0;
+
+      // Lê a dimensão real da peça direto da ficha técnica (ex: "240mm x 65mm x 12mm")
+      var pecaComprM = 0.24, pecaAltM = 0.065; // fallback
+      document.querySelectorAll('.product-specs .spec-item').forEach(function(item) {
+        var label = item.querySelector('strong');
+        if (label && /Dimens/i.test(label.textContent)) {
+          var span = item.querySelector('span');
+          var nums = span ? span.textContent.match(/\d+(?:[.,]\d+)?/g) : null;
+          if (nums && nums.length >= 2) {
+            pecaComprM = parseFloat(nums[0].replace(',', '.')) / 1000;
+            pecaAltM   = parseFloat(nums[1].replace(',', '.')) / 1000;
+          }
+        }
+      });
+
+      var JUNTA_M = 0.008; // 8mm de junta de assentamento
+      var areaPecaComJunta = (pecaComprM + JUNTA_M) * (pecaAltM + JUNTA_M);
+      var pecasPorM2 = areaPecaComJunta > 0 ? (1 / areaPecaComJunta) : 0;
+
+      function recalc() {
+        var larg = parseFloat(document.getElementById('calc-larg').value) || 0;
+        var alt  = parseFloat(document.getElementById('calc-alt').value)  || 0;
+        if (!larg || !alt) {
+          document.getElementById('calc-result').hidden = true;
+          document.getElementById('calc-note').hidden = true;
+          return;
+        }
+        var area = larg * alt;
+        var perda = document.getElementById('calc-perda').checked ? 1.10 : 1.00;
+        var total = area * perda;
+        var custo = total * pricePerM2;
+        var pecas = Math.ceil(total * pecasPorM2);
+
+        document.getElementById('calc-m2').textContent    = total.toFixed(2).replace('.',',') + ' m²';
+        document.getElementById('calc-pecas').textContent = pecas.toLocaleString('pt-BR') + ' un.';
+        document.getElementById('calc-total').textContent = 'R$ ' + custo.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('calc-result').hidden = false;
+
+        var noteEl = document.getElementById('calc-note');
+        noteEl.textContent = '≈ ' + pecasPorM2.toFixed(0) + ' peças/m² · considerando junta de 8mm';
+        noteEl.hidden = false;
+      }
+
+      ['calc-larg','calc-alt','calc-perda'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('input', recalc);
+      });
+    })();
+  </script>
+
+  <script defer src="promo-frete-gratis.js?v=1"></script>
+  <script defer src="header-scroll.js?v=3"></script>
+  <script defer src="back-to-top.js?v=1"></script>
+  <script defer src="cookie-consent.js?v=1"></script>
+  <script defer src="lead-pdf.js?v=2"></script>
+</body>
+</html>
+
+
