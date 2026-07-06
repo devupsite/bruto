@@ -116,6 +116,11 @@
 
   function openModal(btn) {
     currentBtn = btn;
+    var titleEl = modal.querySelector('[data-step="form"] .lead-modal__title');
+    var bodyEl = modal.querySelector('[data-step="form"] .lead-modal__body');
+    titleEl.textContent = btn.getAttribute('data-modal-title') || 'Receba seu orçamento em PDF';
+    bodyEl.textContent = btn.getAttribute('data-modal-body') ||
+      'Preencha seus dados para gerar um PDF com o cálculo completo — m², peças, valor estimado e padrão de assentamento escolhido.';
     modal.querySelector('[data-step="form"]').hidden = false;
     modal.querySelector('[data-step="done"]').hidden = true;
     modal.querySelector('.lead-modal__error').hidden = true;
@@ -311,19 +316,40 @@
     window.open(url, '_blank');
   }
 
+  function enviarFormspreeSimples(lead, origem) {
+    if (!FORMSPREE_ENDPOINT || FORMSPREE_ENDPOINT.indexOf('SEU_ID_AQUI') !== -1) return Promise.resolve();
+    return fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        nome: lead.nome, whatsapp: lead.whatsapp, email: lead.email || '',
+        origem: origem
+      })
+    }).catch(function () { /* não bloqueia o fluxo se o Formspree falhar */ });
+  }
+
+  function baixarArquivoEstatico(caminho) {
+    var a = document.createElement('a');
+    a.href = caminho;
+    a.setAttribute('download', '');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  function abrirWhatsAppGenerico(lead, nomeConteudo) {
+    var msg = 'Olá! Sou ' + lead.nome + ' e acabei de baixar o ' + nomeConteudo +
+      ' no site da BRUTO. Gostaria de mais informações.';
+    var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
+    window.open(url, '_blank');
+  }
+
   /* ── Submit do formulário ─────────────────────────────────────── */
   var form = modal.querySelector('#lead-modal-form');
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var errEl = modal.querySelector('.lead-modal__error');
     errEl.hidden = true;
-
-    var dados = readPageData();
-    if (dados.m2 === '—') {
-      errEl.textContent = 'Preencha a calculadora de quantidade acima antes de gerar o PDF.';
-      errEl.hidden = false;
-      return;
-    }
 
     var lead = {
       nome: form.nome.value.trim(),
@@ -332,6 +358,35 @@
     };
 
     var submitBtn = form.querySelector('.lead-modal__submit');
+    var staticPdf = currentBtn ? currentBtn.getAttribute('data-static-pdf') : null;
+
+    /* ── Modo estático: PDF já pronto (ex.: Guia de Paginações) ──
+       Sem calculadora nem simulador — só captura o lead, dispara o
+       download do arquivo existente e abre o WhatsApp com mensagem
+       genérica. Não gera PDF dinâmico com jsPDF. ────────────────── */
+    if (staticPdf) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+      var nomeConteudo = currentBtn.getAttribute('data-content-name') || 'guia em PDF';
+      enviarFormspreeSimples(lead, 'pdf-estatico:' + staticPdf).then(function () {
+        baixarArquivoEstatico(staticPdf);
+        abrirWhatsAppGenerico(lead, nomeConteudo);
+        modal.querySelector('[data-step="form"]').hidden = true;
+        modal.querySelector('[data-step="done"]').hidden = false;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="ti ti-file-download" aria-hidden="true"></i> Gerar meu PDF';
+        form.reset();
+      });
+      return;
+    }
+
+    var dados = readPageData();
+    if (dados.m2 === '—') {
+      errEl.textContent = 'Preencha a calculadora de quantidade acima antes de gerar o PDF.';
+      errEl.hidden = false;
+      return;
+    }
+
     submitBtn.disabled = true;
     submitBtn.textContent = 'Gerando...';
 
