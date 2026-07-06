@@ -255,3 +255,32 @@ uma feature já publicada vai continuar lá só porque estava lá da última vez
 que alguém checou. Um `grep -c pgn-section` rápido nas 12 páginas de Brick
 resolve.
 
+---
+
+## 13. Pendências a validar antes de finalizar o projeto
+
+Registrado a pedido do Rafael (04/07/2026) — conferir tudo isto antes de
+considerar o site pronto para ir ao ar de verdade:
+
+1. **Canais de pedido reais.** Os pedidos vão chegar por três caminhos:
+   os botões "Solicitar orçamento" / "Falar com consultor" (`cta-buttons`),
+   e a ferramenta de PDF (`lead-pdf.js`). Nenhum dos três está com dado
+   real ainda:
+   - `lead-pdf.js`: `FORMSPREE_ENDPOINT` e `WHATSAPP_NUMBER` ainda são
+     placeholders (`TODO` no topo do arquivo) — sem isso, o lead nunca
+     chega em lugar nenhum.
+   - Footer: e-mail/telefone/WhatsApp ainda são `href="#"` ou dado fictício
+     (`+55 11 0000-0000`) — ver histórico da conversa sobre "formulários"
+     pra retomar esse ponto.
+   - Confirmar que o número de WhatsApp usado nos botões `pd-btn--secondary`
+     de cada página de produto é o mesmo (real) em todas, não um placeholder
+     esquecido em alguma.
+
+2. **Ferramenta futura: "ordem de serviço do pedido".** Depois que o site
+   estiver pronto, o Rafael quer desenvolver, com o Claude, uma ferramenta
+   separada que gera uma ordem de serviço a partir dos pedidos recebidos
+   (pelos botões ou pelo PDF), pra encaminhar ao fornecedor. Ainda não
+   começou — é trabalho futuro, não confundir com o `lead-pdf.js` atual
+   (que gera o orçamento pro *cliente final*, não a ordem de serviço pro
+   *fornecedor*).
+
