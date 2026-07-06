@@ -23,7 +23,7 @@
     { id: 'brick-vulcano',              nome: 'Vulcano' }
   ];
 
-  function textureUrl(id)  { return id + '-frontal.webp'; }
+  function textureUrl(id)  { return id + '-frontal-1.webp'; }
   function thumbUrl(id)    { return id + '-frontal-thumb.webp'; }
   function findBrick(id)   { return BRICKS.filter(function (b) { return b.id === id; })[0] || BRICKS[0]; }
 
