@@ -2246,3 +2246,30 @@
       .cookie-consent { left: 12px; right: 12px; bottom: 12px; width: auto; }
       .cookie-consent__reopen { left: 12px; bottom: 12px; }
     }
+
+/* ════════════════════════════════════════════
+   PGN-TIP — painel instrutivo do simulador de parede
+   Conecta a escolha de padrão/cor ao PDF gerado
+════════════════════════════════════════════ */
+.pgn-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 1.5rem;
+  padding: 14px 18px;
+  background: var(--argamassa);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.pgn-tip i {
+  font-size: 18px;
+  color: var(--ferro);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.pgn-tip p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--grafite);
+}
+.pgn-tip strong { color: var(--ferro); font-weight: 600; }
