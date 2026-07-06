@@ -14,6 +14,7 @@
   var FORMSPREE_ENDPOINT = 'https://formspree.io/f/SEU_ID_AQUI'; // TODO: trocar antes do go-live
   var WHATSAPP_NUMBER    = '5511000000000';                       // TODO: trocar antes do go-live
   var JSPDF_CDN = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+  var HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 
   var jsPDFLoaded = false;
   var jsPDFLoading = null;
@@ -29,6 +30,47 @@
       document.head.appendChild(s);
     });
     return jsPDFLoading;
+  }
+
+  var html2canvasLoaded = false;
+  var html2canvasLoading = null;
+
+  function loadHtml2Canvas() {
+    if (html2canvasLoaded) return Promise.resolve();
+    if (html2canvasLoading) return html2canvasLoading;
+    html2canvasLoading = new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = HTML2CANVAS_CDN;
+      s.onload = function () { html2canvasLoaded = true; resolve(); };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+    return html2canvasLoading;
+  }
+
+  /* ── Captura a simulação de parede (.pgn-wall) como imagem ──────
+     Retorna null se a página não tiver o simulador de paginação,
+     ou se a captura falhar por qualquer motivo (nunca bloqueia o
+     fluxo de geração do PDF). ──────────────────────────────────── */
+  function capturarSimulacaoParede() {
+    var wallEl = document.querySelector('.pgn-wall');
+    if (!wallEl) return Promise.resolve(null);
+    return loadHtml2Canvas().then(function () {
+      return window.html2canvas(wallEl, {
+        useCORS: true,
+        backgroundColor: null,
+        scale: 2,
+        logging: false
+      });
+    }).then(function (canvas) {
+      return {
+        dataUrl: canvas.toDataURL('image/jpeg', 0.88),
+        width: canvas.width,
+        height: canvas.height
+      };
+    }).catch(function () {
+      return null; // captura é um extra — se falhar, o PDF sai sem essa página
+    });
   }
 
   /* ── Constrói o modal uma única vez ──────────────────────────── */
@@ -101,7 +143,9 @@
       var el = document.getElementById(id);
       return el ? el.textContent.trim() : '—';
     }
-    var patternEl = document.querySelector('.pgn-current-name');
+    var corEl = document.querySelector('.pgn-current-name');
+    var padraoEl = document.querySelector('.pgn-pattern-btn.is-active');
+    var ambienteEl = document.querySelector('.pgn-chip.is-active');
 
     return {
       produto:   currentBtn ? currentBtn.getAttribute('data-product-name') : '—',
@@ -112,12 +156,14 @@
       m2:        txt('calc-m2'),
       pecas:     txt('calc-pecas'),
       valor:     txt('calc-total'),
-      padrao:    patternEl ? patternEl.textContent.trim() : '—'
+      cor:       corEl ? corEl.textContent.trim() : '—',
+      padrao:    padraoEl ? padraoEl.textContent.trim() : '—',
+      ambiente:  ambienteEl ? ambienteEl.textContent.trim() : '—'
     };
   }
 
   /* ── Gera o PDF com jsPDF ─────────────────────────────────────── */
-  function gerarPDF(dados, lead) {
+  function gerarPDF(dados, lead, wallImage) {
     var jsPDF = window.jspdf.jsPDF;
     var doc = new jsPDF();
     var y = 22;
@@ -156,6 +202,12 @@
     doc.text('Padrão de assentamento', 20, y);
     doc.setFont('helvetica', 'normal');
     doc.text(dados.padrao, 75, y);
+
+    y += 10;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Cor selecionada', 20, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(dados.cor, 75, y);
 
     y += 14;
     doc.setDrawColor(230, 230, 230);
@@ -198,6 +250,39 @@
     doc.setFontSize(9);
     doc.setTextColor(150, 150, 150);
     doc.text('Gerado em ' + new Date().toLocaleDateString('pt-BR') + ' · bruto.com.br', 20, y);
+
+    /* ── Página 2: simulação visual na parede (quando capturada) ── */
+    if (wallImage) {
+      doc.addPage();
+      var py = 22;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.setTextColor(0, 0, 0);
+      doc.text('Simulação na parede', 20, py);
+
+      py += 8;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text(
+        dados.linha + ' — ' + dados.produto + '  ·  ' + dados.cor + '  ·  ' + dados.padrao +
+        '  ·  ambiente ' + dados.ambiente,
+        20, py
+      );
+
+      py += 10;
+      var imgW = 170;
+      var imgH = imgW * (wallImage.height / wallImage.width);
+      var maxH = 240; // limite pra não estourar a página em imagens muito altas
+      if (imgH > maxH) { imgH = maxH; imgW = imgH * (wallImage.width / wallImage.height); }
+      doc.addImage(wallImage.dataUrl, 'JPEG', 20, py, imgW, imgH);
+
+      py += imgH + 10;
+      doc.setFontSize(9);
+      doc.setTextColor(150, 150, 150);
+      doc.text('Simulação ilustrativa — cores e textura reais podem variar por lote e iluminação.', 20, py);
+    }
 
     doc.save('orcamento-bruto-' + dados.produto.toLowerCase().replace(/\s+/g, '-') + '.pdf');
   }
@@ -251,15 +336,17 @@
     submitBtn.textContent = 'Gerando...';
 
     loadJsPDF().then(function () {
-      gerarPDF(dados, lead);
-      enviarFormspree(dados, lead);
-      abrirWhatsApp(dados, lead);
+      return capturarSimulacaoParede().then(function (wallImage) {
+        gerarPDF(dados, lead, wallImage);
+        enviarFormspree(dados, lead);
+        abrirWhatsApp(dados, lead);
 
-      modal.querySelector('[data-step="form"]').hidden = true;
-      modal.querySelector('[data-step="done"]').hidden = false;
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="ti ti-file-download" aria-hidden="true"></i> Gerar meu PDF';
-      form.reset();
+        modal.querySelector('[data-step="form"]').hidden = true;
+        modal.querySelector('[data-step="done"]').hidden = false;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="ti ti-file-download" aria-hidden="true"></i> Gerar meu PDF';
+        form.reset();
+      });
     }).catch(function () {
       errEl.textContent = 'Não foi possível gerar o PDF agora. Tente novamente.';
       errEl.hidden = false;
