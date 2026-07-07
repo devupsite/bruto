@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://devupsite.github.io/bruto/sitemap.xml
