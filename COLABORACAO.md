@@ -93,8 +93,11 @@ entender o que mudou sem reler o diff inteiro.
 Mantenha esta seção atualizada conforme o site evolui. Quando um fato aqui
 ficar desatualizado, corrija — não deixe a próxima sessão repetir o erro.
 
-- **Rockface Urban foi removido** do catálogo (descontinuado). Não
-  reintroduzir. Rockface ativo: Brisa, Alpino, Grigio.
+- **Rockface Urban foi READICIONADO** ao catálogo em 06/07/2026 (ver item 14
+  abaixo) — a nota antiga dizia "removido, não reintroduzir", mas isso ficou
+  desatualizado. Estado atual: Rockface ativo = Brisa, Alpino, Grigio, Urban
+  (4 modelos). Se encontrar essa contradição nesta seção de novo, o item 14
+  (datado) é a fonte de verdade, não este resumo.
 - **Cimentício ativo:** Alpino, Grigio, Urban (3 modelos).
 - **Brick ativo:** 12 modelos.
 - **`produto.html`** é um protótipo experimental de página de produto
@@ -168,8 +171,10 @@ ficar desatualizado, corrija — não deixe a próxima sessão repetir o erro.
   `index.html` sem also portar o observer, ou simplesmente não usar a classe
   nessas páginas.
   Cimentício ativo: Alpino, Grigio, Urban (3). Rockface ativo: Alpino,
-  Brisa, Grigio (3) — Urban foi descontinuado, não confundir com o Cimentício
-  Urban, que é um produto diferente e continua ativo.
+  Brisa, Grigio, Urban (4) — ver correção no topo da seção 7, a nota de
+  "descontinuado" estava desatualizada (Urban foi readicionado em 06/07/2026,
+  ver item 14). Não confundir com o Cimentício Urban, que é um produto
+  diferente e sempre esteve ativo.
 
 ---
 
@@ -435,3 +440,26 @@ Importante não confundir dois "espinha de peixe" diferentes no projeto:
 ilustrativo no código, não um valor lido de fato (o JS já lê o número real
 direto do `<span>` via regex).
 
+
+---
+
+## 19. Incidente real — `cookie-consent.js` removido sem querer do `index.html` (07/07/2026)
+
+O commit `bc774a8` ("fix: logo/links do index.html apontavam pra #") corrigiu
+o que precisava corrigir, mas o diff também **removeu a linha do
+`<script defer src="cookie-consent.js?v=1">`** no mesmo arquivo — nenhuma
+relação com o que estava sendo consertado. O banner de cookies sumiu só do
+`index.html`; as outras 31 páginas continuaram com o script intacto.
+
+Provável causa: a sessão provavelmente reescreveu um bloco maior do que o
+necessário (ex: o `<head>`/fim do `<body>` inteiro) em vez de um
+`str_replace` cirúrgico nas 3 linhas que realmente precisavam mudar — reforça
+o item 3 deste documento.
+
+**Corrigido nesta sessão** — linha restaurada, validado que as 32 páginas do
+site voltaram a ter `cookie-consent.js` presente.
+
+**Lição prática:** ao editar qualquer página pra corrigir um problema
+pontual (like um link morto), rode um `grep` rápido antes/depois pra
+confirmar que scripts/CSS compartilhados que já estavam naquele arquivo
+continuam lá — não só o que você foi mexer.
