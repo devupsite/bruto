@@ -394,6 +394,41 @@ prático, foi removido do repositório.
 existente (ex: `produto-brick-lumus.html`) e troque nome, imagens, textos e
 dimensões — não existe mais um molde-base dedicado.
 
+---
+
+## 18. Bug real corrigido: `genEspinha()` no simulador interativo (07/07/2026)
+
+Importante não confundir dois "espinha de peixe" diferentes no projeto:
+
+1. **Card estático `03 Espinha de Peixe` em `paginacoes.html`** (item da nota
+   acima, "paginacoes.html 04/07/2026") — esse já estava correto, confirmado
+   nesta sessão renderizando o SVG isoladamente. Reticulado H/V tesselado no
+   espaço não-rotacionado, com o grupo inteiro girado 45° por cima. Não foi
+   tocado.
+
+2. **`genEspinha()` em `paginacoes.js`**, usado no simulador "monte sua
+   parede" das 12 páginas `produto-brick-*.html` — **esse tinha bug real**.
+   Gerava duas peças (+45° e -45°) na mesma posição (x,y), só deslocadas em
+   `rowH/2` no eixo Y. Resultado: as peças se cruzavam em "X"/sobrepostas ao
+   invés de tesselar em zigue-zague — visualmente incoerente com espinha de
+   peixe real (confirmado renderizando a matemática da função fora do
+   navegador antes de mexer no código).
+
+   **Correção:** reescrita pra usar a mesma estratégia do card estático que
+   já funciona — monta o reticulado H/V (peça horizontal + peça vertical
+   encaixada, proporção 2:1 comprimento:espessura) no espaço local
+   não-rotacionado, calcula o centro de cada peça, e só então rotaciona
+   *esses centros* em 45° ao redor do centro da parede (`rotateAroundCenter`)
+   — a peça em si ganha `rot: 45` ou `rot: 135` (135° e -45° são visualmente
+   idênticos pra um retângulo, então não precisa de ângulo negativo).
+   `cx`/`cy` que existiam no código antigo nunca eram lidos em lugar nenhum
+   (código morto) — removidos na reescrita.
+
+   Testado simulando a mesma matemática em Python/SVG fora do navegador
+   antes e depois da correção pra confirmar visualmente que parou de
+   cruzar/sobrepor peças. `?v=1 -> v2` em `paginacoes.js` nas 12 páginas de
+   Brick pra furar cache do GitHub Pages.
+
 Único campo alterado em cada arquivo: o `<span>` de dimensões dentro de
 `.product-specs`. O comentário de exemplo no JS do simulador/calculadora
 (`// ex: "240mm x 65mm x 12mm"`) foi deixado como está — é só um exemplo
