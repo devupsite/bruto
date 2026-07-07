@@ -359,3 +359,30 @@ ceramicafaion.com.br:
 ilustrativo no código, não um valor lido de fato (o JS já lê o número real
 direto do `<span>` via regex).
 
+---
+
+## 16. PDF de orçamento agora inclui a dimensão da peça (07/07/2026)
+
+A pedido do Rafael, `lead-pdf.js` passou a incluir a linha "Dimensões da
+peça" no PDF de orçamento (o gerado por `gerarPDF()`, não o
+`guia-paginacoes-bruto.pdf` estático).
+
+- **Não foi criado nenhum `data-product-dim` novo nos 19 HTMLs.** Em vez
+  disso, `readPageData()` ganhou um helper `getSpec(label)` que varre
+  `.product-specs .spec-item` procurando o `<strong>` que contém o texto do
+  label (`'Dimens'`) e devolve o `<span>` correspondente. Isso lê o dado
+  **direto da ficha técnica já visível na página**, então nunca fica
+  dessincronizado — se alguém corrigir uma dimensão no HTML (como aconteceu
+  no item 15), o PDF já reflete automaticamente, sem precisar tocar no JS de
+  novo.
+- Funciona porque a ordem das specs é consistente nas 19 páginas
+  (`Dimensões` sempre é o primeiro `.spec-item`), mas o matching é por texto
+  do label, não por posição — resiste a reordenação futura.
+- **Peso (kg) não existe em nenhuma das 19 fichas técnicas do site** (só no
+  cadastro interno da Faion) — não foi adicionado ao PDF por não haver dado
+  nenhum para mostrar. Se um dia isso for exibido no site, adicionar ao PDF
+  é o mesmo padrão: só criar o `.spec-item` com label "Peso" que o
+  `getSpec()` já pega sozinho.
+- `?v=` de `lead-pdf.js` bumpado de 4 pra 5 nas 20 páginas que o carregam
+  (19 produtos + `paginacoes.html`), conforme regra do item 11.
+

@@ -147,16 +147,28 @@
       var el = document.getElementById(id);
       return el ? el.textContent.trim() : '—';
     }
+    function getSpec(label) {
+      var items = document.querySelectorAll('.product-specs .spec-item');
+      for (var i = 0; i < items.length; i++) {
+        var strong = items[i].querySelector('strong');
+        if (strong && strong.textContent.indexOf(label) !== -1) {
+          var span = items[i].querySelector('span');
+          return span ? span.textContent.trim() : '—';
+        }
+      }
+      return '—';
+    }
     var corEl = document.querySelector('.pgn-current-name');
     var padraoEl = document.querySelector('.pgn-pattern-btn.is-active');
     var ambienteEl = document.querySelector('.pgn-chip.is-active');
 
     return {
-      produto:   currentBtn ? currentBtn.getAttribute('data-product-name') : '—',
-      linha:     currentBtn ? currentBtn.getAttribute('data-product-line') : '—',
-      precoM2:   currentBtn ? currentBtn.getAttribute('data-product-price') : '—',
-      largura:   (document.getElementById('calc-larg') || {}).value || '—',
-      altura:    (document.getElementById('calc-alt')  || {}).value || '—',
+      produto:      currentBtn ? currentBtn.getAttribute('data-product-name') : '—',
+      linha:        currentBtn ? currentBtn.getAttribute('data-product-line') : '—',
+      precoM2:      currentBtn ? currentBtn.getAttribute('data-product-price') : '—',
+      dimensaoPeca: getSpec('Dimens'),
+      largura:      (document.getElementById('calc-larg') || {}).value || '—',
+      altura:       (document.getElementById('calc-alt')  || {}).value || '—',
       m2:        txt('calc-m2'),
       pecas:     txt('calc-pecas'),
       valor:     txt('calc-total'),
@@ -194,6 +206,12 @@
     doc.text('Produto', 20, y);
     doc.setFont('helvetica', 'normal');
     doc.text(dados.linha + ' — ' + dados.produto + '  (R$ ' + dados.precoM2 + '/m²)', 60, y);
+
+    y += 10;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Dimensões da peça', 20, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(dados.dimensaoPeca, 70, y);
 
     y += 10;
     doc.setFont('helvetica', 'bold');
