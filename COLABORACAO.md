@@ -377,9 +377,22 @@ arquivo foi o `<span>` de `.product-specs`; o comentário de exemplo no JS do
 simulador (`// ex: "240mm x 65mm x 12mm"`) foi deixado como está, é só
 ilustrativo — mesmo padrão da correção do Rockface (item 15).
 
-Pendências que continuam de pé: `produto-template.html` sem sidebar,
-calculadora e botão/script de PDF (item 13); Formspree aguardando e-mail
-profissional (item 14/documentado separadamente).
+Pendência que continua de pé: Formspree aguardando e-mail profissional
+(item 14/documentado separadamente).
+
+---
+
+## 17. `produto-template.html` removido (07/07/2026)
+
+O arquivo nunca esteve linkado em nenhum lugar do site (nenhuma página
+apontava pra ele, não estava no `sitemap.xml`) e estava bem desatualizado em
+relação às 19 páginas reais (sem sidebar, sem calculadora, sem botão/script
+de PDF — ver item 13/16). Como estava só acumulando dívida técnica sem uso
+prático, foi removido do repositório.
+
+**Se for gerar um produto novo no futuro:** duplique uma página real
+existente (ex: `produto-brick-lumus.html`) e troque nome, imagens, textos e
+dimensões — não existe mais um molde-base dedicado.
 
 Único campo alterado em cada arquivo: o `<span>` de dimensões dentro de
 `.product-specs`. O comentário de exemplo no JS do simulador/calculadora
