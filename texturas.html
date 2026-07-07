@@ -630,12 +630,23 @@
 
     // ── DEEP LINK VIA HASH (ex: texturas.html#brick) ──
     // Mantém compatibilidade com links antigos de colecoes.html#brick/#cimenticio/#rockface
+    const LINHA_LABEL = { brick: 'Brick', cimenticio: 'Cimentício', rockface: 'Rockface' };
     const hashLinha = window.location.hash.replace('#', '');
     if (['brick', 'cimenticio', 'rockface'].includes(hashLinha)) {
       const cb = document.querySelector(`.filtro input[name="linha"][value="${hashLinha}"]`);
       if (cb) {
         cb.checked = true;
         aplicarFiltro();
+        // Deixa explícito que a página chegou já filtrada — sem isso,
+        // quem vem de um link do footer só vê "N produtos" sem contexto
+        // e acha que caiu numa página genérica.
+        contagemEl.textContent += ` em ${LINHA_LABEL[hashLinha]}`;
+        // Rola até os resultados, compensando a altura do header sticky
+        window.requestAnimationFrame(() => {
+          const y = document.getElementById('tex-grid').getBoundingClientRect().top
+                    + window.scrollY - 90;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+        });
       }
     }
 
