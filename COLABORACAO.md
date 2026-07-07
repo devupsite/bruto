@@ -353,6 +353,34 @@ ceramicafaion.com.br:
   `produto-rockface-brisa.html`, que é outro produto.
 - **Rockface Urban** já estava correto (290mm x 95mm x 20mm), não foi tocado.
 
+---
+
+## 16. Dimensões de Brick e Cimentício corrigidas (07/07/2026)
+
+Última pendência de dimensões: as 12 páginas de Brick e as 3 de Cimentício
+ainda usavam o placeholder `240mm x 65mm x 12mm`. Corrigido com dados reais
+extraídos direto de `ceramicafaion.com.br/produto/<slug>/` (cada modelo tem
+ficha técnica própria, dimensão não é fixa por linha):
+
+- **Brick** — Branco Rosé, Eco Palha, Lumus, Rosso Prime, Vulcano:
+  **270x70x15mm**. Mescla Prime, Terra do Cerrado: **260x70x15mm**. Natura:
+  **240x70x15mm**. Os 4 Rusticatto (Fumê, Rosso, Sertão, Terra Negra):
+  **270x70x20mm**.
+- **Cimentício** — Alpino, Grigio, Urban: **260x75x10mm** (mesma dimensão
+  nos três; no site da Faion esses produtos usam slug `brick-alpino`,
+  `brick-grigio`, `brick-urban` apesar de estarem categorizados como
+  Cimentício — não confundir com a linha Brick do nosso catálogo).
+
+Com isso, **as 19 páginas de produto agora têm dimensões reais** (Brick +
+Cimentício + Rockface, todos corrigidos). Único campo alterado em cada
+arquivo foi o `<span>` de `.product-specs`; o comentário de exemplo no JS do
+simulador (`// ex: "240mm x 65mm x 12mm"`) foi deixado como está, é só
+ilustrativo — mesmo padrão da correção do Rockface (item 15).
+
+Pendências que continuam de pé: `produto-template.html` sem sidebar,
+calculadora e botão/script de PDF (item 13); Formspree aguardando e-mail
+profissional (item 14/documentado separadamente).
+
 Único campo alterado em cada arquivo: o `<span>` de dimensões dentro de
 `.product-specs`. O comentário de exemplo no JS do simulador/calculadora
 (`// ex: "240mm x 65mm x 12mm"`) foi deixado como está — é só um exemplo
