@@ -310,3 +310,25 @@ considerar o site pronto para ir ao ar de verdade:
    pedido (o pedido era só ligar o gate de lead, e as 19 páginas reais já
    funcionam) — mas fica registrado como dívida técnica real.
 
+---
+
+## 14. Rockface Urban adicionado (06/07/2026)
+
+Rockface passou de 3 para **4 produtos ativos**: Brisa, Alpino, Grigio, Urban.
+Dados extraídos direto do site do fornecedor (ceramicafaion.com.br/produto/rockface-urban/):
+SKU 93, preço R$ 229,90/m², dimensões reais 290mm x 95mm x 20mm (diferente do
+240x65x12mm usado nas outras 3 páginas de Rockface, que parece ter sido copiado
+do padrão de Brick por engano — não corrigi as outras 3, só usei o dado real
+na página nova; considerar revisar/corrigir isso um dia).
+
+Arquivos tocados: `produto-rockface-urban.html` (novo), 5 imagens
+`rockface-urban-frontal*.webp`, sidebar "Rockface" atualizada nas outras 18
+páginas de produto, card novo em `texturas.html` (agora 19 produtos).
+
+**Desvio encontrado, não corrigido:** `produto-template.html` não tem a
+sidebar de navegação por categorias (`<aside class="sidebar-cat">`) que todas
+as 18 páginas de produto reais já têm. O template ficou desatualizado em
+relação ao padrão real das páginas — se for gerar um produto novo a partir
+dele, vai faltar essa sidebar e vai precisar copiar de uma página real em vez
+do template.
+
