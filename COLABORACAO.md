@@ -334,3 +334,28 @@ relação ao padrão real das páginas — se for gerar um produto novo a partir
 dele, vai faltar essa sidebar e vai precisar copiar de uma página real em vez
 do template.
 
+---
+
+## 15. Dimensões de Rockface corrigidas (07/07/2026)
+
+As 3 páginas que ainda usavam a dimensão de Brick por engano (240mm x 65mm x
+12mm) foram corrigidas com dados reais extraídos direto de
+ceramicafaion.com.br:
+
+- **Rockface Brisa** (`produto-rockface-brisa.html`): **260mm x 75mm x 10mm**
+  (peso 2,200 kg) — dimensão própria, diferente das outras 3.
+- **Rockface Alpino** (`produto-rockface-alpino.html`): **290mm x 95mm x
+  20mm** (peso 2,200 kg) — mesma dimensão do Grigio e do Urban.
+- **Rockface Grigio** (`produto-rockface-grigio.html`): **290mm x 95mm x
+  20mm** (peso 2,200 kg). Nota: no site da Faion o slug real desse produto é
+  `/produto/rockface-brisa/` (bug de URL do lado deles, o nome exibido na
+  página é "Rockface Grigio" mesmo) — não confundir com o nosso
+  `produto-rockface-brisa.html`, que é outro produto.
+- **Rockface Urban** já estava correto (290mm x 95mm x 20mm), não foi tocado.
+
+Único campo alterado em cada arquivo: o `<span>` de dimensões dentro de
+`.product-specs`. O comentário de exemplo no JS do simulador/calculadora
+(`// ex: "240mm x 65mm x 12mm"`) foi deixado como está — é só um exemplo
+ilustrativo no código, não um valor lido de fato (o JS já lê o número real
+direto do `<span>` via regex).
+
