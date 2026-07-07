@@ -540,9 +540,9 @@
         <div>
           <p class="footer__col-title">Coleções</p>
           <nav class="footer__links">
-            <a href="texturas.html">Brick</a>
-            <a href="texturas.html">Cimentício</a>
-            <a href="texturas.html">Rockface</a>
+            <a href="texturas.html#brick">Brick</a>
+            <a href="texturas.html#cimenticio">Cimentício</a>
+            <a href="texturas.html#rockface">Rockface</a>
           </nav>
         </div>
         <div>
@@ -642,26 +642,40 @@
     });
 
     // ── DEEP LINK VIA HASH (ex: texturas.html#brick) ──
-    // Mantém compatibilidade com links antigos de colecoes.html#brick/#cimenticio/#rockface
+    // Mantém compatibilidade com links antigos de colecoes.html#brick/#cimenticio/#rockface.
+    // Roda no load E também em 'hashchange' — sem isso, clicar num link
+    // #brick estando já em texturas.html só muda a URL sem aplicar nada,
+    // porque trocar o hash não recarrega a página.
     const LINHA_LABEL = { brick: 'Brick', cimenticio: 'Cimentício', rockface: 'Rockface' };
-    const hashLinha = window.location.hash.replace('#', '');
-    if (['brick', 'cimenticio', 'rockface'].includes(hashLinha)) {
+
+    function aplicarFiltroPorHash() {
+      const hashLinha = window.location.hash.replace('#', '');
+      if (!['brick', 'cimenticio', 'rockface'].includes(hashLinha)) return;
+
       const cb = document.querySelector(`.filtro input[name="linha"][value="${hashLinha}"]`);
-      if (cb) {
-        cb.checked = true;
-        aplicarFiltro();
-        // Deixa explícito que a página chegou já filtrada — sem isso,
-        // quem vem de um link do footer só vê "N produtos" sem contexto
-        // e acha que caiu numa página genérica.
-        contagemEl.textContent += ` em ${LINHA_LABEL[hashLinha]}`;
-        // Rola até os resultados, compensando a altura do header sticky
-        window.requestAnimationFrame(() => {
-          const y = document.getElementById('tex-grid').getBoundingClientRect().top
-                    + window.scrollY - 90;
-          window.scrollTo({ top: y, behavior: 'smooth' });
-        });
-      }
+      if (!cb) return;
+
+      // Deep-link sempre reflete SÓ aquela linha — limpa o resto antes,
+      // pra não somar com um filtro que já estivesse marcado.
+      document.querySelectorAll('.filtro input[name="linha"]').forEach(el => el.checked = false);
+      cb.checked = true;
+      aplicarFiltro();
+
+      // Deixa explícito que a página chegou já filtrada — sem isso,
+      // quem vem de um link do footer só vê "N produtos" sem contexto
+      // e acha que caiu numa página genérica.
+      contagemEl.textContent += ` em ${LINHA_LABEL[hashLinha]}`;
+
+      // Rola até os resultados, compensando a altura do header sticky
+      window.requestAnimationFrame(() => {
+        const y = document.getElementById('tex-grid').getBoundingClientRect().top
+                  + window.scrollY - 90;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      });
     }
+
+    aplicarFiltroPorHash();
+    window.addEventListener('hashchange', aplicarFiltroPorHash);
 
     // Drawer mobile
     const filtroOverlay = document.getElementById('filtro-overlay');
