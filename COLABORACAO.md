@@ -269,17 +269,19 @@ considerar o site pronto para ir ao ar de verdade:
 
 1. **Canais de pedido reais.** Os pedidos vão chegar por três caminhos:
    os botões "Solicitar orçamento" / "Falar com consultor" (`cta-buttons`),
-   e a ferramenta de PDF (`lead-pdf.js`). Nenhum dos três está com dado
-   real ainda:
-   - `lead-pdf.js`: `FORMSPREE_ENDPOINT` e `WHATSAPP_NUMBER` ainda são
-     placeholders (`TODO` no topo do arquivo) — sem isso, o lead nunca
-     chega em lugar nenhum.
-   - Footer: e-mail/telefone/WhatsApp ainda são `href="#"` ou dado fictício
-     (`+55 11 0000-0000`) — ver histórico da conversa sobre "formulários"
-     pra retomar esse ponto.
-   - Confirmar que o número de WhatsApp usado nos botões `pd-btn--secondary`
-     de cada página de produto é o mesmo (real) em todas, não um placeholder
-     esquecido em alguma.
+   e a ferramenta de PDF (`lead-pdf.js`). Status atual:
+   - `WHATSAPP_NUMBER` em `lead-pdf.js` — ✅ resolvido (05/07/2026), já é o
+     número real (`5511990049468`), mesmo usado no footer e nos botões
+     de produto.
+   - `FORMSPREE_ENDPOINT` em `lead-pdf.js` — **intencionalmente em espera**.
+     O Rafael pediu pra NÃO configurar ainda: ele vai adquirir um e-mail
+     profissional antes, porque o Formspree fica atrelado ao e-mail da
+     conta, e configurar agora com um e-mail provisório significaria
+     redoing depois. Não mexer nisso até ele passar o endpoint pronto.
+   - Footer: e-mail (`contato@bruto.com.br`) ainda é `href="#"`, não
+     `mailto:` — mesma lógica, provavelmente também depende do e-mail
+     profissional que está sendo adquirido. Confirmar com o Rafael antes
+     de trocar, pode ser o mesmo caso do Formspree.
 
 2. **Ferramenta futura: "ordem de serviço do pedido".** Depois que o site
    estiver pronto, o Rafael quer desenvolver, com o Claude, uma ferramenta
