@@ -1,0 +1,58 @@
+/* ════════════════════════════════════════════
+   BARRA DE CTA FIXA — mobile
+   Injetada via JS em todas as páginas (mesmo padrão
+   do back-to-top.js). Visível só em telas pequenas,
+   aparece depois de um pequeno scroll pra não brigar
+   com o hero. Mensagem do WhatsApp é contextual: se a
+   página é de um produto (tem <h1> dentro de
+   .product-info), inclui o nome do produto.
+════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  var WHATSAPP_NUMBER = '5511990049468';
+  var THRESHOLD = 120; // px de rolagem antes de aparecer
+
+  function montarMensagem() {
+    var h1Produto = document.querySelector('.product-info h1');
+    if (h1Produto) {
+      var nome = h1Produto.textContent.trim();
+      return 'Olá! Vi o ' + nome + ' no site da Bruto e gostaria de mais informações.';
+    }
+    return 'Olá! Vim pelo site da Bruto e gostaria de mais informações.';
+  }
+
+  var bar = document.createElement('a');
+  bar.className = 'mobile-cta-bar';
+  bar.target = '_blank';
+  bar.rel = 'noopener';
+  bar.setAttribute('aria-label', 'Falar no WhatsApp');
+  bar.innerHTML =
+    '<i class="ti ti-brand-whatsapp" aria-hidden="true"></i>' +
+    '<span>Falar no WhatsApp</span>';
+
+  function montarHref() {
+    bar.href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(montarMensagem());
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    montarHref();
+    document.body.appendChild(bar);
+
+    bar.addEventListener('click', function () {
+      if (window.brutoTrack) {
+        window.brutoTrack('whatsapp_click', { link_text: 'barra-fixa-mobile', page_path: window.location.pathname });
+      }
+    });
+
+    function onScroll() {
+      if (window.scrollY > THRESHOLD) {
+        bar.classList.add('is-visible');
+      } else {
+        bar.classList.remove('is-visible');
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  });
+})();
