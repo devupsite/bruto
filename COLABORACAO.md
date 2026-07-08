@@ -684,3 +684,19 @@ orientado a conferir em Settings → Notifications no dashboard do Formspree.
 continua `href=#`, mesma lógica do item 13.1 — provavelmente também
 depende do e-mail profissional. Confirmar com o Rafa antes de trocar.
 
+---
+
+## 25. E-mail profissional configurado no footer (08/07/2026)
+
+Rafa passou o e-mail definitivo: `contato@brutoceramica.com.br`.
+
+**Correção de rota, não só preenchimento:** o item 13.1/24 registrava que o
+e-mail do footer ainda era `href="#"` esperando esse dado — mas ao checar
+agora, as 34 páginas já estavam com `mailto:contato@bruto.com.br` (domínio
+placeholder errado, não o `href="#"` que o registro antigo dizia). Outra
+sessão deve ter adiantado o `mailto:` sem essa nota ficar atualizada aqui.
+Troquei o domínio nas 34 páginas para o real.
+
+Com isso as duas pendências do item 13.1 (Formspree + e-mail) estão
+resolvidas.
+
