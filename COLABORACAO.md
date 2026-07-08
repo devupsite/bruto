@@ -434,6 +434,27 @@ Importante não confundir dois "espinha de peixe" diferentes no projeto:
    cruzar/sobrepor peças. `?v=1 -> v2` em `paginacoes.js` nas 12 páginas de
    Brick pra furar cache do GitHub Pages.
 
+   **Atualização (mesmo dia): a correção acima parou o cruzamento em "X",
+   mas na verdade só cobria ~44% da área — sobrava bastante fundo visível
+   entre os grupos de peças (confirmado calculando a área geometricamente:
+   um par H+V no reticulado local cobre 2·L·s de um período L+s ao
+   quadrado, o que dá 44,4% pro caso L=2s). O Ewerson desconfiou olhando o
+   resultado e pediu pra verificar contra uma referência de espinha de
+   peixe de verdade — com razão.**
+
+   Solução definitiva: em vez de "reticulado H/V rotacionado como grupo",
+   cada **fileira inteira** (não cada peça) tem uma única orientação (45°
+   ou 135°), alternando fileira a fileira, com deslocamento de meio passo
+   entre fileiras adjacentes — `step = L / Math.SQRT2` tanto pro
+   espaçamento entre peças da mesma fileira quanto pro espaçamento entre
+   fileiras. Validado extraindo a geometria pixel a pixel de um padrão CSS
+   de espinha de peixe consagrado (renderizado via Playwright/Chromium como
+   referência-padrão), depois confirmando cobertura 100% (0% de fundo
+   visível numa área de teste) e, por fim, testando a função real dentro de
+   `produto-brick-lumus.html` clicando no botão "Espinha de Peixe" do
+   widget e conferindo o screenshot com a textura real do produto.
+   `paginacoes.js?v=2 -> v3` nas 12 páginas de Brick.
+
 Único campo alterado em cada arquivo: o `<span>` de dimensões dentro de
 `.product-specs`. O comentário de exemplo no JS do simulador/calculadora
 (`// ex: "240mm x 65mm x 12mm"`) foi deixado como está — é só um exemplo
