@@ -2,15 +2,13 @@
    LEAD-PDF — Modal de captura + PDF rico + notificação via WhatsApp
    Carregado nas páginas de produto (botão "Baixar PDF com meus dados").
 
-   CONFIGURAÇÃO NECESSÁRIA ANTES DO SITE IR AO AR:
-   1) FORMSPREE_ENDPOINT — criar form gratuito em https://formspree.io,
-      colar o endpoint abaixo (formato: https://formspree.io/f/xxxxxxxx)
-   2) WHATSAPP_NUMBER — já configurado com o número real da BRUTO
+   FORMSPREE_ENDPOINT configurado em 08/07/2026 (formspree.io/f/xbdveedy).
+   WHATSAPP_NUMBER — número real da BRUTO.
 ════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  var FORMSPREE_ENDPOINT = 'https://formspree.io/f/SEU_ID_AQUI'; // TODO: trocar antes do go-live
+  var FORMSPREE_ENDPOINT = 'https://formspree.io/f/xbdveedy';
   var WHATSAPP_NUMBER    = '5511990049468'; // número real (mesmo do footer e dos botões de produto)
   var JSPDF_CDN = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
   var HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
