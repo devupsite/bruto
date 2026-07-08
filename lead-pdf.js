@@ -318,6 +318,11 @@
         dimensoes: dados.largura + 'm x ' + dados.altura + 'm',
         m2: dados.m2, pecas: dados.pecas, valor: dados.valor, padrao: dados.padrao
       })
+    }).then(function (res) {
+      if (window.brutoTrack) {
+        window.brutoTrack('form_submit', { form_type: 'orcamento-completo', produto: dados.linha + ' — ' + dados.produto, valor: dados.valor });
+      }
+      return res;
     }).catch(function () { /* não bloqueia o fluxo se o Formspree falhar */ });
   }
 
@@ -328,6 +333,9 @@
       'Padrão: ' + dados.padrao + '\n' +
       'Valor estimado: ' + dados.valor;
     var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
+    if (window.brutoTrack) {
+      window.brutoTrack('whatsapp_click', { link_text: 'calculadora-orcamento', produto: dados.linha + ' — ' + dados.produto, valor: dados.valor });
+    }
     window.open(url, '_blank');
   }
 
@@ -340,6 +348,11 @@
         nome: lead.nome, whatsapp: lead.whatsapp, email: lead.email || '',
         origem: origem
       })
+    }).then(function (res) {
+      if (window.brutoTrack) {
+        window.brutoTrack('form_submit', { form_type: 'origem-' + origem });
+      }
+      return res;
     }).catch(function () { /* não bloqueia o fluxo se o Formspree falhar */ });
   }
 

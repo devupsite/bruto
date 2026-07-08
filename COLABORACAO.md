@@ -721,3 +721,28 @@ Troquei o domínio nas 34 páginas para o real.
 Com isso as duas pendências do item 13.1 (Formspree + e-mail) estão
 resolvidas.
 
+
+## Google Tag Manager + tracking de conversão (08/07/2026)
+
+Preparação para o lançamento com tráfego pago — instalado o scaffold de
+rastreamento em todas as 34 páginas:
+
+- **GTM (Google Tag Manager)**: snippet padrão no `<head>` + `<noscript>`
+  logo após `<body>`, com container ID placeholder `GTM-XXXXXXX`. **Precisa
+  ser trocado pelo ID real** (criar conta em tagmanager.google.com). A
+  partir do GTM já configurado, o Meta Pixel, Google Ads e GA4 são
+  conectados direto no painel do GTM — não precisa mexer no código de novo.
+- **`analytics.js`** (novo arquivo, incluído em todas as páginas): escuta
+  cliques em links `wa.me`, no CTA de "Solicitar amostra" (`#amostra`) e no
+  botão de PDF da calculadora, e envia eventos pro `dataLayer`
+  (`whatsapp_click`, `amostra_click`, `pdf_lead_download`).
+- **`lead-pdf.js`**: adicionado `window.brutoTrack('form_submit', ...)`
+  logo após o `fetch()` ao Formspree ter sucesso (não no clique, no envio
+  real) — evita contar tentativas como conversão. Também rastreia o
+  WhatsApp aberto pela calculadora, já com produto/valor no evento.
+  Bump de `?v=8` pra `?v=9` nas 22 páginas que carregam esse script.
+
+**Pendência real, não é bug**: o container GTM-XXXXXXX é só estrutura —
+sem o ID real, nenhum dado chega no Google/Meta ainda. Rafael precisa criar
+o container e trocar o placeholder nas 34 páginas (ou eu faço assim que
+ele mandar o ID real).
