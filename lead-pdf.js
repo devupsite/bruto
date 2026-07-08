@@ -167,6 +167,7 @@
       linha:        currentBtn ? currentBtn.getAttribute('data-product-line') : '—',
       precoM2:      currentBtn ? currentBtn.getAttribute('data-product-price') : '—',
       dimensaoPeca: getSpec('Dimens'),
+      pesoPeca:     getSpec('Peso'),
       largura:      (document.getElementById('calc-larg') || {}).value || '—',
       altura:       (document.getElementById('calc-alt')  || {}).value || '—',
       m2:        txt('calc-m2'),
@@ -212,6 +213,12 @@
     doc.text('Dimensões da peça', 20, y);
     doc.setFont('helvetica', 'normal');
     doc.text(dados.dimensaoPeca, 70, y);
+
+    y += 10;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Peso da peça', 20, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(dados.pesoPeca, 70, y);
 
     y += 10;
     doc.setFont('helvetica', 'bold');

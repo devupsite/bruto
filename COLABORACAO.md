@@ -551,3 +551,53 @@ rajada seguida de abandono.
 Perguntar se ele quer a lista de 10-12 pautas prontas (título + ângulo)
 pra ele escolher ao longo do ano — isso foi oferecido e ele disse "por
 enquanto não". Não presumir qual pauta puxar sem perguntar primeiro.
+
+---
+
+## 21. Peso extraído da Faion e adicionado às 19 fichas técnicas + PDF (08/07/2026)
+
+Rafa perguntou se dava pra extrair o peso de cada peça direto do site da
+Faion (mesma fonte usada pra corrigir as dimensões). Fui em cada uma das 19
+páginas de produto em ceramicafaion.com.br e copiei o valor exato do campo
+"Peso" de cada ficha técnica.
+
+**Dado real coletado (Faion usa duas bases de peso diferentes entre as
+linhas — reproduzido aqui exatamente como está no site deles, sem
+reinterpretar):**
+
+- **Brick, linha padrão** (Branco Rosé, Eco Palha, Lumus, Mescla Prime,
+  Natura, Rosso Prime, Terra do Cerrado, Vulcano): **23 kg**
+- **Brick, linha Rusticatto/extra rústico** (do Sertão, Fumê, Rosso, Terra
+  Negra — todas 2cm de espessura, 1 cm a mais que a linha padrão): **33 kg**
+- **Cimentício** (Alpino, Grigio, Urban) e **Rockface** (Brisa, Alpino,
+  Grigio, Urban) — todas as 7: **2,2 kg**
+
+Note a diferença de ordem de grandeza entre Brick (23-33 kg) e
+Cimentício/Rockface (2,2 kg) mesmo com dimensões de peça parecidas — é
+exatamente o que está na ficha da Faion, não é erro de digitação nosso.
+Provavelmente bases de medida diferentes (caixa vs. peça individual), mas
+como o objetivo aqui foi só reproduzir o dado real sem inventar contexto,
+não assumi qual é a base e não normalizei os números.
+
+**O que foi mudado:**
+- Novo `.spec-item` com label "Peso" adicionado logo depois de "Dimensões"
+  nas 19 páginas de produto (mesmo padrão visual dos specs existentes).
+- `lead-pdf.js`: `readPageData()` ganhou `pesoPeca: getSpec('Peso')` — reusa
+  o mesmo helper `getSpec()` criado no item 16, sem duplicar lógica. `gerarPDF()`
+  ganhou uma linha "Peso da peça" logo abaixo de "Dimensões da peça".
+- Como o peso agora vem do `.spec-item` da própria página (mesmo mecanismo
+  da dimensão), o PDF nunca fica dessincronizado do que está na ficha
+  técnica visível — se o peso mudar no HTML, o PDF já reflete sozinho.
+- `?v=` de `lead-pdf.js` bumpado de 5 pra 6 em **todas** as 21 páginas que o
+  carregam agora (19 produtos + `paginacoes.html` + os 2 posts de blog com
+  PDF estático que outra sessão adicionou depois do meu v5 — trouxe todos
+  pro mesmo v=6 de uma vez).
+
+**Nota de merge:** essa sessão divergiu do repositório por um bom tempo —
+enquanto eu extraía os pesos da Faion, outra sessão corrigiu as dimensões de
+Brick/Cimentício (mesma fonte, resultado idêntico ao que eu ia extrair),
+adicionou 3 posts técnicos de blog, corrigiu `cookie-consent.js` removido
+sem querer, e mais uma dezena de commits. Rodei `git pull --no-rebase`, só
+`COLABORACAO.md` teve conflito real (os dois lados só adicionaram texto no
+fim do arquivo) — resolvido mantendo as duas seções, sem perder nenhum
+registro de nenhum dos lados.
