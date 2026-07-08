@@ -33,8 +33,18 @@
   }
 
   // Só o index.html tem a seção #amostra. Nas outras páginas, leva pra lá.
+  // Usado pelo banner (topo), que é menos intrusivo — mantém o fluxo normal.
   function ctaHref() {
     return document.getElementById('amostra') ? '#amostra' : 'index.html#amostra';
+  }
+
+  // Usado pelo popup — quem já rolou a página, ficou 25s ou deu exit-intent
+  // é lead quente, então vai direto pro WhatsApp com a promo já contextualizada,
+  // sem passo extra pela seção #amostra.
+  var WHATSAPP_NUMBER = '5511990049468';
+  function popupCtaHref() {
+    var msg = 'Olá! Vi a oferta de frete grátis acima de 10m\u00b2 e quero aproveitar.';
+    return 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
   }
 
   // ---------- BANNER ----------
@@ -80,7 +90,7 @@
         '<span class="promo-modal__eyebrow">Oferta por tempo limitado</span>' +
         '<h3 class="promo-modal__title">Frete grátis acima de 10m\u00b2</h3>' +
         '<p class="promo-modal__body">Fale com a gente agora e garanta o benefício antes de fechar seu pedido.</p>' +
-        '<a href="' + ctaHref() + '" class="promo-modal__cta">Quero meu frete grátis</a>' +
+        '<a href="' + popupCtaHref() + '" target="_blank" rel="noopener" class="promo-modal__cta">Quero meu frete grátis</a>' +
         '<button type="button" class="promo-modal__dismiss">Agora não</button>' +
       '</div>';
 

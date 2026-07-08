@@ -93,8 +93,11 @@ entender o que mudou sem reler o diff inteiro.
 Mantenha esta seção atualizada conforme o site evolui. Quando um fato aqui
 ficar desatualizado, corrija — não deixe a próxima sessão repetir o erro.
 
-- **Rockface Urban foi removido** do catálogo (descontinuado). Não
-  reintroduzir. Rockface ativo: Brisa, Alpino, Grigio.
+- **Rockface Urban foi READICIONADO** ao catálogo em 06/07/2026 (ver item 14
+  abaixo) — a nota antiga dizia "removido, não reintroduzir", mas isso ficou
+  desatualizado. Estado atual: Rockface ativo = Brisa, Alpino, Grigio, Urban
+  (4 modelos). Se encontrar essa contradição nesta seção de novo, o item 14
+  (datado) é a fonte de verdade, não este resumo.
 - **Cimentício ativo:** Alpino, Grigio, Urban (3 modelos).
 - **Brick ativo:** 12 modelos.
 - **`produto.html`** é um protótipo experimental de página de produto
@@ -168,8 +171,10 @@ ficar desatualizado, corrija — não deixe a próxima sessão repetir o erro.
   `index.html` sem also portar o observer, ou simplesmente não usar a classe
   nessas páginas.
   Cimentício ativo: Alpino, Grigio, Urban (3). Rockface ativo: Alpino,
-  Brisa, Grigio (3) — Urban foi descontinuado, não confundir com o Cimentício
-  Urban, que é um produto diferente e continua ativo.
+  Brisa, Grigio, Urban (4) — ver correção no topo da seção 7, a nota de
+  "descontinuado" estava desatualizada (Urban foi readicionado em 06/07/2026,
+  ver item 14). Não confundir com o Cimentício Urban, que é um produto
+  diferente e sempre esteve ativo.
 
 ---
 
@@ -353,36 +358,196 @@ ceramicafaion.com.br:
   `produto-rockface-brisa.html`, que é outro produto.
 - **Rockface Urban** já estava correto (290mm x 95mm x 20mm), não foi tocado.
 
+---
+
+## 16. Dimensões de Brick e Cimentício corrigidas (07/07/2026)
+
+Última pendência de dimensões: as 12 páginas de Brick e as 3 de Cimentício
+ainda usavam o placeholder `240mm x 65mm x 12mm`. Corrigido com dados reais
+extraídos direto de `ceramicafaion.com.br/produto/<slug>/` (cada modelo tem
+ficha técnica própria, dimensão não é fixa por linha):
+
+- **Brick** — Branco Rosé, Eco Palha, Lumus, Rosso Prime, Vulcano:
+  **270x70x15mm**. Mescla Prime, Terra do Cerrado: **260x70x15mm**. Natura:
+  **240x70x15mm**. Os 4 Rusticatto (Fumê, Rosso, Sertão, Terra Negra):
+  **270x70x20mm**.
+- **Cimentício** — Alpino, Grigio, Urban: **260x75x10mm** (mesma dimensão
+  nos três; no site da Faion esses produtos usam slug `brick-alpino`,
+  `brick-grigio`, `brick-urban` apesar de estarem categorizados como
+  Cimentício — não confundir com a linha Brick do nosso catálogo).
+
+Com isso, **as 19 páginas de produto agora têm dimensões reais** (Brick +
+Cimentício + Rockface, todos corrigidos). Único campo alterado em cada
+arquivo foi o `<span>` de `.product-specs`; o comentário de exemplo no JS do
+simulador (`// ex: "240mm x 65mm x 12mm"`) foi deixado como está, é só
+ilustrativo — mesmo padrão da correção do Rockface (item 15).
+
+Pendência que continua de pé: Formspree aguardando e-mail profissional
+(item 14/documentado separadamente).
+
+---
+
+## 17. `produto-template.html` removido (07/07/2026)
+
+O arquivo nunca esteve linkado em nenhum lugar do site (nenhuma página
+apontava pra ele, não estava no `sitemap.xml`) e estava bem desatualizado em
+relação às 19 páginas reais (sem sidebar, sem calculadora, sem botão/script
+de PDF — ver item 13/16). Como estava só acumulando dívida técnica sem uso
+prático, foi removido do repositório.
+
+**Se for gerar um produto novo no futuro:** duplique uma página real
+existente (ex: `produto-brick-lumus.html`) e troque nome, imagens, textos e
+dimensões — não existe mais um molde-base dedicado.
+
+---
+
+## 18. Bug real corrigido: `genEspinha()` no simulador interativo (07/07/2026)
+
+Importante não confundir dois "espinha de peixe" diferentes no projeto:
+
+1. **Card estático `03 Espinha de Peixe` em `paginacoes.html`** (item da nota
+   acima, "paginacoes.html 04/07/2026") — esse já estava correto, confirmado
+   nesta sessão renderizando o SVG isoladamente. Reticulado H/V tesselado no
+   espaço não-rotacionado, com o grupo inteiro girado 45° por cima. Não foi
+   tocado.
+
+2. **`genEspinha()` em `paginacoes.js`**, usado no simulador "monte sua
+   parede" das 12 páginas `produto-brick-*.html` — **esse tinha bug real**.
+   Gerava duas peças (+45° e -45°) na mesma posição (x,y), só deslocadas em
+   `rowH/2` no eixo Y. Resultado: as peças se cruzavam em "X"/sobrepostas ao
+   invés de tesselar em zigue-zague — visualmente incoerente com espinha de
+   peixe real (confirmado renderizando a matemática da função fora do
+   navegador antes de mexer no código).
+
+   **Correção:** reescrita pra usar a mesma estratégia do card estático que
+   já funciona — monta o reticulado H/V (peça horizontal + peça vertical
+   encaixada, proporção 2:1 comprimento:espessura) no espaço local
+   não-rotacionado, calcula o centro de cada peça, e só então rotaciona
+   *esses centros* em 45° ao redor do centro da parede (`rotateAroundCenter`)
+   — a peça em si ganha `rot: 45` ou `rot: 135` (135° e -45° são visualmente
+   idênticos pra um retângulo, então não precisa de ângulo negativo).
+   `cx`/`cy` que existiam no código antigo nunca eram lidos em lugar nenhum
+   (código morto) — removidos na reescrita.
+
+   Testado simulando a mesma matemática em Python/SVG fora do navegador
+   antes e depois da correção pra confirmar visualmente que parou de
+   cruzar/sobrepor peças. `?v=1 -> v2` em `paginacoes.js` nas 12 páginas de
+   Brick pra furar cache do GitHub Pages.
+
 Único campo alterado em cada arquivo: o `<span>` de dimensões dentro de
 `.product-specs`. O comentário de exemplo no JS do simulador/calculadora
 (`// ex: "240mm x 65mm x 12mm"`) foi deixado como está — é só um exemplo
 ilustrativo no código, não um valor lido de fato (o JS já lê o número real
 direto do `<span>` via regex).
 
----
-
-## 16. PDF de orçamento agora inclui a dimensão da peça (07/07/2026)
-
-A pedido do Rafael, `lead-pdf.js` passou a incluir a linha "Dimensões da
-peça" no PDF de orçamento (o gerado por `gerarPDF()`, não o
-`guia-paginacoes-bruto.pdf` estático).
-
-- **Não foi criado nenhum `data-product-dim` novo nos 19 HTMLs.** Em vez
-  disso, `readPageData()` ganhou um helper `getSpec(label)` que varre
-  `.product-specs .spec-item` procurando o `<strong>` que contém o texto do
-  label (`'Dimens'`) e devolve o `<span>` correspondente. Isso lê o dado
-  **direto da ficha técnica já visível na página**, então nunca fica
-  dessincronizado — se alguém corrigir uma dimensão no HTML (como aconteceu
-  no item 15), o PDF já reflete automaticamente, sem precisar tocar no JS de
-  novo.
-- Funciona porque a ordem das specs é consistente nas 19 páginas
-  (`Dimensões` sempre é o primeiro `.spec-item`), mas o matching é por texto
-  do label, não por posição — resiste a reordenação futura.
-- **Peso (kg) não existe em nenhuma das 19 fichas técnicas do site** (só no
-  cadastro interno da Faion) — não foi adicionado ao PDF por não haver dado
-  nenhum para mostrar. Se um dia isso for exibido no site, adicionar ao PDF
-  é o mesmo padrão: só criar o `.spec-item` com label "Peso" que o
-  `getSpec()` já pega sozinho.
 - `?v=` de `lead-pdf.js` bumpado de 4 pra 5 nas 20 páginas que o carregam
   (19 produtos + `paginacoes.html`), conforme regra do item 11.
 
+---
+
+## 19. Incidente real — `cookie-consent.js` removido sem querer do `index.html` (07/07/2026)
+
+O commit `bc774a8` ("fix: logo/links do index.html apontavam pra #") corrigiu
+o que precisava corrigir, mas o diff também **removeu a linha do
+`<script defer src="cookie-consent.js?v=1">`** no mesmo arquivo — nenhuma
+relação com o que estava sendo consertado. O banner de cookies sumiu só do
+`index.html`; as outras 31 páginas continuaram com o script intacto.
+
+Provável causa: a sessão provavelmente reescreveu um bloco maior do que o
+necessário (ex: o `<head>`/fim do `<body>` inteiro) em vez de um
+`str_replace` cirúrgico nas 3 linhas que realmente precisavam mudar — reforça
+o item 3 deste documento.
+
+**Corrigido nesta sessão** — linha restaurada, validado que as 32 páginas do
+site voltaram a ter `cookie-consent.js` presente.
+
+**Lição prática:** ao editar qualquer página pra corrigir um problema
+pontual (like um link morto), rode um `grep` rápido antes/depois pra
+confirmar que scripts/CSS compartilhados que já estavam naquele arquivo
+continuam lá — não só o que você foi mexer.
+
+---
+
+## 20. PDFs de guia adicionados a 2 posts do blog (07/07/2026)
+
+Decisão: PDF baixável só faz sentido como material de referência técnica
+(coisa que alguém quer consultar offline, na obra) — não pra posts
+editoriais/inspiracionais, que perderiam valor de retenção no site se
+virassem PDF. Por isso só 2 dos 6 posts ganharam PDF, não todos.
+
+- **`guia-aplicacao-bruto.pdf`** — gerado a partir do conteúdo de
+  `blog-post.html` (5 seções + tip-box "Dica BRUTO").
+- **`guia-limpeza-bruto.pdf`** — gerado a partir do conteúdo de
+  `blog-limpeza-piso.html` (5 seções + tip-box).
+
+Ambos gerados com reportlab (script não versionado no repo, só os PDFs
+finais — mesmo padrão do `guia-paginacoes-bruto.pdf`, ver item 13.3).
+Capa escura (`--ferro`) com título grande, sumário numerado, corpo em
+Helvetica, tip-box com barra lateral — visual consistente com a paleta do
+site, mas não é pixel-perfect ao HTML (PDF não herda `styles.css`).
+
+Botão "Baixar guia em PDF" usa o **modo estático** do `lead-pdf.js`
+(`data-static-pdf`), igual ao de `paginacoes.html`: captura lead
+(nome+WhatsApp+email), dispara o download do PDF já pronto no repo, abre
+WhatsApp com mensagem genérica. **Não gera PDF dinamicamente** — ambos os
+posts não tinham calculadora/simulador pra alimentar o modo dinâmico, então
+o modo estático é o único que faz sentido aqui.
+
+`lead-pdf.js?v=4` **não estava carregado** em nenhum dos dois posts antes
+desta mudança — adicionado o `<script>` nos dois. Mesmo `WHATSAPP_NUMBER`/
+`FORMSPREE_ENDPOINT` do topo do arquivo vale (Formspree continua em espera,
+ver item 13.1 — não mexi nisso).
+
+**Se o conteúdo de `blog-post.html` ou `blog-limpeza-piso.html` mudar no
+futuro, os PDFs ficam desatualizados** — mesma dívida técnica já registrada
+pro guia de paginações (item 13.3): não há geração automática, é preciso
+regenerar e re-subir manualmente. Se crescer o número de posts com PDF,
+vale a pena versionar o script gerador no repo em vez de descartá-lo a cada
+sessão.
+
+## 14. Plano editorial do blog — registrado para quando Rafa pedir
+
+Rafa pediu uma sugestão de cadência de atualização do blog em 08/07/2026.
+Combinado: **não executar nada disso agora** — só registrar aqui pra
+retomar quando ele pedir explicitamente ("atualize o blog" ou similar).
+
+**Distribuição atual (na época deste registro):** Técnico (3), Guias (1),
+Comparativos (1), Tendências (1), Inspiração (1), Manutenção (1) — 8 cards
+na grade + 1 post em destaque (`blog-post.html`, fora da grade).
+
+### Cadência sugerida
+1-2 posts por mês, priorizando os pilares mais rasos (tudo que não é
+"Técnico", que já está com 3). Ritmo modesto e constante é melhor que
+rajada seguida de abandono.
+
+### Rotação por pilar
+- **Inspiração** — 1x a cada 2 meses (conteúdo mais compartilhável)
+- **Comparativos** — 1x a cada 2-3 meses (só 3 pares possíveis entre as
+  3 linhas: Brick×Cimentício, Brick×Rockface, Cimentício×Rockface —
+  não estica infinito)
+- **Manutenção** — 1x a cada 3 meses (baixo volume, alto valor de busca
+  orgânica tardia — gente procura isso meses depois da compra)
+- **Técnico** — 1x a cada 2-3 meses (ver pautas abaixo, ainda longe de
+  esgotado)
+
+### Pautas técnicas ainda não escritas (mina principal)
+- Sustentabilidade na cerâmica — pegada de carbono vs outros
+  revestimentos, dados Anfacer de consumo de água/energia
+- Glossário de termos técnicos (PEI, ARII, tardoz, junta de movimentação)
+  — formato de referência rápida, bom pra SEO de cauda longa
+- Comparativo histórico de câmbio/preço — competitividade internacional
+  da cerâmica brasileira
+- Perfil de arquitetos/projetos que usam material bruto (não precisa ser
+  exclusivo BRUTO — pode citar movimento/projetos de terceiros sem virar
+  publieditorial)
+
+### Gancho sazonal
+- Jan/Fev: atualizar anualmente o post de "Tendências" (já existe o de
+  2026 — virar série anual é conteúdo perene de baixo esforço)
+- Antes do inverno: manutenção/impermeabilização
+- Antes de feriados longos: área gourmet / inspiração de reforma
+
+### Quando Rafa pedir pra retomar
+Perguntar se ele quer a lista de 10-12 pautas prontas (título + ângulo)
+pra ele escolher ao longo do ano — isso foi oferecido e ele disse "por
+enquanto não". Não presumir qual pauta puxar sem perguntar primeiro.
