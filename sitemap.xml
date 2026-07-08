@@ -31,6 +31,21 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://devupsite.github.io/bruto/blog-normas-tecnicas.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://devupsite.github.io/bruto/blog-mercado-revestimentos.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://devupsite.github.io/bruto/blog-brutalismo.html</loc>
+    <lastmod>2026-07-08</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://devupsite.github.io/bruto/blog.html</loc>
     <lastmod>2026-07-07</lastmod>
     <priority>0.6</priority>
