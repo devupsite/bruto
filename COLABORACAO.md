@@ -659,3 +659,28 @@ compartilhado, sem integração de checkout.
 **Quando o gateway real for definido:** essa tabela provavelmente vai virar
 redundante/incorreta (cada gateway calcula parcela do jeito dele). Trocar
 por integração real nesse momento — não é pra manter os dois em paralelo.
+
+---
+
+## 24. Formspree configurado de verdade (08/07/2026)
+
+Pendência do item 13.1 resolvida. Rafa passou o endpoint real:
+`https://formspree.io/f/xbdveedy` (ele mandou um endpoint antes,
+`xdarvvkw`, e corrigiu em seguida pra este — usei só o segundo, o
+`xdarvvkw` nunca foi configurado em lugar nenhum).
+
+**O que mudou:**
+- `FORMSPREE_ENDPOINT` em `lead-pdf.js` trocado do placeholder
+  `SEU_ID_AQUI` pro endpoint real.
+- `?v=` de `lead-pdf.js` bumpado de 7 pra 8 nas 22 páginas que o carregam
+  (19 produtos + `paginacoes.html` + 2 posts de blog com PDF estático).
+
+**Não confirmado ainda:** pra onde o Formspree encaminha as submissões
+depende do e-mail cadastrado na conta Formspree do Rafa — isso não é algo
+que o código controla, é configuração deles na plataforma. Ele foi
+orientado a conferir em Settings → Notifications no dashboard do Formspree.
+
+**Ainda pendente, não mexido:** o e-mail do footer (`contato@bruto.com.br`)
+continua `href=#`, mesma lógica do item 13.1 — provavelmente também
+depende do e-mail profissional. Confirmar com o Rafa antes de trocar.
+
