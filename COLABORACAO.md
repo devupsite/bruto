@@ -624,3 +624,38 @@ saiu. Se decidir usar peso no futuro, a base extraída está registrada no
 item 21 acima (não apagada, só não publicada) — antes de subir de novo,
 vale confirmar com a Faion diretamente qual é a base de cada número (peça
 individual? caixa? m²?) em vez de assumir.
+
+---
+
+## 23. Tabela de parcelamento adicionada (informativa, sem gateway ativo) (08/07/2026)
+
+Item pendente desde as instruções originais de implementação. Perguntei ao
+Rafa se já havia gateway configurado — resposta: **ainda não, seria só
+informativa**. Segui a recomendação original: hardcode simples via JS
+compartilhado, sem integração de checkout.
+
+**O que foi feito:**
+- Novo `parcelamento.js` (compartilhado, não duplicado por página) — lê o
+  preço já exibido em `.price` (mesmo elemento que a calculadora de
+  quantidade já usa) e calcula:
+  - Pix: 10% de desconto sobre o preço/m²
+  - 1x a 4x: sem juros (preço cheio)
+  - 5x a 12x: Tabela Price, juros de 4,5% a.m. — mesma taxa citada nas
+    instruções originais. **Não bate exatamente** com a tabela de exemplo
+    da Faion (diferença de R$1-2 nas parcelas mais longas) porque a taxa
+    real de um gateway específico nunca é uma Tabela Price pura — isso é
+    esperado e está coberto pelo disclaimer "valores informativos... sujeito
+    à confirmação no fechamento do pedido".
+- CSS novo em `styles.css` (`.price-parc` e subclasses) — Pix em destaque
+  com badge, "até 4x sem juros" como texto principal (CTA visual, conforme
+  pedido nas instruções originais), tabela completa 5-12x escondida atrás
+  de um toggle "Ver todas as parcelas" — não empurra "com juros" pra cima
+  do usuário, mas deixa disponível e claramente marcado (compliance CDC).
+- `<div id="parcelamento-info"></div>` inserido logo após `<p class="price">`
+  nas 19 páginas de produto + `<script defer src="parcelamento.js?v=1">`
+  antes do `</body>` de cada uma.
+- `styles.css?v=` bumpado de 11 pra 12 nas 34 páginas do site.
+
+**Quando o gateway real for definido:** essa tabela provavelmente vai virar
+redundante/incorreta (cada gateway calcula parcela do jeito dele). Trocar
+por integração real nesse momento — não é pra manter os dois em paralelo.
