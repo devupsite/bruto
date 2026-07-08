@@ -256,6 +256,18 @@
       grid-template-columns: 1fr 1fr;
       gap: 3rem;
       margin-bottom: 4rem;
+      align-items: start;
+    }
+
+    .product-gallery {
+      position: sticky;
+      top: 96px;
+    }
+
+    @media (max-width: 768px) {
+      .product-gallery {
+        position: static;
+      }
     }
 
     .product-info {
@@ -493,7 +505,7 @@
     <div class="product-header">
       
       <!-- Carousel -->
-      <div>
+      <div class="product-gallery">
         <div class="carousel">
           <div class="carousel__viewport">
                         <div class="carousel__slide active">
