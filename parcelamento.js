@@ -15,7 +15,7 @@
   'use strict';
 
   var JUROS_MENSAL = 0.045;
-  var DESCONTO_PIX = 0.10;
+  var DESCONTO_PIX = 0.05;
 
   function formatBRL(v) {
     return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -47,7 +47,7 @@
     var html = '';
     html += '<div class="price-parc">';
     html += '  <div class="price-parc__pix">';
-    html += '    <span class="price-parc__pix-badge">10% OFF NO PIX</span>';
+    html += '    <span class="price-parc__pix-badge">5% OFF NO PIX</span>';
     html += '    <span class="price-parc__pix-val">R$ ' + formatBRL(pix) + '<span class="price__unit"> /m²</span></span>';
     html += '  </div>';
     html += '  <p class="price-parc__main">até <strong>4x de R$ ' + formatBRL(preco / 4) + '</strong> sem juros no cartão</p>';
@@ -98,3 +98,4 @@
     render(container, preco);
   });
 })();
+
