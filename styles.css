@@ -1267,6 +1267,103 @@
     }
 
     /* ════════════════════════════════════════════
+       PARCELAMENTO — produto (informativo, sem gateway ativo)
+    ════════════════════════════════════════════ */
+    .price-parc {
+      margin: 14px 0 20px;
+      padding: 16px 18px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+    }
+
+    .price-parc__pix {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .price-parc__pix-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      background: var(--ferro);
+      color: var(--argamassa);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .06em;
+    }
+
+    .price-parc__pix-val {
+      font-family: var(--f-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ferro);
+    }
+
+    .price-parc__main {
+      font-size: 13px;
+      color: var(--grafite);
+      margin: 0;
+    }
+    .price-parc__main strong { color: var(--ferro); }
+
+    .price-parc__toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 0;
+      background: none;
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      color: var(--ferro);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .price-parc__toggle i { font-size: 14px; }
+
+    .price-parc__table {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    .price-parc__table table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    .price-parc__table th {
+      text-align: left;
+      padding: 6px 8px;
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--concreto);
+      border-bottom: 1px solid var(--line);
+    }
+    .price-parc__table td {
+      padding: 6px 8px;
+      color: var(--grafite);
+      border-bottom: 1px solid var(--line);
+    }
+    .price-parc__table tr.is-juros td {
+      color: var(--concreto);
+    }
+    .price-parc__table tr:last-child td { border-bottom: none; }
+
+    .price-parc__disclaimer {
+      margin-top: 10px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--concreto);
+    }
+
+    /* ════════════════════════════════════════════
        SIDEBAR DE FILTRO — páginas estáticas de produto
     ════════════════════════════════════════════ */
     .product-page-layout {
@@ -2409,3 +2506,4 @@
         grid-template-columns: 1fr;
       }
     }
+
