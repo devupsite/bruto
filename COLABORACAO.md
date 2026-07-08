@@ -601,3 +601,26 @@ sem querer, e mais uma dezena de commits. Rodei `git pull --no-rebase`, só
 `COLABORACAO.md` teve conflito real (os dois lados só adicionaram texto no
 fim do arquivo) — resolvido mantendo as duas seções, sem perder nenhum
 registro de nenhum dos lados.
+
+---
+
+## 22. Peso removido de novo — discrepância de escala não explicada (08/07/2026)
+
+Rafa revisou o dado do item 21 e decidiu **não manter o peso no site por
+enquanto**: a diferença de escala entre Brick (23-33 kg) e Cimentício/
+Rockface (2,2 kg) é grande demais pra publicar sem entender a causa — risco
+de estar comparando bases diferentes (peça vs. caixa vs. m²) sem saber, e
+aí o dado fica enganoso pro cliente final em vez de útil.
+
+Revertido nas 19 páginas de produto + `lead-pdf.js`:
+- Removido o `.spec-item` de "Peso" das 19 fichas técnicas.
+- Removido `pesoPeca` de `readPageData()` e a linha "Peso da peça" de
+  `gerarPDF()` — voltou a ser idêntico ao estado do item 16 (só dimensão).
+- `?v=` de `lead-pdf.js` bumpado de 6 pra 7 (conteúdo do arquivo mudou de
+  novo, precisa furar cache de novo).
+
+**O que ficou:** as dimensões (item 15/17) continuam no site — só o peso
+saiu. Se decidir usar peso no futuro, a base extraída está registrada no
+item 21 acima (não apagada, só não publicada) — antes de subir de novo,
+vale confirmar com a Faion diretamente qual é a base de cada número (peça
+individual? caixa? m²?) em vez de assumir.
