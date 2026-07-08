@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- Google Tag Manager
+       TODO: substituir GTM-XXXXXXX pelo container ID real (criar em tagmanager.google.com). -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+  <!-- End Google Tag Manager -->
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Página não encontrada — BRUTO Curadoria de Revestimentos.">
+  <title>Página não encontrada — BRUTO</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+  <link rel="stylesheet" href="styles.css?v=12">
+
+  <style>
+    .notfound {
+      min-height: calc(100dvh - 76px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px var(--pad-x);
+    }
+    .notfound__code {
+      font-family: var(--f-display, inherit);
+      font-size: clamp(80px, 16vw, 160px);
+      font-weight: 600;
+      line-height: 1;
+      color: var(--ferro);
+      letter-spacing: -.02em;
+      margin: 0;
+    }
+    .notfound__title {
+      font-size: clamp(20px, 3vw, 28px);
+      font-weight: 500;
+      margin: 16px 0 12px;
+      color: var(--ferro);
+    }
+    .notfound__body {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--concreto);
+      max-width: 440px;
+      margin: 0 auto 32px;
+    }
+    .notfound__actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+  <!-- ══════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════ -->
+  <header class="header">
+    <div class="wrap header__inner">
+
+      <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+        <span class="logo-box">
+          <svg class="logo-mark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+          </svg>
+        </span>
+        <span class="logo-divider" aria-hidden="true"></span>
+        <span class="logo-word">Bruto</span>
+      </a>
+
+      <nav class="nav" id="main-nav" aria-label="Navegação principal">
+        <a href="texturas.html">Coleções &amp; Texturas</a>
+        <a href="paginacoes.html">Paginações</a>
+        <a href="blog.html">Blog</a>
+        <a href="index.html#projetos">Projetos</a>
+        <a href="index.html#sobre">Sobre</a>
+        <a href="index.html#amostra">Contato</a>
+      </nav>
+
+      <a href="index.html#amostra" class="btn btn--solid header__cta">Solicitar amostra</a>
+
+      <button class="burger" id="menu-btn" aria-label="Abrir menu" aria-expanded="false">
+        <i class="ti ti-menu-2" aria-hidden="true"></i>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════
+       404
+  ══════════════════════════════════════════ -->
+  <main class="notfound">
+    <div>
+      <p class="notfound__code">404</p>
+      <h1 class="notfound__title">Essa página não existe.</h1>
+      <p class="notfound__body">
+        O link pode estar desatualizado ou a página foi movida.
+        Volte para o início ou explore nossas coleções.
+      </p>
+      <div class="notfound__actions">
+        <a href="index.html" class="btn btn--solid">
+          <i class="ti ti-home" aria-hidden="true"></i>
+          Página inicial
+        </a>
+        <a href="texturas.html" class="btn btn--outline">
+          <i class="ti ti-grid-dots" aria-hidden="true"></i>
+          Ver coleções
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const menuBtn = document.getElementById('menu-btn');
+    const mainNav = document.getElementById('main-nav');
+    menuBtn.addEventListener('click', () => {
+      const isOpen = mainNav.classList.toggle('nav--open');
+      menuBtn.setAttribute('aria-expanded', isOpen);
+      menuBtn.querySelector('i').className = isOpen ? 'ti ti-x' : 'ti ti-menu-2';
+    });
+  </script>
+
+</body>
+</html>
