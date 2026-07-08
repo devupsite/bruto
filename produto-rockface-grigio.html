@@ -307,6 +307,19 @@
       margin-bottom: 1.5rem;
     }
 
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      letter-spacing: .03em;
+      color: #6E6E6E;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #e5e2de;
+    }
+    .trust-badge i { font-size: 15px; color: #0A0A0A; }
+
     .product-info p {
       font-size: 1.1rem;
       line-height: 1.6;
@@ -425,6 +438,53 @@
       }
     }
 
+
+    /* Cross-sell — outras cores da linha */
+    .cross-sell {
+      margin-top: 0;
+      padding: 48px 0 0;
+      border-top: 1px solid #e5e2de;
+    }
+    .cross-sell__title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #6E6E6E;
+      margin-bottom: 20px;
+    }
+    .cross-sell__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 20px;
+    }
+    .cross-sell__card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+    .cross-sell__img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+      border: 1px solid #e5e2de;
+      margin-bottom: 10px;
+    }
+    .cross-sell__name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #0A0A0A;
+      margin: 0 0 2px;
+    }
+    .cross-sell__price {
+      font-size: 0.8rem;
+      color: #6E6E6E;
+      margin: 0;
+    }
+    @media (max-width: 600px) {
+      .cross-sell__grid { grid-template-columns: repeat(2, 1fr); }
+    }
   </style>
   <script type="application/ld+json">
 {
@@ -588,6 +648,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <h1>Grigio</h1>
         <p class="price">R$ 229,90<span class="price__unit"> /m²</span></p>
         <div id="parcelamento-info"></div>
+        <div class="trust-badge">
+          <i class="ti ti-shield-check" aria-hidden="true"></i>
+          <span>Certificação técnica do fabricante · Garantia de 12 meses contra defeitos</span>
+        </div>
         
         <p>Rockface Grigio oferece cinzento texturizado com profundidade visual natural e excelente custo-benefício.</p>
 
@@ -678,6 +742,30 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
   </div>
+
+
+    <div class="wrap">
+      <div class="cross-sell">
+        <p class="cross-sell__title">Outras cores da linha Rockface</p>
+        <div class="cross-sell__grid">
+        <a href="produto-rockface-alpino.html" class="cross-sell__card">
+          <img class="cross-sell__img" src="rockface-alpino-frontal.webp" alt="Alpino" loading="lazy">
+          <p class="cross-sell__name">Alpino</p>
+          <p class="cross-sell__price">R$ 229,90 /m²</p>
+        </a>
+        <a href="produto-rockface-brisa.html" class="cross-sell__card">
+          <img class="cross-sell__img" src="rockface-brisa-frontal.webp" alt="Brisa" loading="lazy">
+          <p class="cross-sell__name">Brisa</p>
+          <p class="cross-sell__price">R$ 169,90 /m²</p>
+        </a>
+        <a href="produto-rockface-urban.html" class="cross-sell__card">
+          <img class="cross-sell__img" src="rockface-urban-frontal.webp" alt="Urban" loading="lazy">
+          <p class="cross-sell__name">Urban</p>
+          <p class="cross-sell__price">R$ 229,90 /m²</p>
+        </a>
+        </div>
+      </div>
+    </div>
 
   </main>
 

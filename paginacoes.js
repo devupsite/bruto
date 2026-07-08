@@ -234,7 +234,11 @@
     var descLabel = root.querySelector('.pgn-pattern-desc');
     if (descLabel) descLabel.textContent = PATTERNS[0].desc;
 
-    function rerender() { renderWall(root, state); }
+    function rerender() {
+      renderWall(root, state);
+      var colorLink = root.querySelector('.pgn-color-link');
+      if (colorLink) colorLink.setAttribute('href', 'produto-' + state.brickId + '.html');
+    }
 
     buildSwatches(root, state, rerender);
     buildPatternButtons(root, state, rerender);

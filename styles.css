@@ -2013,6 +2013,10 @@
   margin: 0;
 }
 
+.pgn-color-link {
+  margin-top: 14px;
+}
+
 .pgn-widget {
   display: grid;
   grid-template-columns: 1.3fr 1fr;
