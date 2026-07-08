@@ -463,3 +463,42 @@ site voltaram a ter `cookie-consent.js` presente.
 pontual (like um link morto), rode um `grep` rápido antes/depois pra
 confirmar que scripts/CSS compartilhados que já estavam naquele arquivo
 continuam lá — não só o que você foi mexer.
+
+---
+
+## 20. PDFs de guia adicionados a 2 posts do blog (07/07/2026)
+
+Decisão: PDF baixável só faz sentido como material de referência técnica
+(coisa que alguém quer consultar offline, na obra) — não pra posts
+editoriais/inspiracionais, que perderiam valor de retenção no site se
+virassem PDF. Por isso só 2 dos 6 posts ganharam PDF, não todos.
+
+- **`guia-aplicacao-bruto.pdf`** — gerado a partir do conteúdo de
+  `blog-post.html` (5 seções + tip-box "Dica BRUTO").
+- **`guia-limpeza-bruto.pdf`** — gerado a partir do conteúdo de
+  `blog-limpeza-piso.html` (5 seções + tip-box).
+
+Ambos gerados com reportlab (script não versionado no repo, só os PDFs
+finais — mesmo padrão do `guia-paginacoes-bruto.pdf`, ver item 13.3).
+Capa escura (`--ferro`) com título grande, sumário numerado, corpo em
+Helvetica, tip-box com barra lateral — visual consistente com a paleta do
+site, mas não é pixel-perfect ao HTML (PDF não herda `styles.css`).
+
+Botão "Baixar guia em PDF" usa o **modo estático** do `lead-pdf.js`
+(`data-static-pdf`), igual ao de `paginacoes.html`: captura lead
+(nome+WhatsApp+email), dispara o download do PDF já pronto no repo, abre
+WhatsApp com mensagem genérica. **Não gera PDF dinamicamente** — ambos os
+posts não tinham calculadora/simulador pra alimentar o modo dinâmico, então
+o modo estático é o único que faz sentido aqui.
+
+`lead-pdf.js?v=4` **não estava carregado** em nenhum dos dois posts antes
+desta mudança — adicionado o `<script>` nos dois. Mesmo `WHATSAPP_NUMBER`/
+`FORMSPREE_ENDPOINT` do topo do arquivo vale (Formspree continua em espera,
+ver item 13.1 — não mexi nisso).
+
+**Se o conteúdo de `blog-post.html` ou `blog-limpeza-piso.html` mudar no
+futuro, os PDFs ficam desatualizados** — mesma dívida técnica já registrada
+pro guia de paginações (item 13.3): não há geração automática, é preciso
+regenerar e re-subir manualmente. Se crescer o número de posts com PDF,
+vale a pena versionar o script gerador no repo em vez de descartá-lo a cada
+sessão.
