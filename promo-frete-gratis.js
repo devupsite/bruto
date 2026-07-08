@@ -58,8 +58,8 @@
     bar.innerHTML =
       '<div class="promo-bar__inner">' +
         '<i class="ti ti-truck promo-bar__icon" aria-hidden="true"></i>' +
-        '<span class="promo-bar__text"><strong>Frete grátis</strong> em compras acima de 10m\u00b2 — garanta o seu.</span>' +
-        '<a href="' + ctaHref() + '" class="promo-bar__cta">Quero meu frete grátis</a>' +
+        '<span class="promo-bar__text"><strong>Enviamos para todo o Brasil</strong> — Direto da Fábrica.</span>' +
+        '<a href="texturas.html" class="promo-bar__cta">Ver coleções</a>' +
         '<button type="button" class="promo-bar__close" aria-label="Fechar aviso"><i class="ti ti-x" aria-hidden="true"></i></button>' +
       '</div>';
 
