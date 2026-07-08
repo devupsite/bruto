@@ -502,3 +502,50 @@ pro guia de paginações (item 13.3): não há geração automática, é preciso
 regenerar e re-subir manualmente. Se crescer o número de posts com PDF,
 vale a pena versionar o script gerador no repo em vez de descartá-lo a cada
 sessão.
+
+## 14. Plano editorial do blog — registrado para quando Rafa pedir
+
+Rafa pediu uma sugestão de cadência de atualização do blog em 08/07/2026.
+Combinado: **não executar nada disso agora** — só registrar aqui pra
+retomar quando ele pedir explicitamente ("atualize o blog" ou similar).
+
+**Distribuição atual (na época deste registro):** Técnico (3), Guias (1),
+Comparativos (1), Tendências (1), Inspiração (1), Manutenção (1) — 8 cards
+na grade + 1 post em destaque (`blog-post.html`, fora da grade).
+
+### Cadência sugerida
+1-2 posts por mês, priorizando os pilares mais rasos (tudo que não é
+"Técnico", que já está com 3). Ritmo modesto e constante é melhor que
+rajada seguida de abandono.
+
+### Rotação por pilar
+- **Inspiração** — 1x a cada 2 meses (conteúdo mais compartilhável)
+- **Comparativos** — 1x a cada 2-3 meses (só 3 pares possíveis entre as
+  3 linhas: Brick×Cimentício, Brick×Rockface, Cimentício×Rockface —
+  não estica infinito)
+- **Manutenção** — 1x a cada 3 meses (baixo volume, alto valor de busca
+  orgânica tardia — gente procura isso meses depois da compra)
+- **Técnico** — 1x a cada 2-3 meses (ver pautas abaixo, ainda longe de
+  esgotado)
+
+### Pautas técnicas ainda não escritas (mina principal)
+- Sustentabilidade na cerâmica — pegada de carbono vs outros
+  revestimentos, dados Anfacer de consumo de água/energia
+- Glossário de termos técnicos (PEI, ARII, tardoz, junta de movimentação)
+  — formato de referência rápida, bom pra SEO de cauda longa
+- Comparativo histórico de câmbio/preço — competitividade internacional
+  da cerâmica brasileira
+- Perfil de arquitetos/projetos que usam material bruto (não precisa ser
+  exclusivo BRUTO — pode citar movimento/projetos de terceiros sem virar
+  publieditorial)
+
+### Gancho sazonal
+- Jan/Fev: atualizar anualmente o post de "Tendências" (já existe o de
+  2026 — virar série anual é conteúdo perene de baixo esforço)
+- Antes do inverno: manutenção/impermeabilização
+- Antes de feriados longos: área gourmet / inspiração de reforma
+
+### Quando Rafa pedir pra retomar
+Perguntar se ele quer a lista de 10-12 pautas prontas (título + ângulo)
+pra ele escolher ao longo do ano — isso foi oferecido e ele disse "por
+enquanto não". Não presumir qual pauta puxar sem perguntar primeiro.
