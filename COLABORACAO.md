@@ -779,3 +779,17 @@ rastreamento em todas as 34 páginas:
 sem o ID real, nenhum dado chega no Google/Meta ainda. Rafael precisa criar
 o container e trocar o placeholder nas 34 páginas (ou eu faço assim que
 ele mandar o ID real).
+
+---
+
+## 27. Complemento no schema.org — category e dimensão (08/07/2026)
+
+O rollout completo de Schema.org (Product nas 19 páginas + BlogPosting nos
+posts + Organization na home) já estava pronto quando cheguei — inclusive
+mais completo do que uma tentativa minha em paralelo (que descartei por
+estar com preços desatualizados, de antes do reajuste de +10%). Só
+complementei duas propriedades que o `Product` de cada página ainda não
+tinha: `category` (`Revestimento Brick/Cimentício/Rockface`) e
+`additionalProperty` com a dimensão real (`.product-specs`). Reaproveita
+dados que já existem na própria página, sem inventar nada. JSON validado
+nas 19 páginas + testado no Playwright pra confirmar que não quebrou nada.
