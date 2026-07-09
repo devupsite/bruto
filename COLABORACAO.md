@@ -862,3 +862,50 @@ JS inline por página (mesmo padrão dos outros cálculos ali), não um arquivo
 compartilhado. **Se o percentual do Pix mudar de novo, tem que editar os
 dois lugares** — `parcelamento.js` E as 19 páginas de produto (comentário
 deixado no código pra lembrar).
+
+---
+
+## 30. Reajuste de preços +10% (08/07/2026, a pedido do Ewerson)
+
+Todos os 19 produtos tiveram o preço aumentado em pelo menos 10%,
+arredondado pra cima até o próximo ",90" (mantém o padrão de preço
+"quebrado" já usado no site — ex: R$ 139,90 → R$ 153,90, não R$ 153,89).
+Aumento real ficou entre 10,00% e 10,54% dependendo do arredondamento.
+
+**Cada preço aparece em 4 lugares por produto — todos atualizados:**
+1. `<p class="price">` — preço principal exibido na página do produto
+2. `"price":` no JSON-LD (schema.org, usado por rich snippets do Google)
+3. `data-product-price=` no botão do `lead-pdf.js` — alimenta o PDF de
+   orçamento que o cliente recebe. **Esse é o mais importante de não
+   esquecer** — se ficar desatualizado, cliente recebe PDF com preço
+   errado (pra menos, prejuízo direto).
+4. `.tex-card__price` em `texturas.html` — card do produto no catálogo
+
+A primeira passada só cobriu o item 1. Os itens 2 e 3 usam formatos
+diferentes (JSON-LD usa ponto decimal sem "R$"; `data-product-price` usa
+vírgula mas sem o prefixo "R$ ") e ficaram de fora até uma varredura
+posterior pegar o resíduo. Se for reajustar preço de novo no futuro,
+**checar os 4 formatos**, não só o preço visível na tela.
+
+**`data-preco` em `texturas.html`** (usado pelo filtro de faixa de preço)
+foi recalculado caso a caso — 3 produtos que antes eram "até R$150" agora
+caem em "R$150–200" com o novo preço (as fronteiras do filtro em si
+— 150 e 200 — não mudaram, só a classificação de qual produto cai em
+qual faixa). Se o Rafael achar que as fronteiras do filtro fazem menos
+sentido agora com o catálogo todo mais caro, isso é uma decisão de design
+separada, não resolvida aqui.
+
+**`ordem-servico.js`**: catálogo interno (`CATALOGO`) também atualizado
+com os novos preços — sem isso, a ferramenta de OS ficaria gerando pedido
+com preço antigo.
+
+**Não tocado**: `bruto-produtos.json` (arquivo de referência solto em
+`/mnt/user-data/outputs`, não faz parte do site publicado, não estava
+com prioridade de atualizar).
+
+**Nota pra quem mexer no schema.org (item 27) ou no desconto Pix (item 29)
+depois desta seção:** confirme que os preços usados nesses cálculos já
+refletem os novos valores — outra sessão já teve que descartar um rascunho
+de schema.org que tinha sido feito com os preços antigos, antes deste
+reajuste ficar visível pra ela.
+
