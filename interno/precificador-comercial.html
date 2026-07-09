@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRUTO — Precificador Comercial</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Barlow+Condensed:wght@600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --k:#0F0F0F;--k2:#1A1A1A;--k3:#242424;--k4:#2E2E2E;
+  --t:#57999B;--td:#3D7072;--tl:#8BBCBE;
+  --tbg:rgba(87,153,155,.07);--tbd:rgba(87,153,155,.18);
+  --w:#F2F2F2;--g:#606060;--gl:#8A8A8A;
+  --ok:#4CAF82;--er:#E05555;--wn:#E09A3A;
+  --okbg:rgba(76,175,130,.1);--erbg:rgba(224,85,85,.1);--wnbg:rgba(224,154,58,.1);
+}
+html{scroll-behavior:smooth}
+body{background:var(--k);color:var(--w);font-family:'DM Sans',system-ui,sans-serif;font-weight:300;min-height:100vh;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* ONBOARDING */
+#ob{position:fixed;inset:0;background:var(--k);z-index:200;display:flex;align-items:center;justify-content:center;padding:32px}
+.ob-inner{text-align:center;max-width:400px;width:100%}
+.ob-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px}
+.ob-div-v{width:1px;height:28px;background:rgba(255,255,255,.1)}
+.ob-wm{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:28px;letter-spacing:.26em;text-transform:uppercase;color:var(--w);line-height:1}
+.ob-rule{width:48px;height:1px;background:var(--t);margin:0 auto 20px;opacity:.6}
+.ob-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--g);margin-bottom:24px}
+.ob-desc{font-size:13px;color:var(--gl);line-height:1.7;margin-bottom:28px}
+.ob-list{list-style:none;text-align:left;margin-bottom:36px;border:1px solid rgba(255,255,255,.06);background:var(--k2)}
+.ob-list li{font-size:13px;color:var(--gl);padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:10px;align-items:flex-start}
+.ob-list li:last-child{border-bottom:none}
+.ob-bullet{color:var(--t);flex-shrink:0;margin-top:1px}
+.ob-btn{display:block;width:100%;background:var(--t);color:var(--k);font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:14px 28px;cursor:pointer;transition:background .15s;border:none;margin-bottom:16px}
+.ob-btn:hover{background:var(--tl)}
+.ob-by{font-size:10px;color:var(--k3);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:4px}
+.ob-by span{color:var(--g);font-size:11px}
+
+/* APP */
+#app{display:none}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 24px;border-bottom:1px solid rgba(87,153,155,.12);position:sticky;top:0;z-index:99;background:var(--k);gap:12px}
+.hdr-client{display:flex;align-items:center;gap:11px}
+.hdr-vdiv{width:1px;height:22px;background:rgba(255,255,255,.1)}
+.bruto-wm{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:17px;letter-spacing:.26em;text-transform:uppercase;color:var(--w)}
+.hdr-mid{font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--g)}
+.upco{display:flex;align-items:center;gap:3px}
+.uc-by{font-size:9px;color:var(--k4);letter-spacing:.08em;text-transform:uppercase;margin-right:4px}
+.uc-up{font-family:'Syne',sans-serif;font-weight:800;font-size:12px;letter-spacing:-.02em;color:var(--gl)}
+.uc-d{color:var(--t);font-size:12px}.uc-co{color:var(--g);font-size:10px;font-family:'Syne',sans-serif}
+
+/* NAV */
+.nav{display:flex;padding:0 24px;border-bottom:1px solid rgba(255,255,255,.05);overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.ni{padding:10px 13px 11px;font-size:11px;font-weight:400;color:var(--g);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;position:relative;bottom:-1px;user-select:none;letter-spacing:.01em}
+.ni:hover{color:var(--w)}.ni.on{color:var(--t);border-bottom-color:var(--t)}
+
+/* LAYOUT */
+.main{padding:26px 24px 56px;max-width:940px;margin:0 auto;width:100%}
+.pnl{display:none}.pnl.on{display:block}
+.ph{margin-bottom:24px}
+.pey{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--t);margin-bottom:4px}
+.pt{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:5px}
+.pd{font-size:13px;color:var(--g);line-height:1.6;max-width:560px}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media(max-width:680px){.g2,.g3,.g5{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}.sg{grid-template-columns:1fr}.mg{grid-template-columns:1fr}}
+
+/* CARD */
+.card{background:var(--k2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:18px}
+.card-t{background:var(--tbg);border-color:var(--tbd)}
+
+/* SECTION LABEL */
+.sl{font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--g);margin-bottom:11px;display:flex;align-items:center;gap:8px}
+.sl::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.05)}
+
+/* TOOLTIP */
+.tt{position:relative;display:inline-flex;align-items:center;gap:5px}
+.tt-ic{width:13px;height:13px;border:1px solid var(--k4);border-radius:50%;font-size:8px;color:var(--g);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:border-color .15s;font-style:italic;font-family:serif}
+.tt-ic:hover{border-color:var(--t);color:var(--t)}
+.tt-box{position:absolute;left:0;top:calc(100% + 8px);background:var(--k2);border:1px solid rgba(87,153,155,.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--gl);width:240px;z-index:100;display:none;line-height:1.6;font-weight:300;pointer-events:none}
+.tt:hover .tt-ic~.tt-box,.tt.open .tt-box{display:block}
+
+/* FIELD */
+.field{margin-bottom:14px}
+.fl{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gl);margin-bottom:6px}
+.fh{font-size:11px;color:var(--g);font-weight:300;text-transform:none;letter-spacing:0}
+.fh-s{font-size:10px;color:var(--k4);font-weight:400;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:3px}
+.fh-s::before{content:'↺';color:var(--t);font-size:10px}
+.ig{display:flex;align-items:center}
+.ip,.is{background:var(--k3);border:1px solid rgba(255,255,255,.08);padding:8px 10px;font-size:12px;color:var(--g);height:38px;display:flex;align-items:center;flex-shrink:0}
+.ip{border-right:none;border-radius:8px 0 0 8px}.is{border-left:none;border-radius:0 8px 8px 0}
+input[type=number]{background:var(--k3);border:1px solid rgba(255,255,255,.08);color:var(--w);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;padding:8px 11px;height:38px;width:100%;outline:none;transition:border-color .15s;border-radius:8px}
+.ig input{border-radius:0}
+input:focus{border-color:var(--t)}
+input::-webkit-inner-spin-button{-webkit-appearance:none}
+
+select{background:var(--k3);border:1px solid rgba(255,255,255,.08);color:var(--w);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;padding:8px 30px 8px 11px;height:38px;width:100%;outline:none;transition:border-color .15s;border-radius:8px;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23606060' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+select:focus{border-color:var(--t)}
+select option{background:var(--k2);color:var(--w)}
+.cost-net{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:rgba(87,153,155,.04);border:1px solid rgba(87,153,155,.12);border-radius:8px;margin-bottom:14px}
+.cost-net-lbl{font-size:12px;color:var(--g);letter-spacing:.04em}
+.cost-net-val{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--t)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--k3);border-radius:99px;outline:none;cursor:pointer;margin-top:6px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--t);cursor:pointer;border:2px solid var(--k)}
+
+/* METRIC BIG */
+.mb{text-align:center;padding:20px 12px}
+.mbv{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;color:var(--t);letter-spacing:-.04em;line-height:1;margin-bottom:5px;transition:all .15s}
+.mbl{font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--g)}
+.mbv.ok{color:var(--ok)}.mbv.er{color:var(--er)}.mbv.wn{color:var(--wn)}
+
+/* OUTPUT ROW */
+.or{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px}
+.or:last-child{border-bottom:none}
+.orl{color:var(--g)}.orv{font-weight:500;font-variant-numeric:tabular-nums}
+.pos{color:var(--ok)}.neg{color:var(--er)}.acc{color:var(--t);font-family:'Syne',sans-serif;font-weight:700}
+
+/* BAR */
+.bt{height:6px;background:var(--k3);border-radius:99px;overflow:hidden;margin-top:3px}
+.bf{height:100%;background:var(--t);border-radius:99px;transition:width .3s,background .3s}
+hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--t),transparent);opacity:.18;margin:20px 0}
+.dv{border:none;border-top:1px solid rgba(255,255,255,.05);margin:14px 0}
+
+/* TAG */
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:99px;font-weight:500}
+.t-t{background:rgba(87,153,155,.12);color:var(--t)}
+.t-ok{background:var(--okbg);color:var(--ok)}
+.t-wn{background:var(--wnbg);color:var(--wn)}
+.t-er{background:var(--erbg);color:var(--er)}
+
+/* ALERT */
+.ab{background:var(--tbg);border:1px solid var(--tbd);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--w);display:flex;gap:8px;line-height:1.6;margin-top:10px}
+.ai{color:var(--t);flex-shrink:0}
+.ab-wn{background:var(--wnbg)!important;border-color:rgba(224,154,58,.2)!important;color:var(--wn)!important}
+.ab-er{background:var(--erbg)!important;border-color:rgba(224,85,85,.2)!important;color:var(--er)!important}
+
+/* PERSONA & REGION */
+.pc,.rc{background:var(--k2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:13px;cursor:pointer;transition:border-color .15s;user-select:none}
+.pc.sel,.rc.sel{border-color:var(--t);background:var(--tbg)}
+.pc:hover:not(.sel),.rc:hover:not(.sel){border-color:rgba(87,153,155,.3)}
+.pi{font-size:18px;margin-bottom:6px}.pn{font-size:13px;font-weight:500;margin-bottom:3px}.ps{font-size:11px;color:var(--g)}
+.rc-name{font-weight:500;font-size:13px;margin-bottom:3px;text-align:center}
+.rc-st{font-size:11px;color:var(--g);margin-bottom:6px;text-align:center;line-height:1.4}
+.rc-fr{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--t);text-align:center}
+.rc-pr{font-size:10px;color:var(--g);margin-top:2px;text-align:center;letter-spacing:.08em;text-transform:uppercase}
+
+/* SCENARIO */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sc{background:var(--k2);border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden}
+.sc-h{padding:13px 18px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
+.sc-t{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.01em}
+.sc-b{padding:18px}
+.sc.winner{border-color:var(--ok)}
+.sc.winner .sc-h{background:rgba(76,175,130,.05)}
+.cmp-t{width:100%;border-collapse:collapse;font-size:13px}
+.cmp-t th{text-align:left;padding:6px 8px;color:var(--g);font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.05)}
+.cmp-t td{padding:8px;border-bottom:1px solid rgba(255,255,255,.03)}
+.cmp-t tr:last-child td{border-bottom:none}
+.wb{font-size:10px;padding:2px 7px;border-radius:99px;background:var(--okbg);color:var(--ok);font-weight:500;margin-left:5px}
+
+/* TOGGLE */
+.tg-g{display:flex;gap:0;margin-bottom:14px}
+.tgb{flex:1;padding:9px 12px;background:var(--k3);border:1px solid rgba(255,255,255,.08);font-size:11px;cursor:pointer;color:var(--g);transition:all .15s;text-align:center;font-family:'DM Sans',sans-serif;font-weight:400;user-select:none;letter-spacing:.04em}
+.tgb+.tgb{border-left:none}
+.tgb:first-child{border-radius:8px 0 0 8px}.tgb:last-child{border-radius:0 8px 8px 0}
+.tgb.on{background:var(--tbg);border-color:var(--tbd);color:var(--t)}
+
+/* BUDGET BAR */
+.bb{height:28px;border-radius:8px;overflow:hidden;display:flex;margin-bottom:8px}
+.bs{height:100%;transition:width .3s;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;overflow:hidden;white-space:nowrap}
+
+/* CAC TABLE */
+.cac-t{width:100%;border-collapse:collapse;font-size:13px}
+.cac-t th{text-align:left;padding:7px 10px;color:var(--g);font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.06)}
+.cac-t td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.03)}
+.cac-t tr:last-child td{border-bottom:none}
+
+/* 90 DIAS */
+.mg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.mc{background:var(--k2);border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;transition:border-color .3s}
+.mc-h{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
+.mc-n{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--t)}
+.mc-l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--g)}
+.mc-b{padding:14px 16px}
+.mc-bar{height:5px;background:var(--k3);border-radius:99px;overflow:hidden;margin:8px 0 10px}
+.mc-bf{height:100%;border-radius:99px;transition:width .3s,background .3s}
+
+/* GLOSSÁRIO */
+.gl-item{padding:18px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.gl-item:last-child{border-bottom:none}
+.gl-term{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--t);margin-bottom:3px}
+.gl-def{font-size:13px;color:var(--gl);line-height:1.7;max-width:600px}
+
+/* FOOTER */
+.ftr{border-top:1px solid rgba(255,255,255,.05);padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+.ftr-l{font-size:10px;color:var(--k4);letter-spacing:.1em;text-transform:uppercase}
+.ftr-r{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--k4);letter-spacing:.08em;text-transform:uppercase}
+
+.sr{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--g);margin-bottom:4px}
+
+.persona-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:680px){.persona-grid{grid-template-columns:1fr 1fr}}
+.persona-card{background:var(--k2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px;cursor:pointer;text-align:center;transition:all .15s;user-select:none}
+.persona-card.sel{border-color:var(--t);background:var(--tbg)}
+.persona-card:hover:not(.sel){border-color:rgba(87,153,155,.3)}
+.persona-icon{font-size:24px;margin-bottom:4px;display:block}
+.persona-name{font-weight:500;font-size:12px;display:block;margin-bottom:2px}
+.persona-desc{font-size:10px;color:var(--g);line-height:1.3}
+.scenario-tabs{display:flex;gap:6px;margin-bottom:14px}
+.scn-btn{flex:1;padding:8px 12px;background:var(--k3);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-size:11px;font-weight:500;cursor:pointer;color:var(--g);transition:all .15s;text-align:center}
+.scn-btn.on{background:var(--tbg);border-color:var(--tbd);color:var(--t)}
+.op-section{border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;margin-bottom:14px}
+.op-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.op-row:last-child{border-bottom:none}
+.op-label{color:var(--g)}.op-value{font-weight:500;color:var(--t)}
+
+.funnel-stage{background:var(--k2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;margin-bottom:12px}
+.fs-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.fs-num{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--t)}
+.fs-name{font-weight:500;font-size:13px;flex:1;margin-left:12px}
+.fs-taxa{font-size:11px;color:var(--g)}
+.fs-bars{display:flex;gap:8px;align-items:flex-end;height:60px}
+.fs-bar{flex:1;background:var(--tbg);border-radius:4px;position:relative;min-height:20px;display:flex;align-items:flex-end;justify-content:center}
+.fs-bar-fill{width:100%;background:var(--t);border-radius:4px;transition:height .3s}
+.fs-bar-val{font-size:10px;font-weight:500;color:var(--w);padding-bottom:3px;z-index:1}
+.mix-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.mix-card{background:var(--k2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:border-color .15s}
+.mix-card:hover{border-color:rgba(87,153,155,.3)}
+.mix-card.sel{border-color:var(--t);background:var(--tbg)}
+.mix-name{font-weight:500;font-size:12px;margin-bottom:4px}
+.mix-preco{font-size:11px;color:var(--g);margin-bottom:6px}
+.mix-share{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--t)}
+.mix-share-lbl{font-size:9px;color:var(--g);margin-top:2px}
+.metric-box{background:var(--k2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px;text-align:center}
+.metric-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--t);line-height:1;margin-bottom:4px}
+.metric-lbl{font-size:11px;color:var(--g);letter-spacing:.08em;text-transform:uppercase}
+.health-row{display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid rgba(255,255,255,.06);border-radius:8px;margin-bottom:10px}
+.health-label{font-weight:500;font-size:13px}
+.health-value{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--t)}
+.health-status{font-size:10px;padding:2px 8px;border-radius:99px;font-weight:500}
+.status-ok{background:var(--okbg);color:var(--ok)}
+.status-wn{background:var(--wnbg);color:var(--wn)}
+.status-er{background:var(--erbg);color:var(--er)}
+
+.bench-compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.bench-card{background:var(--k2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px;text-align:center}
+.bench-card.bruto{border-color:var(--tbd);background:var(--tbg)}
+.bench-label{font-size:11px;color:var(--g);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:block}
+.bench-metric{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;line-height:1;margin-bottom:4px}
+.bench-vs{font-size:10px;color:var(--gl);margin-top:4px}
+.bench-vs.better{color:var(--ok)}
+.bench-vs.worse{color:var(--er)}
+.feedback-chart{display:flex;gap:12px;margin-bottom:14px;align-items:flex-end;height:200px}
+.feedback-month{flex:1;display:flex;flex-direction:column;align-items:center}
+.feedback-bars{display:flex;gap:4px;height:140px;align-items:flex-end}
+.feedback-bar{flex:1;border-radius:4px 4px 0 0;transition:height .3s;position:relative}
+.feedback-bar-conv{background:var(--t)}
+.feedback-bar-marg{background:var(--tl)}
+.feedback-bar-label{font-size:11px;font-weight:500;margin-top:8px;display:block;text-align:center}
+.feedback-val{font-size:10px;color:var(--w);padding-bottom:3px}
+.dashboard-widget{background:var(--k2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:16px;text-align:center}
+.dashboard-big{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:var(--t);line-height:1;margin-bottom:6px}
+.dashboard-label{font-size:11px;color:var(--g);letter-spacing:.08em;text-transform:uppercase}
+.dashboard-delta{font-size:12px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)}
+.dashboard-delta.pos{color:var(--ok)}
+.dashboard-delta.neg{color:var(--er)}
+.timeline-item{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
+.timeline-marker{width:12px;height:12px;border-radius:50%;background:var(--t);flex-shrink:0;margin-top:5px}
+.timeline-content{flex:1}
+.timeline-title{font-weight:500;font-size:13px;margin-bottom:3px}
+.timeline-desc{font-size:12px;color:var(--g);line-height:1.6}
+</style>
+</head>
+<body>
+
+<!-- ══ ONBOARDING ═══════════════════════════════════════ -->
+<div id="ob">
+  <div class="ob-inner">
+    <div class="ob-logo">
+      <svg viewBox="0 0 80 120" width="22" height="33" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#F2F2F2" fill-rule="evenodd" d="M 0 0 L 72 0 L 72 58 L 80 58 L 80 120 L 0 120 Z M 22 10 L 64 10 L 64 50 L 22 50 Z M 22 68 L 70 68 L 70 112 L 22 112 Z"/>
+      </svg>
+      <div class="ob-div-v"></div>
+      <span class="ob-wm">BRUTO</span>
+    </div>
+    <div class="ob-rule"></div>
+    <div class="ob-title">Precificador Comercial</div>
+    <div class="ob-desc">Ferramenta de gestão de preço, margem e estratégia de crescimento para a operação comercial da Bruto.</div>
+    <ul class="ob-list">
+      <li><span class="ob-bullet">—</span>Calcule preço de venda e margem real por pedido</li>
+      <li><span class="ob-bullet">—</span>Simule o impacto do frete em cada região do Brasil</li>
+      <li><span class="ob-bullet">—</span>Compare cenários e projete os primeiros 90 dias</li>
+    </ul>
+    <button class="ob-btn" onclick="startApp()">Acessar ferramenta →</button>
+    <div class="ob-by"><span>Desenvolvido por</span>
+      <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:11px;color:var(--gl)">UP</span>
+      <span style="color:var(--t);font-size:11px">—</span>
+      <span style="font-family:'Syne',sans-serif;font-size:10px;color:var(--g)">Co.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══════════════════════════════════════════════ -->
+<div id="app">
+
+<header class="hdr">
+  <div class="hdr-client">
+    <svg viewBox="0 0 80 120" width="14" height="21" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#F2F2F2" fill-rule="evenodd" d="M 0 0 L 72 0 L 72 58 L 80 58 L 80 120 L 0 120 Z M 22 10 L 64 10 L 64 50 L 22 50 Z M 22 68 L 70 68 L 70 112 L 22 112 Z"/>
+    </svg>
+    <div class="hdr-vdiv"></div>
+    <span class="bruto-wm">BRUTO</span>
+  </div>
+  <div class="hdr-mid">Precificador Comercial</div>
+  <div class="upco">
+    <span class="uc-by">por</span>
+    <span class="uc-up">UP</span><span class="uc-d">—</span><span class="uc-co">Co.</span>
+  </div>
+</header>
+
+<nav class="nav">
+  <div class="ni on" onclick="tab('prec',this)">01 · Precificação</div>
+  <div class="ni" onclick="tab('fret',this)">02 · Frete</div>
+  <div class="ni" onclick="tab('cen',this)">03 · Cenários</div>
+  <div class="ni" onclick="tab('be',this)">04 · Break-even</div>
+  <div class="ni" onclick="tab('ltv',this)">05 · LTV</div>
+  <div class="ni" onclick="tab('verb',this)">06 · Verba</div>
+  <div class="ni" onclick="tab('dias',this)">07 · 90 Dias</div>
+  <div class="ni" onclick="tab('b2b',this)">08 · B2B vs B2C</div>
+  <div class="ni" onclick="tab('scen',this)">09 · Cenários</div>
+  <div class="ni" onclick="tab('opex',this)">10 · OpEx Real</div>
+  <div class="ni" onclick="tab('funil',this)">11 · Funil</div>
+  <div class="ni" onclick="tab('mix',this)">12 · Mix Produtos</div>
+  <div class="ni" onclick="tab('health',this)">13 · Health</div>
+  <div class="ni" onclick="tab('bench',this)">14 · Benchmark</div>
+  <div class="ni" onclick="tab('feedback',this)">15 · Feedback Loops</div>
+  <div class="ni" onclick="tab('dash',this)">16 · Dashboard</div>
+  <div class="ni" onclick="tab('glos',this)">Glossário</div>
+</nav>
+
+<main class="main">
+
+<!-- 01 · PRECIFICAÇÃO -->
+<div class="pnl on" id="p-prec">
+  <div class="ph">
+    <div class="pey">01 · Ferramenta</div>
+    <div class="pt">Calculadora de Preço</div>
+    <div class="pd">Defina custo de fornecedor, margem desejada e área para calcular o preço ideal por pedido.</div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="sl">Parâmetros de entrada</div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Produto</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Selecione o produto da linha Bruto. O preço Faion é usado como custo base automaticamente.</div></div>
+        </div>
+        <select id="p-prod" onchange="selectProd()">
+      <optgroup label="🧱 BRICK">
+        <option value="139.9">Brick Branco Rosé — R$ 139.90/m²</option>
+        <option value="139.9">Brick Eco Palha — R$ 139.90/m²</option>
+        <option value="149.9">Brick Lumus — R$ 149.90/m²</option>
+        <option value="139.9">Brick Mescla Prime — R$ 139.90/m²</option>
+        <option value="94.9">Brick Natura — R$ 94.90/m²</option>
+        <option value="129.9">Brick Rosso Prime — R$ 129.90/m²</option>
+        <option value="169.9">Brick Rusticatto Fumê — R$ 169.90/m²</option>
+        <option value="144.9">Brick Rusticatto Rosso — R$ 144.90/m²</option>
+        <option value="149.9">Brick Rusticatto do Sertão — R$ 149.90/m²</option>
+        <option value="179.9">Brick Rusticatto Terra Negra — R$ 179.90/m²</option>
+        <option value="134.9">Brick Terra do Cerrado — R$ 134.90/m²</option>
+        <option value="149.9">Brick Vulcano — R$ 149.90/m²</option>
+      </optgroup>
+      <optgroup label="🏭 CIMENTÍCIO">
+        <option value="169.9">Cimentício Alpino — R$ 169.90/m²</option>
+        <option value="169.9">Cimentício Grigio — R$ 169.90/m²</option>
+        <option value="169.9">Cimentício Urban — R$ 169.90/m²</option>
+      </optgroup>
+      <optgroup label="🪨 ROCKFACE">
+        <option value="169.9">Rockface Brisa — R$ 169.90/m²</option>
+        <option value="229.9">Rockface Alpino — R$ 229.90/m²</option>
+        <option value="229.9">Rockface Grigio — R$ 229.90/m²</option>
+        <option value="229.9">Rockface Urban — R$ 229.90/m²</option>
+      </optgroup>
+        </select>
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Desconto atacado</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Percentual de desconto negociado com o fornecedor para compras no atacado. Meta ideal: 30–40%.</div></div>
+          <span class="fh" id="p-dsclbl">35%</span>
+        </div>
+        <input type="range" id="p-dscr" min="0" max="50" value="35" oninput="syncDisc(this.value)">
+        <div class="ig" style="margin-top:8px"><input type="number" id="p-dsci" value="35" min="0" max="50" oninput="syncDiscI(this.value)"><div class="is">%</div></div>
+      </div>
+      <div class="cost-net">
+        <span class="cost-net-lbl">Custo líquido ao fornecedor</span>
+        <span class="cost-net-val" id="p-cst-net">R$ 90,94/m²</span>
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Margem desejada</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Percentual de lucro sobre o custo. Margem de 25% sobre custo de R$ 100 resulta em preço de venda de R$ 133 — não R$ 125.</div></div>
+          <span class="fh" id="p-mglbl">25%</span>
+        </div>
+        <input type="range" id="p-mgr" min="5" max="65" value="25" oninput="syncMg(this.value)">
+        <div class="ig" style="margin-top:8px"><input type="number" id="p-mgi" value="25" min="5" max="65" oninput="syncMgI(this.value)"><div class="is">%</div></div>
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Área do pedido</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Metragem que o cliente quer comprar. A perda de corte (aba abaixo) é somada automaticamente para calcular o custo real de produto.</div></div>
+        </div>
+        <div class="ig"><input type="number" id="p-area" value="9" min="1" step="0.5" oninput="calcPrec()"><div class="is">m²</div></div>
+      </div>
+      <div class="g2" style="gap:10px">
+        <div class="field">
+          <div class="fl">
+            <div class="tt"><span>Taxa pagamento</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Desconto cobrado pela operadora. Pix à vista: 0–1%. Cartão de crédito: 2,5–3,5%. Parcelado pode chegar a 5%.</div></div>
+          </div>
+          <div class="ig"><input type="number" id="p-tax" value="3" min="0" max="12" step="0.1" oninput="calcPrec()"><div class="is">%</div></div>
+        </div>
+        <div class="field">
+          <div class="fl">
+            <div class="tt"><span>Perda / corte</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Material perdido no corte e encaixe. O padrão do setor para brick cerâmico é 10%. A ferramenta acrescenta esse percentual à quantidade de produto comprada.</div></div>
+          </div>
+          <div class="ig"><input type="number" id="p-pda" value="10" min="0" max="25" oninput="calcPrec()"><div class="is">%</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sl">Resultado do pedido</div>
+      <div class="card card-t" style="margin-bottom:14px">
+        <div class="mb"><div class="mbv" id="r-pm2">R$ 140</div><div class="mbl">Preço de venda por m²</div></div>
+      </div>
+      <div class="card">
+        <div class="or"><span class="orl">Área entregue (c/ perda)</span><span class="orv" id="r-at">9,9 m²</span></div>
+        <div class="or"><span class="orl">Valor total do pedido</span><span class="orv acc" id="r-vp">R$ 1.260</span></div>
+        <div class="or"><span class="orl">Custo produto (fornecedor)</span><span class="orv neg" id="r-cp">— calculando</span></div>
+        <div class="or"><span class="orl">Margem bruta</span><span class="orv pos" id="r-mb">R$ 220</span></div>
+        <div class="or"><span class="orl">Taxa de pagamento</span><span class="orv neg" id="r-tx">− R$ 38</span></div>
+        <div class="or"><span class="orl">Lucro líquido por pedido</span><span class="orv pos" id="r-ll">R$ 182</span></div>
+        <div class="or"><span class="orl">Margem líquida real</span><span class="orv acc" id="r-ml">14,4%</span></div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="sr"><span>Margem líquida</span><span id="r-bl">14,4%</span></div>
+        <div class="bt"><div class="bf" id="r-bar" style="width:29%"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 02 · FRETE -->
+<div class="pnl" id="p-fret">
+  <div class="ph">
+    <div class="pey">02 · Ferramenta</div>
+    <div class="pt">Frete & Margem Real</div>
+    <div class="pd">Selecione a região de destino e veja o impacto do frete na margem final do pedido.</div>
+  </div>
+  <div class="sl">Região de destino</div>
+  <div class="g5" style="margin-bottom:20px">
+    <div class="rc" id="rc-se" onclick="selR('se')"><div class="rc-name">Sudeste</div><div class="rc-st">SP · RJ · MG · ES</div><div class="rc-fr" id="rf-se">R$ 120</div><div class="rc-pr">3–6 dias úteis</div></div>
+    <div class="rc sel" id="rc-su" onclick="selR('su')"><div class="rc-name">Sul</div><div class="rc-st">PR · SC · RS</div><div class="rc-fr" id="rf-su">R$ 150</div><div class="rc-pr">4–7 dias úteis</div></div>
+    <div class="rc" id="rc-co" onclick="selR('co')"><div class="rc-name">Centro-Oeste</div><div class="rc-st">GO · MT · MS · DF</div><div class="rc-fr" id="rf-co">R$ 200</div><div class="rc-pr">5–8 dias úteis</div></div>
+    <div class="rc" id="rc-ne" onclick="selR('ne')"><div class="rc-name">Nordeste</div><div class="rc-st">BA · CE · PE · etc.</div><div class="rc-fr" id="rf-ne">R$ 280</div><div class="rc-pr">7–11 dias úteis</div></div>
+    <div class="rc" id="rc-no" onclick="selR('no')"><div class="rc-name">Norte</div><div class="rc-st">AM · PA · RO · etc.</div><div class="rc-fr" id="rf-no">R$ 380</div><div class="rc-pr">10–15 dias úteis</div></div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="sl">Configuração</div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Custo do frete</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Estimativa por região para pedido de ~9m² (~270 kg). Ajuste conforme sua transportadora real. O valor selecionado na região preenche automaticamente.</div></div>
+          <span class="fh">editável</span>
+        </div>
+        <div class="ig"><div class="ip">R$</div><input type="number" id="fr-val" value="150" min="0" step="10" oninput="calcFrete()"></div>
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Peso estimado</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Calculado automaticamente: área do pedido × 30 kg/m² (peso médio de brick cerâmico). Usado para referência junto à transportadora.</div></div>
+        </div>
+        <div class="ig"><input type="number" id="fr-peso" value="270" min="0" oninput="calcFrete()"><div class="is">kg</div></div>
+      </div>
+      <div class="sl" style="margin-top:4px">Quem absorve o frete?</div>
+      <div class="tg-g">
+        <div class="tgb on" id="fr-ti" onclick="setFM('incluso')">Incluso no preço</div>
+        <div class="tgb" id="fr-ts" onclick="setFM('separado')">Cobrado à parte</div>
+      </div>
+      <div class="ab" id="fr-md"><span class="ai">—</span><span>Frete incluso: você absorve o custo, margem diminui. Preço aparece mais limpo ao cliente.</span></div>
+    </div>
+    <div>
+      <div class="sl">Impacto na margem</div>
+      <div class="card card-t" style="margin-bottom:14px">
+        <div class="mb"><div class="mbv" id="fr-mr">R$ 127</div><div class="mbl">Lucro real após frete</div></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="or"><span class="orl">Lucro s/ frete (Precificação)</span><span class="orv" id="fr-ll0">R$ 277</span></div>
+        <div class="or"><span class="orl">Custo do frete</span><span class="orv neg" id="fr-fc">− R$ 150</span></div>
+        <div class="or"><span class="orl">Lucro real</span><span class="orv pos" id="fr-lr">R$ 127</span></div>
+        <div class="or"><span class="orl">Frete como % do pedido</span><span class="orv" id="fr-fp">11,9%</span></div>
+        <div class="or"><span class="orl">Margem real após frete</span><span class="orv acc" id="fr-mre">10,1%</span></div>
+        <div class="or"><span class="orl">Total pago pelo cliente</span><span class="orv" id="fr-tot">R$ 1.260</span></div>
+      </div>
+      <div id="fr-alerta"></div>
+    </div>
+  </div>
+  <hr class="tl">
+  <div class="sl">Comparativo por região — pedido atual</div>
+  <div class="card"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr id="fr-th"></tr></thead><tbody id="fr-tb"></tbody></table></div>
+</div>
+
+<!-- 03 · CENÁRIOS -->
+<div class="pnl" id="p-cen">
+  <div class="ph">
+    <div class="pey">03 · Ferramenta</div>
+    <div class="pt">Comparativo de Cenários</div>
+    <div class="pd">Compare dois configurações de precificação lado a lado. O Cenário A reflete a configuração atual da aba Precificação.</div>
+  </div>
+  <div class="sg" style="margin-bottom:16px">
+    <div class="sc" id="sc-a">
+      <div class="sc-h"><div><div class="sc-t">Cenário A</div><div style="font-size:11px;color:var(--g);margin-top:2px">Sincronizado com Precificação</div></div><span class="tag t-t" id="ca-bg">—</span></div>
+      <div class="sc-b">
+        <div class="or"><span class="orl">Produto / Custo líquido</span><span class="orv acc" id="ca-c">Brick Standard · R$ 91/m²</span></div>
+        <div class="or"><span class="orl">Margem aplicada</span><span class="orv" id="ca-mg">25%</span></div>
+        <div class="or"><span class="orl">Área do pedido</span><span class="orv" id="ca-a">9 m²</span></div>
+        <div class="or"><span class="orl">Preço por m²</span><span class="orv" id="ca-p">R$ 140</span></div>
+        <div class="or"><span class="orl">Valor do pedido</span><span class="orv" id="ca-v">R$ 1.260</span></div>
+        <div class="or"><span class="orl">Lucro líquido</span><span class="orv pos" id="ca-l">R$ 182</span></div>
+        <div class="or"><span class="orl">Margem líquida</span><span class="orv" id="ca-m">14,4%</span></div>
+      </div>
+    </div>
+    <div class="sc" id="sc-b">
+      <div class="sc-h"><div><div class="sc-t">Cenário B</div><div style="font-size:11px;color:var(--g);margin-top:2px">Configure abaixo para comparar</div></div><span class="tag t-t" id="cb-bg">—</span></div>
+      <div class="sc-b">
+        <div class="field" style="margin-bottom:11px">
+          <div class="fl"><span>Produto</span></div>
+          <select id="cb-prod" onchange="calcCen()">
+      <optgroup label="🧱 BRICK">
+        <option value="139.9">Brick Branco Rosé — R$ 139.90/m²</option>
+        <option value="139.9">Brick Eco Palha — R$ 139.90/m²</option>
+        <option value="149.9">Brick Lumus — R$ 149.90/m²</option>
+        <option value="139.9">Brick Mescla Prime — R$ 139.90/m²</option>
+        <option value="94.9">Brick Natura — R$ 94.90/m²</option>
+        <option value="129.9">Brick Rosso Prime — R$ 129.90/m²</option>
+        <option value="169.9">Brick Rusticatto Fumê — R$ 169.90/m²</option>
+        <option value="144.9">Brick Rusticatto Rosso — R$ 144.90/m²</option>
+        <option value="149.9">Brick Rusticatto do Sertão — R$ 149.90/m²</option>
+        <option value="179.9">Brick Rusticatto Terra Negra — R$ 179.90/m²</option>
+        <option value="134.9">Brick Terra do Cerrado — R$ 134.90/m²</option>
+        <option value="149.9">Brick Vulcano — R$ 149.90/m²</option>
+      </optgroup>
+      <optgroup label="🏭 CIMENTÍCIO">
+        <option value="169.9">Cimentício Alpino — R$ 169.90/m²</option>
+        <option value="169.9">Cimentício Grigio — R$ 169.90/m²</option>
+        <option value="169.9">Cimentício Urban — R$ 169.90/m²</option>
+      </optgroup>
+      <optgroup label="🪨 ROCKFACE">
+        <option value="169.9">Rockface Brisa — R$ 169.90/m²</option>
+        <option value="229.9">Rockface Alpino — R$ 229.90/m²</option>
+        <option value="229.9">Rockface Grigio — R$ 229.90/m²</option>
+        <option value="229.9">Rockface Urban — R$ 229.90/m²</option>
+      </optgroup>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:11px">
+          <div class="fl"><span>Desconto atacado</span><span class="fh" id="cb-dsclbl">35%</span></div>
+          <div class="ig"><input type="number" id="cb-dsci" value="35" min="0" max="50" oninput="syncCbDisc(this.value)"><div class="is">%</div></div>
+        </div>
+        <div class="field" style="margin-bottom:11px">
+          <div class="fl"><span>Margem desejada</span><span class="fh" id="cb-mglbl">35%</span></div>
+          <input type="range" id="cb-mgr" min="5" max="65" value="35" oninput="sCbMg(this.value)">
+          <div class="ig" style="margin-top:8px"><input type="number" id="cb-mgi" value="35" oninput="sCbMgI(this.value)"><div class="is">%</div></div>
+        </div>
+        <div class="field" style="margin-bottom:11px"><div class="fl"><span>Área (m²)</span></div><div class="ig"><input type="number" id="cb-a" value="12" oninput="calcCen()"><div class="is">m²</div></div></div>
+        <div class="or"><span class="orl">Preço por m²</span><span class="orv acc" id="cb-p">—</span></div>
+        <div class="or"><span class="orl">Valor do pedido</span><span class="orv" id="cb-v">—</span></div>
+        <div class="or"><span class="orl">Lucro líquido</span><span class="orv pos" id="cb-l">—</span></div>
+        <div class="or"><span class="orl">Margem líquida</span><span class="orv" id="cb-m">—</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sl">Análise comparativa</div>
+    <table class="cmp-t"><thead><tr><th>Métrica</th><th style="text-align:right">Cenário A</th><th style="text-align:right">Cenário B</th><th style="text-align:right">Melhor</th></tr></thead><tbody id="cen-tb"><tr><td colspan="4" style="padding:16px;text-align:center;color:var(--g)">Configure o Cenário B para ver a comparação</td></tr></tbody></table>
+  </div>
+  <div id="cen-rec"></div>
+</div>
+
+<!-- 04 · BREAK-EVEN -->
+<div class="pnl" id="p-be">
+  <div class="ph">
+    <div class="pey">04 · Ferramenta</div>
+    <div class="pt">Break-even & Tributação</div>
+    <div class="pd">Calcule o ponto de equilíbrio considerando custos fixos, marketing e regime tributário da operação.</div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="sl">Custos mensais</div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Ferramentas & plataformas</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Custo fixo mensal de softwares: automação WhatsApp, gateway de pagamento, domínio, plataforma de anúncios, etc.</div></div>
+        </div>
+        <div class="ig"><div class="ip">R$</div><input type="number" id="b-fer" value="200" oninput="calcBE()"></div>
+      </div>
+      <div class="field"><div class="fl"><span>Marketing (total mensal)</span></div><div class="ig"><div class="ip">R$</div><input type="number" id="b-mkt" value="800" oninput="calcBE()"></div></div>
+      <div class="field"><div class="fl"><span>Outros operacionais</span></div><div class="ig"><div class="ip">R$</div><input type="number" id="b-out" value="100" oninput="calcBE()"></div></div>
+      <hr class="dv">
+      <div class="sl">Regime tributário</div>
+      <div class="tg-g">
+        <div class="tgb on" id="tb-mei" onclick="setR('mei')">MEI</div>
+        <div class="tgb" id="tb-me" onclick="setR('me')">ME / Simples</div>
+      </div>
+      <div id="mei-i" class="card" style="margin-bottom:14px">
+        <div class="or"><span class="orl">DAS mensal fixo</span><span class="orv">R$ 75</span></div>
+        <div class="or"><span class="orl">Limite anual MEI</span><span class="orv">R$ 81.000</span></div>
+        <div class="or"><span class="orl">Equivale a ~pedidos/mês</span><span class="orv">R$ 6.750</span></div>
+      </div>
+      <div id="me-i" style="display:none">
+        <div class="field">
+          <div class="fl">
+            <div class="tt"><span>Alíquota Simples Nacional</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Percentual sobre o faturamento bruto. Comércio Anexo I: 4% até R$ 180k/ano, 7,3% até R$ 360k/ano. Consulte seu contador.</div></div>
+            <span class="fh">Anexo I</span>
+          </div>
+          <div class="ig"><input type="number" id="b-alq" value="4" min="0" max="20" step="0.1" oninput="calcBE()"><div class="is">%</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--g);margin-bottom:14px">4% até R$ 180k/ano · 7,3% até R$ 360k/ano</div>
+      </div>
+      <hr class="dv">
+      <div class="sl">Parâmetros de venda</div>
+      <div class="field"><div class="fl"><span>Ticket médio</span><span class="fh-s">Precificação</span></div><div class="ig"><div class="ip">R$</div><input type="number" id="b-tkt" value="1260" oninput="calcBE()"></div></div>
+      <div class="field"><div class="fl"><span>Lucro líquido por pedido</span><span class="fh-s">Precificação</span></div><div class="ig"><div class="ip">R$</div><input type="number" id="b-lp" value="182" oninput="calcBE()"></div></div>
+    </div>
+    <div>
+      <div class="sl">Resultado</div>
+      <div class="card card-t" style="margin-bottom:14px"><div class="mb"><div class="mbv" id="b-pn">6</div><div class="mbl">pedidos para break-even</div></div></div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="or"><span class="orl">Custos fixos mensais</span><span class="orv neg" id="b-cf">R$ 1.100</span></div>
+        <div class="or"><span class="orl">Tributo mensal estimado</span><span class="orv neg" id="b-tb">R$ 75</span></div>
+        <div class="or"><span class="orl">Total a cobrir</span><span class="orv neg" id="b-tt">R$ 1.175</span></div>
+        <div class="or"><span class="orl">Lucro por pedido</span><span class="orv pos" id="b-lv">R$ 182</span></div>
+        <div class="or"><span class="orl">Faturamento mínimo</span><span class="orv" id="b-fm">R$ 7.560</span></div>
+        <div class="or"><span class="orl">Dias úteis estimados</span><span class="orv acc" id="b-du">~7 dias</span></div>
+      </div>
+      <div class="ab"><span class="ai">—</span><span id="b-ins">—</span></div>
+      <div id="b-av" style="margin-top:10px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 05 · LTV -->
+<div class="pnl" id="p-ltv">
+  <div class="ph">
+    <div class="pey">05 · Ferramenta</div>
+    <div class="pt">LTV & Impacto da Reativação</div>
+    <div class="pd">Calcule o valor de ciclo de vida por tipo de cliente e o quanto a automação D+30 amplifica esse valor.</div>
+  </div>
+  <div class="g4" style="margin-bottom:18px">
+    <div class="pc sel" id="pc-p" onclick="sP('p')"><div class="pi">🏠</div><div class="pn">Proprietário</div><div class="ps">Reforma própria</div><span class="tag t-wn" style="margin-top:7px;display:inline-block">Volume</span></div>
+    <div class="pc" id="pc-a" onclick="sP('a')"><div class="pi">📐</div><div class="pn">Arquiteto</div><div class="ps">Múltiplos projetos</div><span class="tag t-t" style="margin-top:7px;display:inline-block">★ Foco</span></div>
+    <div class="pc" id="pc-m" onclick="sP('m')"><div class="pi">🔧</div><div class="pn">Pedreiro</div><div class="ps">Indica e compra</div><span class="tag t-ok" style="margin-top:7px;display:inline-block">Alto</span></div>
+    <div class="pc" id="pc-r" onclick="sP('r')"><div class="pi">🏪</div><div class="pn">Revendedor</div><div class="ps">Volume B2B</div><span class="tag t-er" style="margin-top:7px;display:inline-block">B2B</span></div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="sl">Parâmetros da persona</div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Ticket médio por pedido</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Valor médio que esta persona gasta por pedido. Arquitetos costumam ter ticket maior pois compram para obras de clientes.</div></div>
+        </div>
+        <div class="ig"><div class="ip">R$</div><input type="number" id="l-t" value="280" oninput="calcLTV()"></div>
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Pedidos por ano</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Frequência de compra estimada. Arquitetos: 4–8x/ano. Proprietários: 1–2x. Pedreiros: 6–12x.</div></div>
+        </div>
+        <div class="ig"><input type="number" id="l-f" value="1.5" step="0.5" min="0.5" oninput="calcLTV()"><div class="is">× / ano</div></div>
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Tempo de retenção</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Por quantos anos, em média, este cliente continua comprando. Arquitetos fidelizados podem permanecer 3–5 anos.</div></div>
+        </div>
+        <div class="ig"><input type="number" id="l-r" value="1" step="0.5" min="0.5" oninput="calcLTV()"><div class="is">anos</div></div>
+      </div>
+      <div class="field"><div class="fl"><span>Margem líquida</span><span class="fh-s">Precificação</span></div><div class="ig"><input type="number" id="l-mg" value="22" min="1" max="80" oninput="calcLTV()"><div class="is">%</div></div></div>
+      <hr class="dv">
+      <div class="sl">Impacto da reativação D+30</div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Taxa de resposta D+30</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Percentual de clientes que respondem à mensagem automática enviada 30 dias após a compra. Média do setor: 25–40%.</div></div>
+          <span class="fh" id="l-rrlbl">35%</span>
+        </div>
+        <input type="range" id="l-rrr" min="5" max="80" value="35" oninput="sLR('rr',this.value)">
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Resposta → compra</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Dos que respondem à reativação, quantos efetivamente fecham um novo pedido. Meta saudável: 35–50%.</div></div>
+          <span class="fh" id="l-rclbl">45%</span>
+        </div>
+        <input type="range" id="l-rcr" min="5" max="80" value="45" oninput="sLR('rc',this.value)">
+      </div>
+    </div>
+    <div>
+      <div class="sl">Valor da persona</div>
+      <div class="g2" style="gap:12px;margin-bottom:14px">
+        <div class="card"><div class="mb" style="padding:14px 10px"><div class="mbv" id="l-ltv0" style="font-size:28px">R$ 420</div><div class="mbl">LTV sem reativação</div></div></div>
+        <div class="card card-t"><div class="mb" style="padding:14px 10px"><div class="mbv" id="l-ltv1" style="font-size:28px">R$ 486</div><div class="mbl">LTV com reativação</div></div></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="or"><span class="orl">Receita base no ciclo</span><span class="orv" id="l-rb">R$ 420</span></div>
+        <div class="or"><span class="orl">Compras extras (reativação)</span><span class="orv pos" id="l-re">+ R$ 66</span></div>
+        <div class="or"><span class="orl">Receita total c/ reativação</span><span class="orv" id="l-rt">R$ 486</span></div>
+        <div class="or"><span class="orl">Lucro base</span><span class="orv pos" id="l-lb">R$ 92</span></div>
+        <div class="or"><span class="orl">Lucro adicional reativação</span><span class="orv pos" id="l-la">+ R$ 15</span></div>
+        <div class="or"><span class="orl">CAC máximo justificável</span><span class="orv acc" id="l-cac">R$ 32</span></div>
+      </div>
+      <div class="sr"><span>Prioridade de investimento</span><span id="l-pl">Baixa</span></div>
+      <div class="bt"><div class="bf" id="l-bar" style="width:15%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 06 · VERBA -->
+<div class="pnl" id="p-verb">
+  <div class="ph">
+    <div class="pey">06 · Ferramenta</div>
+    <div class="pt">Verba & CAC por Canal</div>
+    <div class="pd">Distribua o orçamento entre os canais e veja custo de aquisição e ROI de cada um em tempo real.</div>
+  </div>
+  <div class="field" style="max-width:280px"><div class="fl"><span>Capital total disponível</span></div><div class="ig"><div class="ip">R$</div><input type="number" id="v-tot" value="2000" min="0" step="100" oninput="calcV()"></div></div>
+  <div class="bb" id="v-bb">
+    <div class="bs" id="vs-ig" style="background:#57999B;width:37.5%">Instagram</div>
+    <div class="bs" id="vs-go" style="background:#3D7072;width:20%">Google</div>
+    <div class="bs" id="vs-fe" style="background:#2E2E2E;width:12.5%">Tools</div>
+    <div class="bs" id="vs-co" style="background:#4A4A4A;width:15%">Conteúdo</div>
+    <div class="bs" id="vs-re" style="background:#1A1A1A;width:15%">Reserva</div>
+  </div>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px">
+    <span style="font-size:11px;color:var(--g);display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#57999B;display:inline-block"></span>Instagram</span>
+    <span style="font-size:11px;color:var(--g);display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#3D7072;display:inline-block"></span>Google</span>
+    <span style="font-size:11px;color:var(--g);display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#2E2E2E;border:1px solid #555;display:inline-block"></span>Ferramentas</span>
+    <span style="font-size:11px;color:var(--g);display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#4A4A4A;display:inline-block"></span>Conteúdo</span>
+    <span style="font-size:11px;color:var(--g);display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#1A1A1A;border:1px solid #444;display:inline-block"></span>Reserva</span>
+  </div>
+  <div class="g2" style="margin-bottom:12px">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#57999B;display:inline-block"></span><span style="font-size:14px;font-weight:500">Instagram Ads</span><span class="tag t-t">1</span></div>
+        <div class="ig" style="width:120px"><div class="ip" style="font-size:11px;height:34px;padding:0 9px">R$</div><input type="number" id="v-ig" value="750" min="0" step="50" style="height:34px;font-size:13px" oninput="calcV()"></div>
+      </div>
+      <div class="or" style="padding:5px 0"><span class="orl" style="font-size:12px">Alcance estimado</span><span class="orv" style="font-size:12px" id="v-ial">~9.750</span></div>
+      <div class="or" style="padding:5px 0"><span class="orl" style="font-size:12px">Leads WhatsApp</span><span class="orv pos" style="font-size:12px" id="v-ild">~117</span></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background:#3D7072;display:inline-block"></span><span style="font-size:14px;font-weight:500">Google Ads</span><span class="tag t-ok">2</span></div>
+        <div class="ig" style="width:120px"><div class="ip" style="font-size:11px;height:34px;padding:0 9px">R$</div><input type="number" id="v-go" value="400" min="0" step="50" style="height:34px;font-size:13px" oninput="calcV()"></div>
+      </div>
+      <div class="or" style="padding:5px 0"><span class="orl" style="font-size:12px">Cliques estimados</span><span class="orv" style="font-size:12px" id="v-gcl">~320</span></div>
+      <div class="or" style="padding:5px 0"><span class="orl" style="font-size:12px">Leads alta intenção</span><span class="orv pos" style="font-size:12px" id="v-gld">~32</span></div>
+    </div>
+  </div>
+  <div class="g3" style="margin-bottom:14px">
+    <div class="card"><div style="font-size:13px;font-weight:500;margin-bottom:10px">Ferramentas</div><div class="ig"><div class="ip" style="font-size:11px;height:34px;padding:0 9px">R$</div><input type="number" id="v-fe" value="250" min="0" step="50" style="height:34px;font-size:13px" oninput="calcV()"></div><div style="font-size:11px;color:var(--g);margin-top:7px">WA · gateway · domínio</div></div>
+    <div class="card"><div style="font-size:13px;font-weight:500;margin-bottom:10px">Conteúdo</div><div class="ig"><div class="ip" style="font-size:11px;height:34px;padding:0 9px">R$</div><input type="number" id="v-co" value="300" min="0" step="50" style="height:34px;font-size:13px" oninput="calcV()"></div><div style="font-size:11px;color:var(--g);margin-top:7px">Edição Reels · artes</div></div>
+    <div class="card"><div style="font-size:13px;font-weight:500;margin-bottom:10px">Reserva</div><div class="ig"><div class="ip" style="font-size:11px;height:34px;padding:0 9px">R$</div><input type="number" id="v-re" value="300" min="0" step="50" style="height:34px;font-size:13px" oninput="calcV()"></div><div style="font-size:11px;color:var(--g);margin-top:7px">Imprevisto · teste A/B</div></div>
+  </div>
+  <hr class="tl">
+  <div class="sl">CAC & ROI por canal</div>
+  <div class="field">
+    <div class="fl">
+      <div class="tt"><span>Taxa de fechamento (WA → pedido)</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Percentual de contatos no WhatsApp que se convertem em pedidos. Depende da qualidade do atendimento. Meta saudável: 35–50%.</div></div>
+      <span class="fh" id="v-tfl">40%</span>
+    </div>
+    <input type="range" id="v-tfr" min="5" max="90" value="40" oninput="sTF(this.value)">
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <table class="cac-t">
+      <thead><tr><th>Canal</th><th style="text-align:right">Verba</th><th style="text-align:right">Leads</th><th style="text-align:right">Pedidos</th><th style="text-align:right">CAC</th><th style="text-align:right">ROI</th></tr></thead>
+      <tbody>
+        <tr><td>Instagram</td><td style="text-align:right" id="ci-v">R$ 750</td><td style="text-align:right" id="ci-l">117</td><td style="text-align:right" id="ci-p">47</td><td style="text-align:right" id="ci-c">R$ 16</td><td style="text-align:right"><span id="ci-r" class="pos">—</span></td></tr>
+        <tr><td>Google</td><td style="text-align:right" id="cg-v">R$ 400</td><td style="text-align:right" id="cg-l">32</td><td style="text-align:right" id="cg-p">13</td><td style="text-align:right" id="cg-c">R$ 31</td><td style="text-align:right"><span id="cg-r" class="pos">—</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="or"><span class="orl">Total alocado</span><span class="orv" id="v-al">R$ 2.000</span></div>
+    <div class="or"><span class="orl">Saldo</span><span class="orv" id="v-sd">R$ 0</span></div>
+    <div class="or"><span class="orl">Leads totais estimados</span><span class="orv" id="v-lt">149</span></div>
+    <div class="or"><span class="orl">Pedidos totais estimados</span><span class="orv acc" id="v-pt">60</span></div>
+    <div class="or"><span class="orl">Receita estimada</span><span class="orv" id="v-rec">—</span></div>
+    <div class="or"><span class="orl">Lucro estimado</span><span class="orv pos" id="v-luc">—</span></div>
+  </div>
+</div>
+
+<!-- 07 · 90 DIAS -->
+<div class="pnl" id="p-dias">
+  <div class="ph">
+    <div class="pey">07 · Ferramenta</div>
+    <div class="pt">Projeção dos 90 Dias</div>
+    <div class="pd">Simule receita, custo e resultado mês a mês com base no plano de crescimento da operação.</div>
+  </div>
+  <div class="g2" style="gap:12px;margin-bottom:14px">
+    <div class="field"><div class="fl"><span>Ticket médio</span><span class="fh-s">Precificação</span></div><div class="ig"><div class="ip">R$</div><input type="number" id="d-tkt" value="1260" oninput="calc90()"></div></div>
+    <div class="field"><div class="fl"><span>Margem líquida %</span><span class="fh-s">Precificação</span></div><div class="ig"><input type="number" id="d-mg" value="22" oninput="calc90()"><div class="is">%</div></div></div>
+  </div>
+  <div class="mg">
+    <div class="mc" id="mc1">
+      <div class="mc-h"><div><div class="mc-n">01</div><div class="mc-l">Validação</div></div><span class="tag t-t">Sem. 3–4</span></div>
+      <div class="mc-b">
+        <div class="field"><div class="fl"><span>Pedidos fechados</span></div><div class="ig"><input type="number" id="d1p" value="3" min="0" oninput="calc90()"><div class="is">pedidos</div></div></div>
+        <div class="field"><div class="fl"><span>Verba marketing</span></div><div class="ig"><div class="ip" style="font-size:12px">R$</div><input type="number" id="d1m" value="500" oninput="calc90()"></div></div>
+        <div class="field"><div class="fl"><span>Custos fixos</span></div><div class="ig"><div class="ip" style="font-size:12px">R$</div><input type="number" id="d1f" value="300" oninput="calc90()"></div></div>
+        <hr class="dv" style="margin:10px 0">
+        <div class="or"><span class="orl" style="font-size:12px">Receita</span><span class="orv" style="font-size:12px" id="d1r">—</span></div>
+        <div class="or"><span class="orl" style="font-size:12px">Margem bruta</span><span class="orv pos" style="font-size:12px" id="d1mb">—</span></div>
+        <div class="or"><span class="orl" style="font-size:12px">Total custos</span><span class="orv neg" style="font-size:12px" id="d1tc">—</span></div>
+        <div class="or" style="border-bottom:none;padding-top:8px"><span style="font-size:12px;font-weight:500">Resultado</span><span class="orv" style="font-size:14px" id="d1rs">—</span></div>
+        <div class="mc-bar"><div class="mc-bf" id="d1b" style="width:5%"></div></div>
+      </div>
+    </div>
+    <div class="mc" id="mc2">
+      <div class="mc-h"><div><div class="mc-n">02</div><div class="mc-l">Otimização</div></div><span class="tag t-ok">Mês 2</span></div>
+      <div class="mc-b">
+        <div class="field"><div class="fl"><span>Pedidos fechados</span></div><div class="ig"><input type="number" id="d2p" value="10" min="0" oninput="calc90()"><div class="is">pedidos</div></div></div>
+        <div class="field"><div class="fl"><span>Verba marketing</span></div><div class="ig"><div class="ip" style="font-size:12px">R$</div><input type="number" id="d2m" value="800" oninput="calc90()"></div></div>
+        <div class="field"><div class="fl"><span>Custos fixos</span></div><div class="ig"><div class="ip" style="font-size:12px">R$</div><input type="number" id="d2f" value="350" oninput="calc90()"></div></div>
+        <hr class="dv" style="margin:10px 0">
+        <div class="or"><span class="orl" style="font-size:12px">Receita</span><span class="orv" style="font-size:12px" id="d2r">—</span></div>
+        <div class="or"><span class="orl" style="font-size:12px">Margem bruta</span><span class="orv pos" style="font-size:12px" id="d2mb">—</span></div>
+        <div class="or"><span class="orl" style="font-size:12px">Total custos</span><span class="orv neg" style="font-size:12px" id="d2tc">—</span></div>
+        <div class="or" style="border-bottom:none;padding-top:8px"><span style="font-size:12px;font-weight:500">Resultado</span><span class="orv" style="font-size:14px" id="d2rs">—</span></div>
+        <div class="mc-bar"><div class="mc-bf" id="d2b" style="width:40%"></div></div>
+      </div>
+    </div>
+    <div class="mc" id="mc3">
+      <div class="mc-h"><div><div class="mc-n">03</div><div class="mc-l">Escala</div></div><span class="tag t-ok">Mês 3</span></div>
+      <div class="mc-b">
+        <div class="field"><div class="fl"><span>Pedidos fechados</span></div><div class="ig"><input type="number" id="d3p" value="20" min="0" oninput="calc90()"><div class="is">pedidos</div></div></div>
+        <div class="field"><div class="fl"><span>Verba marketing</span></div><div class="ig"><div class="ip" style="font-size:12px">R$</div><input type="number" id="d3m" value="1500" oninput="calc90()"></div></div>
+        <div class="field"><div class="fl"><span>Custos fixos</span></div><div class="ig"><div class="ip" style="font-size:12px">R$</div><input type="number" id="d3f" value="400" oninput="calc90()"></div></div>
+        <hr class="dv" style="margin:10px 0">
+        <div class="or"><span class="orl" style="font-size:12px">Receita</span><span class="orv" style="font-size:12px" id="d3r">—</span></div>
+        <div class="or"><span class="orl" style="font-size:12px">Margem bruta</span><span class="orv pos" style="font-size:12px" id="d3mb">—</span></div>
+        <div class="or"><span class="orl" style="font-size:12px">Total custos</span><span class="orv neg" style="font-size:12px" id="d3tc">—</span></div>
+        <div class="or" style="border-bottom:none;padding-top:8px"><span style="font-size:12px;font-weight:500">Resultado</span><span class="orv" style="font-size:14px" id="d3rs">—</span></div>
+        <div class="mc-bar"><div class="mc-bf" id="d3b" style="width:80%"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card card-t" style="margin-bottom:14px">
+    <div class="g3" style="gap:0">
+      <div style="text-align:center;padding:16px 12px;border-right:1px solid rgba(255,255,255,.06)">
+        <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--t);letter-spacing:-.03em" id="d-rac">—</div>
+        <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--g);margin-top:4px">Receita acumulada</div>
+      </div>
+      <div style="text-align:center;padding:16px 12px;border-right:1px solid rgba(255,255,255,.06)">
+        <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--ok);letter-spacing:-.03em" id="d-lac">—</div>
+        <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--g);margin-top:4px">Lucro acumulado</div>
+      </div>
+      <div style="text-align:center;padding:16px 12px">
+        <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.03em" id="d-roi">—</div>
+        <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--g);margin-top:4px">ROI sobre capital inicial</div>
+      </div>
+    </div>
+  </div>
+  <div class="ab"><span class="ai">—</span><span id="d-ins">—</span></div>
+</div>
+
+<!-- GLOSSÁRIO -->
+<!-- 08 · B2B vs B2C -->
+<div class="pnl" id="p-b2b">
+  <div class="ph">
+    <div class="pey">08 · Análise</div>
+    <div class="pt">B2B vs B2C — Dinâmica de Cliente</div>
+    <div class="pd">Selecione o tipo de cliente para recalcular ticket, frequência e retenção. Cada persona tem dinâmica diferente.</div>
+  </div>
+  <div class="sl">Tipo de cliente</div>
+  <div class="persona-grid">
+    <div class="persona-card sel" id="pc-prop" onclick="selPersona('proprietario')">
+      <span class="persona-icon">🏠</span>
+      <span class="persona-name">Proprietário</span>
+      <span class="persona-desc">Reforma pessoal</span>
+    </div>
+    <div class="persona-card" id="pc-arq" onclick="selPersona('arquiteto')">
+      <span class="persona-icon">📐</span>
+      <span class="persona-name">Arquiteto</span>
+      <span class="persona-desc">Múltiplos projetos</span>
+    </div>
+    <div class="persona-card" id="pc-ped" onclick="selPersona('pedreiro')">
+      <span class="persona-icon">🔧</span>
+      <span class="persona-name">Pedreiro</span>
+      <span class="persona-desc">Indica clientes</span>
+    </div>
+    <div class="persona-card" id="pc-rev" onclick="selPersona('revendedor')">
+      <span class="persona-icon">🏪</span>
+      <span class="persona-name">Revendedor</span>
+      <span class="persona-desc">Volume B2B</span>
+    </div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="sl">Parâmetros da persona</div>
+      <div class="op-section">
+        <div class="op-row"><span class="op-label">Ticket médio</span><span class="op-value" id="b2b-tkt">R$ 280</span></div>
+        <div class="op-row"><span class="op-label">Compras por ano</span><span class="op-value" id="b2b-freq">1,5×</span></div>
+        <div class="op-row"><span class="op-label">Tempo de retenção</span><span class="op-value" id="b2b-ret">1 ano</span></div>
+        <div class="op-row"><span class="op-label">LTV estimado</span><span class="op-value" id="b2b-ltv">R$ 420</span></div>
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>CAC máximo recomendado</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Custo de aquisição não deve exceder 30% do LTV. Acima disso, o cliente não é viável a longo prazo.</div></div>
+        </div>
+        <div class="op-section" style="padding:10px;text-align:center">
+          <div style="font-size:14px;font-weight:500;color:var(--t)" id="b2b-cac-max">R$ 126</div>
+          <div style="font-size:10px;color:var(--g);margin-top:4px">30% do LTV desta persona</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sl">Estratégia de aquisição</div>
+      <div class="ab"><span class="ai">—</span><span id="b2b-strat">—</span></div>
+      <div class="card" style="margin-top:14px">
+        <div class="or"><span class="orl">Melhor canal de aquisição</span><span class="orv" id="b2b-canal">—</span></div>
+        <div class="or"><span class="orl">Custo por lead estimado</span><span class="orv" id="b2b-cpl">—</span></div>
+        <div class="or"><span class="orl">Leads necessários (mês 3)</span><span class="orv" id="b2b-leads">—</span></div>
+        <div class="or"><span class="orl">Viabilidade</span><span class="orv" id="b2b-viab">—</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 09 · CENÁRIOS PESSIMISTA/REALISTA/OTIMISTA -->
+<div class="pnl" id="p-scen">
+  <div class="ph">
+    <div class="pey">09 · Análise</div>
+    <div class="pt">Análise de Sensibilidade — Cenários</div>
+    <div class="pd">Veja como mudanças em conversão e margem afetam o resultado final. Qual é o pior caso? Qual é o melhor?</div>
+  </div>
+  <div class="sl">Escolha o cenário</div>
+  <div class="scenario-tabs">
+    <div class="scn-btn on" id="scn-pess" onclick="selScn('pess')">Pessimista</div>
+    <div class="scn-btn" id="scn-real" onclick="selScn('real')">Realista</div>
+    <div class="scn-btn" id="scn-otim" onclick="selScn('otim')">Otimista</div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="sl">Parâmetros ajustáveis</div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Taxa de conversão (WA→pedido)</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Percentual de contatos no WhatsApp que viram pedidos pagos. Pessimista: 25%. Realista: 40%. Otimista: 55%.</div></div>
+          <span class="fh" id="scn-conv-lbl">25%</span>
+        </div>
+        <input type="range" id="scn-convr" min="15" max="65" value="25" oninput="updScn('conv',this.value)">
+        <div class="ig" style="margin-top:8px"><input type="number" id="scn-convi" value="25" min="15" max="65" oninput="updScn('conv',this.value)"><div class="is">%</div></div>
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Margem líquida</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Após frete, taxa de pagamento e custos variáveis. Pessimista: 16%. Realista: 22%. Otimista: 28%.</div></div>
+          <span class="fh" id="scn-marg-lbl">16%</span>
+        </div>
+        <input type="range" id="scn-margr" min="10" max="35" value="16" oninput="updScn('marg',this.value)">
+        <div class="ig" style="margin-top:8px"><input type="number" id="scn-margi" value="16" min="10" max="35" step="0.5" oninput="updScn('marg',this.value)"><div class="is">%</div></div>
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Leads por mês</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Contatos no WhatsApp gerados por marketing. Pessimista: 80 leads. Realista: 150. Otimista: 220.</div></div>
+          <span class="fh">↑ Aba Verba</span>
+        </div>
+        <div class="ig"><input type="number" id="scn-ldsr" value="80" min="30" oninput="updScn('leads',this.value)"><div class="is">leads</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="sl">Projeção do resultado — Mês 3</div>
+      <div class="card card-t" style="margin-bottom:14px">
+        <div class="mb"><div class="mbv" id="scn-result" style="font-size:32px">R$ —</div><div class="mbl">Lucro estimado no mês 3</div></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="or"><span class="orl">Leads gerados (mês 3)</span><span class="orv" id="scn-ldr">80</span></div>
+        <div class="or"><span class="orl">Pedidos fechados (mês 3)</span><span class="orv" id="scn-ped">20</span></div>
+        <div class="or"><span class="orl">Faturamento (mês 3)</span><span class="orv" id="scn-fat">—</span></div>
+        <div class="or"><span class="orl">Custos fixos + marketing</span><span class="orv neg" id="scn-cst">− R$ 1.700</span></div>
+        <div class="or"><span class="orl">Resultado líquido</span><span class="orv acc" id="scn-liq">—</span></div>
+        <div class="or"><span class="orl">Margem de segurança</span><span class="orv" id="scn-seg">—</span></div>
+      </div>
+      <div id="scn-insight" class="ab"><span class="ai">—</span><span>—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 10 · CUSTO DE OPERAÇÃO REAL -->
+<div class="pnl" id="p-opex">
+  <div class="ph">
+    <div class="pey">10 · Análise</div>
+    <div class="pt">Custo Real de Operação</div>
+    <div class="pd">Quanto custa realmente operar a Bruto? Inclua horas de atendimento, produção de conteúdo, relacionamento.</div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="sl">Custos operacionais mensais</div>
+      <div class="op-section">
+        <div class="field">
+          <div class="fl">
+            <div class="tt"><span>Horas/mês de atendimento WhatsApp</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Quanto tempo humano por mês? Inclua: responder leads, consultoria, fechamento, pós-venda. Base: 1 hora por pedido + overhead.</div></div>
+          </div>
+          <div class="ig"><input type="number" id="op-horas" value="40" min="10" oninput="calcOpex()"><div class="is">h/mês</div></div>
+        </div>
+        <div class="field">
+          <div class="fl">
+            <div class="tt"><span>Valor da hora (seu custo)</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Custo interno/externo de atendimento. Se você faz, use seu salário/hora. Se contrata, use freelancer/CLT.</div></div>
+          </div>
+          <div class="ig"><div class="ip">R$</div><input type="number" id="op-vhora" value="50" min="10" oninput="calcOpex()"></div>
+        </div>
+        <div class="field">
+          <div class="fl">
+            <div class="tt"><span>Horas/mês de conteúdo (Reels, posts, artes)</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Produção de conteúdo para Instagram. Inclua edição de Reels, fotografia, design. Se contrata: quanto paga?</div></div>
+          </div>
+          <div class="ig"><input type="number" id="op-cont-h" value="20" min="0" oninput="calcOpex()"><div class="is">h/mês</div></div>
+        </div>
+        <div class="field">
+          <div class="fl">
+            <div class="tt"><span>Valor da hora (conteúdo)</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Custo por hora de produção. Designer: R$ 60–100/h. Videoeditor: R$ 80–150/h.</div></div>
+          </div>
+          <div class="ig"><div class="ip">R$</div><input type="number" id="op-cont-v" value="80" min="20" oninput="calcOpex()"></div>
+        </div>
+        <div class="field">
+          <div class="fl">
+            <div class="tt"><span>Custo de relacionamento com arquitetos</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Amostras, reuniões, eventos para fidelizar arquitetos. Mensal ou trimestral.</div></div>
+          </div>
+          <div class="ig"><div class="ip">R$</div><input type="number" id="op-arq" value="300" min="0" oninput="calcOpex()"></div>
+        </div>
+      </div>
+      <div class="op-section">
+        <div class="or"><span class="orl">Custo de atendimento (h × valor)</span><span class="orv neg" id="op-c-atend">− R$ 2.000</span></div>
+        <div class="or"><span class="orl">Custo de conteúdo (h × valor)</span><span class="orv neg" id="op-c-cont">− R$ 1.600</span></div>
+        <div class="or"><span class="orl">Custo relacionamento arquitetos</span><span class="orv neg" id="op-c-arq">− R$ 300</span></div>
+        <div class="or" style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:10px"><span class="orl"><strong>Total custos operacionais</strong></span><span class="orv neg" id="op-total-real">− R$ 3.900</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="sl">Impacto no resultado real</div>
+      <div class="card card-t" style="margin-bottom:14px">
+        <div class="mb"><div class="mbv" id="op-lucro-real" style="font-size:32px">R$ —</div><div class="mbl">Lucro por pedido (custo real)</div></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="or"><span class="orl">Lucro por pedido (aba 1)</span><span class="orv pos" id="op-lucro-bruto">R$ 182</span></div>
+        <div class="or"><span class="orl">÷ Número de pedidos/mês</span><span class="orv" id="op-ped-m">÷ 20</span></div>
+        <div class="or"><span class="orl">= Lucro por pedido (bruto)</span><span class="orv pos" id="op-lpb">= R$ 182</span></div>
+        <div class="or" style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:10px"><span class="orl">−  Custo operacional por pedido</span><span class="orv neg" id="op-cop">− R$ 195</span></div>
+        <div class="or"><span class="orl"><strong>= Lucro REAL por pedido</strong></span><span class="orv" style="font-weight:500;font-size:14px" id="op-lr-fim">−R$ 13</span></div>
+      </div>
+      <div id="op-alerta"></div>
+      <div class="ab" style="margin-top:14px"><span class="ai">—</span><span id="op-insight">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 · FUNIL WHATSAPP -->
+<div class="pnl" id="p-funil">
+  <div class="ph">
+    <div class="pey">11 · Análise</div>
+    <div class="pt">Funil de Conversão WhatsApp</div>
+    <div class="pd">Acompanhe as taxas de conversão em cada etapa. Veja onde estão os gargalos e o custo real de cada conversão.</div>
+  </div>
+  <div class="sl">Etapas do funil com custos</div>
+  <div id="funil-stages"></div>
+  <hr class="tl">
+  <div class="g2">
+    <div>
+      <div class="sl">Métricas do funil</div>
+      <div class="metric-box" style="margin-bottom:14px">
+        <div class="metric-val" id="funil-conv-total">20</div>
+        <div class="metric-lbl">Pedidos (150 leads × conversão)</div>
+      </div>
+      <div class="card">
+        <div class="or"><span class="orl">Leads iniciais (mês)</span><span class="orv" id="funil-leads">150</span></div>
+        <div class="or"><span class="orl">Etapa 2 (consultoria)</span><span class="orv" id="funil-e2">90 (60%)</span></div>
+        <div class="or"><span class="orl">Etapa 3 (orçamento)</span><span class="orv" id="funil-e3">68 (75%)</span></div>
+        <div class="or"><span class="orl">Etapa 4 (fechamento)</span><span class="orv pos" id="funil-e4">31 (45%)</span></div>
+        <div class="or"><span class="orl">Taxa de conversão final</span><span class="orv acc" id="funil-taxa-final">20,7%</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="sl">Custo de cada conversão</div>
+      <div class="card">
+        <div class="or"><span class="orl">Custo total do funil</span><span class="orv neg" id="funil-custo-total">− R$ 1.440</span></div>
+        <div class="or"><span class="orl">Número de conversões</span><span class="orv" id="funil-conv-n">31</span></div>
+        <div class="or"><span class="orl">Custo por conversão</span><span class="orv neg" id="funil-cpc">− R$ 46</span></div>
+        <div class="or"><span class="orl">Ticket médio</span><span class="orv" id="funil-tkt">R$ 1.260</span></div>
+        <div class="or"><span class="orl">% do ticket = custo operacional</span><span class="orv" id="funil-pct-tkt">3,7%</span></div>
+      </div>
+      <div class="ab" style="margin-top:14px"><span class="ai">—</span><span id="funil-insight">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 12 · MIX DE PRODUTOS -->
+<div class="pnl" id="p-mix">
+  <div class="ph">
+    <div class="pey">12 · Análise</div>
+    <div class="pt">Mix de Produtos & Rentabilidade</div>
+    <div class="pd">Veja qual produto é mais lucrativo. Recomendação: focar em produtos com melhor margem × volume.</div>
+  </div>
+  <div class="sl">Produtos mais vendidos (% de volume)</div>
+  <div class="mix-grid" id="mix-cards"></div>
+  <hr class="tl">
+  <div class="g2">
+    <div>
+      <div class="sl">Análise do produto selecionado</div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="or"><span class="orl">Nome</span><span class="orv" id="mix-sel-nome">—</span></div>
+        <div class="or"><span class="orl">Preço Faion</span><span class="orv" id="mix-sel-preco">—</span></div>
+        <div class="or"><span class="orl">% do volume de vendas</span><span class="orv" id="mix-sel-share">—</span></div>
+      </div>
+      <div class="card">
+        <div class="or"><span class="orl">Desconto aplicado (35%)</span><span class="orv" id="mix-desc">R$ 84,44/m²</span></div>
+        <div class="or"><span class="orl">Margem bruta por m²</span><span class="orv pos" id="mix-mg-bruta">R$ 55/m²</span></div>
+        <div class="or"><span class="orl">Margem líquida estimada</span><span class="orv acc" id="mix-mg-liq">22%</span></div>
+        <div class="or"><span class="orl">Ticket médio pedido (9m²)</span><span class="orv" id="mix-ticket">R$ 1.260</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="sl">Rentabilidade da mix atual</div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="or"><span class="orl">Pedidos/mês (20 total)</span><span class="orv" id="mix-ped-sel">4,4 pedidos</span></div>
+        <div class="or"><span class="orl">Receita produto (mês)</span><span class="orv" id="mix-rec">R$ 5.544</span></div>
+        <div class="or"><span class="orl">Margem bruta (mês)</span><span class="orv pos" id="mix-mb">R$ 1.221</span></div>
+        <div class="or"><span class="orl">% da margem total</span><span class="orv acc" id="mix-pct-mb">22%</span></div>
+      </div>
+      <div class="ab"><span class="ai">—</span><span id="mix-recom">Clique em um produto para ver análise detalhada</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 13 · MÉTRICAS DE SAÚDE DO NEGÓCIO -->
+<div class="pnl" id="p-health">
+  <div class="ph">
+    <div class="pey">13 · Dashboard</div>
+    <div class="pt">Health Check — KPIs do Negócio</div>
+    <div class="pd">Métricas operacionais que definem se o negócio é viável. Acompanhe semanalmente.</div>
+  </div>
+  <div class="g2" style="margin-bottom:20px">
+    <div class="metric-box"><div class="metric-val" id="hc-cac">R$ 28</div><div class="metric-lbl">CAC (Custo de Aquisição)</div></div>
+    <div class="metric-box"><div class="metric-val" id="hc-ltv">R$ 631</div><div class="metric-lbl">LTV (Lifetime Value)</div></div>
+    <div class="metric-box"><div class="metric-val" id="hc-ratio">22,5</div><div class="metric-lbl">LTV ÷ CAC Ratio</div></div>
+    <div class="metric-box"><div class="metric-val" id="hc-pyb">3 m</div><div class="metric-lbl">CAC Payback Period</div></div>
+  </div>
+
+  <div class="sl">Status de viabilidade</div>
+  <div class="health-row">
+    <span class="health-label">LTV ÷ CAC (meta: >3x)</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="health-value" id="hc-ratio-val">22,5x</span>
+      <span class="health-status status-ok">✓ Saudável</span>
+    </div>
+  </div>
+  <div class="health-row">
+    <span class="health-label">CAC Payback (meta: <4 meses)</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="health-value" id="hc-pyb-val">3 meses</span>
+      <span class="health-status status-ok">✓ Saudável</span>
+    </div>
+  </div>
+  <div class="health-row">
+    <span class="health-label">Burn Rate (capital restante)</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="health-value" id="hc-burn">18 meses</span>
+      <span class="health-status status-ok">✓ Seguro</span>
+    </div>
+  </div>
+  <div class="health-row">
+    <span class="health-label">Unit Economics (lucro por R$ gasto)</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="health-value" id="hc-ue">R$ 0,45</span>
+      <span class="health-status status-ok">✓ Viável</span>
+    </div>
+  </div>
+  <div class="health-row">
+    <span class="health-label">Margem média real (após todos custos)</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="health-value" id="hc-marg">14,4%</span>
+      <span class="health-status status-wn">⚠ Monitorar</span>
+    </div>
+  </div>
+
+  <hr class="tl" style="margin:20px 0">
+
+  <div class="sl">O que cada métrica significa</div>
+  <div class="card">
+    <div class="gl-item">
+      <div class="gl-term">LTV ÷ CAC Ratio</div>
+      <div class="gl-def">Quantas vezes o valor do cliente pagará pelo custo de adquiri-lo. Meta: 3x ou mais. Acima de 5x é excelente. Abaixo de 2x é inviável.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">CAC Payback Period</div>
+      <div class="gl-def">Quantos meses até que o cliente gere lucro suficiente para cobrir o custo de aquisição. Meta: <4 meses. Acima de 6 meses queima capital rápido.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">Burn Rate</div>
+      <div class="gl-def">Quantos meses seu capital dura se o negócio não virar positivo. Com R$ 2.000 iniciais, 18 meses = você tem tempo para ajustar.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">Unit Economics</div>
+      <div class="gl-def">Para cada R$ 1 gasto em adquisição, quantos reais de lucro você gera? R$ 0,45 = viável. Abaixo de R$ 0,20 = repense o modelo.</div>
+    </div>
+    <div class="gl-item">
+      <div class="gl-term">Margem Real</div>
+      <div class="gl-def">Lucro líquido ÷ receita. Incluindo todos os custos (operação, marketing, tributos). 15%+ é saudável. Abaixo de 10% é arriscado.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 14 · BENCHMARKING -->
+<div class="pnl" id="p-bench">
+  <div class="ph">
+    <div class="pey">14 · Análise</div>
+    <div class="pt">Benchmarking — Como você se compara?</div>
+    <div class="pd">Veja como a Bruto está em relação à média do setor e a concorrência. Identifique vantagens competitivas.</div>
+  </div>
+  <div class="sl">Bruto vs Setor vs Concorrentes</div>
+  <div class="bench-compare">
+    <div class="bench-card">
+      <span class="bench-label">Taxa de Conversão</span>
+      <div class="bench-metric" id="bench-conv-setor">28%</div>
+      <span class="bench-vs">Setor</span>
+    </div>
+    <div class="bench-card bruto">
+      <span class="bench-label">Taxa de Conversão</span>
+      <div class="bench-metric" id="bench-conv-bruto">40%</div>
+      <span class="bench-vs better">Bruto (Realista)</span>
+    </div>
+    <div class="bench-card">
+      <span class="bench-label">Margem Média</span>
+      <div class="bench-metric" id="bench-marg-setor">18%</div>
+      <span class="bench-vs">Setor</span>
+    </div>
+    <div class="bench-card bruto">
+      <span class="bench-label">Margem Média</span>
+      <div class="bench-metric" id="bench-marg-bruto">22%</div>
+      <span class="bench-vs better">Bruto (Realista)</span>
+    </div>
+    <div class="bench-card">
+      <span class="bench-label">CAC Médio</span>
+      <div class="bench-metric" id="bench-cac-setor">R$ 45</div>
+      <span class="bench-vs">Setor</span>
+    </div>
+    <div class="bench-card bruto">
+      <span class="bench-label">CAC Médio</span>
+      <div class="bench-metric" id="bench-cac-bruto">R$ 28</div>
+      <span class="bench-vs better">Bruto (Realista)</span>
+    </div>
+  </div>
+  
+  <hr class="tl">
+  
+  <div class="g2">
+    <div>
+      <div class="sl">Vantagem competitiva</div>
+      <div class="card">
+        <div class="or"><span class="orl">Conversão vs Setor</span><span class="orv pos" id="bench-conv-delta">+43% melhor</span></div>
+        <div class="or"><span class="orl">Margem vs Setor</span><span class="orv pos" id="bench-marg-delta">+22% melhor</span></div>
+        <div class="or"><span class="orl">CAC vs Setor</span><span class="orv pos" id="bench-cac-delta">−38% melhor</span></div>
+        <div class="or"><span class="orl">LTV vs Setor</span><span class="orv pos" id="bench-ltv-delta">−3% pior</span></div>
+      </div>
+      <div class="ab" style="margin-top:14px"><span class="ai">—</span><span id="bench-insight">✓ Bruto está acima da média do setor em conversão e margem. Foco em manter qualidade de atendimento.</span></div>
+    </div>
+    <div>
+      <div class="sl">Projeção vs Concorrência</div>
+      <div class="card">
+        <div class="or"><span class="orl">Seu ROI (realista)</span><span class="orv acc" id="bench-roi-bruto">520%</span></div>
+        <div class="or"><span class="orl">ROI do setor (médio)</span><span class="orv" id="bench-roi-setor">310%</span></div>
+        <div class="or"><span class="orl">ROI cenário pessimista</span><span class="orv" id="bench-roi-pess">260%</span></div>
+        <div class="or"><span class="orl">ROI cenário otimista</span><span class="orv pos" id="bench-roi-otim">780%</span></div>
+      </div>
+      <div class="ab" style="margin-top:14px"><span class="ai">—</span><span id="bench-roi-msg">Mesmo no cenário pessimista, Bruto supera a média do setor em rentabilidade.</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 15 · FEEDBACK LOOPS — CRESCIMENTO DINÂMICO -->
+<div class="pnl" id="p-feedback">
+  <div class="ph">
+    <div class="pey">15 · Simulação</div>
+    <div class="pt">Dinâmica de Crescimento — 90 Dias com Aprendizado</div>
+    <div class="pd">O que acontece quando você otimiza o funil e conteúdo ao longo do tempo. Conversão sobe, margem melhora.</div>
+  </div>
+  <div class="sl">Simulação com feedback loops</div>
+  <div class="feedback-chart" id="feedback-visual"></div>
+  
+  <hr class="tl">
+  
+  <div class="g2">
+    <div>
+      <div class="sl">Evolução por mês</div>
+      <div class="card">
+        <div class="or"><span class="orl"><strong>MÊS 1 — Validação</strong></span></div>
+        <div class="or"><span class="orl">Taxa de conversão</span><span class="orv" id="fb-m1-conv">30%</span></div>
+        <div class="or"><span class="orl">Margem média</span><span class="orv" id="fb-m1-marg">18%</span></div>
+        <div class="or"><span class="orl">Qualidade atendimento</span><span class="orv" id="fb-m1-atend">60%</span></div>
+      </div>
+      <div class="card" style="margin-bottom:0;background:var(--k3)">
+        <div style="font-size:12px;color:var(--gl);line-height:1.6;padding:8px 0">
+          <strong>Aprendizados:</strong><br>
+          • 40% reclamam de resposta lenta<br>
+          • Reels não convertem (mudar estratégia)<br>
+          • Arquitetos buscam LinkedIn
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sl">Ações de melhoria</div>
+      <div class="card">
+        <div class="or"><span class="orl"><strong>Implementado no MÊS 2</strong></span></div>
+        <div class="or"><span class="orl">+2 horas/dia de atendimento</span><span class="orv">✓</span></div>
+        <div class="or"><span class="orl">Mudança para conteúdo técnico</span><span class="orv">✓</span></div>
+        <div class="or"><span class="orl">Publicar no LinkedIn 3x/semana</span><span class="orv">✓</span></div>
+        <div class="or"><span class="orl">Abrir diálogo com 10 arquitetos</span><span class="orv">✓</span></div>
+      </div>
+      <div class="ab" style="margin-top:14px"><span class="ai">—</span><span id="fb-resultado">Resultado: conversão sobe para 38%, margem para 20%</span></div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-top:20px">
+    <div>
+      <div class="card">
+        <div class="or"><span class="orl"><strong>MÊS 2 — Otimização</strong></span></div>
+        <div class="or"><span class="orl">Taxa de conversão</span><span class="orv" id="fb-m2-conv">38%</span></div>
+        <div class="or"><span class="orl">Margem média</span><span class="orv" id="fb-m2-marg">20%</span></div>
+        <div class="or"><span class="orl">Qualidade atendimento</span><span class="orv" id="fb-m2-atend">75%</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="or"><span class="orl"><strong>MÊS 3 — Escala</strong></span></div>
+        <div class="or"><span class="orl">Taxa de conversão</span><span class="orv pos" id="fb-m3-conv">45%</span></div>
+        <div class="or"><span class="orl">Margem média</span><span class="orv pos" id="fb-m3-marg">22%</span></div>
+        <div class="or"><span class="orl">Qualidade atendimento</span><span class="orv pos" id="fb-m3-atend">85%</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 16 · DASHBOARD EXECUTIVO -->
+<div class="pnl" id="p-dash">
+  <div class="ph">
+    <div class="pey">16 · Dashboard</div>
+    <div class="pt">Executive Dashboard — Visão Semanal</div>
+    <div class="pd">Métricas para acompanhar semanalmente. Imprima ou compartilhe com o sócio.</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px">
+    <div class="dashboard-widget">
+      <div class="dashboard-big" id="dash-receita">R$ 25.2k</div>
+      <div class="dashboard-label">Receita Projetada/Mês</div>
+      <div class="dashboard-delta pos">+18% vs mês ant.</div>
+    </div>
+    <div class="dashboard-widget">
+      <div class="dashboard-big" id="dash-lucro">R$ 5.5k</div>
+      <div class="dashboard-label">Lucro Líquido/Mês</div>
+      <div class="dashboard-delta pos">+22% vs mês ant.</div>
+    </div>
+    <div class="dashboard-widget">
+      <div class="dashboard-big" id="dash-pedidos">20</div>
+      <div class="dashboard-label">Pedidos/Mês (Meta)</div>
+      <div class="dashboard-delta pos">+33% vs mês 1</div>
+    </div>
+    <div class="dashboard-widget">
+      <div class="dashboard-big" id="dash-cac">R$ 28</div>
+      <div class="dashboard-label">CAC Médio</div>
+      <div class="dashboard-delta pos">−28% vs setor</div>
+    </div>
+    <div class="dashboard-widget">
+      <div class="dashboard-big" id="dash-conv">40%</div>
+      <div class="dashboard-label">Taxa Conversão</div>
+      <div class="dashboard-delta pos">+43% vs setor</div>
+    </div>
+    <div class="dashboard-widget">
+      <div class="dashboard-big" id="dash-health">8/10</div>
+      <div class="dashboard-label">Score de Saúde</div>
+      <div class="dashboard-delta pos">Saudável</div>
+    </div>
+  </div>
+
+  <hr class="tl">
+
+  <div class="g2">
+    <div>
+      <div class="sl">Cronograma de ações — Próximas 2 semanas</div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div class="timeline-item">
+          <div class="timeline-marker" style="background:var(--ok)"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Semana 1: Otimizar atendimento WhatsApp</div>
+            <div class="timeline-desc">Reduzir tempo de resposta para <2h. Meta: elevar de 75% para 85% satisfação.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-marker" style="background:var(--t)"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Semana 1: Abrir 3 novas contas de arquiteto</div>
+            <div class="timeline-desc">Foco em Sp/MG. Enviar amostras + agenda reunião. Meta: fechar 2.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-marker" style="background:var(--t)"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Semana 2: Produzir 4 Reels de conteúdo técnico</div>
+            <div class="timeline-desc">Antes/depois + dicas de aplicação. Publicar terça e quinta à noite.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-marker" style="background:var(--tl)"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Semana 2: Revisar mix de produtos</div>
+            <div class="timeline-desc">Descontinuar Brick Urban (5% volume). Aumentir estoque de Rosso Prime (22%).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sl">KPIs para monitorar</div>
+      <div class="card">
+        <div class="or"><span class="orl">Conversão WA → Pedido</span><span class="orv">40% (meta: 45%)</span></div>
+        <div class="or"><span class="orl">Tempo de resposta médio</span><span class="orv">1h 45min (meta: <1h)</span></div>
+        <div class="or"><span class="orl">CAC Payback Period</span><span class="orv">3 meses (meta: <4m)</span></div>
+        <div class="or"><span class="orl">Retenção de clientes</span><span class="orv">45% recompra (meta: 60%)</span></div>
+        <div class="or"><span class="orl">Ticket médio</span><span class="orv">R$ 1.260 (meta: R$ 1.500)</span></div>
+        <div class="or"><span class="orl">Margem líquida real</span><span class="orv">22% (meta: 25%)</span></div>
+      </div>
+      <div class="ab" style="margin-top:14px"><span class="ai">—</span><span>✓ Acompanhe estas métricas semanalmente. Se 2+ descem >10%, convoque reunião de estratégia com o sócio.</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="pnl" id="p-glos">
+  <div class="ph">
+    <div class="pey">Referência</div>
+    <div class="pt">Glossário</div>
+    <div class="pd">Definição dos principais termos usados nesta ferramenta.</div>
+  </div>
+  <div class="card">
+    <div class="gl-item"><div class="gl-term">Ticket Médio</div><div class="gl-def">Valor médio de cada pedido fechado. Aumentar o ticket via upsell de metragem é a alavanca de crescimento mais eficiente — não exige novos clientes.</div></div>
+    <div class="gl-item"><div class="gl-term">Margem Bruta</div><div class="gl-def">Diferença entre o preço de venda e o custo do produto pago ao fornecedor. Não considera custos fixos, marketing ou tributos.</div></div>
+    <div class="gl-item"><div class="gl-term">Margem Líquida</div><div class="gl-def">Lucro real por pedido após descontar custo do produto e taxa de pagamento. É o valor que efetivamente entra no caixa após cada venda.</div></div>
+    <div class="gl-item"><div class="gl-term">Break-even</div><div class="gl-def">Número mínimo de pedidos por mês necessário para cobrir todos os custos fixos e variáveis. Abaixo desse número, a operação opera no prejuízo.</div></div>
+    <div class="gl-item"><div class="gl-term">LTV — Lifetime Value</div><div class="gl-def">Valor total que um cliente gera ao longo de todo o relacionamento com a empresa. Calculado como: ticket médio × frequência de compras × tempo de retenção em anos.</div></div>
+    <div class="gl-item"><div class="gl-term">CAC — Custo de Aquisição</div><div class="gl-def">Quanto custa, em média, trazer um novo cliente pagante. Um CAC saudável é menor que 30% do LTV do cliente. Quanto menor o CAC em relação ao LTV, mais escalável a operação.</div></div>
+    <div class="gl-item"><div class="gl-term">Taxa de Fechamento</div><div class="gl-def">Percentual de contatos (leads) no WhatsApp que se convertem em pedidos pagos. Meta saudável para produto de ticket médio: 35–50%. Abaixo de 20% indica problema no atendimento.</div></div>
+    <div class="gl-item"><div class="gl-term">Dropshipping</div><div class="gl-def">Modelo de venda onde o fornecedor entrega diretamente ao cliente final. A empresa revendedora não mantém estoque próprio — o pagamento ao fornecedor ocorre somente após receber do cliente.</div></div>
+    <div class="gl-item"><div class="gl-term">Reativação D+30</div><div class="gl-def">Mensagem automática enviada 30 dias após a compra com o objetivo de gerar recompra ou indicação. Taxa de resposta típica: 25–40%. Taxa de conversão em recompra: 35–50%.</div></div>
+    <div class="gl-item"><div class="gl-term">ROI — Retorno sobre Investimento</div><div class="gl-def">Quanto cada real investido retornou em lucro. ROI de 100% significa que o capital dobrou. Calculado como: (Lucro ÷ Investimento) × 100. ROI negativo significa prejuízo.</div></div>
+    <div class="gl-item"><div class="gl-term">MEI — Microempreendedor Individual</div><div class="gl-def">Regime tributário com contribuição mensal fixa (~R$ 75 em 2025). Limite de faturamento: R$ 81.000/ano. Sem imposto percentual sobre a receita. Ao ultrapassar o limite, é necessário migrar para ME.</div></div>
+    <div class="gl-item"><div class="gl-term">Simples Nacional — ME</div><div class="gl-def">Regime tributário para Microempresa. Imposto calculado sobre a receita bruta. Para comércio (Anexo I): 4% até R$ 180k/ano, 7,3% até R$ 360k/ano. Consulte sempre um contador para o enquadramento correto.</div></div>
+  </div>
+</div>
+
+</main>
+
+<footer class="ftr">
+  <span class="ftr-l">Bruto · Precificador Comercial · v3.0</span>
+  <div class="ftr-r">
+    Desenvolvido por
+    <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:11px;color:var(--gl);margin-left:4px">UP</span>
+    <span style="color:var(--t)">—</span>
+    <span style="font-family:'Syne',sans-serif;font-size:10px;color:var(--g)">Co.</span>
+  </div>
+</footer>
+
+</div><!-- /app -->
+
+<script>
+const S={pm2:0,ticket:0,ll:0,ml:0,custo:0,prodName:'Brick Standard'};
+const FEEDBACK_BASE={
+  mes1:{conv:30,marg:18,atend_qual:0.6,conteudo_qual:0.5},
+  mes2:{conv:38,marg:20,atend_qual:0.75,conteudo_qual:0.7},
+  mes3:{conv:45,marg:22,atend_qual:0.85,conteudo_qual:0.85},
+};
+const BENCHMARK={
+  setor:{conv:28,margem:18,cac:45,ltv:650,roi:310},
+  bruto_pessimista:{conv:25,margem:16,cac:46,ltv:550,roi:260},
+  bruto_realista:{conv:40,margem:22,cac:28,ltv:631,roi:520},
+  bruto_otimista:{conv:55,margem:28,cac:18,ltv:840,roi:780},
+};
+const PROD_MIX={
+  'Brick Rosso Prime':{cat:'brick',preco:129.90,share:20},
+  'Brick Mescla Prime':{cat:'brick',preco:139.90,share:16},
+  'Brick Natura':{cat:'brick',preco:94.90,share:14},
+  'Rockface Alpino':{cat:'rockface',preco:229.90,share:11},
+  'Cimentício Urban':{cat:'cimenticio',preco:169.90,share:15},
+  'Brick Rusticatto Terra Negra':{cat:'brick',preco:179.90,share:14},
+  'Rockface Brisa':{cat:'rockface',preco:169.90,share:10},
+};
+const FUNIL={
+  etapa1:{nome:'Boas-vindas automática',taxa:100,custo:0.05,desc:'Disparada ao primeiro contato'},
+  etapa2:{nome:'Consultoria (humano)',taxa:60,custo:5,desc:'Recomendação de produto + cálculo'},
+  etapa3:{nome:'Orçamento',taxa:75,custo:3,desc:'Apresentação de preço + opções'},
+  etapa4:{nome:'Fechamento',taxa:45,custo:8,desc:'Link de pagamento + conversão'},
+  etapa5:{nome:'Pós-venda',taxa:100,custo:2,desc:'Confirmação + rastreio + reativação'},
+};
+const PERSONAS={
+  'proprietario':{nome:'Proprietário',ticket:280,freq:1.5,ret:1,desc:'Reforma pessoal, compra uma vez'},
+  'arquiteto':{nome:'Arquiteto/Designer',ticket:1500,freq:6,ret:3,desc:'Múltiplos projetos, recorrência alta'},
+  'pedreiro':{nome:'Pedreiro/Mestre',ticket:700,freq:8,ret:2,desc:'Indica para clientes, compra frequente'},
+  'revendedor':{nome:'Revendedor B2B',ticket:8000,freq:4,ret:2,desc:'Volume atacado, margem menor'},
+};
+const PRODS={
+  '139.9':'Brick Branco Rosé',
+  '149.9':'Brick Lumus',
+  '94.9':'Brick Natura',
+  '129.9':'Brick Rosso Prime',
+  '169.9':'Brick Rusticatto Fumê',
+  '144.9':'Brick Rusticatto Rosso',
+  '179.9':'Brick Rusticatto Terra Negra',
+  '134.9':'Brick Terra do Cerrado',
+  '229.9':'Rockface Alpino'
+};
+let FM='incluso',REG='mei',RS='su',TF=40;
+const FB={se:120,su:150,co:200,ne:280,no:380};
+const brl=v=>'R$ '+Math.round(Math.abs(v)).toLocaleString('pt-BR');
+const num=v=>Math.round(v).toLocaleString('pt-BR');
+const pct=v=>parseFloat(v).toFixed(1)+'%';
+const $=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined)e.textContent=v;return e;};
+
+function startApp(){
+  $('ob').style.display='none';
+  $('app').style.display='block';
+  calcPrec();calcV();
+}
+
+function tab(id,el){
+  document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('p-'+id).classList.add('on');
+  el.classList.add('on');
+}
+
+function selectProd(){ calcPrec(); }
+function syncDisc(v){ $('p-dsclbl',v+'%'); $('p-dsci').value=v; calcPrec(); }
+function syncDiscI(v){ $('p-dscr').value=v; $('p-dsclbl',v+'%'); calcPrec(); }
+function syncCbDisc(v){ $('cb-dsclbl',v+'%'); calcCen(); }
+function syncMg(v){$('p-mglbl',v+'%');$('p-mgi').value=v;calcPrec();}
+function syncMgI(v){$('p-mgr').value=v;$('p-mglbl',v+'%');calcPrec();}
+
+function calcPrec(){
+  const prodEl=$('p-prod'),dscEl=$('p-dsci');
+  const prodPrice=prodEl?+prodEl.value:139.90,disc=dscEl?+dscEl.value:35;
+  const c=prodPrice*(1-disc/100);
+  const prodName=PRODS[String(prodPrice)]||'Produto';
+  $('p-cst-net','R$ '+c.toFixed(2)+'/m²');
+  const mg=+$('p-mgi').value||0;
+  const a=+$('p-area').value||0,tx=+$('p-tax').value||0,pd=+$('p-pda').value||0;
+  const pm2=mg>=100?c*2:c/(1-mg/100);
+  const aT=a*(1+pd/100),vp=pm2*a,cp=c*aT;
+  const mb=vp-cp,txv=vp*(tx/100),ll=mb-txv;
+  const ml=vp>0?(ll/vp)*100:0;
+  $('r-pm2',brl(pm2));$('r-at',aT.toFixed(1)+' m²');$('r-vp',brl(vp));
+  $('r-cp','− '+brl(cp));$('r-mb',brl(mb));$('r-tx','− '+brl(txv));
+  $('r-ll',brl(ll));$('r-ml',pct(ml));$('r-bl',pct(ml));
+  const bar=$('r-bar');
+  bar.style.width=Math.min(Math.max(ml*1.8,0),100)+'%';
+  bar.style.background=ml<10?'var(--er)':ml<18?'var(--wn)':'var(--t)';
+  S.pm2=pm2;S.ticket=vp;S.ll=ll;S.ml=ml;S.custo=c;S.prodName=prodName;
+  $('b-tkt').value=Math.round(vp);$('b-lp').value=Math.round(ll);
+  $('l-mg').value=ml.toFixed(1);$('l-mh',pct(ml));
+  $('d-tkt').value=Math.round(vp);$('d-mg').value=ml.toFixed(1);
+  calcFrete();calcBE();calcLTV();
+  syncCalcs();
+  setTimeout(syncMedioPhase,100);calcV();calcCen();calc90();
+}
+
+function selR(id){
+  document.querySelectorAll('.rc').forEach(r=>r.classList.remove('sel'));
+  $('rc-'+id).classList.add('sel');RS=id;
+  $('fr-val').value=FB[id];calcFrete();
+}
+function setFM(m){
+  FM=m;
+  $('fr-ti').classList.toggle('on',m==='incluso');
+  $('fr-ts').classList.toggle('on',m==='separado');
+  const el=$('fr-md');
+  el.innerHTML='<span class="ai">—</span><span>'+(m==='incluso'?'Frete incluso: você absorve o custo, margem diminui. Preço aparece mais limpo ao cliente.':'Frete cobrado à parte: sua margem fica intacta. O cliente vê o frete no checkout — pode reduzir conversão.')+'</span>';
+  calcFrete();
+}
+function calcFrete(){
+  const fr=+$('fr-val').value||0,ll=S.ll,vp=S.ticket;
+  const a=+$('p-area').value||9;
+  $('fr-peso').value=Math.round(a*30);
+  let lr,tot;
+  if(FM==='incluso'){lr=ll-fr;tot=vp;}else{lr=ll;tot=vp+fr;}
+  const fp=vp>0?(fr/vp)*100:0,mr=vp>0?(lr/vp)*100:0;
+  $('fr-ll0',brl(ll));$('fr-fc','− '+brl(fr));$('fr-lr',brl(lr));
+  $('fr-fp',pct(fp));$('fr-mre',pct(mr));
+  $('fr-tot',FM==='incluso'?brl(tot):brl(tot)+' (cliente)');
+  const mv=$('fr-mr');mv.textContent=brl(lr);
+  mv.className='mbv'+(lr<0?' er':lr<ll*0.5?' wn':'');
+  const al=$('fr-alerta');
+  if(lr<0)al.innerHTML='<div class="ab ab-er"><span class="ai">!</span><span>Frete inviável: absorver '+brl(fr)+' com lucro de '+brl(ll)+' gera prejuízo. Aumente o ticket mínimo ou cobre o frete à parte.</span></div>';
+  else if(fp>25)al.innerHTML='<div class="ab ab-wn"><span class="ai">—</span><span>Frete representa '+pct(fp)+' do pedido. Considere estabelecer pedido mínimo para esta região ou incluí-lo no preço de forma transparente.</span></div>';
+  else al.innerHTML='';
+  const th=$('fr-th');
+  th.innerHTML=['Região','Frete','Lucro real','Margem real','Viável?'].map((h,i)=>`<th style="text-align:${i>0?'right':'left'};padding:6px 8px;color:var(--g);font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.06)">${h}</th>`).join('');
+  const regs=[{id:'se',n:'Sudeste',st:'SP · RJ · MG'},{id:'su',n:'Sul',st:'PR · SC · RS'},{id:'co',n:'Centro-Oeste',st:'GO · MT · MS'},{id:'ne',n:'Nordeste',st:'BA · CE · PE'},{id:'no',n:'Norte',st:'AM · PA · RO'}];
+  $('fr-tb').innerHTML=regs.map(r=>{
+    const fv=FB[r.id],lrr=FM==='incluso'?ll-fv:ll,mrr=vp>0?(lrr/vp)*100:0,ok=lrr>0&&mrr>5;
+    return `<tr style="${r.id===RS?'background:var(--tbg);':''}"><td style="padding:7px 8px">${r.n}<span style="font-size:11px;color:var(--g);display:block">${r.st}</span></td><td style="text-align:right;padding:7px 8px">${brl(fv)}</td><td style="text-align:right;padding:7px 8px;color:${lrr<0?'var(--er)':'var(--ok)'}">${lrr<0?'− '+brl(Math.abs(lrr)):brl(lrr)}</td><td style="text-align:right;padding:7px 8px">${pct(mrr)}</td><td style="text-align:right;padding:7px 8px"><span class="tag ${ok?'t-ok':'t-er'}">${ok?'Sim':'Revisar'}</span></td></tr>`;
+  }).join('');
+}
+
+function sCbMg(v){$('cb-mglbl',v+'%');$('cb-mgi').value=v;calcCen();}
+function sCbMgI(v){$('cb-mgr').value=v;$('cb-mglbl',v+'%');calcCen();}
+function calcCen(){
+  const aVp=S.ticket,aLl=S.ll,aMl=S.ml,aPm2=S.pm2;
+  const aCst=S.custo||0,aMg=+$('p-mgi').value||0,aArea=+$('p-area').value||0;
+  $('ca-c',S.prodName+' · '+brl(S.custo)+'/m²');$('ca-mg',aMg+'%');$('ca-a',aArea+' m²');
+  $('ca-p',brl(aPm2));$('ca-v',brl(aVp));$('ca-l',brl(aLl));$('ca-m',pct(aMl));
+  const bProdPrice=+$('cb-prod').value||0,bDisc=+$('cb-dsci').value||0;
+  const bCst=bProdPrice*(1-bDisc/100);
+  const bMg=+$('cb-mgi').value||0,bArea=+$('cb-a').value||0;
+  const tx=+$('p-tax').value||0,pd=+$('p-pda').value||0;
+  const bPm2=bMg>=100?bCst*2:bCst/(1-bMg/100);
+  const bVp=bPm2*bArea,bCp=bCst*bArea*(1+pd/100);
+  const bLl=bVp-bCp-bVp*(tx/100),bMl=bVp>0?(bLl/bVp)*100:0;
+  $('cb-p',brl(bPm2));$('cb-v',brl(bVp));$('cb-l',brl(bLl));$('cb-m',pct(bMl));
+  const metrics=[{lb:'Preço por m²',a:aPm2,b:bPm2,fmt:brl},{lb:'Valor do pedido',a:aVp,b:bVp,fmt:brl},{lb:'Lucro líquido',a:aLl,b:bLl,fmt:brl},{lb:'Margem líquida',a:aMl,b:bMl,fmt:pct}];
+  let aW=0,bW=0;
+  $('cen-tb').innerHTML=metrics.map(m=>{
+    const aw=m.a>m.b,bw=m.b>m.a;
+    if(aw)aW++;if(bw)bW++;
+    return `<tr><td style="padding:8px;color:var(--g)">${m.lb}</td><td style="text-align:right;padding:8px">${m.fmt(m.a)}${aw?'<span class="wb">✓</span>':''}</td><td style="text-align:right;padding:8px">${m.fmt(m.b)}${bw?'<span class="wb">✓</span>':''}</td><td style="text-align:right;padding:8px">${aw?'<span class="tag t-t">A</span>':bw?'<span class="tag t-ok">B</span>':'<span class="tag" style="color:var(--g)">—</span>'}</td></tr>`;
+  }).join('');
+  $('sc-a').classList.toggle('winner',aW>bW);$('sc-b').classList.toggle('winner',bW>aW);
+  const caEl=$('ca-bg'),cbEl=$('cb-bg');
+  caEl.textContent=aW>bW?'★ Melhor':'—';caEl.className='tag '+(aW>bW?'t-ok':'t-t');
+  cbEl.textContent=bW>aW?'★ Melhor':'—';cbEl.className='tag '+(bW>aW?'t-ok':'t-t');
+  const rec=$('cen-rec');
+  if(aW!==bW){const w=aW>bW?'A':'B';rec.innerHTML=`<div class="ab" style="margin-top:14px"><span class="ai">—</span><span>Cenário <strong>${w}</strong> é o recomendado — gera ${brl(Math.abs(aLl-bLl))} a mais de lucro por pedido.</span></div>`;}
+  else rec.innerHTML='';
+}
+
+function setR(r){
+  REG=r;
+  $('tb-mei').classList.toggle('on',r==='mei');$('tb-me').classList.toggle('on',r==='me');
+  $('mei-i').style.display=r==='mei'?'block':'none';$('me-i').style.display=r==='me'?'block':'none';
+  calcBE();
+}
+function calcBE(){
+  const fer=+$('b-fer').value||0,mkt=+$('b-mkt').value||0,out=+$('b-out').value||0;
+  const tkt=+$('b-tkt').value||0,lp=+$('b-lp').value||0;
+  let trib=0;
+  if(REG==='mei'){trib=75;const fa=tkt*20*12;if(fa>81000)$('b-av').innerHTML='<div class="ab ab-wn" style="margin-top:0"><span class="ai">—</span><span>Projeção de '+brl(fa)+'/ano excede o limite MEI de R$ 81.000. Avalie migração para ME antes de operar em plena capacidade.</span></div>';else $('b-av').innerHTML='';}
+  else{const alq=+$('b-alq').value||0;trib=tkt*20*(alq/100);}
+  const cf=fer+mkt+out,tot=cf+trib,pn=lp>0?Math.ceil(tot/lp):0,fm=pn*tkt,du=Math.max(1,Math.ceil((pn/20)*22));
+  $('b-cf',brl(cf));$('b-tb',brl(trib));$('b-tt',brl(tot));$('b-lv',brl(lp));
+  $('b-pn',pn);$('b-fm',brl(fm));$('b-du','~'+Math.min(du,22)+' dias úteis');
+  $('b-ins',`Com ${brl(tot)} a cobrir e ${brl(lp)} de lucro por pedido, o break-even chega no ${pn}º pedido do mês. A partir daí, cada venda adiciona ${brl(lp)} direto ao caixa.`);
+}
+
+const PD={p:{t:280,f:1.5,r:1},a:{t:1500,f:6,r:3},m:{t:700,f:8,r:2},r:{t:8000,f:4,r:2}};
+function sP(id){document.querySelectorAll('.pc').forEach(c=>c.classList.remove('sel'));$('pc-'+id).classList.add('sel');const d=PD[id];$('l-t').value=d.t;$('l-f').value=d.f;$('l-r').value=d.r;calcLTV();
+  syncCalcs();
+  setTimeout(syncMedioPhase,100);}
+function sLR(k,v){$('l-'+k+'lbl',v+'%');calcLTV();
+  syncCalcs();
+  setTimeout(syncMedioPhase,100);}
+function calcLTV(){
+  const t=+$('l-t').value||0,f=+$('l-f').value||0,r=+$('l-r').value||0,mg=+$('l-mg').value||0;
+  const rr=+$('l-rrr').value||0,rc=+$('l-rcr').value||0;
+  const rb=t*f*r,lb=rb*(mg/100),reAt=f*r*(rr/100)*(rc/100),re=reAt*t,lre=re*(mg/100);
+  const ltv1=rb+re,cac=(lb+lre)*0.3,pr=Math.min((ltv1/64000)*100,100);
+  $('l-ltv0',brl(rb));$('l-ltv1',brl(ltv1));$('l-rb',brl(rb));$('l-re','+ '+brl(re));$('l-rt',brl(ltv1));$('l-lb',brl(lb));$('l-la','+ '+brl(lre));$('l-cac',brl(cac));
+  $('l-pl',pr<20?'Baixa':pr<40?'Média':pr<70?'Alta':'Máxima');
+  $('l-bar').style.width=pr+'%';
+}
+
+function sTF(v){TF=+v;$('v-tfl',v+'%');calcV();}
+function calcV(){
+  const tot=+$('v-tot').value||0,ig=+$('v-ig').value||0,go=+$('v-go').value||0;
+  const fe=+$('v-fe').value||0,co=+$('v-co').value||0,re=+$('v-re').value||0;
+  const al=ig+go+fe+co+re,sd=tot-al;
+  const sk=['ig','go','fe','co','re'],sv=[ig,go,fe,co,re],sl=['Instagram','Google','Tools','Conteúdo','Reserva'];
+  sk.forEach((k,i)=>{const e=$('vs-'+k),w=tot>0?(sv[i]/tot)*100:0;e.style.width=w+'%';e.textContent=w>8?sl[i]:'';});
+  const igAl=Math.round(ig*13),igLd=Math.round(igAl*0.012),goCl=Math.round(go*0.8),goLd=Math.round(goCl*0.1);
+  $('v-ial','~'+num(igAl));$('v-ild','~'+igLd);$('v-gcl','~'+num(goCl));$('v-gld','~'+goLd);
+  $('v-al',brl(al));
+  const sdEl=$('v-sd');sdEl.textContent=(sd>=0?'+ ':'')+brl(Math.abs(sd));sdEl.className='orv '+(sd>=0?'pos':'neg');
+  const tf=TF/100,ll=S.ll||0;
+  const igP=Math.round(igLd*tf),goP=Math.round(goLd*tf);
+  const igC=igP>0?ig/igP:0,goC=goP>0?go/goP:0;
+  const igR=ig>0?((igP*ll)/ig-1)*100:0,goR=go>0?((goP*ll)/go-1)*100:0;
+  $('ci-v',brl(ig));$('ci-l',num(igLd));$('ci-p',num(igP));$('ci-c',brl(igC));
+  const cir=$('ci-r');cir.textContent=(igR>=0?'+':'')+Math.round(igR)+'%';cir.className=igR>=0?'pos':'neg';
+  $('cg-v',brl(go));$('cg-l',num(goLd));$('cg-p',num(goP));$('cg-c',brl(goC));
+  const cgr=$('cg-r');cgr.textContent=(goR>=0?'+':'')+Math.round(goR)+'%';cgr.className=goR>=0?'pos':'neg';
+  const tLd=igLd+goLd,tPed=igP+goP,tRec=tPed*S.ticket,tLuc=tPed*ll;
+  $('v-lt',num(tLd));$('v-pt',num(tPed));$('v-rec',brl(tRec));$('v-luc',brl(tLuc));
+}
+
+function calc90(){
+  const tkt=+$('d-tkt').value||0,mg=+$('d-mg').value||0;
+  const meses=[{p:'d1p',m:'d1m',f:'d1f',r:'d1r',mb:'d1mb',tc:'d1tc',rs:'d1rs',b:'d1b'},{p:'d2p',m:'d2m',f:'d2f',r:'d2r',mb:'d2mb',tc:'d2tc',rs:'d2rs',b:'d2b'},{p:'d3p',m:'d3m',f:'d3f',r:'d3r',mb:'d3mb',tc:'d3tc',rs:'d3rs',b:'d3b'}];
+  let tRec=0,tLuc=0,maxAbs=1;
+  const res=meses.map(m=>{const ped=+$(m.p).value||0,mkt=+$(m.m).value||0,fix=+$(m.f).value||0,rec=ped*tkt,mb=rec*(mg/100),tc=mkt+fix,rs=mb-tc;tRec+=rec;tLuc+=rs;if(Math.abs(rs)>maxAbs)maxAbs=Math.abs(rs);return{rec,mb,tc,rs};});
+  res.forEach((r,i)=>{
+    const m=meses[i];
+    $(m.r,brl(r.rec));$(m.mb,brl(r.mb));$(m.tc,'− '+brl(r.tc));
+    const rsEl=$(m.rs);rsEl.textContent=brl(r.rs);rsEl.className='orv '+(r.rs>=0?'pos':'neg');
+    const bEl=$(m.b);bEl.style.width=Math.min((Math.abs(r.rs)/maxAbs)*92,92)+'%';
+    bEl.style.background=r.rs<0?'var(--er)':i===2?'var(--ok)':'var(--t)';
+  });
+  const cap=2000,roi=cap>0?(tLuc/cap)*100:0;
+  $('d-rac',brl(tRec));
+  const lacEl=$('d-lac');lacEl.textContent=brl(tLuc);lacEl.style.color=tLuc>=0?'var(--ok)':'var(--er)';
+  const roiEl=$('d-roi');roiEl.textContent=(roi>=0?'+':'')+Math.round(roi)+'%';roiEl.style.color=roi>=0?'var(--ok)':'var(--er)';
+  $('d-ins',tLuc>0?`Nos 90 dias, a operação projeta ${brl(tRec)} em receita com ${brl(tLuc)} de resultado líquido acumulado. ROI sobre capital inicial: ${(roi>=0?'+':'')+Math.round(roi)}%.`:`Resultado acumulado negativo. Revise a verba ou o número de pedidos projetados para cada mês.`);
+}
+
+
+// ── FEATURE 1: B2B vs B2C ────────────────────────────────────────────────
+let CURR_PERSONA='proprietario';
+const PERSONA_EL_ID={proprietario:'prop',arquiteto:'arq',pedreiro:'ped',revendedor:'rev'};
+function selPersona(id){
+  document.querySelectorAll('.persona-card').forEach(c=>c.classList.remove('sel'));
+  const el=$('pc-'+PERSONA_EL_ID[id]);
+  if(el)el.classList.add('sel');
+  CURR_PERSONA=id;
+  const p=PERSONAS[id];
+  $('b2b-tkt',brl(p.ticket));$('b2b-freq',p.freq+'×');$('b2b-ret',p.ret+' ano'+(p.ret>1?'s':''));
+  const ltv=p.ticket*p.freq*p.ret,cacmax=ltv*0.3;
+  $('b2b-ltv',brl(ltv));$('b2b-cac-max',brl(cacmax));
+  const canais={proprietario:'Instagram',arquiteto:'LinkedIn',pedreiro:'WhatsApp',revendedor:'Email B2B'};
+  const cpls={proprietario:9,arquiteto:40,pedreiro:15,revendedor:200};
+  const strats={proprietario:'Reels + Anúncios direcionados a reforma pessoal',arquiteto:'Conteúdo técnico + eventos + amostras',pedreiro:'Indicação + programa de fidelidade',revendedor:'Portal B2B + atendimento dedicado'};
+  $('b2b-canal',canais[id]);$('b2b-cpl',brl(cpls[id]));
+  const leadsNec=Math.ceil(20/0.4);
+  $('b2b-leads',leadsNec);$('b2b-strat',strats[id]);
+  const viab=cpls[id]<cacmax?'✓ Viável':'✗ Revisar';
+  $('b2b-viab',viab);
+}
+
+// ── FEATURE 2: ANÁLISE DE CENÁRIOS ──────────────────────────────────────
+const SCENARIOS={pess:{conv:25,marg:16,leads:80},real:{conv:40,marg:22,leads:150},otim:{conv:55,marg:28,leads:220}};
+let CURR_SCN='pess';
+function selScn(id){
+  CURR_SCN=id;
+  document.querySelectorAll('.scn-btn').forEach(b=>b.classList.remove('on'));
+  $('scn-'+id).classList.add('on');
+  const s=SCENARIOS[id];
+  $('scn-convi').value=s.conv;$('scn-convr').value=s.conv;$('scn-conv-lbl',s.conv+'%');
+  $('scn-margi').value=s.marg;$('scn-margr').value=s.marg;$('scn-marg-lbl',pct(s.marg));
+  $('scn-ldsr').value=s.leads;
+  calcScn();
+}
+function updScn(k,v){
+  SCENARIOS[CURR_SCN][k]=+v;
+  if(k==='conv')$('scn-conv-lbl',v+'%');
+  if(k==='marg')$('scn-marg-lbl',pct(+v));
+  calcScn();
+}
+function calcScn(){
+  const s=SCENARIOS[CURR_SCN];
+  const tkt=S.ticket||1260,custos=1700,taxaFech=s.conv/100;
+  const pedidos=Math.round((s.leads*taxaFech)),fat=pedidos*tkt,marg=fat*(s.marg/100);
+  const liq=marg-custos,seguranca=custos>0?((liq/custos)*100):0;
+  const resultEl=$('scn-result');
+  resultEl.textContent=brl(liq);resultEl.className='mbv'+(liq<0?' er':liq>2000?' ok':'');
+  $('scn-ldr',s.leads);$('scn-ped',pedidos);$('scn-fat',brl(fat));$('scn-liq',brl(liq));
+  $('scn-seg',(seguranca>=0?'+':'')+seguranca.toFixed(0)+'%');
+  const ins=$('scn-insight');
+  let msg='';
+  if(CURR_SCN==='pess')msg='⚠️ Cenário pessimista: conversão baixa e margem apertada. Viável apenas com ajustes operacionais.';
+  if(CURR_SCN==='real')msg='✓ Cenário realista: meta atingível com operação disciplinada. Foco em otimizar conversão.';
+  if(CURR_SCN==='otim')msg='🚀 Cenário otimista: máxima rentabilidade. Requer excelência em atendimento e conteúdo.';
+  ins.innerHTML='<span class="ai">—</span><span>'+msg+'</span>';
+}
+
+// ── FEATURE 3: CUSTO DE OPERAÇÃO REAL ────────────────────────────────────
+function calcOpex(){
+  const horas=+$('op-horas').value||40,vhora=+$('op-vhora').value||50;
+  const conth=+$('op-cont-h').value||20,contv=+$('op-cont-v').value||80;
+  const arq=+$('op-arq').value||300;
+  const catend=horas*vhora,ccont=conth*contv,ctotal=catend+ccont+arq;
+  $('op-c-atend','− '+brl(catend));$('op-c-cont','− '+brl(ccont));$('op-c-arq','− '+brl(arq));
+  $('op-total-real','− '+brl(ctotal));
+  const lubruto=S.ll||182,pedmês=20;
+  const copedido=ctotal/pedmês;
+  const lreal=lubruto-copedido;
+  $('op-lpb','= '+brl(lubruto));$('op-cop','− '+brl(copedido));
+  const lrEl=$('op-lr-fim');lrEl.textContent=(lreal>=0?brl(lreal):brl(Math.abs(lreal))+' PREJUÍZO');
+  lrEl.className='orv '+(lreal<0?'neg':'pos');
+  $('op-ped-m','÷ '+pedmês);
+  const lucroEl=$('op-lucro-real');lucroEl.textContent=brl(lreal);lucroEl.className='mbv'+(lreal<0?' er':'');
+  let alerta='';
+  if(lreal<0)alerta='<div class="ab ab-er" style="margin-top:0"><span class="ai">!</span><span>Você está <strong>perdendo dinheiro por pedido</strong> quando inclui custos reais de operação. Precisa reduzir custos ou aumentar volume.</span></div>';
+  else if(lreal<50)alerta='<div class="ab ab-wn" style="margin-top:0"><span class="ai">—</span><span>Margem real muito apertada ('+brl(lreal)+'/pedido). Qualquer desvio na conversão ou custos quebra o modelo.</span></div>';
+  $('op-alerta').innerHTML=alerta;
+  $('op-insight','Custo operacional real por pedido: '+brl(copedido)+'. Isso é '+((copedido/lubruto)*100).toFixed(0)+'% do seu lucro bruto.');
+}
+
+// ── HOOKS PARA SINCRONIZAR ─────────────────────────────────────────────────
+function syncCalcs(){
+  selPersona(CURR_PERSONA);
+  calcScn();
+  calcOpex();
+}
+
+
+
+// ── FEATURE 4: FUNIL WHATSAPP ───────────────────────────────────────────
+function renderFunil(){
+  const leads=150,etapas=['etapa1','etapa2','etapa3','etapa4','etapa5'];
+  let html='',flows=[leads];
+  let custo_total=0;
+  for(let i=0;i<etapas.length;i++){
+    const e=FUNIL[etapas[i]];
+    const entrada=flows[i];
+    const saida=Math.round(entrada*(e.taxa/100));
+    flows.push(saida);
+    const custo_etapa=entrada*e.custo;
+    custo_total+=custo_etapa;
+    const n=i+1;
+    html+=`<div class="funnel-stage">
+      <div class="fs-header">
+        <span class="fs-num">${n}</span>
+        <span class="fs-name">${e.nome}</span>
+        <span class="fs-taxa">${e.taxa}% → ${saida}</span>
+      </div>
+      <div style="font-size:11px;color:var(--g);margin-bottom:8px">${e.desc} | Custo/lead: R$ ${e.custo.toFixed(2)}</div>
+      <div class="fs-bars">
+        <div class="fs-bar" style="height:${Math.max(entrada/10,20)}px"><div class="fs-bar-fill" style="height:100%"><span class="fs-bar-val">${entrada}</span></div></div>
+        <div style="font-size:10px;color:var(--g);flex-shrink:0">→</div>
+        <div class="fs-bar" style="height:${Math.max(saida/10,20)}px"><div class="fs-bar-fill" style="height:100%;background:var(--tl)"><span class="fs-bar-val">${saida}</span></div></div>
+      </div>
+    </div>`;
+  }
+  $('funil-stages').innerHTML=html;
+  const conversoes=flows[flows.length-1];
+  $('funil-conv-total',conversoes);$('funil-leads',leads);
+  $('funil-e2',flows[2]+' ('+FUNIL.etapa2.taxa+'%)');
+  $('funil-e3',flows[3]+' ('+FUNIL.etapa3.taxa+'%)');
+  $('funil-e4',flows[4]+' ('+FUNIL.etapa4.taxa+'%)');
+  const taxa_final=(conversoes/leads)*100;
+  $('funil-taxa-final',taxa_final.toFixed(1)+'%');
+  $('funil-custo-total','− '+brl(custo_total));$('funil-conv-n',conversoes);
+  $('funil-cpc','− '+brl(custo_total/conversoes));
+  const tkt=S.ticket||1260;$('funil-tkt',brl(tkt));
+  $('funil-pct-tkt',((custo_total/conversoes/tkt)*100).toFixed(1)+'%');
+  $('funil-insight','Funil está '+((taxa_final>=30)?'saudável':'apertado')+'. Taxa de conversão: '+taxa_final.toFixed(1)+'%.');
+}
+
+// ── FEATURE 5: MIX DE PRODUTOS ──────────────────────────────────────────
+let CURR_MIX_PROD=null;
+function renderMix(){
+  let html='';
+  for(const [nome,p] of Object.entries(PROD_MIX)){
+    html+=`<div class="mix-card" id="mix-${nome}" onclick="selMixProd(\`${nome}\`)">
+      <div class="mix-name">${nome}</div>
+      <div class="mix-preco">R$ ${p.preco.toFixed(2)}/m²</div>
+      <div class="mix-share">${p.share}%</div>
+      <div class="mix-share-lbl">do volume</div>
+    </div>`;
+  }
+  $('mix-cards').innerHTML=html;
+  selMixProd(Object.keys(PROD_MIX)[0]);
+}
+function selMixProd(nome){
+  if(CURR_MIX_PROD)$('mix-'+CURR_MIX_PROD).classList.remove('sel');
+  CURR_MIX_PROD=nome;
+  $('mix-'+nome).classList.add('sel');
+  const p=PROD_MIX[nome];
+  $('mix-sel-nome',nome);$('mix-sel-preco','R$ '+p.preco.toFixed(2)+'/m²');$('mix-sel-share',p.share+'%');
+  const desc=p.preco*0.35,custo_liq=p.preco-desc;
+  const mg_bruta=desc;
+  $('mix-desc','R$ '+custo_liq.toFixed(2)+'/m²');
+  $('mix-mg-bruta','R$ '+mg_bruta.toFixed(0)+'/m²');
+  $('mix-mg-liq','22%');
+  const tkt=p.preco*9;$('mix-ticket',brl(tkt));
+  const ped_sel=Math.round(20*(p.share/100));
+  $('mix-ped-sel',ped_sel+' pedidos');
+  const rec_mes=ped_sel*tkt;
+  $('mix-rec',brl(rec_mes));
+  $('mix-mb',brl(rec_mes*0.22));
+  $('mix-pct-mb',p.share+'%');
+  $('mix-recom',p.share>15?'✓ Produto bem alocado. Mantém foco.':p.share<5?'⚠ Representa pouco volume. Considere descontinuar.':'Produto de suporte. Vende bem mas baixa margem.');
+}
+
+// ── FEATURE 6: HEALTH CHECK ──────────────────────────────────────────────
+function calcHealth(){
+  const cac_medio=28,ltv=S.ticket*1.5*1.5,ratio=ltv/cac_medio;
+  const payback=cac_medio/(S.ll||182)*30;
+  const capital=2000,burn=(capital/(1700/30))/30;
+  const unit_ec=(S.ll||182)/cac_medio;
+  const marg=S.ml||22;
+  $('hc-cac',brl(cac_medio));$('hc-ltv',brl(ltv));$('hc-ratio',ratio.toFixed(1));$('hc-pyb',Math.round(payback)+' m');
+  $('hc-ratio-val',ratio.toFixed(1)+'x');
+  const ratioSt=$('hc-ratio').nextElementSibling;ratioSt.className='health-status '+(ratio>=3?'status-ok':ratio>=2?'status-wn':'status-er');
+  const pybVal=Math.round(payback);
+  $('hc-pyb-val',pybVal+' meses');
+  const pybSt=$('hc-pyb').nextElementSibling;pybSt.className='health-status '+(pybVal<=4?'status-ok':pybVal<=6?'status-wn':'status-er');
+  $('hc-burn',Math.round(burn)+' meses');
+  const burnSt=$('hc-burn').nextElementSibling;burnSt.className='health-status '+(burn>=12?'status-ok':burn>=6?'status-wn':'status-er');
+  $('hc-ue','R$ '+unit_ec.toFixed(2));
+  const ueSt=$('hc-ue').nextElementSibling;ueSt.className='health-status '+(unit_ec>=0.3?'status-ok':unit_ec>=0.15?'status-wn':'status-er');
+  $('hc-marg',marg.toFixed(1)+'%');
+  const margSt=$('hc-marg').nextElementSibling;margSt.className='health-status '+(marg>=15?'status-ok':marg>=10?'status-wn':'status-er');
+}
+
+// ── SYNC ────────────────────────────────────────────────────────────────
+function syncMedioPhase(){
+  renderFunil();renderMix();calcHealth();
+}
+
+
+
+// ── FEATURE 7: BENCHMARKING ─────────────────────────────────────────────
+function calcBench(){
+  const realista=BENCHMARK.bruto_realista;
+  const setor=BENCHMARK.setor;
+  
+  $('bench-conv-setor',setor.conv+'%');
+  $('bench-conv-bruto',realista.conv+'%');
+  $('bench-marg-setor',setor.margem+'%');
+  $('bench-marg-bruto',realista.margem+'%');
+  $('bench-cac-setor','R$ '+setor.cac);
+  $('bench-cac-bruto','R$ '+realista.cac);
+  
+  const conv_delta=((realista.conv-setor.conv)/setor.conv)*100;
+  const marg_delta=((realista.margem-setor.margem)/setor.margem)*100;
+  const cac_delta=((realista.cac-setor.cac)/setor.cac)*100;
+  const ltv_delta=((realista.ltv-setor.ltv)/setor.ltv)*100;
+  
+  $('bench-conv-delta',(conv_delta>0?'+':'')+conv_delta.toFixed(0)+'% melhor');
+  $('bench-marg-delta',(marg_delta>0?'+':'')+marg_delta.toFixed(0)+'% melhor');
+  $('bench-cac-delta',(cac_delta<0?'−':'')+Math.abs(cac_delta).toFixed(0)+'% melhor');
+  $('bench-ltv-delta',(ltv_delta>0?'+':'')+ltv_delta.toFixed(0)+'% '+(ltv_delta>0?'melhor':'pior'));
+  
+  $('bench-roi-bruto',realista.roi+'%');
+  $('bench-roi-setor',setor.roi+'%');
+  $('bench-roi-pess',BENCHMARK.bruto_pessimista.roi+'%');
+  $('bench-roi-otim',BENCHMARK.bruto_otimista.roi+'%');
+  
+  const msg=conv_delta>20&&marg_delta>10?'✓ Bruto está acima da média do setor em conversão e margem. Foco em manter qualidade.':'Áreas de melhoria identificadas. Veja painel 15.';
+  $('bench-insight',msg);
+  $('bench-roi-msg','Mesmo no cenário pessimista, Bruto supera o setor em ROI.');
+}
+
+// ── FEATURE 8: FEEDBACK LOOPS ────────────────────────────────────────────
+function renderFeedback(){
+  const meses=['Mês 1','Mês 2','Mês 3'];
+  const fb=FEEDBACK_BASE;
+  let html='';
+  for(const [key,data] of Object.entries(fb)){
+    const conv=(data.conv*100).toFixed(0);
+    const marg=(data.marg*100).toFixed(0);
+    const idx=Object.keys(fb).indexOf(key);
+    html+=`<div class="feedback-month">
+      <div class="feedback-bars">
+        <div class="feedback-bar feedback-bar-conv" style="height:${data.conv*2}px">
+          <span class="feedback-val">${conv}%</span>
+        </div>
+        <div class="feedback-bar feedback-bar-marg" style="height:${data.marg*6}px">
+          <span class="feedback-val">${marg}%</span>
+        </div>
+      </div>
+      <span class="feedback-bar-label">${meses[idx]}</span>
+    </div>`;
+  }
+  $('feedback-visual').innerHTML=html;
+  
+  $('fb-m1-conv','30%');$('fb-m1-marg','18%');$('fb-m1-atend','60%');
+  $('fb-m2-conv','38%');$('fb-m2-marg','20%');$('fb-m2-atend','75%');
+  $('fb-m3-conv','45%');$('fb-m3-marg','22%');$('fb-m3-atend','85%');
+}
+
+// ── FEATURE 9: DASHBOARD EXECUTIVO ──────────────────────────────────────
+function renderDash(){
+  const tkt=S.ticket||1260,ll=S.ll||182,pedidos=20;
+  const rec=tkt*pedidos,lucro=ll*pedidos;
+  
+  $('dash-receita',brl(rec));
+  $('dash-lucro',brl(lucro));
+  $('dash-pedidos',pedidos);
+  $('dash-cac','R$ 28');
+  $('dash-conv','40%');
+  $('dash-health','8/10');
+}
+
+// ── SYNC LONG PHASE ────────────────────────────────────────────────────
+function syncLongPhase(){
+  calcBench();
+  renderFeedback();
+  renderDash();
+}
+
+</script>
+</div>
+</body>
+</html>

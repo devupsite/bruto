@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /interno/
 
 Sitemap: https://devupsite.github.io/bruto/sitemap.xml
