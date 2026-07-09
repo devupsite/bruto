@@ -342,6 +342,7 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
   <div class="ni" onclick="tab('feedback',this)">15 · Feedback Loops</div>
   <div class="ni" onclick="tab('dash',this)">16 · Dashboard</div>
   <div class="ni" onclick="tab('glos',this)">Glossário</div>
+  <div class="ni" onclick="tab('salvos',this)">💾 Cenários Salvos</div>
 </nav>
 
 <main class="main">
@@ -1454,6 +1455,20 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
   </div>
 </div>
 
+<!-- CENÁRIOS SALVOS -->
+<div class="pnl" id="p-salvos">
+  <div class="ph">
+    <div class="pey">💾 Persistência</div>
+    <div class="pt">Cenários Salvos</div>
+    <div class="pd">Salve o estado atual de qualquer módulo (todos os campos preenchidos) com um nome, e recarregue depois. Fica gravado no banco de dados — visível pra todo o time.</div>
+  </div>
+
+  <button class="ob-btn" style="margin-bottom:20px" onclick="salvarCenarioAtual()">💾 Salvar cenário atual</button>
+
+  <div id="salvos-status" style="font-size:12px;color:var(--g);margin-bottom:12px"></div>
+  <div id="salvos-lista"></div>
+</div>
+
 </main>
 
 <footer class="ftr">
@@ -1532,6 +1547,7 @@ function tab(id,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
   document.getElementById('p-'+id).classList.add('on');
   el.classList.add('on');
+  if(id==='salvos') carregarCenarios();
 }
 
 function selectProd(){ calcPrec(); }
@@ -1989,6 +2005,150 @@ function syncLongPhase(){
   calcBench();
   renderFeedback();
   renderDash();
+}
+
+// ── PERSISTÊNCIA DE CENÁRIOS (banco de dados via API) ──────────────────
+const API_SALVAR_CENARIO = 'https://brutoceramica.com.br/api/salvar-cenario.php';
+const API_LISTAR_CENARIOS = 'https://brutoceramica.com.br/api/listar-cenarios.php';
+
+const MODULO_LABELS = {
+  prec:'01 · Precificação', fret:'02 · Frete', cen:'03 · Cenários (Comercial)',
+  be:'04 · Break-even', ltv:'05 · LTV', verb:'06 · Verba', dias:'07 · 90 Dias',
+  b2b:'08 · B2B vs B2C', scen:'09 · Sensibilidade', opex:'10 · OpEx Real',
+  funil:'11 · Funil', mix:'12 · Mix Produtos', health:'13 · Health',
+  bench:'14 · Benchmark', feedback:'15 · Feedback Loops', dash:'16 · Dashboard',
+  glos:'Glossário'
+};
+
+function moduloAtivo(){
+  const pnl = document.querySelector('.pnl.on');
+  return pnl ? pnl.id.replace('p-','') : null;
+}
+
+// Coleta o valor de TODOS os campos com id da ferramenta inteira —
+// isso garante que, ao recarregar o cenário, tudo volta exatamente
+// como estava, em qualquer um dos 16 módulos.
+function coletarEstadoAtual(){
+  const parametros = {};
+  document.querySelectorAll('#app input[id], #app select[id], #app textarea[id]').forEach(el=>{
+    if(el.type==='checkbox' || el.type==='radio'){
+      parametros[el.id] = el.checked;
+    } else {
+      parametros[el.id] = el.value;
+    }
+  });
+  return parametros;
+}
+
+// Aplica um conjunto de parâmetros salvos de volta nos campos da tela
+// e dispara os eventos que já existem (oninput/onchange) pra recalcular tudo.
+function aplicarEstado(parametros){
+  Object.keys(parametros).forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(el.type==='checkbox' || el.type==='radio'){
+      el.checked = parametros[id];
+    } else {
+      el.value = parametros[id];
+    }
+    el.dispatchEvent(new Event('input', {bubbles:true}));
+    el.dispatchEvent(new Event('change', {bubbles:true}));
+  });
+}
+
+// Captura um resumo em texto do módulo ativo no momento do salvamento —
+// útil pra visualizar rapidamente o que foi salvo, sem precisar recarregar.
+function capturarResumoVisual(){
+  const pnl = document.querySelector('.pnl.on');
+  if(!pnl) return '';
+  return pnl.innerText.replace(/\s+/g,' ').trim().slice(0, 400);
+}
+
+function salvarCenarioAtual(){
+  const nome = prompt('Nome pra esse cenário (ex: "Meta agressiva Q3", "Pior caso frete Norte"):');
+  if(!nome || !nome.trim()) return;
+
+  const modulo = moduloAtivo();
+  const payload = {
+    nome_cenario: nome.trim(),
+    modulo: modulo,
+    parametros: coletarEstadoAtual(),
+    resultado: { modulo_label: MODULO_LABELS[modulo] || modulo, resumo: capturarResumoVisual() }
+  };
+
+  const statusEl = document.getElementById('salvos-status');
+  if(statusEl) statusEl.textContent = 'Salvando...';
+
+  fetch(API_SALVAR_CENARIO, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  }).then(r=>r.json()).then(data=>{
+    if(data.sucesso){
+      if(statusEl) statusEl.textContent = 'Cenário "'+nome.trim()+'" salvo com sucesso.';
+      carregarCenarios();
+    } else {
+      if(statusEl) statusEl.textContent = 'Erro ao salvar: '+(data.erro||'desconhecido');
+    }
+  }).catch(()=>{
+    if(statusEl) statusEl.textContent = 'Não foi possível conectar à API agora. Tente novamente.';
+  });
+}
+
+function carregarCenarios(){
+  const listaEl = document.getElementById('salvos-lista');
+  const statusEl = document.getElementById('salvos-status');
+  if(!listaEl) return;
+  listaEl.innerHTML = '<div style="color:var(--g);font-size:12px">Carregando...</div>';
+
+  fetch(API_LISTAR_CENARIOS).then(r=>r.json()).then(data=>{
+    if(!data.sucesso){
+      listaEl.innerHTML = '';
+      if(statusEl) statusEl.textContent = 'Erro ao carregar cenários salvos.';
+      return;
+    }
+    CENARIOS_CACHE = data.cenarios;
+    if(data.cenarios.length===0){
+      listaEl.innerHTML = '<div style="color:var(--g);font-size:12px">Nenhum cenário salvo ainda.</div>';
+      return;
+    }
+    listaEl.innerHTML = data.cenarios.map(c=>{
+      const label = (c.resultado && c.resultado.modulo_label) || MODULO_LABELS[c.modulo] || c.modulo || '—';
+      const data_fmt = new Date(c.criado_em.replace(' ','T')).toLocaleString('pt-BR');
+      return '<div style="border:1px solid var(--bd);border-radius:8px;padding:12px 14px;margin-bottom:10px">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px">'
+        +   '<div>'
+        +     '<div style="font-weight:600">'+escapeHtml(c.nome_cenario)+'</div>'
+        +     '<div style="font-size:11px;color:var(--g)">'+escapeHtml(label)+' · '+data_fmt+'</div>'
+        +   '</div>'
+        +   '<button class="ob-btn" style="padding:6px 12px;font-size:12px" onclick="carregarCenarioPorId('+c.id+')">Carregar</button>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }).catch(()=>{
+    listaEl.innerHTML = '';
+    if(statusEl) statusEl.textContent = 'Não foi possível conectar à API agora.';
+  });
+}
+
+// Guarda em memória os cenários já buscados, pra "Carregar" não
+// precisar de uma segunda chamada à API.
+let CENARIOS_CACHE = [];
+
+function carregarCenarioPorId(id){
+  const cenario = CENARIOS_CACHE.find(c=>c.id===id);
+  if(!cenario) return;
+  aplicarEstado(cenario.parametros);
+  if(cenario.modulo){
+    const navEl = Array.from(document.querySelectorAll('.ni')).find(n=>n.getAttribute('onclick')===`tab('${cenario.modulo}',this)`);
+    if(navEl) tab(cenario.modulo, navEl);
+  }
+  const statusEl = document.getElementById('salvos-status');
+  if(statusEl) statusEl.textContent = 'Cenário "'+cenario.nome_cenario+'" carregado.';
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
 </script>
