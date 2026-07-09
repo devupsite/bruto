@@ -36,7 +36,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 
-  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="styles.css?v=13">
   <style>
     .carousel {
       position: relative;
@@ -720,6 +720,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
           </div>
           <p class="calc__note" id="calc-note" hidden></p>
+          <p class="calc__pix" id="calc-pix" hidden><span class="calc__pix-badge">PIX</span> Economize <strong id="calc-pix-val">—</strong> pagando à vista</p>
           <button type="button" class="btn btn--outline lead-pdf__trigger" id="lead-pdf-open" data-product-name="Alpino" data-product-line="Rockface" data-product-price="252,90">
             <i class="ti ti-file-download" aria-hidden="true"></i>
             Baixar PDF com meus dados
@@ -1055,6 +1056,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (!larg || !alt) {
           document.getElementById('calc-result').hidden = true;
           document.getElementById('calc-note').hidden = true;
+          document.getElementById('calc-pix').hidden = true;
           return;
         }
         var area = larg * alt;
@@ -1071,6 +1073,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         var noteEl = document.getElementById('calc-note');
         noteEl.textContent = '≈ ' + pecasPorM2.toFixed(0) + ' peças/m² · considerando junta de 8mm';
         noteEl.hidden = false;
+
+        // Desconto Pix — deve bater com DESCONTO_PIX em parcelamento.js
+        var pixSavings = custo * 0.05;
+        document.getElementById('calc-pix-val').textContent = 'R$ ' + pixSavings.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('calc-pix').hidden = false;
       }
 
       ['calc-larg','calc-alt','calc-perda'].forEach(function(id) {
