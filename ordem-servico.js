@@ -15,6 +15,7 @@
   var JSPDF_CDN = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
   var API_SALVAR_ORDEM = 'https://brutoceramica.com.br/api/salvar-ordem.php';
   var API_WHATSAPP_FORNECEDOR = 'https://brutoceramica.com.br/api/whatsapp-fornecedor.php';
+  var API_ENVIAR_EMAIL = 'https://brutoceramica.com.br/api/enviar-email.php';
 
   var CATALOGO = [
     { slug: "brick-branco-rose", categoria: "Brick", nome: "Branco Rosé", sku: "56", preco: 153.90, dimensoes: "240mm x 65mm x 12mm" },
@@ -388,7 +389,9 @@
     doc.setTextColor(150, 150, 150);
     doc.text('Gerado em ' + new Date().toLocaleString('pt-BR') + ' · uso interno BRUTO', 20, 285);
 
+    var pdfBase64 = doc.output('datauristring');
     doc.save(numeroOS.toLowerCase() + '.pdf');
+    return pdfBase64;
   }
 
   /* ── Salva a ordem no banco de dados (não bloqueia PDF/WhatsApp) ── */
@@ -424,8 +427,8 @@
     });
   }
 
-  /* ── Mensagem de WhatsApp pro fornecedor ──────────────────────── */
-  function abrirWhatsAppFornecedor(dados, numeroOS) {
+  /* ── Mensagem do pedido — reutilizada no WhatsApp e no e-mail ──── */
+  function montarMensagemPedido(dados, numeroOS) {
     var linhas = [
       'Pedido ' + numeroOS + ' — BRUTO',
       '',
@@ -442,8 +445,12 @@
     });
     if (dados.prazo) linhas.push('', 'Prazo desejado: ' + dados.prazo);
     if (dados.observacoes) linhas.push('Obs: ' + dados.observacoes);
+    return linhas.join('\n');
+  }
 
-    var msg = linhas.join('\n');
+  /* ── Mensagem de WhatsApp pro fornecedor ──────────────────────── */
+  function abrirWhatsAppFornecedor(dados, numeroOS) {
+    var msg = montarMensagemPedido(dados, numeroOS);
 
     // Abre a aba já (dentro do clique do usuário, senão o navegador
     // bloqueia como pop-up) e só troca a URL dela quando o número
@@ -467,6 +474,25 @@
         errEl.textContent = 'PDF gerado, mas não consegui abrir o WhatsApp do fornecedor agora. Tente novamente em instantes.';
         errEl.hidden = false;
       });
+  }
+
+  /* ── Envia cópia interna por e-mail, com PDF anexado (não bloqueia) ── */
+  function enviarCopiaPorEmail(dados, numeroOS, pdfBase64) {
+    var msg = montarMensagemPedido(dados, numeroOS);
+
+    fetch(API_ENVIAR_EMAIL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        numero_os: numeroOS,
+        corpo_texto: msg,
+        pdf_base64: pdfBase64
+      })
+    }).catch(function (err) {
+      // Falha silenciosa: PDF, WhatsApp e banco já funcionaram normalmente,
+      // o e-mail é um extra e não deve travar o fluxo do usuário.
+      console.warn('Não foi possível enviar a cópia por e-mail:', err);
+    });
   }
 
   /* ── Botão principal ───────────────────────────────────────────── */
@@ -493,9 +519,10 @@
     btnGerar.textContent = 'Gerando...';
 
     loadJsPDF().then(function () {
-      gerarPDF(dados, numeroOS);
+      var pdfBase64 = gerarPDF(dados, numeroOS);
       abrirWhatsAppFornecedor(dados, numeroOS);
       salvarOrdemNoBanco(dados, numeroOS);
+      enviarCopiaPorEmail(dados, numeroOS, pdfBase64);
       confirmarNumeroOS();
       document.getElementById('os-numero-atual').textContent = proximoNumeroOS();
       btnGerar.disabled = false;
