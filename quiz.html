@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- Google Tag Manager
+       TODO: substituir GTM-XXXXXXX pelo container ID real (criar em tagmanager.google.com).
+       Depois de criado, conectar dentro do painel do GTM: Meta Pixel, Google Ads, GA4.
+       Configurado em 08/07/2026 (placeholder). -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+  <!-- End Google Tag Manager -->
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BRUTO — Descubra em 30 segundos qual revestimento combina com o seu projeto. Quiz rápido de estilo, ambiente e orçamento.">
+  <title>Descubra seu revestimento ideal — BRUTO</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Descubra seu revestimento ideal — BRUTO">
+  <meta property="og:description" content="Responda 4 perguntas rápidas e descubra qual linha de revestimento combina com o seu projeto.">
+  <meta property="og:image" content="https://devupsite.github.io/bruto/brick-branco-rose-frontal.webp">
+  <meta property="og:url" content="https://devupsite.github.io/bruto/quiz.html">
+  <meta property="og:locale" content="pt_BR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Descubra seu revestimento ideal — BRUTO">
+  <meta name="twitter:description" content="Responda 4 perguntas rápidas e descubra qual linha de revestimento combina com o seu projeto.">
+  <meta name="twitter:image" content="https://devupsite.github.io/bruto/brick-branco-rose-frontal.webp">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="styles.css?v=14">
+
+  <style>
+    .quiz-section {
+      padding: clamp(48px, 7vw, 96px) 0 clamp(80px, 10vw, 140px);
+      min-height: 60vh;
+    }
+    .quiz-box {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .quiz-progress {
+      display: flex;
+      gap: 6px;
+      margin-bottom: clamp(32px, 5vw, 48px);
+    }
+    .quiz-progress__bar {
+      flex: 1;
+      height: 3px;
+      background: var(--line, #e0e0e0);
+      overflow: hidden;
+    }
+    .quiz-progress__bar span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: var(--ferro);
+      transition: width .35s ease;
+    }
+    .quiz-progress__bar.is-done span { width: 100%; }
+    .quiz-progress__bar.is-active span { width: 100%; }
+
+    .quiz-step { display: none; }
+    .quiz-step.is-active { display: block; }
+
+    .quiz-eyebrow {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--concreto);
+      margin-bottom: 10px;
+    }
+    .quiz-question {
+      font-family: var(--f-display);
+      font-weight: 600;
+      font-size: clamp(24px, 3.5vw, 34px);
+      color: var(--ferro);
+      margin-bottom: clamp(28px, 4vw, 40px);
+      line-height: 1.2;
+    }
+
+    .quiz-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .quiz-options--3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 640px) {
+      .quiz-options, .quiz-options--3 { grid-template-columns: 1fr; }
+    }
+
+    .quiz-option {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 22px 20px;
+      border: 1px solid var(--line, #e0e0e0);
+      background: var(--surface);
+      cursor: pointer;
+      text-align: left;
+      transition: border-color .2s ease, background .2s ease;
+      font-family: var(--f-body);
+    }
+    .quiz-option:hover { border-color: var(--ferro); }
+    .quiz-option i { font-size: 22px; color: var(--concreto); }
+    .quiz-option:hover i { color: var(--ferro); }
+    .quiz-option strong {
+      font-family: var(--f-display);
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--ferro);
+    }
+    .quiz-option span.desc {
+      font-size: 13px;
+      color: var(--concreto);
+      line-height: 1.5;
+    }
+
+    .quiz-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 28px;
+      font-size: 13px;
+      color: var(--concreto);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .quiz-back:hover { color: var(--ferro); }
+
+    /* Resultado */
+    .quiz-result-head { margin-bottom: clamp(32px, 4vw, 48px); }
+    .quiz-result-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(20px, 2.6vw, 28px);
+    }
+    @media (max-width: 860px) {
+      .quiz-result-cards { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .quiz-result-cards { grid-template-columns: 1fr; }
+    }
+    .quiz-result-card {
+      display: block;
+      border: 1px solid var(--line, #e0e0e0);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color .2s ease;
+    }
+    .quiz-result-card:hover { border-color: var(--ferro); }
+    .quiz-result-card__img { aspect-ratio: 4/3; overflow: hidden; }
+    .quiz-result-card__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .quiz-result-card__body { padding: 16px; }
+    .quiz-result-card__match {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--argamassa);
+      background: var(--ferro);
+      padding: 3px 8px;
+      margin-bottom: 10px;
+    }
+
+    .quiz-restart {
+      margin-top: clamp(32px, 4vw, 48px);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="wrap header__inner">
+      <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+        <span class="logo-box">
+          <svg class="logo-mark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+          </svg>
+        </span>
+        <span class="logo-divider" aria-hidden="true"></span>
+        <span class="logo-word">Bruto</span>
+      </a>
+      <nav class="nav" id="main-nav" aria-label="Navegação principal">
+        <a href="texturas.html">Coleções &amp; Texturas</a>
+        <a href="paginacoes.html">Paginações</a>
+        <a href="blog.html">Blog</a>
+        <a href="index.html#projetos">Projetos</a>
+        <a href="index.html#sobre">Sobre</a>
+        <a href="index.html#amostra">Contato</a>
+      </nav>
+      <a href="index.html#amostra" class="btn btn--outline header__cta">Solicitar amostra</a>
+      <button class="burger" id="menu-btn" aria-label="Abrir menu" aria-expanded="false">
+        <i class="ti ti-menu-2" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+
+  <section class="quiz-section">
+    <div class="wrap quiz-box">
+
+      <div class="quiz-progress" id="quiz-progress">
+        <div class="quiz-progress__bar" data-step="1"><span></span></div>
+        <div class="quiz-progress__bar" data-step="2"><span></span></div>
+        <div class="quiz-progress__bar" data-step="3"><span></span></div>
+        <div class="quiz-progress__bar" data-step="4"><span></span></div>
+      </div>
+
+      <!-- Intro -->
+      <div class="quiz-step is-active" data-step="intro">
+        <p class="quiz-eyebrow">Quiz de estilo · 30 segundos</p>
+        <h1 class="quiz-question">Descubra qual revestimento combina com o seu projeto</h1>
+        <p style="color:var(--concreto); font-size:15px; line-height:1.7; margin-bottom:32px;">
+          4 perguntas rápidas sobre ambiente, tom, estilo e orçamento — no final,
+          mostramos as 3 opções que mais combinam com o que você procura.
+        </p>
+        <button type="button" class="btn btn--solid" id="quiz-start-btn">
+          Começar <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <!-- Pergunta 1: Ambiente -->
+      <div class="quiz-step" data-step="1">
+        <p class="quiz-eyebrow">Pergunta 1 de 4</p>
+        <h2 class="quiz-question">Onde vai ser aplicado?</h2>
+        <div class="quiz-options">
+          <button type="button" class="quiz-option" data-key="ambiente" data-value="interno">
+            <i class="ti ti-home" aria-hidden="true"></i>
+            <strong>Interno</strong>
+            <span class="desc">Sala, cozinha, dormitório...</span>
+          </button>
+          <button type="button" class="quiz-option" data-key="ambiente" data-value="externo">
+            <i class="ti ti-sun" aria-hidden="true"></i>
+            <strong>Externo</strong>
+            <span class="desc">Fachada, varanda, área externa</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pergunta 2: Tom -->
+      <div class="quiz-step" data-step="2">
+        <p class="quiz-eyebrow">Pergunta 2 de 4</p>
+        <h2 class="quiz-question">Qual tom você prefere?</h2>
+        <div class="quiz-options quiz-options--3">
+          <button type="button" class="quiz-option" data-key="tom" data-value="claro">
+            <i class="ti ti-sun-high" aria-hidden="true"></i>
+            <strong>Claro</strong>
+            <span class="desc">Leveza e luminosidade</span>
+          </button>
+          <button type="button" class="quiz-option" data-key="tom" data-value="medio">
+            <i class="ti ti-contrast" aria-hidden="true"></i>
+            <strong>Médio</strong>
+            <span class="desc">Terroso, equilibrado</span>
+          </button>
+          <button type="button" class="quiz-option" data-key="tom" data-value="escuro">
+            <i class="ti ti-moon" aria-hidden="true"></i>
+            <strong>Escuro</strong>
+            <span class="desc">Marcante, contemporâneo</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pergunta 3: Estilo -->
+      <div class="quiz-step" data-step="3">
+        <p class="quiz-eyebrow">Pergunta 3 de 4</p>
+        <h2 class="quiz-question">Qual estilo combina mais com você?</h2>
+        <div class="quiz-options quiz-options--3">
+          <button type="button" class="quiz-option" data-key="linha" data-value="brick">
+            <i class="ti ti-texture" aria-hidden="true"></i>
+            <strong>Rústico artesanal</strong>
+            <span class="desc">Textura de tijolinho, batido à mão</span>
+          </button>
+          <button type="button" class="quiz-option" data-key="linha" data-value="cimenticio">
+            <i class="ti ti-square" aria-hidden="true"></i>
+            <strong>Industrial contemporâneo</strong>
+            <span class="desc">Superfície lisa, efeito cimento</span>
+          </button>
+          <button type="button" class="quiz-option" data-key="linha" data-value="rockface">
+            <i class="ti ti-mountain" aria-hidden="true"></i>
+            <strong>Pedra natural</strong>
+            <span class="desc">Relevo marcado, alto impacto</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pergunta 4: Orçamento -->
+      <div class="quiz-step" data-step="4">
+        <p class="quiz-eyebrow">Pergunta 4 de 4</p>
+        <h2 class="quiz-question">Qual orçamento aproximado por m²?</h2>
+        <div class="quiz-options quiz-options--3">
+          <button type="button" class="quiz-option" data-key="preco" data-value="ate150">
+            <i class="ti ti-coin" aria-hidden="true"></i>
+            <strong>Até R$150</strong>
+            <span class="desc">Custo-benefício</span>
+          </button>
+          <button type="button" class="quiz-option" data-key="preco" data-value="150a200">
+            <i class="ti ti-coins" aria-hidden="true"></i>
+            <strong>R$150 – R$200</strong>
+            <span class="desc">Intermediário</span>
+          </button>
+          <button type="button" class="quiz-option" data-key="preco" data-value="acima200">
+            <i class="ti ti-diamond" aria-hidden="true"></i>
+            <strong>Acima de R$200</strong>
+            <span class="desc">Linha premium</span>
+          </button>
+        </div>
+      </div>
+
+      <button type="button" class="quiz-back" id="quiz-back-btn" hidden>
+        <i class="ti ti-arrow-left" aria-hidden="true"></i> Voltar
+      </button>
+
+      <!-- Resultado -->
+      <div class="quiz-step" data-step="resultado">
+        <div class="quiz-result-head">
+          <p class="quiz-eyebrow">Seu resultado</p>
+          <h2 class="quiz-question">Estas opções combinam com você</h2>
+        </div>
+        <div class="quiz-result-cards" id="quiz-result-cards"></div>
+        <div class="quiz-restart">
+          <button type="button" class="btn btn--outline" id="quiz-restart-btn">
+            <i class="ti ti-refresh" aria-hidden="true"></i> Refazer o quiz
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__grid">
+        <div>
+          <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+            <span class="logo-box">
+              <svg class="logo-mark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+              </svg>
+            </span>
+            <span class="logo-divider" aria-hidden="true"></span>
+            <span class="logo-word">Bruto</span>
+          </a>
+          <p class="footer__tagline">Curadoria de revestimentos artesanais para projetos de alta exigência.</p>
+        </div>
+        <div>
+          <p class="footer__col-title">Coleções</p>
+          <nav class="footer__links">
+            <a href="texturas.html#brick">Brick</a>
+            <a href="texturas.html#cimenticio">Cimentício</a>
+            <a href="texturas.html#rockface">Rockface</a>
+          </nav>
+        </div>
+        <div>
+          <p class="footer__col-title">Navegação</p>
+          <nav class="footer__links">
+            <a href="paginacoes.html">Paginações</a>
+            <a href="blog.html">Blog</a>
+            <a href="index.html#projetos">Projetos</a>
+            <a href="index.html#sobre">Sobre</a>
+          </nav>
+        </div>
+        <div>
+          <p class="footer__col-title">Contato</p>
+          <nav class="footer__links">
+            <a href="mailto:contato@brutoceramica.com.br">contato@brutoceramica.com.br</a>
+            <a href="https://www.instagram.com/brutorevestimentos" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://wa.me/5511990049468?text=Ol%C3%A1%21%20Vim%20pelo%20site%20da%20Bruto%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." target="_blank" rel="noopener">WhatsApp</a>
+          </nav>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2026 Bruto. Todos os direitos reservados.</p>
+        <div class="footer__bottom-links">
+          <a href="privacidade.html">Privacidade</a>
+          <a href="termos.html">Termos</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    // ── Dataset real de produtos (extraído de texturas.html) ──
+    var PRODUTOS = [
+      {href:"produto-brick-branco-rose.html", nome:"Branco Rosé", linha:"brick", ambiente:["interno","externo"], tom:"claro", preco:"150a200", precoTxt:"153,90", thumb:"brick-branco-rose-frontal-thumb.webp"},
+      {href:"produto-brick-eco-palha.html", nome:"Eco Palha", linha:"brick", ambiente:["interno","externo"], tom:"claro", preco:"150a200", precoTxt:"153,90", thumb:"brick-eco-palha-frontal-thumb.webp"},
+      {href:"produto-brick-lumus.html", nome:"Lumus", linha:"brick", ambiente:["interno","externo"], tom:"medio", preco:"150a200", precoTxt:"164,90", thumb:"brick-lumus-frontal-thumb.webp"},
+      {href:"produto-brick-mescla-prime.html", nome:"Mescla Prime", linha:"brick", ambiente:["interno","externo"], tom:"medio", preco:"150a200", precoTxt:"153,90", thumb:"brick-mescla-prime-frontal-thumb.webp"},
+      {href:"produto-brick-natura.html", nome:"Natura", linha:"brick", ambiente:["interno","externo"], tom:"medio", preco:"ate150", precoTxt:"104,90", thumb:"brick-natura-frontal-thumb.webp"},
+      {href:"produto-brick-rosso-prime.html", nome:"Rosso Prime", linha:"brick", ambiente:["interno","externo"], tom:"medio", preco:"ate150", precoTxt:"142,90", thumb:"brick-rosso-prime-frontal-thumb.webp"},
+      {href:"produto-brick-rusticatto-fume.html", nome:"Rusticatto Fumê", linha:"brick", ambiente:["interno","externo"], tom:"escuro", preco:"150a200", precoTxt:"186,90", thumb:"brick-rusticatto-fume-frontal-thumb.webp"},
+      {href:"produto-brick-rusticatto-rosso.html", nome:"Rusticatto Rosso", linha:"brick", ambiente:["interno","externo"], tom:"medio", preco:"150a200", precoTxt:"159,90", thumb:"brick-rusticatto-rosso-frontal-thumb.webp"},
+      {href:"produto-brick-rusticatto-sertao.html", nome:"Rusticatto do Sertão", linha:"brick", ambiente:["interno","externo"], tom:"medio", preco:"150a200", precoTxt:"164,90", thumb:"brick-rusticatto-sertao-frontal-thumb.webp"},
+      {href:"produto-brick-rusticatto-terra-negra.html", nome:"Rusticatto Terra Negra", linha:"brick", ambiente:["interno","externo"], tom:"escuro", preco:"150a200", precoTxt:"197,90", thumb:"brick-rusticatto-terra-negra-frontal-thumb.webp"},
+      {href:"produto-brick-terra-cerrado.html", nome:"Terra do Cerrado", linha:"brick", ambiente:["interno","externo"], tom:"medio", preco:"ate150", precoTxt:"148,90", thumb:"brick-terra-cerrado-frontal-thumb.webp"},
+      {href:"produto-brick-vulcano.html", nome:"Vulcano", linha:"brick", ambiente:["interno","externo"], tom:"escuro", preco:"150a200", precoTxt:"164,90", thumb:"brick-vulcano-frontal-thumb.webp"},
+      {href:"produto-cimenticio-alpino.html", nome:"Alpino", linha:"cimenticio", ambiente:["interno","externo"], tom:"claro", preco:"150a200", precoTxt:"186,90", thumb:"cimenticio-alpino-frontal-thumb.webp"},
+      {href:"produto-cimenticio-grigio.html", nome:"Grigio", linha:"cimenticio", ambiente:["interno","externo"], tom:"medio", preco:"150a200", precoTxt:"186,90", thumb:"cimenticio-grigio-frontal-thumb.webp"},
+      {href:"produto-cimenticio-urban.html", nome:"Urban", linha:"cimenticio", ambiente:["interno","externo"], tom:"escuro", preco:"150a200", precoTxt:"186,90", thumb:"cimenticio-urban-frontal-thumb.webp"},
+      {href:"produto-rockface-alpino.html", nome:"Alpino", linha:"rockface", ambiente:["externo"], tom:"claro", preco:"acima200", precoTxt:"252,90", thumb:"rockface-alpino-frontal-thumb.webp"},
+      {href:"produto-rockface-brisa.html", nome:"Brisa", linha:"rockface", ambiente:["externo"], tom:"claro", preco:"150a200", precoTxt:"186,90", thumb:"rockface-brisa-frontal-thumb.webp"},
+      {href:"produto-rockface-grigio.html", nome:"Grigio", linha:"rockface", ambiente:["externo"], tom:"medio", preco:"acima200", precoTxt:"252,90", thumb:"rockface-grigio-frontal-thumb.webp"},
+      {href:"produto-rockface-urban.html", nome:"Urban", linha:"rockface", ambiente:["externo"], tom:"escuro", preco:"acima200", precoTxt:"252,90", thumb:"rockface-urban-frontal-thumb.webp"}
+    ];
+
+    var respostas = {};
+    var ordem = ["intro", "1", "2", "3", "4", "resultado"];
+    var atual = 0;
+
+    var steps = document.querySelectorAll(".quiz-step");
+    var bars = document.querySelectorAll(".quiz-progress__bar");
+    var backBtn = document.getElementById("quiz-back-btn");
+    var progressWrap = document.getElementById("quiz-progress");
+
+    function mostrar(indice) {
+      steps.forEach(function (s) { s.classList.remove("is-active"); });
+      var alvo = document.querySelector('.quiz-step[data-step="' + ordem[indice] + '"]');
+      alvo.classList.add("is-active");
+
+      var isPergunta = indice >= 1 && indice <= 4;
+      backBtn.hidden = !isPergunta || indice === 1;
+      progressWrap.style.display = (ordem[indice] === "intro" || ordem[indice] === "resultado") ? "none" : "flex";
+
+      bars.forEach(function (b) {
+        var step = parseInt(b.dataset.step, 10);
+        b.classList.toggle("is-done", step < indice);
+        b.classList.toggle("is-active", step === indice);
+      });
+
+      if (window.brutoTrack) {
+        window.brutoTrack("quiz_step", { step: ordem[indice] });
+      }
+    }
+
+    document.getElementById("quiz-start-btn").addEventListener("click", function () {
+      atual = 1;
+      mostrar(atual);
+      if (window.brutoTrack) window.brutoTrack("quiz_start", {});
+    });
+
+    document.querySelectorAll(".quiz-option").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        respostas[btn.dataset.key] = btn.dataset.value;
+        if (atual < 4) {
+          atual++;
+          mostrar(atual);
+        } else {
+          calcularResultado();
+          atual = 5;
+          mostrar(atual);
+        }
+      });
+    });
+
+    backBtn.addEventListener("click", function () {
+      if (atual > 1) {
+        atual--;
+        mostrar(atual);
+      }
+    });
+
+    document.getElementById("quiz-restart-btn").addEventListener("click", function () {
+      respostas = {};
+      atual = 0;
+      mostrar(atual);
+    });
+
+    function pontuar(produto) {
+      var pontos = 0;
+      if (produto.ambiente.indexOf(respostas.ambiente) !== -1) pontos += 3;
+      if (produto.tom === respostas.tom) pontos += 3;
+      if (produto.linha === respostas.linha) pontos += 4;
+      if (produto.preco === respostas.preco) pontos += 2;
+      return pontos;
+    }
+
+    function calcularResultado() {
+      var ranking = PRODUTOS.map(function (p) {
+        return { produto: p, pontos: pontuar(p) };
+      }).sort(function (a, b) { return b.pontos - a.pontos; });
+
+      var top3 = ranking.slice(0, 3);
+      var container = document.getElementById("quiz-result-cards");
+      container.innerHTML = "";
+
+      top3.forEach(function (item, i) {
+        var p = item.produto;
+        var card = document.createElement("a");
+        card.href = p.href;
+        card.className = "quiz-result-card";
+        card.innerHTML =
+          '<div class="quiz-result-card__img"><img src="' + p.thumb + '" alt="' + p.nome + '" loading="lazy"></div>' +
+          '<div class="quiz-result-card__body">' +
+          (i === 0 ? '<span class="quiz-result-card__match">Melhor combinação</span><br>' : '') +
+          '<p class="item-card__eyebrow eyebrow" style="margin-top:0">' + p.linha.charAt(0).toUpperCase() + p.linha.slice(1) + ' · R$ ' + p.precoTxt + '/m²</p>' +
+          '<h3 class="item-card__title">' + p.nome + '</h3>' +
+          '</div>';
+        card.addEventListener("click", function () {
+          if (window.brutoTrack) {
+            window.brutoTrack("quiz_result_click", { produto: p.nome, posicao: i + 1 });
+          }
+        });
+        container.appendChild(card);
+      });
+
+      if (window.brutoTrack) {
+        window.brutoTrack("quiz_complete", {
+          ambiente: respostas.ambiente, tom: respostas.tom,
+          linha: respostas.linha, preco: respostas.preco,
+          resultado_top1: top3[0].produto.nome
+        });
+      }
+    }
+
+    mostrar(0);
+
+    // Reveal padrão do site
+    document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("visible"); });
+
+    // Menu mobile
+    var menuBtn = document.getElementById("menu-btn");
+    var mainNav = document.getElementById("main-nav");
+    menuBtn.addEventListener("click", function () {
+      var isOpen = mainNav.classList.toggle("nav--open");
+      menuBtn.setAttribute("aria-expanded", isOpen);
+      menuBtn.querySelector("i").className = isOpen ? "ti ti-x" : "ti ti-menu-2";
+    });
+    mainNav.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        mainNav.classList.remove("nav--open");
+        menuBtn.setAttribute("aria-expanded", false);
+        menuBtn.querySelector("i").className = "ti ti-menu-2";
+      });
+    });
+  </script>
+
+  <script src="analytics.js"></script>
+  <script defer src="promo-frete-gratis.js?v=2"></script>
+  <script defer src="header-scroll.js?v=3"></script>
+  <script defer src="back-to-top.js?v=1"></script>
+  <script defer src="mobile-cta-bar.js?v=1"></script>
+  <script defer src="cookie-consent.js?v=1"></script>
+
+</body>
+</html>
