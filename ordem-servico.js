@@ -4,17 +4,17 @@
    1) PDF formatado da Ordem de Serviço (pra anexar/enviar)
    2) Mensagem de WhatsApp pronta pra encaminhar ao fornecedor
 
-   CONFIGURAÇÃO NECESSÁRIA ANTES DE USAR DE VERDADE:
-   1) FORNECEDOR_WHATSAPP — número da Cerâmica Faion (ou de quem
-      recebe o pedido), formato internacional sem símbolos
-      (ex: 5511987654321). Ainda é placeholder.
+   O número de WhatsApp do fornecedor NÃO fica neste arquivo (ele é
+   público no GitHub). Ele mora só no servidor, em
+   api/whatsapp-fornecedor.php, e é buscado em tempo real ao clicar
+   em "Gerar Ordem de Serviço".
 ════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  var FORNECEDOR_WHATSAPP = '55SEUNUMEROAQUI'; // TODO: trocar antes de usar de verdade
   var JSPDF_CDN = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
   var API_SALVAR_ORDEM = 'https://brutoceramica.com.br/api/salvar-ordem.php';
+  var API_WHATSAPP_FORNECEDOR = 'https://brutoceramica.com.br/api/whatsapp-fornecedor.php';
 
   var CATALOGO = [
     { slug: "brick-branco-rose", categoria: "Brick", nome: "Branco Rosé", sku: "56", preco: 153.90, dimensoes: "240mm x 65mm x 12mm" },
@@ -173,16 +173,82 @@
       });
     });
 
+    var cep = document.getElementById('os-cliente-cep').value.trim();
+    var rua = document.getElementById('os-cliente-rua').value.trim();
+    var numeroCasa = document.getElementById('os-cliente-numero').value.trim();
+    var complemento = document.getElementById('os-cliente-complemento').value.trim();
+    var bairro = document.getElementById('os-cliente-bairro').value.trim();
+    var cidade = document.getElementById('os-cliente-cidade').value.trim();
+    var uf = document.getElementById('os-cliente-uf').value.trim();
+
+    var enderecoPartes = [];
+    var ruaNumero = [rua, numeroCasa].filter(Boolean).join(', ');
+    if (ruaNumero) enderecoPartes.push(ruaNumero);
+    if (complemento) enderecoPartes.push(complemento);
+    if (bairro) enderecoPartes.push(bairro);
+    var cidadeUf = [cidade, uf].filter(Boolean).join(' - ');
+    if (cidadeUf) enderecoPartes.push(cidadeUf);
+    if (cep) enderecoPartes.push('CEP ' + cep);
+
     return {
       cliente: document.getElementById('os-cliente-nome').value.trim(),
       whatsapp: document.getElementById('os-cliente-whatsapp').value.trim(),
       email: document.getElementById('os-cliente-email').value.trim(),
-      endereco: document.getElementById('os-cliente-endereco').value.trim(),
+      endereco: enderecoPartes.join(', '),
       prazo: document.getElementById('os-prazo').value.trim(),
       observacoes: document.getElementById('os-observacoes').value.trim(),
       itens: itens
     };
   }
+
+  /* ── CEP: máscara + autopreenchimento via ViaCEP ──────────────── */
+  function somenteDigitos(v) { return (v || '').replace(/\D/g, ''); }
+
+  function formatarCep(v) {
+    var d = somenteDigitos(v).slice(0, 8);
+    if (d.length > 5) return d.slice(0, 5) + '-' + d.slice(5);
+    return d;
+  }
+
+  function buscarEnderecoPorCep(cepDigitado) {
+    var cepLimpo = somenteDigitos(cepDigitado);
+    var statusEl = document.getElementById('os-cep-status');
+    if (cepLimpo.length !== 8) return;
+
+    statusEl.hidden = false;
+    statusEl.textContent = 'Buscando endereço pelo CEP...';
+
+    fetch('https://viacep.com.br/ws/' + cepLimpo + '/json/')
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.erro) {
+          statusEl.textContent = 'CEP não encontrado — preencha o endereço manualmente.';
+          return;
+        }
+        document.getElementById('os-cliente-rua').value = data.logradouro || '';
+        document.getElementById('os-cliente-bairro').value = data.bairro || '';
+        document.getElementById('os-cliente-cidade').value = data.localidade || '';
+        document.getElementById('os-cliente-uf').value = data.uf || '';
+        statusEl.textContent = 'Endereço preenchido — confira e complete o número.';
+        document.getElementById('os-cliente-numero').focus();
+      })
+      .catch(function () {
+        statusEl.textContent = 'Não foi possível buscar o CEP agora — preencha manualmente.';
+      });
+  }
+
+  (function initCep() {
+    var cepInput = document.getElementById('os-cliente-cep');
+    cepInput.addEventListener('input', function () {
+      cepInput.value = formatarCep(cepInput.value);
+      if (somenteDigitos(cepInput.value).length === 8) {
+        buscarEnderecoPorCep(cepInput.value);
+      }
+    });
+    cepInput.addEventListener('blur', function () {
+      buscarEnderecoPorCep(cepInput.value);
+    });
+  })();
 
   /* ── Gera o PDF da Ordem de Serviço ───────────────────────────── */
   function gerarPDF(dados, numeroOS) {
@@ -378,8 +444,29 @@
     if (dados.observacoes) linhas.push('Obs: ' + dados.observacoes);
 
     var msg = linhas.join('\n');
-    var url = 'https://wa.me/' + FORNECEDOR_WHATSAPP + '?text=' + encodeURIComponent(msg);
-    window.open(url, '_blank');
+
+    // Abre a aba já (dentro do clique do usuário, senão o navegador
+    // bloqueia como pop-up) e só troca a URL dela quando o número
+    // do fornecedor chegar do servidor.
+    var janela = window.open('', '_blank');
+
+    fetch(API_WHATSAPP_FORNECEDOR)
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data || !data.numero) throw new Error('Número do fornecedor ausente na resposta.');
+        var url = 'https://wa.me/' + data.numero + '?text=' + encodeURIComponent(msg);
+        if (janela) {
+          janela.location.href = url;
+        } else {
+          window.open(url, '_blank');
+        }
+      })
+      .catch(function (err) {
+        console.warn('Não foi possível obter o WhatsApp do fornecedor:', err);
+        if (janela) janela.close();
+        errEl.textContent = 'PDF gerado, mas não consegui abrir o WhatsApp do fornecedor agora. Tente novamente em instantes.';
+        errEl.hidden = false;
+      });
   }
 
   /* ── Botão principal ───────────────────────────────────────────── */

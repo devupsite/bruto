@@ -130,6 +130,14 @@
       border-color: var(--ferro);
     }
 
+    .os-cep-status {
+      grid-column: 1 / -1;
+      margin: -8px 0 0;
+      font-family: var(--f-body);
+      font-size: 12px;
+      color: var(--titanio);
+    }
+
     /* ── Tabela de itens ─────────────────────────────── */
     .os-items-table {
       width: 100%;
@@ -323,10 +331,35 @@
           <span>Prazo desejado <em>(opcional)</em></span>
           <input type="text" id="os-prazo" placeholder="Ex: até 15 dias">
         </label>
-        <label class="os-field os-field--full">
-          <span>Endereço de entrega</span>
-          <textarea id="os-cliente-endereco" placeholder="Rua, número, bairro, cidade, CEP"></textarea>
+        <label class="os-field">
+          <span>CEP</span>
+          <input type="text" id="os-cliente-cep" placeholder="00000-000" inputmode="numeric" maxlength="9">
         </label>
+        <label class="os-field os-field--full">
+          <span>Rua / Logradouro</span>
+          <input type="text" id="os-cliente-rua" placeholder="Preenchido automaticamente pelo CEP">
+        </label>
+        <label class="os-field">
+          <span>Número</span>
+          <input type="text" id="os-cliente-numero" placeholder="123">
+        </label>
+        <label class="os-field">
+          <span>Complemento <em>(opcional)</em></span>
+          <input type="text" id="os-cliente-complemento" placeholder="Apto, bloco, referência">
+        </label>
+        <label class="os-field">
+          <span>Bairro</span>
+          <input type="text" id="os-cliente-bairro" placeholder="Preenchido automaticamente">
+        </label>
+        <label class="os-field">
+          <span>Cidade</span>
+          <input type="text" id="os-cliente-cidade" placeholder="Preenchido automaticamente">
+        </label>
+        <label class="os-field">
+          <span>UF</span>
+          <input type="text" id="os-cliente-uf" placeholder="SP" maxlength="2">
+        </label>
+        <p class="os-cep-status" id="os-cep-status" hidden></p>
       </div>
     </section>
 
