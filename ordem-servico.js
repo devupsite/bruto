@@ -67,15 +67,11 @@
     return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  /* ── Número da OS (contador local, persistido no navegador) ──── */
-  function proximoNumeroOS() {
-    var atual = parseInt(localStorage.getItem('os_contador') || '0', 10);
-    return 'OS-' + String(atual + 1).padStart(4, '0');
-  }
-
-  function confirmarNumeroOS() {
-    var atual = parseInt(localStorage.getItem('os_contador') || '0', 10);
-    localStorage.setItem('os_contador', String(atual + 1));
+  /* ── Número da OS: gerado pelo banco de dados (id sequencial),
+     não mais por contador local — assim é o mesmo em qualquer
+     navegador/dispositivo. Ver salvarOrdemNoBanco(). ────────────── */
+  function numeroTemporario() {
+    return 'TMP-' + String(Date.now()).slice(-6);
   }
 
   /* ── Monta os <option> do select de produto, agrupado por categoria ── */
@@ -395,7 +391,11 @@
   }
 
   /* ── Salva a ordem no banco de dados (não bloqueia PDF/WhatsApp) ── */
-  function salvarOrdemNoBanco(dados, numeroOS) {
+  /* ── Salva a ordem no banco PRIMEIRO — o número da OS vem da
+     resposta do servidor (id sequencial do MySQL), então é único
+     em qualquer navegador/dispositivo. Retorna uma Promise que
+     resolve com { numero_os, id }. ─────────────────────────────── */
+  function salvarOrdemNoBanco(dados) {
     var totalGeral = dados.itens.reduce(function (acc, it) { return acc + it.subtotal; }, 0);
 
     var contatoPartes = [];
@@ -408,7 +408,6 @@
     if (dados.observacoes) obsPartes.push(dados.observacoes);
 
     var payload = {
-      numero_os: numeroOS,
       cliente_nome: dados.cliente,
       cliente_contato: contatoPartes.join(' · '),
       itens: dados.itens,
@@ -416,15 +415,18 @@
       observacoes: obsPartes.join(' | ')
     };
 
-    fetch(API_SALVAR_ORDEM, {
+    return fetch(API_SALVAR_ORDEM, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    }).catch(function (err) {
-      // Falha silenciosa: o PDF e o WhatsApp já foram gerados normalmente,
-      // o registro no banco é um extra e não deve travar o fluxo do usuário.
-      console.warn('Não foi possível salvar a ordem no banco:', err);
-    });
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (resultado) {
+        if (!resultado || !resultado.sucesso || !resultado.numero_os) {
+          throw new Error((resultado && resultado.erro) || 'Resposta inesperada do servidor.');
+        }
+        return resultado;
+      });
   }
 
   /* ── Mensagem do pedido — reutilizada no WhatsApp e no e-mail ──── */
@@ -499,6 +501,15 @@
   var btnGerar = document.getElementById('os-gerar');
   var errEl = document.getElementById('os-error');
 
+  function gerarTudo(dados, numeroOS) {
+    return loadJsPDF().then(function () {
+      var pdfBase64 = gerarPDF(dados, numeroOS);
+      abrirWhatsAppFornecedor(dados, numeroOS);
+      enviarCopiaPorEmail(dados, numeroOS, pdfBase64);
+      document.getElementById('os-numero-atual').textContent = 'Nova OS';
+    });
+  }
+
   btnGerar.addEventListener('click', function () {
     errEl.hidden = true;
     var dados = coletarDados();
@@ -514,28 +525,45 @@
       return;
     }
 
-    var numeroOS = proximoNumeroOS();
     btnGerar.disabled = true;
     btnGerar.textContent = 'Gerando...';
 
-    loadJsPDF().then(function () {
-      var pdfBase64 = gerarPDF(dados, numeroOS);
-      abrirWhatsAppFornecedor(dados, numeroOS);
-      salvarOrdemNoBanco(dados, numeroOS);
-      enviarCopiaPorEmail(dados, numeroOS, pdfBase64);
-      confirmarNumeroOS();
-      document.getElementById('os-numero-atual').textContent = proximoNumeroOS();
-      btnGerar.disabled = false;
-      btnGerar.innerHTML = '<i class="ti ti-file-download" aria-hidden="true"></i> Gerar Ordem de Serviço';
-    }).catch(function () {
-      errEl.textContent = 'Não foi possível gerar o PDF agora. Tente novamente.';
-      errEl.hidden = false;
-      btnGerar.disabled = false;
-      btnGerar.innerHTML = '<i class="ti ti-file-download" aria-hidden="true"></i> Gerar Ordem de Serviço';
-    });
+    // Salva no banco PRIMEIRO — o número oficial da OS vem da resposta
+    // do servidor (id sequencial), garantindo que nunca se repete,
+    // mesmo entre navegadores/dispositivos diferentes.
+    salvarOrdemNoBanco(dados)
+      .then(function (resultado) {
+        return { numeroOS: resultado.numero_os, avisoBanco: null };
+      })
+      .catch(function (err) {
+        // Se o banco não respondeu, ainda assim gera tudo com um número
+        // temporário — não trava o atendimento — mas avisa claramente.
+        console.warn('Não foi possível confirmar o número oficial da OS:', err);
+        var numeroTemp = numeroTemporario();
+        return {
+          numeroOS: numeroTemp,
+          avisoBanco: 'Atenção: não consegui confirmar com o banco de dados agora — a OS foi gerada com número temporário (' + numeroTemp + ') e pode não ter sido salva. Confira depois.'
+        };
+      })
+      .then(function (info) {
+        return gerarTudo(dados, info.numeroOS).then(function () {
+          if (info.avisoBanco) {
+            errEl.textContent = info.avisoBanco;
+            errEl.hidden = false;
+          }
+        });
+      })
+      .catch(function () {
+        errEl.textContent = 'Não foi possível gerar o PDF agora. Tente novamente.';
+        errEl.hidden = false;
+      })
+      .then(function () {
+        btnGerar.disabled = false;
+        btnGerar.innerHTML = '<i class="ti ti-file-download" aria-hidden="true"></i> Gerar Ordem de Serviço';
+      });
   });
 
   /* ── Inicialização ─────────────────────────────────────────────── */
-  document.getElementById('os-numero-atual').textContent = proximoNumeroOS();
+  document.getElementById('os-numero-atual').textContent = 'Nova OS';
   addItemRow();
 })();
