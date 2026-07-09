@@ -834,3 +834,31 @@ se quiser manter o padrão, gerar manualmente `nome-480w.webp` e
 o mesmo processo (é só reaproveitar a lógica: gera variante se largura
 original > alvo, e adiciona srcset em toda tag `<img src="X.webp">` que
 tiver variante correspondente).
+
+---
+
+## 29. Desconto Pix corrigido (10%→5%) + economia em R$ na calculadora (09/07/2026)
+
+Correção: o desconto Pix estava hardcoded em 10% no `parcelamento.js`
+(item 23) — Rafa corrigiu, é **5%**. `DESCONTO_PIX` e o texto do badge
+atualizados, versão do script bumpada (`parcelamento.js?v=1` → `?v=2`) nas
+19 páginas de produto pra evitar cache antigo com o número errado.
+
+Também implementada a sugestão de mostrar a economia em **R$** (não só %)
+dentro do resultado da calculadora de quantidade — decisão: manter o "5%
+OFF" como está perto do preço/m² (sempre válido, compacto), mas mostrar o
+valor em reais só depois que a pessoa calcula a metragem real dela, porque
+aí o número é concreto ("economize R$ 76,95") em vez de abstrato.
+
+**Atenção — número duplicado em dois arquivos:** o `0.05` do desconto Pix
+agora existe em dois lugares que **precisam ficar sincronizados
+manualmente**:
+- `parcelamento.js` → `DESCONTO_PIX`
+- Cada `produto-*.html` → dentro de `recalc()`, comentário
+  `// Desconto Pix — deve bater com DESCONTO_PIX em parcelamento.js`
+
+Não dava pra compartilhar a constante entre os dois porque a calculadora é
+JS inline por página (mesmo padrão dos outros cálculos ali), não um arquivo
+compartilhado. **Se o percentual do Pix mudar de novo, tem que editar os
+dois lugares** — `parcelamento.js` E as 19 páginas de produto (comentário
+deixado no código pra lembrar).
