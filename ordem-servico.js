@@ -14,6 +14,7 @@
 
   var FORNECEDOR_WHATSAPP = '55SEUNUMEROAQUI'; // TODO: trocar antes de usar de verdade
   var JSPDF_CDN = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+  var API_SALVAR_ORDEM = 'https://brutoceramica.com.br/api/salvar-ordem.php';
 
   var CATALOGO = [
     { slug: "brick-branco-rose", categoria: "Brick", nome: "Branco Rosé", sku: "56", preco: 153.90, dimensoes: "240mm x 65mm x 12mm" },
@@ -324,6 +325,39 @@
     doc.save(numeroOS.toLowerCase() + '.pdf');
   }
 
+  /* ── Salva a ordem no banco de dados (não bloqueia PDF/WhatsApp) ── */
+  function salvarOrdemNoBanco(dados, numeroOS) {
+    var totalGeral = dados.itens.reduce(function (acc, it) { return acc + it.subtotal; }, 0);
+
+    var contatoPartes = [];
+    if (dados.whatsapp) contatoPartes.push(dados.whatsapp);
+    if (dados.email) contatoPartes.push(dados.email);
+
+    var obsPartes = [];
+    if (dados.endereco) obsPartes.push('Entrega: ' + dados.endereco);
+    if (dados.prazo) obsPartes.push('Prazo: ' + dados.prazo);
+    if (dados.observacoes) obsPartes.push(dados.observacoes);
+
+    var payload = {
+      numero_os: numeroOS,
+      cliente_nome: dados.cliente,
+      cliente_contato: contatoPartes.join(' · '),
+      itens: dados.itens,
+      total_geral: totalGeral,
+      observacoes: obsPartes.join(' | ')
+    };
+
+    fetch(API_SALVAR_ORDEM, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(function (err) {
+      // Falha silenciosa: o PDF e o WhatsApp já foram gerados normalmente,
+      // o registro no banco é um extra e não deve travar o fluxo do usuário.
+      console.warn('Não foi possível salvar a ordem no banco:', err);
+    });
+  }
+
   /* ── Mensagem de WhatsApp pro fornecedor ──────────────────────── */
   function abrirWhatsAppFornecedor(dados, numeroOS) {
     var linhas = [
@@ -374,6 +408,7 @@
     loadJsPDF().then(function () {
       gerarPDF(dados, numeroOS);
       abrirWhatsAppFornecedor(dados, numeroOS);
+      salvarOrdemNoBanco(dados, numeroOS);
       confirmarNumeroOS();
       document.getElementById('os-numero-atual').textContent = proximoNumeroOS();
       btnGerar.disabled = false;
