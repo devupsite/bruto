@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Ordem de Serviço — Ferramenta Interna BRUTO</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="styles.css?v=11">
+
+  <style>
+    .os-shell {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: clamp(32px, 5vw, 56px) var(--pad-x, 24px) 120px;
+    }
+
+    .os-tag {
+      display: inline-block;
+      font-family: var(--f-body);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--titanio);
+      border: 1px solid var(--line);
+      padding: 4px 10px;
+      margin-bottom: 16px;
+    }
+
+    .os-header-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .os-numero {
+      font-family: var(--f-display);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--ferro);
+      border: 1px solid var(--line);
+      padding: 6px 14px;
+      white-space: nowrap;
+    }
+
+    .os-sub {
+      font-family: var(--f-body);
+      font-size: 14px;
+      color: var(--concreto);
+      max-width: 60ch;
+      margin-bottom: 40px;
+    }
+
+    .os-section {
+      margin-bottom: 40px;
+    }
+
+    .os-section__title {
+      font-family: var(--f-display);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--ferro);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .os-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .os-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .os-field--full { grid-column: 1 / -1; }
+
+    .os-field span {
+      font-family: var(--f-body);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--grafite);
+    }
+
+    .os-field span em {
+      color: var(--titanio);
+      font-style: normal;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .os-field input,
+    .os-field textarea,
+    .os-field select {
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      background: var(--argamassa);
+      font-family: var(--f-body);
+      font-size: 14px;
+      color: var(--ferro);
+      width: 100%;
+    }
+
+    .os-field textarea {
+      resize: vertical;
+      min-height: 64px;
+      font-family: var(--f-body);
+    }
+
+    .os-field input:focus,
+    .os-field textarea:focus,
+    .os-field select:focus {
+      outline: none;
+      border-color: var(--ferro);
+    }
+
+    /* ── Tabela de itens ─────────────────────────────── */
+    .os-items-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .os-items-table thead th {
+      text-align: left;
+      font-family: var(--f-body);
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--concreto);
+      padding: 0 8px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .os-items-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    .os-items-table td select,
+    .os-items-table td input {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      background: var(--argamassa);
+      font-family: var(--f-body);
+      font-size: 13px;
+      color: var(--ferro);
+      width: 100%;
+    }
+
+    .os-items-table td input:focus,
+    .os-items-table td select:focus {
+      outline: none;
+      border-color: var(--ferro);
+    }
+
+    .col-produto  { width: 24%; }
+    .col-padrao   { width: 18%; }
+    .col-qtd      { width: 9%; }
+    .col-preco    { width: 12%; }
+    .col-subtotal { width: 12%; }
+    .col-obs      { width: 18%; }
+    .col-remove   { width: 5%; }
+
+    .os-item-subtotal {
+      font-family: var(--f-body);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ferro);
+      white-space: nowrap;
+    }
+
+    .os-item-remove {
+      background: none;
+      border: none;
+      color: var(--titanio);
+      cursor: pointer;
+      padding: 6px;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .os-item-remove:hover { color: #A33; }
+
+    .os-add-item {
+      margin-top: 14px;
+      font-family: var(--f-body);
+      font-size: 13px;
+      color: var(--ferro);
+      background: none;
+      border: 1px dashed var(--line);
+      padding: 10px 16px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      transition: border-color .2s ease, background .2s ease;
+    }
+
+    .os-add-item:hover { border-color: var(--ferro); background: var(--argamassa); }
+
+    .os-total-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: baseline;
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .os-total-row span:first-child {
+      font-family: var(--f-body);
+      font-size: 12px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--concreto);
+    }
+
+    #os-total-geral {
+      font-family: var(--f-display);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--ferro);
+    }
+
+    .os-error {
+      font-family: var(--f-body);
+      font-size: 13px;
+      color: #A33;
+      margin-bottom: 16px;
+    }
+
+    .os-submit-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .os-submit-row .btn {
+      min-width: 260px;
+      justify-content: center;
+    }
+
+    @media (max-width: 640px) {
+      .os-grid { grid-template-columns: 1fr; }
+      .os-items-table thead { display: none; }
+      .os-items-table, .os-items-table tbody, .os-items-table tr, .os-items-table td {
+        display: block;
+        width: 100%;
+      }
+      .os-items-table tr {
+        border: 1px solid var(--line);
+        margin-bottom: 16px;
+        padding: 12px;
+      }
+      .os-items-table td { border-bottom: none; padding: 6px 0; }
+      .os-submit-row .btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header" style="position:relative">
+    <div class="wrap header__inner">
+      <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+        <span class="logo-box">
+          <svg class="logo-mark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+          </svg>
+        </span>
+        <span class="logo-divider" aria-hidden="true"></span>
+        <span class="logo-word">Bruto</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="os-shell">
+    <span class="os-tag">Uso interno · não indexado</span>
+
+    <div class="os-header-row">
+      <h1 class="display-title" style="font-size: clamp(28px, 4vw, 38px);">Nova Ordem de Serviço</h1>
+      <span class="os-numero" id="os-numero-atual">OS-0001</span>
+    </div>
+    <p class="os-sub">
+      Digite os dados de um pedido recebido pelo WhatsApp. Ao gerar, a
+      ferramenta cria o PDF da ordem e já abre o WhatsApp com a mensagem
+      pronta pra encaminhar ao fornecedor.
+    </p>
+
+    <!-- ── Dados do cliente ────────────────────────────── -->
+    <section class="os-section">
+      <h2 class="os-section__title">Dados do cliente</h2>
+      <div class="os-grid">
+        <label class="os-field">
+          <span>Nome</span>
+          <input type="text" id="os-cliente-nome" placeholder="Nome do cliente" required>
+        </label>
+        <label class="os-field">
+          <span>WhatsApp</span>
+          <input type="tel" id="os-cliente-whatsapp" placeholder="(11) 90000-0000" required>
+        </label>
+        <label class="os-field">
+          <span>E-mail <em>(opcional)</em></span>
+          <input type="email" id="os-cliente-email" placeholder="cliente@email.com">
+        </label>
+        <label class="os-field">
+          <span>Prazo desejado <em>(opcional)</em></span>
+          <input type="text" id="os-prazo" placeholder="Ex: até 15 dias">
+        </label>
+        <label class="os-field os-field--full">
+          <span>Endereço de entrega</span>
+          <textarea id="os-cliente-endereco" placeholder="Rua, número, bairro, cidade, CEP"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <!-- ── Itens do pedido ─────────────────────────────── -->
+    <section class="os-section">
+      <h2 class="os-section__title">Itens do pedido</h2>
+      <table class="os-items-table">
+        <thead>
+          <tr>
+            <th class="col-produto">Produto</th>
+            <th class="col-padrao">Padrão</th>
+            <th class="col-qtd">m²</th>
+            <th class="col-preco">Preço/m²</th>
+            <th class="col-subtotal">Subtotal</th>
+            <th class="col-obs">Observação</th>
+            <th class="col-remove"></th>
+          </tr>
+        </thead>
+        <tbody id="os-items-body"></tbody>
+      </table>
+
+      <button type="button" class="os-add-item" id="os-add-item">+ Adicionar item</button>
+
+      <div class="os-total-row">
+        <span>Total geral</span>
+        <span id="os-total-geral">R$ 0,00</span>
+      </div>
+    </section>
+
+    <!-- ── Observações gerais ──────────────────────────── -->
+    <section class="os-section">
+      <h2 class="os-section__title">Observações gerais</h2>
+      <label class="os-field os-field--full">
+        <span>Observações <em>(opcional)</em></span>
+        <textarea id="os-observacoes" placeholder="Qualquer informação adicional pro fornecedor"></textarea>
+      </label>
+    </section>
+
+    <p class="os-error" id="os-error" hidden></p>
+
+    <div class="os-submit-row">
+      <button type="button" class="btn btn--solid" id="os-gerar">
+        <i class="ti ti-file-download" aria-hidden="true"></i>
+        Gerar Ordem de Serviço
+      </button>
+    </div>
+  </main>
+
+  <!-- ── Template de linha de item (clonado via JS) ──────── -->
+  <template id="os-item-template">
+    <tr>
+      <td class="col-produto">
+        <select class="os-item-produto"></select>
+      </td>
+      <td class="col-padrao">
+        <select class="os-item-padrao"></select>
+      </td>
+      <td class="col-qtd">
+        <input type="text" class="os-item-qtd" placeholder="0" inputmode="decimal">
+      </td>
+      <td class="col-preco">
+        <input type="text" class="os-item-preco" placeholder="0,00" inputmode="decimal">
+      </td>
+      <td class="col-subtotal">
+        <span class="os-item-subtotal">R$ 0,00</span>
+      </td>
+      <td class="col-obs">
+        <input type="text" class="os-item-obs" placeholder="Opcional">
+      </td>
+      <td class="col-remove">
+        <button type="button" class="os-item-remove" aria-label="Remover item">
+          <i class="ti ti-x" aria-hidden="true"></i>
+        </button>
+      </td>
+    </tr>
+  </template>
+
+  <script defer src="ordem-servico.js?v=1"></script>
+</body>
+</html>
