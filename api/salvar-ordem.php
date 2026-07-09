@@ -6,4 +6,4 @@
    automático do Git.
    Este arquivo pode ir pro GitHub sem problema.
 ════════════════════════════════════════════════════════════════ */
-require dirname($_SERVER['DOCUMENT_ROOT']) . '/bruto-secrets/salvar-ordem.php';
+require dirname($_SERVER['DOCUMENT_ROOT']) . '/bruto-secrets/API/salvar-ordem.php';

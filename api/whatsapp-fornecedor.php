@@ -5,4 +5,4 @@
    bruto-secrets/, protegido do deploy automático do Git.
    Este arquivo pode ir pro GitHub sem problema.
 ════════════════════════════════════════════════════════════════ */
-require dirname($_SERVER['DOCUMENT_ROOT']) . '/bruto-secrets/whatsapp-fornecedor.php';
+require dirname($_SERVER['DOCUMENT_ROOT']) . '/bruto-secrets/API/whatsapp-fornecedor.php';

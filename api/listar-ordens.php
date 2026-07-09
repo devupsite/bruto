@@ -5,4 +5,4 @@
    protegido do deploy automático do Git.
    Este arquivo pode ir pro GitHub sem problema.
 ════════════════════════════════════════════════════════════════ */
-require dirname($_SERVER['DOCUMENT_ROOT']) . '/bruto-secrets/listar-ordens.php';
+require dirname($_SERVER['DOCUMENT_ROOT']) . '/bruto-secrets/API/listar-ordens.php';
