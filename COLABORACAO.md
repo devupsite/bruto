@@ -288,13 +288,46 @@ considerar o site pronto para ir ao ar de verdade:
      profissional que está sendo adquirido. Confirmar com o Rafael antes
      de trocar, pode ser o mesmo caso do Formspree.
 
-2. **Ferramenta futura: "ordem de serviço do pedido".** Depois que o site
-   estiver pronto, o Rafael quer desenvolver, com o Claude, uma ferramenta
-   separada que gera uma ordem de serviço a partir dos pedidos recebidos
-   (pelos botões ou pelo PDF), pra encaminhar ao fornecedor. Ainda não
-   começou — é trabalho futuro, não confundir com o `lead-pdf.js` atual
-   (que gera o orçamento pro *cliente final*, não a ordem de serviço pro
-   *fornecedor*).
+2. **Ferramenta de "ordem de serviço do pedido" — construída em 08/07/2026**
+   (a pedido do Ewerson, não confundir com o pedido do Rafael registrado
+   antes — os dois quereriam essa ferramenta eventualmente). Arquivos:
+   `ordem-servico.html` + `ordem-servico.js`. Decisões tomadas com o
+   Ewerson antes de construir:
+   - **Entrada manual**: Ewerson/Rafael digitam o pedido recebido pelo
+     WhatsApp direto na ferramenta — não há integração automática puxando
+     dados do WhatsApp ou do Formspree (o site é estático, sem backend,
+     isso não é viável hoje).
+   - **Saída dupla num só botão**: gera o PDF da OS (visual parecido com
+     o `lead-pdf.js`, mas simples — sem jsPDF+html2canvas de tela, só
+     texto/tabela) **e** abre o WhatsApp com mensagem pronta pro
+     fornecedor, ao mesmo tempo.
+   - **Onde mora**: página no próprio site, `ordem-servico.html`, com
+     `<meta name="robots" content="noindex, nofollow">` e sem link em
+     nenhum menu — só quem tiver a URL direta acessa. Decisão do Claude
+     (Ewerson pediu pra decidir o mais prático), não peça pra linkar no
+     menu principal por engano, é ferramenta interna.
+   - **Catálogo embutido**: os 19 produtos (nome/SKU/preço/dimensões)
+     estão hardcoded dentro de `ordem-servico.js`, extraídos direto das
+     páginas de produto no momento da construção. Se preço ou catálogo
+     mudar depois, esse arquivo fica desatualizado — não há fonte única
+     de verdade compartilhada entre `ordem-servico.js` e as páginas de
+     produto. Se for reconciliar isso no futuro, considerar extrair pra
+     um `catalogo.json` único que ambos os lados leem.
+   - **Numeração da OS**: contador sequencial (`OS-0001`, `OS-0002`...)
+     guardado em `localStorage` do navegador de quem usa — não é
+     compartilhado entre dispositivos/pessoas. Se Ewerson e Rafael usarem
+     de máquinas diferentes, cada um terá sua própria sequência (pode
+     gerar números repetidos entre os dois). Ainda não resolvido.
+   - **Pendente pra funcionar de ponta a ponta**: `FORNECEDOR_WHATSAPP` no
+     topo do `ordem-servico.js` ainda é placeholder
+     (`'55SEUNUMEROAQUI'`) — falta o número real de quem recebe o pedido
+     na Cerâmica Faion. Mesmo padrão de bloqueio do `FORMSPREE_ENDPOINT`
+     e do footer: aguardando decisão/dado do Rafael.
+   - Testado com jsdom (lógica de itens, cálculo de subtotal/total,
+     validação) — tudo passou. **Não testado num navegador real** nem a
+     geração do PDF de fato (o sandbox não tem acesso a
+     `cdn.jsdelivr.net`), então vale um teste manual no site antes de
+     confiar 100%.
 
 3. **`lead-pdf.js` agora tem um "modo estático"** (04/07/2026, a pedido do
    Ewerson) — além do fluxo dinâmico original (PDF gerado com jsPDF a
