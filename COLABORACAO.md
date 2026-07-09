@@ -793,3 +793,44 @@ tinha: `category` (`Revestimento Brick/Cimentício/Rockface`) e
 `additionalProperty` com a dimensão real (`.product-specs`). Reaproveita
 dados que já existem na própria página, sem inventar nada. JSON validado
 nas 19 páginas + testado no Playwright pra confirmar que não quebrou nada.
+
+---
+
+## 28. Imagens responsivas — srcset/sizes nas 150 imagens do catálogo (08/07/2026)
+
+Todas as imagens eram servidas na mesma resolução pra qualquer tela — um
+card pequeno no grid de `texturas.html` baixava o mesmo arquivo de ~300KB
+que o lightbox em tela cheia. `loading="lazy"` já estava correto em 100%
+das páginas (a única imagem sem o atributo era o placeholder do lightbox,
+`src=""` preenchido via JS — não conta).
+
+**O que foi feito:**
+- Geradas variantes de 480w e 800w (WebP, qualidade 80) pra toda imagem
+  original maior que isso — 284 arquivos novos, ~16MB. Imagens que já eram
+  ≤800px de largura (16 delas) não geraram variante (evita upscale).
+  Convenção de nome: `arquivo-480w.webp`, `arquivo-800w.webp` — o arquivo
+  original mantém o nome exato de sempre (não mexe em nada que já é
+  referenciado em `og:image`, JSON-LD, `data-product-image`, arrays de
+  galeria etc).
+- 266 tags `<img>` em 30 páginas (19 produtos + `index.html` + `blog.html` +
+  8 posts) ganharam `srcset` (as variantes disponíveis + o original com a
+  largura real) e `sizes="(max-width: 480px) 480px, (max-width: 900px)
+  800px, 1200px"`.
+
+**Sobre o `sizes`:** é o mesmo valor pra toda imagem do site, não foi
+calibrado caixa a caixa pelo CSS real de cada componente (grid pequeno,
+galeria, hero etc) — seria muito mais trabalho pra um ganho marginal. Esse
+valor genérico já garante que celular carrega ~480px e tablet/notebook
+~800px em vez da imagem original inteira, que é o grosso do ganho.
+
+Testado em Playwright: viewport mobile (390px) carrega a variante `-480w`;
+viewport desktop (1400px) carrega o arquivo original. Sem erros de JS em
+nenhuma das 30 páginas tocadas.
+
+**Se adicionar produto/imagem nova no futuro:** não tem srcset automático —
+se quiser manter o padrão, gerar manualmente `nome-480w.webp` e
+`nome-800w.webp` (resize + WebP qualidade 80) e adicionar
+`srcset`/`sizes` na tag `<img>`, ou pedir pra próxima sessão rodar de novo
+o mesmo processo (é só reaproveitar a lógica: gera variante se largura
+original > alvo, e adiciona srcset em toda tag `<img src="X.webp">` que
+tiver variante correspondente).
