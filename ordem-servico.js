@@ -16,25 +16,25 @@
   var JSPDF_CDN = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
 
   var CATALOGO = [
-    { slug: "brick-branco-rose", categoria: "Brick", nome: "Branco Rosé", sku: "56", preco: 139.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "brick-eco-palha", categoria: "Brick", nome: "Eco Palha", sku: "57", preco: 139.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "brick-lumus", categoria: "Brick", nome: "Lumus", sku: "73", preco: 149.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "brick-mescla-prime", categoria: "Brick", nome: "Mescla Prime", sku: "54", preco: 139.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "brick-natura", categoria: "Brick", nome: "Natura", sku: "48", preco: 94.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "brick-rosso-prime", categoria: "Brick", nome: "Rosso Prime", sku: "53", preco: 129.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "brick-rusticatto-fume", categoria: "Brick", nome: "Rusticatto Fumê", sku: "72", preco: 169.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "brick-rusticatto-rosso", categoria: "Brick", nome: "Rusticatto Rosso", sku: "77", preco: 144.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "brick-rusticatto-sertao", categoria: "Brick", nome: "Rusticatto do Sertão", sku: "61", preco: 149.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "brick-rusticatto-terra-negra", categoria: "Brick", nome: "Rusticatto Terra Negra", sku: "60", preco: 179.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "brick-terra-cerrado", categoria: "Brick", nome: "Terra do Cerrado", sku: "47", preco: 134.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "brick-vulcano", categoria: "Brick", nome: "Vulcano", sku: "59", preco: 149.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "cimenticio-alpino", categoria: "Cimentício", nome: "Alpino", sku: "80", preco: 169.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "cimenticio-grigio", categoria: "Cimentício", nome: "Grigio", sku: "81", preco: 169.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "cimenticio-urban", categoria: "Cimentício", nome: "Urban", sku: "82", preco: 169.90, dimensoes: "240mm x 65mm x 12mm" },
-    { slug: "rockface-alpino", categoria: "Rockface", nome: "Alpino", sku: "91", preco: 229.90, dimensoes: "290mm x 95mm x 20mm" },
-    { slug: "rockface-brisa", categoria: "Rockface", nome: "Brisa", sku: "90", preco: 169.90, dimensoes: "260mm x 75mm x 10mm" },
-    { slug: "rockface-grigio", categoria: "Rockface", nome: "Grigio", sku: "92", preco: 229.90, dimensoes: "290mm x 95mm x 20mm" },
-    { slug: "rockface-urban", categoria: "Rockface", nome: "Urban", sku: "93", preco: 229.90, dimensoes: "290mm x 95mm x 20mm" }
+    { slug: "brick-branco-rose", categoria: "Brick", nome: "Branco Rosé", sku: "56", preco: 153.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "brick-eco-palha", categoria: "Brick", nome: "Eco Palha", sku: "57", preco: 153.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "brick-lumus", categoria: "Brick", nome: "Lumus", sku: "73", preco: 164.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "brick-mescla-prime", categoria: "Brick", nome: "Mescla Prime", sku: "54", preco: 153.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "brick-natura", categoria: "Brick", nome: "Natura", sku: "48", preco: 104.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "brick-rosso-prime", categoria: "Brick", nome: "Rosso Prime", sku: "53", preco: 142.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "brick-rusticatto-fume", categoria: "Brick", nome: "Rusticatto Fumê", sku: "72", preco: 186.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "brick-rusticatto-rosso", categoria: "Brick", nome: "Rusticatto Rosso", sku: "77", preco: 159.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "brick-rusticatto-sertao", categoria: "Brick", nome: "Rusticatto do Sertão", sku: "61", preco: 164.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "brick-rusticatto-terra-negra", categoria: "Brick", nome: "Rusticatto Terra Negra", sku: "60", preco: 197.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "brick-terra-cerrado", categoria: "Brick", nome: "Terra do Cerrado", sku: "47", preco: 148.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "brick-vulcano", categoria: "Brick", nome: "Vulcano", sku: "59", preco: 164.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "cimenticio-alpino", categoria: "Cimentício", nome: "Alpino", sku: "80", preco: 186.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "cimenticio-grigio", categoria: "Cimentício", nome: "Grigio", sku: "81", preco: 186.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "cimenticio-urban", categoria: "Cimentício", nome: "Urban", sku: "82", preco: 186.90, dimensoes: "240mm x 65mm x 12mm" },
+    { slug: "rockface-alpino", categoria: "Rockface", nome: "Alpino", sku: "91", preco: 252.90, dimensoes: "290mm x 95mm x 20mm" },
+    { slug: "rockface-brisa", categoria: "Rockface", nome: "Brisa", sku: "90", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
+    { slug: "rockface-grigio", categoria: "Rockface", nome: "Grigio", sku: "92", preco: 252.90, dimensoes: "290mm x 95mm x 20mm" },
+    { slug: "rockface-urban", categoria: "Rockface", nome: "Urban", sku: "93", preco: 252.90, dimensoes: "290mm x 95mm x 20mm" }
   ];
 
   var PADROES = [
