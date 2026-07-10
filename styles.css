@@ -2896,6 +2896,10 @@
       /* elementos flutuantes sobem para não ficarem atrás da barra */
       .back-to-top { bottom: 72px; }
       .amostra-pill { bottom: 124px; }
+      /* botão de cookies sobe pra mesma linha do back-to-top,
+         reproduzindo a mesma disposição do desktop (extremos opostos) */
+      .cookie-consent__reopen { bottom: 72px; }
+      .cookie-consent { bottom: 72px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .mobile-cta-bar { transition: opacity .01s linear; }
