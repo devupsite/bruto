@@ -1040,3 +1040,46 @@ em `styles.css`. O elemento é injetado no DOM mas não tem posicionamento
 fixo nem estilo — a feature parece estar quebrada/invisível desde que foi
 criada. Vale alguém dar uma olhada.
 
+
+---
+
+## 33. Rodada de aprimoramentos: bug da mobile-cta-bar + SEO + perf (09/07/2026)
+
+Auditoria completa do site seguida de 7 commits, um por tema:
+
+1. **`mobile-cta-bar` corrigida** — o bug registrado no item 26 (script
+   carregado em todas as páginas, mas nenhum CSS existia) foi resolvido:
+   bloco `.mobile-cta-bar` adicionado ao fim de `styles.css` (visível só
+   <900px, aparece com `.is-visible` após 120px de scroll, respeita
+   `safe-area-inset-bottom`). No mobile, `.back-to-top` e `.amostra-pill`
+   ganharam offset (`bottom: 72px`/`124px`) pra não ficarem atrás da barra.
+   `styles.css?v=15 → v16` nas 37 páginas.
+2. **Titles SEO nas 19 páginas de produto** — de "Natura — BRUTO" para
+   "Brick Natura — Tijolinho Artesanal para Revestimento | BRUTO" (sufixo
+   por linha). `title` + `og:title` + `twitter:title`, 3 tags por página.
+3. **FAQPage schema no `index.html`** — JSON-LD gerado a partir das 6
+   perguntas já visíveis no FAQ. Se o texto do FAQ mudar, o schema precisa
+   ser atualizado junto (estão duplicados por natureza do JSON-LD).
+4. **`og-image.jpg` dedicada (1200x630)** no index + `og:url` corrigida de
+   `/index.html` pra `/`. As páginas de produto continuam com a foto do
+   produto como og:image — isso é correto, não "corrigir".
+5. **`.htaccess` novo** — `ErrorDocument 404` (o `404.html` existia mas
+   nunca era servido), força HTTPS, headers de segurança (sem CSP de
+   propósito — inline scripts + GTM quebrariam), cache (HTML no-cache,
+   CSS/JS 7d, imagens 30d) e gzip. Tudo com guard `<IfModule>`.
+6. **Tabler Icons fixado em `3.44.0`** (era `@latest` — sem controle de
+   versão, atualização do pacote podia quebrar ícones silenciosamente).
+   Versão confirmada no registry do npm antes de fixar.
+7. **Perf no index** — `width`/`height` nas 13 `<img>` (CLS),
+   `fetchpriority="high"` nas 3 do hero (LCP), `loading="lazy"` na imagem
+   do Sobre (1200px, carregava eager abaixo da dobra).
+
+**Pendências que continuam abertas da auditoria (não feitas nesta rodada):**
+GTM-XXXXXXX placeholder (depende do ID real do Rafael — item nº 1 pra
+tráfego pago), consolidação de popups (frete + exit-intent + cookies
+empilham na mesma sessão), busca por texto em `texturas.html`, botão de
+amostra nos cards do catálogo, tabela de frete por região, seção "como
+funciona a compra", minificação de CSS/JS, limpeza de imagens órfãs
+(~dezenas de .webp não referenciados), automatizar bump de `?v=` no
+sync-catalogo, versionar scripts geradores de PDF, script de verificação
+de integridade (links + scripts compartilhados por página).
