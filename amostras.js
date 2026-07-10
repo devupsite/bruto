@@ -305,15 +305,20 @@
     };
 
     var nomesProdutos = sacola.map(function (item) { return item.linha + ' — ' + item.nome; }).join(', ');
+    var amostrasFormatadas = sacola.map(function (item, i) {
+      return (i + 1) + '. ' + item.linha + ' — ' + item.nome;
+    }).join('\n');
 
     var submitBtn = form.querySelector('.lead-modal__submit');
     submitBtn.disabled = true;
     submitBtn.textContent = 'Enviando...';
 
     var payload = {
+      _subject: 'Pedido de amostras (' + sacola.length + ') — ' + lead.nome,
       nome: lead.nome, whatsapp: lead.whatsapp, email: lead.email || '',
       cep: lead.cep, endereco: lead.endereco,
-      amostras: nomesProdutos,
+      quantidade_amostras: sacola.length,
+      amostras: amostrasFormatadas,
       origem: 'sacola-amostras'
     };
 
