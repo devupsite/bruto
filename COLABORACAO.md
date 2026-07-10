@@ -862,3 +862,136 @@ JS inline por página (mesmo padrão dos outros cálculos ali), não um arquivo
 compartilhado. **Se o percentual do Pix mudar de novo, tem que editar os
 dois lugares** — `parcelamento.js` E as 19 páginas de produto (comentário
 deixado no código pra lembrar).
+
+---
+
+## 30. Reajuste de preços +10% (08/07/2026, a pedido do Ewerson)
+
+Todos os 19 produtos tiveram o preço aumentado em pelo menos 10%,
+arredondado pra cima até o próximo ",90" (mantém o padrão de preço
+"quebrado" já usado no site — ex: R$ 139,90 → R$ 153,90, não R$ 153,89).
+Aumento real ficou entre 10,00% e 10,54% dependendo do arredondamento.
+
+**Cada preço aparece em 4 lugares por produto — todos atualizados:**
+1. `<p class="price">` — preço principal exibido na página do produto
+2. `"price":` no JSON-LD (schema.org, usado por rich snippets do Google)
+3. `data-product-price=` no botão do `lead-pdf.js` — alimenta o PDF de
+   orçamento que o cliente recebe. **Esse é o mais importante de não
+   esquecer** — se ficar desatualizado, cliente recebe PDF com preço
+   errado (pra menos, prejuízo direto).
+4. `.tex-card__price` em `texturas.html` — card do produto no catálogo
+
+A primeira passada só cobriu o item 1. Os itens 2 e 3 usam formatos
+diferentes (JSON-LD usa ponto decimal sem "R$"; `data-product-price` usa
+vírgula mas sem o prefixo "R$ ") e ficaram de fora até uma varredura
+posterior pegar o resíduo. Se for reajustar preço de novo no futuro,
+**checar os 4 formatos**, não só o preço visível na tela.
+
+**`data-preco` em `texturas.html`** (usado pelo filtro de faixa de preço)
+foi recalculado caso a caso — 3 produtos que antes eram "até R$150" agora
+caem em "R$150–200" com o novo preço (as fronteiras do filtro em si
+— 150 e 200 — não mudaram, só a classificação de qual produto cai em
+qual faixa). Se o Rafael achar que as fronteiras do filtro fazem menos
+sentido agora com o catálogo todo mais caro, isso é uma decisão de design
+separada, não resolvida aqui.
+
+**`ordem-servico.js`**: catálogo interno (`CATALOGO`) também atualizado
+com os novos preços — sem isso, a ferramenta de OS ficaria gerando pedido
+com preço antigo.
+
+**Não tocado**: `bruto-produtos.json` (arquivo de referência solto em
+`/mnt/user-data/outputs`, não faz parte do site publicado, não estava
+com prioridade de atualizar).
+
+**Nota pra quem mexer no schema.org (item 27) ou no desconto Pix (item 29)
+depois desta seção:** confirme que os preços usados nesses cálculos já
+refletem os novos valores — outra sessão já teve que descartar um rascunho
+de schema.org que tinha sido feito com os preços antigos, antes deste
+reajuste ficar visível pra ela.
+
+---
+
+## 31. Deploy real é Hostinger, não GitHub Pages (09/07/2026)
+
+Descoberto nesta sessão, a pedido do Rafael: **o site em produção está
+hospedado na Hostinger**, não no GitHub Pages. Até este item, todo o
+protocolo deste documento (cache-busting `?v=N`, "confirmar que subiu"
+olhando `git log`/GitHub, etc.) foi escrito assumindo GitHub Pages como
+destino final — isso estava incompleto.
+
+**Pipeline real:** `git push` → GitHub → Hostinger faz **pull automático**
+do repositório e publica a partir daí. Ou seja, existe um elo a mais na
+cadeia entre o commit e o site ao vivo.
+
+**Por que isso importa pra próxima sessão:**
+- Confirmar `git log --oneline -3` ou olhar o commit no GitHub **não
+  garante** que a mudança já está no ar — isso só confirma que chegou no
+  GitHub. O Hostinger precisa completar o pull dele antes de refletir.
+- Se o pull do Hostinger for por polling (intervalo fixo) em vez de
+  webhook, pode haver um atraso real entre push e publicação — vale
+  confirmar com o Rafael qual é o mecanismo e, se possível, a frequência.
+- Cache-busting (`?v=N`, item 11) continua necessário do mesmo jeito —
+  isso é cache de navegador/CDN do lado do visitante, independente de qual
+  plataforma serve o arquivo.
+- Se algo parecer "commitado mas não mudou no site", antes de assumir bug
+  no CSS/JS, checar se o Hostinger já puxou o commit mais recente.
+
+**Pendência:** mecanismo exato do pull automático (webhook vs. polling,
+frequência) ainda não documentado aqui — perguntar ao Rafael se for
+relevante pra investigar uma defasagem futura.
+
+---
+
+## 32. `catalogo.json` criado como fonte única de preço/dimensão/SKU (09/07/2026)
+
+A pedido do Rafael, depois de discutir a necessidade real: preço e
+dimensão de cada produto viviam duplicados em até 5 lugares (página de
+produto x4 formatos + `ordem-servico.js`), e isso já causou dado
+temporariamente desatualizado pelo menos duas vezes (reajuste de +10%,
+item 30; desconto Pix, item 29).
+
+**Decisão de arquitetura — script gerador, não fetch em tempo real:** o
+site é estático sem processo de build, então `catalogo.json` **não é lido
+pelo navegador**. Ele é a fonte que um script (`scripts/sync-catalogo.py`)
+lê pra regenerar os arquivos estáticos sob demanda. Isso evita o risco de
+SEO/flash-de-conteúdo-vazio de uma abordagem client-side, e segue o padrão
+que o projeto já usa (scripts geradores pra PDFs, srcset, etc — ver itens
+13.3, 20, 28).
+
+**Arquivos:**
+- `catalogo.json` — 19 produtos, campos `slug`, `nome`, `linha`, `sku`,
+  `preco`, `dimensoes_mm`. **Não inclui peso** (removido de propósito, ver
+  item 22 — escala não confirmada com a Faion).
+- `scripts/sync-catalogo.py` — lê `catalogo.json` e escreve em:
+  1. `produto-<slug>.html` — preço visível (`.price`), JSON-LD (`"price"`),
+     `data-product-price` (usado pelo `lead-pdf.js`), dimensão (`.product-specs`).
+  2. `texturas.html` — `data-preco` (bucket do filtro, **derivado
+     automaticamente** do valor numérico: ≤150 `ate150`, ≤200 `150a200`,
+     acima `acima200` — antes isso era classificado manualmente a cada
+     reajuste, ver nota do item 30) e `.tex-card__price`.
+  3. `ordem-servico.js` — reescreve o array `CATALOGO` inteiro a partir do
+     `catalogo.json`.
+- Uso: `python3 scripts/sync-catalogo.py --check` (dry-run, só mostra o
+  que mudaria) e `python3 scripts/sync-catalogo.py` (aplica). **Rodar
+  sempre com `--check` primeiro.**
+
+**Bug real encontrado e corrigido nesta migração:** `ordem-servico.js`
+tinha a dimensão placeholder antiga (`240mm x 65mm x 12mm`) em **todos**
+os 15 produtos Brick e Cimentício — a correção real de dimensão (item 16)
+nunca tinha chegado nesse arquivo, só nas páginas de produto. Só Rockface
+estava certo lá. Corrigido automaticamente pelo primeiro `sync-catalogo.py`
+rodado (diff conferido linha a linha antes do commit, `node --check`
+validado).
+
+**O que o script NÃO faz:**
+- Não faz bump de `?v=N` em cache-busting (item 11) — isso continua
+  manual, avaliar se necessário a cada rodada.
+- Não sincroniza os textos de parcelamento (`parcelamento.js` e o
+  comentário duplicado do desconto Pix dentro de cada `produto-*.html`,
+  ver item 29) — isso é lógica de desconto, não dado de catálogo.
+- Não mexe no schema.org além do campo `"price"` já existente.
+
+**Quando o preço ou dimensão de um produto mudar no futuro:** editar só o
+`catalogo.json`, rodar `--check`, revisar o diff, depois rodar sem `--check`
+e commitar. Elimina a necessidade de caçar os 4-5 lugares manualmente.
+
