@@ -2688,3 +2688,158 @@
     @media (prefers-reduced-motion: reduce) {
       .exit-intent__overlay, .exit-intent__modal { transition: none; }
     }
+
+/* ════════════════════════════════════════════
+   SACOLA DE AMOSTRAS
+   Injetado via amostras.js nas páginas de produto
+   ════════════════════════════════════════════ */
+
+.amostra-pill {
+  position: fixed;
+  right: 24px;
+  bottom: 80px;
+  z-index: 90;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: var(--ferro);
+  color: var(--argamassa);
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-body);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 6px 20px rgba(0,0,0,.18);
+  transition: background .2s ease, transform .2s ease;
+}
+.amostra-pill.is-visible { display: flex; }
+.amostra-pill:hover { background: var(--grafite); transform: translateY(-1px); }
+
+.amostra-pill__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--argamassa);
+  color: var(--ferro);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+@media (max-width: 600px) {
+  .amostra-pill { right: 16px; bottom: 66px; padding: 10px 14px; font-size: 12px; }
+}
+
+.amostra-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translate(-50%, 12px);
+  z-index: 1200;
+  max-width: 90vw;
+  padding: 12px 20px;
+  background: var(--ferro);
+  color: var(--argamassa);
+  font-family: var(--f-body);
+  font-size: 13px;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, transform .25s ease, visibility .25s;
+}
+.amostra-toast.is-visible { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+
+/* Botão "adicionar à sacola" nas páginas de produto */
+.amostra-add-btn.is-added {
+  background: var(--ferro);
+  color: var(--argamassa);
+  border-color: var(--ferro);
+}
+
+/* Lista de itens dentro do modal da sacola */
+.amostra-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.amostra-lista__vazia {
+  font-family: var(--f-body);
+  font-size: 13px;
+  color: var(--concreto);
+  line-height: 1.6;
+}
+
+.amostra-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border: 1px solid var(--line);
+}
+
+.amostra-item__img {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #f0eeeb;
+}
+
+.amostra-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.amostra-item__linha {
+  font-family: var(--f-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--concreto);
+}
+
+.amostra-item__nome {
+  font-family: var(--f-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ferro);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.amostra-item__remove {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--grafite);
+  cursor: pointer;
+}
+.amostra-item__remove:hover { background: var(--ferro); color: var(--argamassa); border-color: var(--ferro); }
+
+.amostra-modal textarea {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: var(--argamassa);
+  font-family: var(--f-body);
+  font-size: 14px;
+  color: var(--ferro);
+  resize: vertical;
+}
+.amostra-modal textarea:focus { outline: none; border-color: var(--ferro); }
