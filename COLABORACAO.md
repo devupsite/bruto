@@ -1005,3 +1005,38 @@ validado).
 `catalogo.json`, rodar `--check`, revisar o diff, depois rodar sem `--check`
 e commitar. Elimina a necessidade de caçar os 4-5 lugares manualmente.
 
+---
+
+## 26. Sacola de amostras físicas (08/07/2026)
+
+Benchmark de mercado (Portobello + fabricantes internacionais de brick/stone
+veneer) mostrou que amostra física funciona melhor como "produto" escolhido
+(até N por pedido) do que como CTA genérico de WhatsApp. Implementado:
+
+- **`amostras.js`** (novo) — sacola de até 3 produtos, persistida em
+  `localStorage` (`bruto_amostras_bag`), sobrevive entre páginas.
+  Pílula flutuante (`.amostra-pill`, canto inferior direito, acima do
+  back-to-top) some quando a sacola está vazia. Modal de revisão + endereço
+  segue exatamente o padrão visual do `lead-modal` já usado pelo
+  `lead-pdf.js` (mesmas classes CSS, reaproveitadas).
+- Envia por **Formspree** (nome, whatsapp, email, CEP, endereço, lista de
+  produtos) e abre o **WhatsApp** com mensagem estruturada — mesmo padrão
+  duplo-canal do resto do site.
+- Botão "Adicionar à sacola de amostras" inserido logo após o bloco
+  `cta-buttons` nas 19 páginas de produto, com classes `pd-btn`
+  (atenção: essas páginas usam `pd-btn`/`pd-btn--primary`/`pd-btn--secondary`
+  no `<style>` local de cada página, não `btn`/`btn--primary` do
+  `styles.css` global — são dois sistemas de botão coexistindo).
+- **Escopo v1: só nas páginas de produto.** Não adicionei o botão nos cards
+  de `texturas.html` porque lá cada card inteiro já é um `<a>` clicável
+  (decisão de 07/07) — não dá pra aninhar um botão interativo dentro de um
+  link sem quebrar HTML válido. Se quiser adicionar depois, precisa de uma
+  abordagem diferente (ex: overlay posicionado por fora do fluxo do link).
+
+**Achado de bug, não relacionado ao que eu fiz — não corrigi:**
+`mobile-cta-bar.js` está carregado em todas as páginas (barra fixa de
+WhatsApp pro mobile) mas **não existe nenhum CSS pra `.mobile-cta-bar`**
+em `styles.css`. O elemento é injetado no DOM mas não tem posicionamento
+fixo nem estilo — a feature parece estar quebrada/invisível desde que foi
+criada. Vale alguém dar uma olhada.
+
