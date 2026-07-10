@@ -1073,6 +1073,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <script defer src="lead-pdf.js?v=9"></script>
   <script defer src="parcelamento.js?v=2"></script>
   <script src="analytics.js"></script>
+  <script>
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revealObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => revealObs.observe(el));
+  </script>
 </body>
 </html>
 
