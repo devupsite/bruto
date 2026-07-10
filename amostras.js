@@ -144,7 +144,8 @@
           '</label>' +
           '<label class="lead-modal__field">' +
             '<span>CEP</span>' +
-            '<input type="text" name="cep" required placeholder="00000-000" inputmode="numeric">' +
+            '<input type="text" name="cep" required placeholder="00000-000" inputmode="numeric" maxlength="9" id="amostra-cep-input">' +
+            '<span class="amostra-cep-status" id="amostra-cep-status"></span>' +
           '</label>' +
           '<label class="lead-modal__field">' +
             '<span>Endereço completo</span>' +
@@ -216,6 +217,71 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
   });
+
+  /* ── Autopreenchimento de endereço via CEP (ViaCEP) ───────────── */
+  var cepInput = modal.querySelector('#amostra-cep-input');
+  var cepStatus = modal.querySelector('#amostra-cep-status');
+  var enderecoField = modal.querySelector('textarea[name="endereco"]');
+  var cepBuscaAtual = null;
+
+  function formatarCep(valor) {
+    var digitos = valor.replace(/\D/g, '').slice(0, 8);
+    if (digitos.length > 5) return digitos.slice(0, 5) + '-' + digitos.slice(5);
+    return digitos;
+  }
+
+  cepInput.addEventListener('input', function () {
+    var pos = cepInput.selectionStart;
+    var antes = cepInput.value.length;
+    cepInput.value = formatarCep(cepInput.value);
+    var depois = cepInput.value.length;
+    cepInput.setSelectionRange(pos + (depois - antes), pos + (depois - antes));
+
+    var digitos = cepInput.value.replace(/\D/g, '');
+    if (digitos.length === 8) {
+      buscarCep(digitos);
+    } else {
+      cepStatus.textContent = '';
+      cepStatus.className = 'amostra-cep-status';
+    }
+  });
+
+  function buscarCep(cep) {
+    cepBuscaAtual = cep;
+    cepStatus.textContent = 'Buscando endereço...';
+    cepStatus.className = 'amostra-cep-status is-loading';
+
+    fetch('https://viacep.com.br/ws/' + cep + '/json/')
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (cepBuscaAtual !== cep) return; // usuário já digitou outro CEP nesse meio tempo
+        if (data.erro) {
+          cepStatus.textContent = 'CEP não encontrado — preencha o endereço manualmente.';
+          cepStatus.className = 'amostra-cep-status is-error';
+          return;
+        }
+        var partes = [];
+        if (data.logradouro) partes.push(data.logradouro + ', nº ');
+        if (data.bairro) partes.push(data.bairro);
+        var cidadeUf = [data.localidade, data.uf].filter(Boolean).join(' - ');
+        if (cidadeUf) partes.push(cidadeUf);
+        enderecoField.value = partes.join(', ');
+        cepStatus.textContent = 'Endereço encontrado — complete o número e complemento.';
+        cepStatus.className = 'amostra-cep-status is-success';
+        enderecoField.focus();
+        // deixa o cursor logo depois de "nº " pra completar o número
+        var posNumero = enderecoField.value.indexOf('nº ');
+        if (posNumero !== -1) {
+          var cursor = posNumero + 3;
+          enderecoField.setSelectionRange(cursor, cursor);
+        }
+      })
+      .catch(function () {
+        if (cepBuscaAtual !== cep) return;
+        cepStatus.textContent = 'Não foi possível buscar o CEP agora — preencha manualmente.';
+        cepStatus.className = 'amostra-cep-status is-error';
+      });
+  }
 
   /* ── Submit ────────────────────────────────────────────────────── */
   var form = modal.querySelector('#amostra-form');
