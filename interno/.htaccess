@@ -1,0 +1,45 @@
+# ════════════════════════════════════════════════════════════════
+# Proteção da pasta /interno/ — ferramentas de uso restrito da equipe
+# (Precificador Comercial, Atendimento Técnico)
+# ════════════════════════════════════════════════════════════════
+
+# 1) Defesa extra contra indexação por buscadores (além do robots.txt)
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+</IfModule>
+
+# 2) Autenticação HTTP Basic — IMPEDE ACESSO DIRETO POR QUALQUER PESSOA
+#    QUE NÃO TENHA USUÁRIO/SENHA, mesmo sabendo a URL exata.
+#
+#    IMPORTANTE: o caminho abaixo em AuthUserFile precisa ser o caminho
+#    ABSOLUTO no servidor até o arquivo .htpasswd (não é uma URL).
+#    Esse caminho varia por conta de hospedagem — normalmente algo como:
+#      /home/SEU_USUARIO/domains/brutoceramica.com.br/public_html/interno/.htpasswd
+#
+#    COMO DESCOBRIR O CAMINHO CERTO (Hostinger):
+#    a) hPanel → Arquivos → Gerenciador de Arquivos → navegue até esta
+#       pasta (interno/) → o caminho completo aparece na barra superior.
+#    b) OU, caminho mais rápido e sem precisar editar nada manualmente:
+#       hPanel → Site → [seu domínio] → Avançado → "Proteger diretórios
+#       com senha" → selecione a pasta /interno/ → defina usuário/senha.
+#       O Hostinger gera o .htaccess e .htpasswd corretos automaticamente,
+#       já com o caminho absoluto certo — é a forma mais segura de fazer isso.
+#
+#    Enquanto o caminho abaixo não for corrigido para o caminho real do
+#    servidor, esta autenticação NÃO vai funcionar (Apache vai retornar
+#    erro 500 ou simplesmente ignorar a regra, dependendo da config).
+#    Por isso está comentada — descomente as 3 linhas abaixo só depois
+#    de confirmar o caminho absoluto correto.
+
+# AuthType Basic
+# AuthName "Acesso restrito — equipe BRUTO"
+# AuthUserFile "/CAMINHO/ABSOLUTO/PARA/interno/.htpasswd"
+# Require valid-user
+
+# 3) Impede que qualquer um baixe o arquivo .htpasswd diretamente
+<Files ".htpasswd">
+  Require all denied
+</Files>
+<Files ".htaccess">
+  Require all denied
+</Files>
