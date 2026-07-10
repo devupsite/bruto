@@ -161,6 +161,11 @@
     .quiz-result-card__img { aspect-ratio: 4/3; overflow: hidden; }
     .quiz-result-card__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .quiz-result-card__body { padding: 16px; }
+    .quiz-result-card__parcelas {
+      font-size: 12px;
+      color: var(--concreto);
+      margin-top: 4px;
+    }
     .quiz-result-card__match {
       display: inline-block;
       font-size: 11px;
@@ -498,6 +503,8 @@
 
       top3.forEach(function (item, i) {
         var p = item.produto;
+        var precoNum = parseFloat(p.precoTxt.replace(",", "."));
+        var parcela = (precoNum / 4).toFixed(2).replace(".", ",");
         var card = document.createElement("a");
         card.href = p.href;
         card.className = "quiz-result-card";
@@ -507,6 +514,7 @@
           (i === 0 ? '<span class="quiz-result-card__match">Melhor combinação</span><br>' : '') +
           '<p class="item-card__eyebrow eyebrow" style="margin-top:0">' + p.linha.charAt(0).toUpperCase() + p.linha.slice(1) + ' · R$ ' + p.precoTxt + '/m²</p>' +
           '<h3 class="item-card__title">' + p.nome + '</h3>' +
+          '<p class="quiz-result-card__parcelas">4x de R$ ' + parcela + ' sem juros</p>' +
           '</div>';
         card.addEventListener("click", function () {
           if (window.brutoTrack) {
