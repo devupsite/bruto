@@ -1083,3 +1083,21 @@ funciona a compra", minificação de CSS/JS, limpeza de imagens órfãs
 (~dezenas de .webp não referenciados), automatizar bump de `?v=` no
 sync-catalogo, versionar scripts geradores de PDF, script de verificação
 de integridade (links + scripts compartilhados por página).
+
+---
+
+## 34. Correção do item 33.6 — caminho do Tabler Icons na v3 (09/07/2026)
+
+O pin pra `3.44.0` quebrou os ícones do site inteiro: na v3 do pacote o CSS
+mudou de `/tabler-icons.min.css` (raiz, padrão da v2) para
+`/dist/tabler-icons.min.css` — a URL antiga passou a dar 404 e a fonte de
+ícones não carregava (sintoma visível: círculo do cookie, seta do
+back-to-top, todos os `ti-*` na verdade). O `@latest` anterior só
+"funcionava" por resolução/cache antigo do jsDelivr.
+
+Corrigido adicionando `/dist/` à URL nas 37 páginas. Verificado contra o
+tarball real do npm: os 62 ícones `ti-*` usados no site existem todos na
+3.44.0 — não há renomeação pendente, era só o caminho.
+
+**Lição:** ao fixar versão de pacote de CDN, conferir a estrutura de
+arquivos do tarball daquela versão, não só que a versão existe.
