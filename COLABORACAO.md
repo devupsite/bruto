@@ -135,19 +135,29 @@ ficar desatualizado, corrija — não deixe a próxima sessão repetir o erro.
   com lista de produtos da linha), sem checkboxes nem lógica de filtro.
   As duas coisas coexistem por design: navegação simples na página de
   produto individual, filtro robusto na página de catálogo geral.
-- **`paginacoes.html`** (04/07/2026): os 25 cards têm `data-style`
-  (corrido/classico/geometrico/especial) e `data-ambiente`
+- **`paginacoes.html`** (04/07/2026, atualizado 09/07/2026): os 25 cards têm
+  `data-style` (corrido/classico/geometrico/especial) e `data-ambiente`
   (interno/externo/"interno externo") usados pelos chips de filtro no topo
   da página, mais um selo de dificuldade (`.pag-level--facil|medio|avancado`)
-  por card. O padrão **03 Espinha de Peixe** passou por duas versões: a
-  original usava `rotate()` por peça individual com espaçamento errado e
-  virava um bloco sólido; a correção seguinte trocou pra retângulos sem
-  rotação (sem bug, mas ficou com cara de "trançado" 90°, não de espinha de
-  peixe de verdade). A versão final gira o **grupo inteiro** em 45°
-  (`transform="translate(...) rotate(45) scale(1.05) translate(...)"`) por
-  cima de uma malha sem sobreposição — isso preserva o ângulo diagonal
-  correto sem reintroduzir o bug de overlap. Se for mexer nesse card de
-  novo, manter a rotação do grupo, não voltar a rotacionar peça por peça.
+  por card. O padrão **03 Espinha de Peixe** já passou por *três* versões:
+  (1) `rotate()` por peça individual com espaçamento errado, virava bloco
+  sólido; (2) retângulos sem rotação com o **grupo inteiro** girado 45°
+  (evitava o bug, mas não é a construção real de espinha de peixe); (3) —
+  **versão atual, 09/07/2026** — voltou a ser rotação por peça individual,
+  mas agora usando a mesma matemática já validada e corrigida do simulador
+  real (`genEspinha()` em `paginacoes.js`: cada FILEIRA inteira tem uma
+  única rotação — 45° ou 135° — alternando fileira a fileira, com
+  `step = L/√2` e meio-passo de deslocamento entre fileiras adjacentes).
+  Essa é a mesma fonte de verdade usada no simulador da página de produto —
+  **não são mais duas técnicas diferentes**. Cada peça também encolhe
+  ~3.2px em torno do próprio centro pra criar vão de massa real (o
+  simulador JS usa `border` do CSS pra isso, que não existe em `<rect>` de
+  SVG, por isso o ajuste manual). Testado visualmente: cobertura 100%, sem
+  buracos, sem peças se cruzando em X. **O aviso de versões anteriores
+  para "manter rotação de grupo, não voltar a rotacionar peça por peça"
+  está obsoleto — ignorar.** Se for mexer nesse card de novo, a fonte de
+  verdade é `genEspinha()` em `paginacoes.js`; regenerar o SVG a partir
+  dela em vez de ajustar à mão.
 - **`guia-paginacoes-bruto.pdf`** (04/07/2026): PDF gerado com reportlab a
   partir dos mesmos 25 padrões/textos/dificuldade de `paginacoes.html`
   (script fonte não versionado no repo, só o PDF final). Linkado via botão
