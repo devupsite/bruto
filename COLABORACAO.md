@@ -1125,3 +1125,36 @@ v1→v2 (35 páginas).
 trigger de Page View pra `/obrigado.html` como ação de conversão do
 Google Ads — mais robusto que os eventos JS custom (`form_submit` etc.)
 porque não depende de bloqueador de anúncio deixar o script rodar.
+
+---
+
+## 30. Terra do Cerrado com fotos reais (2 faces) — mesmo padrão do Lumus (13/07/2026)
+
+Ewerson mandou 2 fotos físicas da peça (papel branco, luz natural, levemente
+rotacionada no quadro). Processo aplicado antes de virar `texturas`:
+
+1. Segmentação por cor pra isolar a peça do papel/piso (peça é bem mais
+   vermelha que o papel branco e mais clara que o piso cinza/marrom escuro)
+2. `cv2.minAreaRect` no maior componente conectado pra achar o ângulo real
+   da peça na foto, e rotação da imagem inteira pra endireitar
+3. Recorte interno generoso (não just bounding box) pra garantir zero fundo
+   visível nas bordas — a primeira tentativa com crop simples (bounding
+   box + margem fixa) deixava sliver de papel branco nos cantos porque a
+   peça estava rotacionada na foto original
+4. Correção de flat-field (divide pela própria versão borrada, technique
+   padrão de correção de vinheta/luz direcional) pra aproximar da
+   iluminação uniforme das fotos do Lumus — as fotos originais eram
+   externas, luz solar direcional, bem diferente da luz de estúdio do
+   Lumus
+5. Resize final pra 800px de largura (mesmo padrão do Lumus)
+
+Testado no simulador real (Playwright): modo padrão E espinha de peixe
+(pra confirmar que o giro/rotação de peça não quebra com a textura real).
+Sem erros JS. `w:260, h:70` (dimensão real já usada na ficha técnica da
+página, ao invés do genérico 240×65). `paginacoes.js?v=6 -> v7` nas 19
+páginas de produto (o motor é compartilhado, cache-bust precisa subir em
+todas mesmo só um produto tendo mudado de verdade).
+
+**Restam 10 produtos Brick sem fotos reais de peça** (só Lumus e Terra do
+Cerrado têm `texturas` até agora). Mesmo processo se repete quando as
+próximas fotos chegarem.
