@@ -47,50 +47,6 @@ body{background:var(--k);color:var(--w);font-family:'DM Sans',system-ui,sans-ser
 .hdr-mid{font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--g)}
 .upco{display:flex;align-items:center;gap:3px}
 
-/* ── Salvar / carregar cenários ──────────────────────────────── */
-.cen-actions{display:flex;align-items:center;gap:8px}
-.cen-btn{
-  font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;
-  letter-spacing:.06em;text-transform:uppercase;
-  padding:7px 12px;border:1px solid var(--tbd);background:var(--tbg);
-  color:var(--tl);cursor:pointer;white-space:nowrap;
-}
-.cen-btn:hover{background:var(--tbd);color:var(--w)}
-.cen-btn[disabled]{opacity:.5;cursor:default}
-.cen-toast{
-  position:fixed;bottom:20px;right:20px;z-index:200;
-  background:var(--k2);border:1px solid var(--tbd);color:var(--w);
-  font-family:'DM Sans',sans-serif;font-size:12px;padding:10px 16px;
-  max-width:320px;opacity:0;transform:translateY(8px);
-  transition:opacity .2s,transform .2s;pointer-events:none;
-}
-.cen-toast.on{opacity:1;transform:translateY(0)}
-.cen-modal-bg{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);
-  z-index:150;align-items:flex-start;justify-content:center;padding:60px 20px;
-}
-.cen-modal-bg.on{display:flex}
-.cen-modal{
-  background:var(--k2);border:1px solid var(--k4);max-width:640px;width:100%;
-  max-height:80vh;overflow:auto;font-family:'DM Sans',sans-serif;
-}
-.cen-modal-hdr{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:16px 20px;border-bottom:1px solid var(--k4);position:sticky;top:0;background:var(--k2);
-}
-.cen-modal-hdr h3{font-family:'Syne',sans-serif;font-size:14px;color:var(--w);font-weight:700}
-.cen-modal-close{cursor:pointer;color:var(--gl);font-size:18px;line-height:1;background:none;border:none}
-.cen-modal-close:hover{color:var(--w)}
-.cen-item{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:12px 20px;border-bottom:1px solid var(--k3);
-}
-.cen-item:last-child{border-bottom:none}
-.cen-item-info{display:flex;flex-direction:column;gap:2px;min-width:0}
-.cen-item-nome{font-size:12px;color:var(--w);font-weight:500}
-.cen-item-meta{font-size:10px;color:var(--gl)}
-.cen-item-resumo{font-size:10px;color:var(--tl)}
-.cen-empty{padding:24px 20px;color:var(--gl);font-size:12px}
 .uc-by{font-size:9px;color:var(--k4);letter-spacing:.08em;text-transform:uppercase;margin-right:4px}
 .uc-up{font-family:'Syne',sans-serif;font-weight:800;font-size:12px;letter-spacing:-.02em;color:var(--gl)}
 .uc-d{color:var(--t);font-size:12px}.uc-co{color:var(--g);font-size:10px;font-family:'Syne',sans-serif}
@@ -363,27 +319,11 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
     <span class="bruto-wm">BRUTO</span>
   </div>
   <div class="hdr-mid">Precificador Comercial</div>
-  <div class="cen-actions">
-    <button class="cen-btn" id="cen-btn-salvar" onclick="salvarCenario()">Salvar cenário</button>
-    <button class="cen-btn" id="cen-btn-abrir" onclick="abrirModalCenarios()">Cenários salvos</button>
-  </div>
   <div class="upco">
     <span class="uc-by">por</span>
     <span class="uc-up">UP</span><span class="uc-d">—</span><span class="uc-co">Co.</span>
   </div>
 </header>
-
-<div class="cen-modal-bg" id="cen-modal-bg" onclick="if(event.target===this)fecharModalCenarios()">
-  <div class="cen-modal">
-    <div class="cen-modal-hdr">
-      <h3>Cenários salvos</h3>
-      <button class="cen-modal-close" onclick="fecharModalCenarios()">✕</button>
-    </div>
-    <div id="cen-modal-lista"><div class="cen-empty">Carregando...</div></div>
-  </div>
-</div>
-
-<div class="cen-toast" id="cen-toast"></div>
 
 <nav class="nav">
   <div class="ni on" onclick="tab('prec',this)">01 · Precificação</div>
