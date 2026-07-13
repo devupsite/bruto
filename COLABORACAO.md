@@ -1158,3 +1158,20 @@ todas mesmo só um produto tendo mudado de verdade).
 **Restam 10 produtos Brick sem fotos reais de peça** (só Lumus e Terra do
 Cerrado têm `texturas` até agora). Mesmo processo se repete quando as
 próximas fotos chegarem.
+
+---
+
+## 31. Natura com fotos reais (2 faces) — mesmo processo (13/07/2026)
+
+Mesmo pipeline do item 30 (Terra do Cerrado): segmentação de cor, endireita
+via `cv2.minAreaRect`, recorte interno generoso, flat-field, resize 800px.
+Única observação: a primeira leva de fotos veio com a segunda imagem
+totalmente preta (brilho médio 0 — falha de disparo), Ewerson reenviou e a
+segunda versão veio boa.
+
+`w:240, h:70` (dimensão real — largura 240 já estava certa por
+coincidência, mas a altura genérica 65 virou 70). `paginacoes.js?v=7 -> v8`
+nas 19 páginas. Testado no simulador real via Playwright, sem erros JS.
+
+**Progresso das fotos reais:** Lumus, Terra do Cerrado, Natura (3/12
+Brick). Restam 9.
