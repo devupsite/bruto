@@ -2265,31 +2265,98 @@
   color: var(--concreto);
 }
 
-.pgn-pattern-list {
+.pgn-filtros {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  margin-bottom: 0.7rem;
 }
 
-.pgn-pattern-btn {
+.pgn-filtro-chip {
   font-family: var(--f-body);
-  font-size: 0.85rem;
-  padding: 0.5rem 1rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: transparent;
-  color: var(--grafite);
+  color: var(--concreto);
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-.pgn-pattern-btn:hover { border-color: var(--ferro); }
+.pgn-filtro-chip:hover { border-color: var(--ferro); color: var(--ferro); }
 
-.pgn-pattern-btn.is-active {
+.pgn-filtro-chip.is-active {
   background: var(--ferro);
   border-color: var(--ferro);
   color: var(--argamassa);
 }
+
+.pgn-pattern-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+@media (max-width: 520px) {
+  .pgn-pattern-list { grid-template-columns: repeat(2, 1fr); }
+}
+
+.pgn-pattern-btn {
+  font-family: var(--f-body);
+  font-size: 0.78rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem 0.4rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--grafite);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pgn-pattern-btn svg {
+  width: 100%;
+  height: 28px;
+  display: block;
+}
+
+.pgn-pattern-btn svg rect { fill: none; stroke: currentColor; stroke-width: 1.3; opacity: 0.55; }
+
+.pgn-pattern-name { line-height: 1.15; }
+
+.pgn-pattern-btn:hover { border-color: var(--ferro); }
+
+.pgn-pattern-btn.is-active {
+  border-color: var(--ferro);
+  box-shadow: 0 0 0 1.5px var(--ferro);
+  color: var(--ferro);
+  font-weight: 600;
+}
+
+.pgn-nivel {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.pgn-nivel i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.pgn-nivel i.on { background: var(--ferro); }
+
+.pgn-pattern-btn.is-active .pgn-nivel i.on { background: var(--ferro); }
 
 .pgn-pattern-desc {
   font-family: var(--f-body);
