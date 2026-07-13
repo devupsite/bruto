@@ -16,7 +16,8 @@
       itens: [
         { id: 'brick-branco-rose',            nome: 'Branco Rosé',           w: 240, h: 65 },
         { id: 'brick-eco-palha',              nome: 'Eco Palha',             w: 240, h: 65 },
-        { id: 'brick-lumus',                  nome: 'Lumus',                 w: 240, h: 65 },
+        { id: 'brick-lumus',                  nome: 'Lumus',                 w: 265, h: 65,
+          texturas: ['brick-lumus-face1.webp', 'brick-lumus-face2.webp'] },
         { id: 'brick-mescla-prime',           nome: 'Mescla Prime',          w: 240, h: 65 },
         { id: 'brick-natura',                 nome: 'Natura',                w: 240, h: 65 },
         { id: 'brick-rosso-prime',            nome: 'Rosso Prime',           w: 240, h: 65 },
@@ -272,6 +273,17 @@
     // o fundo da parede é o rejunte — as juntas entre as peças o revelam
     wallEl.style.backgroundColor = state.rejunte.cor;
 
+    // variação de faces: sorteio ESTÁVEL por posição (mesma parede a cada
+    // render). Itens com `texturas` (fotos de peça individual) usam o modo
+    // FOTO-POR-PEÇA: cada peça da parede exibe uma foto inteira em escala
+    // 1:1, com giro opcional de 180° — como um lote real assentado.
+    // Itens sem `texturas` mantêm a janela reveladora original.
+    var texturas = peca.texturas || null;
+    function hashPos(x, y, salt) {
+      var v = Math.sin(x * 127.1 + y * 311.7 + salt * 74.77) * 43758.5453;
+      return v - Math.floor(v);
+    }
+
     layout.forEach(function (b) {
       var el = document.createElement('div');
       el.className = 'pgn-brick';
@@ -280,7 +292,17 @@
       el.style.width = b.w + 'px';
       el.style.height = b.h + 'px';
 
-      if (b.rot) {
+      if (texturas) {
+        var face = Math.floor(hashPos(b.x, b.y, 1) * texturas.length) % texturas.length;
+        var gira = hashPos(b.x, b.y, 2) > 0.5;
+        el.style.backgroundImage = "url('" + texturas[face] + "')";
+        el.style.backgroundSize = '100% 100%';
+        var ang = (b.rot || 0) + (gira ? 180 : 0);
+        if (ang) {
+          el.style.transformOrigin = 'center center';
+          el.style.transform = 'rotate(' + ang + 'deg)';
+        }
+      } else if (b.rot) {
         el.style.transformOrigin = 'center center';
         el.style.transform = 'rotate(' + b.rot + 'deg)';
         el.style.backgroundImage = url;
