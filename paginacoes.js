@@ -523,9 +523,22 @@
 
   function initOne(root) {
     var initialId = root.getAttribute('data-current') || COLECOES.brick.itens[0].id;
+
+    // Deep-link do catálogo de paginações: ?padrao=<id> pré-seleciona o padrão
+    var urlPadrao = null;
+    try {
+      urlPadrao = new URLSearchParams(window.location.search).get('padrao');
+    } catch (err) { /* navegadores sem URLSearchParams seguem no padrão default */ }
+    var padraoInicial = 'corrido12';
+    if (urlPadrao) {
+      for (var pi = 0; pi < PATTERNS.length; pi++) {
+        if (PATTERNS[pi].id === urlPadrao) { padraoInicial = urlPadrao; break; }
+      }
+    }
+
     var state = {
       brickId: findItem(initialId).id,
-      pattern: 'corrido12',
+      pattern: padraoInicial,
       ambiente: 'claro',
       vista: 'frontal',
       filtro: 'todos',
@@ -537,7 +550,10 @@
     if (nameLabel) nameLabel.textContent = findItem(state.brickId).nome;
 
     var descLabel = root.querySelector('.pgn-pattern-desc');
-    if (descLabel) descLabel.textContent = PATTERNS[0].desc;
+    if (descLabel) {
+      var pAtivo = PATTERNS.filter(function (p) { return p.id === state.pattern; })[0] || PATTERNS[0];
+      descLabel.textContent = pAtivo.desc;
+    }
 
     function rerender() {
       renderWall(root, state);
