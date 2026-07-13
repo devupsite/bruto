@@ -7,25 +7,58 @@
 
 (function () {
 
-  // Coleção Brick — id, nome de exibição, foto principal e thumb
-  var BRICKS = [
-    { id: 'brick-branco-rose',          nome: 'Branco Rosé' },
-    { id: 'brick-eco-palha',            nome: 'Eco Palha' },
-    { id: 'brick-lumus',                nome: 'Lumus' },
-    { id: 'brick-mescla-prime',         nome: 'Mescla Prime' },
-    { id: 'brick-natura',               nome: 'Natura' },
-    { id: 'brick-rosso-prime',          nome: 'Rosso Prime' },
-    { id: 'brick-rusticatto-sertao',    nome: 'Rusticatto do Sertão' },
-    { id: 'brick-rusticatto-fume',      nome: 'Rusticatto Fumê' },
-    { id: 'brick-rusticatto-rosso',     nome: 'Rusticatto Rosso' },
-    { id: 'brick-rusticatto-terra-negra', nome: 'Rusticatto Terra Negra' },
-    { id: 'brick-terra-cerrado',        nome: 'Terra do Cerrado' },
-    { id: 'brick-vulcano',              nome: 'Vulcano' }
-  ];
+  // Coleções — cada item traz a dimensão real da peça (mm), usada para
+  // manter escala e junta fiéis na parede simulada. A coleção exibida é
+  // inferida do prefixo do id em data-current, sem precisar editar HTML.
+  var COLECOES = {
+    brick: {
+      nome: 'Brick',
+      itens: [
+        { id: 'brick-branco-rose',            nome: 'Branco Rosé',           w: 240, h: 65 },
+        { id: 'brick-eco-palha',              nome: 'Eco Palha',             w: 240, h: 65 },
+        { id: 'brick-lumus',                  nome: 'Lumus',                 w: 240, h: 65 },
+        { id: 'brick-mescla-prime',           nome: 'Mescla Prime',          w: 240, h: 65 },
+        { id: 'brick-natura',                 nome: 'Natura',                w: 240, h: 65 },
+        { id: 'brick-rosso-prime',            nome: 'Rosso Prime',           w: 240, h: 65 },
+        { id: 'brick-rusticatto-sertao',      nome: 'Rusticatto do Sertão',  w: 240, h: 65 },
+        { id: 'brick-rusticatto-fume',        nome: 'Rusticatto Fumê',       w: 240, h: 65 },
+        { id: 'brick-rusticatto-rosso',       nome: 'Rusticatto Rosso',      w: 240, h: 65 },
+        { id: 'brick-rusticatto-terra-negra', nome: 'Rusticatto Terra Negra', w: 240, h: 65 },
+        { id: 'brick-terra-cerrado',          nome: 'Terra do Cerrado',      w: 240, h: 65 },
+        { id: 'brick-vulcano',                nome: 'Vulcano',               w: 240, h: 65 }
+      ]
+    },
+    cimenticio: {
+      nome: 'Cimentício',
+      itens: [
+        { id: 'cimenticio-alpino', nome: 'Alpino', w: 260, h: 75 },
+        { id: 'cimenticio-grigio', nome: 'Grigio', w: 260, h: 75 },
+        { id: 'cimenticio-urban',  nome: 'Urban',  w: 260, h: 75 }
+      ]
+    },
+    rockface: {
+      nome: 'Rockface',
+      itens: [
+        { id: 'rockface-alpino', nome: 'Alpino', w: 290, h: 95 },
+        { id: 'rockface-brisa',  nome: 'Brisa',  w: 260, h: 75 },
+        { id: 'rockface-grigio', nome: 'Grigio', w: 290, h: 95 },
+        { id: 'rockface-urban',  nome: 'Urban',  w: 290, h: 95 }
+      ]
+    }
+  };
+
+  function colecaoDe(id) {
+    if (id && id.indexOf('cimenticio-') === 0) return COLECOES.cimenticio;
+    if (id && id.indexOf('rockface-') === 0)   return COLECOES.rockface;
+    return COLECOES.brick;
+  }
 
   function textureUrl(id)  { return id + '-frontal.webp'; }
   function thumbUrl(id)    { return id + '-frontal-thumb.webp'; }
-  function findBrick(id)   { return BRICKS.filter(function (b) { return b.id === id; })[0] || BRICKS[0]; }
+  function findItem(id) {
+    var col = colecaoDe(id);
+    return col.itens.filter(function (b) { return b.id === id; })[0] || col.itens[0];
+  }
 
   var PATTERNS = [
     { id: 'corrido12', label: 'Corrido 1/2',    desc: 'O clássico — deslocamento de meia peça a cada fiada.' },
@@ -43,7 +76,6 @@
     { id: 'terracota', nome: 'Terracota',       cor: '#9c5f43' }
   ];
 
-  var PECA_LARGURA_MM = 240; // referência da peça Brick para converter junta mm → px
 
   /* ---------- Geradores de layout (retângulos por padrão) ---------- */
 
@@ -112,11 +144,15 @@
     return rects;
   }
 
-  function buildLayout(patternId, wallW, wallH, juntaMm) {
-    var mw = Math.max(48, wallW / 7.5);
-    var mh = mw / 3.65;
+  var WALL_MM = 1800; // largura real (mm) representada pela parede simulada
+
+  function buildLayout(patternId, wallW, wallH, juntaMm, peca) {
+    // escala fiel: a parede representa WALL_MM de largura real,
+    // então cada peça ocupa a fração proporcional à sua dimensão
+    var mw = Math.max(40, wallW * (peca.w / WALL_MM));
+    var mh = mw * (peca.h / peca.w);
     // converte a junta real (mm) para pixels usando a largura da peça como régua
-    var gap = Math.max(1, mw * ((juntaMm || 8) / PECA_LARGURA_MM));
+    var gap = Math.max(1, mw * ((juntaMm || 8) / peca.w));
     switch (patternId) {
       case 'corrido13': return genCorrido(wallW, wallH, mw, mh, gap, 1 / 3);
       case 'empilhado':  return genEmpilhado(wallW, wallH, mw, mh, gap);
@@ -136,7 +172,8 @@
     var rectH = wallEl.clientHeight;
     if (!rectW || !rectH) return;
 
-    var layout = buildLayout(state.pattern, rectW, rectH, state.junta);
+    var peca = findItem(state.brickId);
+    var layout = buildLayout(state.pattern, rectW, rectH, state.junta, peca);
     var url = "url('" + textureUrl(state.brickId) + "')";
     var frag = document.createDocumentFragment();
 
@@ -178,7 +215,7 @@
     var wrap = root.querySelector('.pgn-swatches');
     if (!wrap) return;
     wrap.innerHTML = '';
-    BRICKS.forEach(function (b) {
+    colecaoDe(state.brickId).itens.forEach(function (b) {
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'pgn-swatch' + (b.id === state.brickId ? ' is-active' : '');
@@ -337,9 +374,9 @@
   }
 
   function initOne(root) {
-    var initialId = root.getAttribute('data-current') || BRICKS[0].id;
+    var initialId = root.getAttribute('data-current') || COLECOES.brick.itens[0].id;
     var state = {
-      brickId: findBrick(initialId).id,
+      brickId: findItem(initialId).id,
       pattern: 'corrido12',
       ambiente: 'claro',
       vista: 'frontal',
@@ -348,7 +385,7 @@
     };
 
     var nameLabel = root.querySelector('.pgn-current-name');
-    if (nameLabel) nameLabel.textContent = findBrick(state.brickId).nome;
+    if (nameLabel) nameLabel.textContent = findItem(state.brickId).nome;
 
     var descLabel = root.querySelector('.pgn-pattern-desc');
     if (descLabel) descLabel.textContent = PATTERNS[0].desc;
