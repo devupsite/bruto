@@ -205,6 +205,31 @@
     });
   }
 
+  function buildViewToggle(root, state) {
+    var wrap = root.querySelector('.pgn-preview-wrap');
+    if (!wrap || wrap.querySelector('.pgn-view-toggle')) return;
+    var box = document.createElement('div');
+    box.className = 'pgn-view-toggle';
+    box.setAttribute('role', 'group');
+    box.setAttribute('aria-label', 'Vista da parede');
+    [['frontal', 'Frontal'], ['persp', 'Em perspectiva']].forEach(function (v) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pgn-chip' + (state.vista === v[0] ? ' is-active' : '');
+      btn.setAttribute('data-view', v[0]);
+      btn.textContent = v[1];
+      btn.addEventListener('click', function () {
+        if (state.vista === v[0]) return;
+        state.vista = v[0];
+        box.querySelectorAll('.pgn-chip').forEach(function (s) { s.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        wrap.classList.toggle('pgn-view--persp', v[0] === 'persp');
+      });
+      box.appendChild(btn);
+    });
+    wrap.appendChild(box);
+  }
+
   function buildAmbientToggle(root, state) {
     var wrap = root.querySelector('.pgn-ambient-toggle');
     if (!wrap) return;
@@ -226,7 +251,7 @@
 
   function initOne(root) {
     var initialId = root.getAttribute('data-current') || BRICKS[0].id;
-    var state = { brickId: findBrick(initialId).id, pattern: 'corrido12', ambiente: 'claro' };
+    var state = { brickId: findBrick(initialId).id, pattern: 'corrido12', ambiente: 'claro', vista: 'frontal' };
 
     var nameLabel = root.querySelector('.pgn-current-name');
     if (nameLabel) nameLabel.textContent = findBrick(state.brickId).nome;
@@ -243,6 +268,7 @@
     buildSwatches(root, state, rerender);
     buildPatternButtons(root, state, rerender);
     buildAmbientToggle(root, state);
+    buildViewToggle(root, state);
 
     rerender();
 

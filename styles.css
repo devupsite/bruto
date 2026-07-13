@@ -2103,6 +2103,82 @@
   border: 1.5px solid #f2efe9;
   background-color: #cfc7ba;
   background-repeat: no-repeat;
+  /* relevo sutil por peça — a luz rasante do modo perspectiva valoriza o bisel */
+  box-shadow: inset 1px 1px 0 rgba(255, 252, 245, 0.16),
+              inset -1px -2px 1px rgba(30, 18, 8, 0.18);
+}
+
+/* ---- Chips dos toggles (vista e ambiente) ---- */
+
+.pgn-chip {
+  font-family: var(--f-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--concreto);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.pgn-chip.is-active { background: var(--ferro); color: #fff; }
+
+.pgn-ambient--escuro .pgn-chip { color: var(--titanio); }
+.pgn-ambient--escuro .pgn-chip.is-active { background: #f2efe9; color: #16140f; }
+
+/* ---- Modo "Em perspectiva" com luz rasante ---- */
+
+.pgn-view-toggle {
+  position: absolute;
+  top: clamp(12px, 1.6vw, 20px);
+  left: clamp(12px, 1.6vw, 20px);
+  z-index: 2;
+  display: flex;
+  gap: 0.35rem;
+  background: rgba(255,255,255,0.85);
+  border-radius: 999px;
+  padding: 0.25rem;
+  backdrop-filter: blur(4px);
+}
+
+.pgn-ambient--escuro .pgn-view-toggle { background: rgba(20,18,14,0.6); }
+
+.pgn-preview-wrap {
+  perspective: 1200px;
+  perspective-origin: 32% 46%;
+}
+
+.pgn-wall {
+  transform-origin: 50% 55%;
+  transition: transform 0.85s cubic-bezier(0.66, 0, 0.28, 1), box-shadow 0.85s ease;
+}
+
+.pgn-view--persp .pgn-wall {
+  transform: rotateY(24deg) rotateX(1.5deg) scale(1.03);
+  box-shadow: 22px 30px 46px rgba(15, 10, 5, 0.22), inset 0 0 0 1px rgba(0,0,0,0.06);
+}
+
+.pgn-wall::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.7s ease 0.15s;
+  background: linear-gradient(100deg,
+    rgba(255, 246, 228, 0.30) 0%,
+    rgba(255, 246, 228, 0) 38%,
+    rgba(12, 7, 3, 0.30) 100%);
+}
+
+.pgn-view--persp .pgn-wall::after { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pgn-wall { transition: none; }
 }
 
 .pgn-grout-note {
