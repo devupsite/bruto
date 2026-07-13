@@ -1101,3 +1101,27 @@ tarball real do npm: os 62 ícones `ti-*` usados no site existem todos na
 
 **Lição:** ao fixar versão de pacote de CDN, conferir a estrutura de
 arquivos do tarball daquela versão, não só que a versão existe.
+
+## Página de obrigado / conversão (obrigado.html)
+
+Criada `obrigado.html` — página dedicada de confirmação pós-conversão,
+usada como sinal de conversão mais confiável pro Google Ads (page load
+independe de JS/bloqueador de anúncio rodar até o fim).
+
+Redirecionamento com delay (não imediato — preserva o estado "concluído"
+que já existia nos modais):
+- `lead-pdf.js`: calculadora → 4s de delay → `obrigado.html?origem=calculadora`
+- `lead-pdf.js`: PDF estático (paginações/guias) → 4s → `?origem=paginacoes`
+- `exit-intent.js`: guia PDF → 6s → `?origem=exit-intent`, cancelável se a
+  pessoa fechar o modal manualmente (`fechar()` limpa o timer)
+
+Texto da página se adapta por `?origem=` via query string. `noindex` no
+`<meta robots>` — página não deve ser indexada nem aparecer em busca.
+
+Versões bumpadas: `lead-pdf.js` v9→v10 (22 páginas), `exit-intent.js`
+v1→v2 (35 páginas).
+
+**Pendência**: uma vez o GTM real estiver conectado, criar no painel um
+trigger de Page View pra `/obrigado.html` como ação de conversão do
+Google Ads — mais robusto que os eventos JS custom (`form_submit` etc.)
+porque não depende de bloqueador de anúncio deixar o script rodar.
