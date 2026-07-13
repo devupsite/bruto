@@ -15,7 +15,8 @@
       nome: 'Brick',
       itens: [
         { id: 'brick-branco-rose',            nome: 'Branco Rosé',           w: 240, h: 65 },
-        { id: 'brick-eco-palha',              nome: 'Eco Palha',             w: 240, h: 65 },
+        { id: 'brick-eco-palha',              nome: 'Eco Palha',             w: 265, h: 65,
+          texturas: ['brick-eco-palha-face1.webp', 'brick-eco-palha-face2.webp'] },
         { id: 'brick-lumus',                  nome: 'Lumus',                 w: 265, h: 65,
           texturas: ['brick-lumus-face1.webp', 'brick-lumus-face2.webp'] },
         { id: 'brick-mescla-prime',           nome: 'Mescla Prime',          w: 240, h: 65 },
