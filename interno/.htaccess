@@ -31,10 +31,10 @@
 #    Por isso está comentada — descomente as 3 linhas abaixo só depois
 #    de confirmar o caminho absoluto correto.
 
-# AuthType Basic
-# AuthName "Acesso restrito — equipe BRUTO"
-# AuthUserFile "/CAMINHO/ABSOLUTO/PARA/interno/.htpasswd"
-# Require valid-user
+AuthType Basic
+AuthName "Acesso restrito — equipe BRUTO"
+AuthUserFile "/home/u764636502/domains/brutoceramica.com.br/bruto-secrets/interno.htpasswd"
+Require valid-user
 
 # 3) Impede que qualquer um baixe o arquivo .htpasswd diretamente
 <Files ".htpasswd">
