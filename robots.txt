@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /interno/
 
-Sitemap: https://devupsite.github.io/bruto/sitemap.xml
+Sitemap: https://brutoceramica.com.br/sitemap.xml

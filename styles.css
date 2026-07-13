@@ -447,6 +447,46 @@
     /* ════════════════════════════════════════════
        COLEÇÕES / AMBIENTES
     ════════════════════════════════════════════ */
+    /* ════════════════════════════════════════════
+       BANNER — QUIZ DE ESTILO
+    ════════════════════════════════════════════ */
+    .quiz-teaser {
+      padding: 22px 0;
+      background: var(--ferro);
+      color: var(--argamassa);
+    }
+    .quiz-teaser__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .quiz-teaser__eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--titanio, #9a9a9a);
+      margin-bottom: 4px;
+    }
+    .quiz-teaser__title {
+      font-family: var(--f-display);
+      font-weight: 600;
+      font-size: 17px;
+      color: var(--argamassa);
+    }
+    .quiz-teaser .btn--outline {
+      border-color: var(--argamassa);
+      color: var(--argamassa);
+      flex-shrink: 0;
+    }
+    .quiz-teaser .btn--outline:hover { background: var(--argamassa); color: var(--ferro); }
+
+    @media (max-width: 600px) {
+      .quiz-teaser__inner { flex-direction: column; align-items: flex-start; }
+    }
+
     .colecoes { padding: var(--sec-pad) 0; border-top: 1px solid var(--line); }
 
     .grid-4 > article, .grid-4 > a,
@@ -2049,7 +2089,7 @@
   aspect-ratio: 4 / 3;
   overflow: hidden;
   border-radius: 4px;
-  background: #d8d2c8;
+  background: #f2efe9; /* rejunte padrão (argamassa clara) — o JS troca conforme a escolha */
   box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
 }
 
@@ -2060,9 +2100,136 @@
 .pgn-brick {
   position: absolute;
   box-sizing: border-box;
-  border: 1.5px solid #f2efe9;
   background-color: #cfc7ba;
   background-repeat: no-repeat;
+  /* a junta agora é o vão entre as peças, que revela a cor do rejunte
+     aplicada como fundo da .pgn-wall (controlada pelo usuário) */
+  /* relevo sutil por peça — a luz rasante do modo perspectiva valoriza o bisel */
+  box-shadow: inset 1px 1px 0 rgba(255, 252, 245, 0.16),
+              inset -1px -2px 1px rgba(30, 18, 8, 0.18);
+}
+
+/* ---- Junta & rejunte ---- */
+
+.pgn-grout-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.pgn-junta-range {
+  flex: 1;
+  accent-color: var(--ferro);
+  cursor: pointer;
+}
+
+.pgn-junta-val {
+  font-family: var(--f-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ferro);
+  min-width: 3.4em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pgn-rejunte-list {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.pgn-rejunte-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+.pgn-rejunte-swatch:hover { transform: translateY(-1px); }
+
+.pgn-rejunte-swatch.is-active::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border: 2px solid var(--ferro);
+  border-radius: 50%;
+}
+
+/* ---- Chips dos toggles (vista e ambiente) ---- */
+
+.pgn-chip {
+  font-family: var(--f-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--concreto);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.pgn-chip.is-active { background: var(--ferro); color: #fff; }
+
+.pgn-ambient--escuro .pgn-chip { color: var(--titanio); }
+.pgn-ambient--escuro .pgn-chip.is-active { background: #f2efe9; color: #16140f; }
+
+/* ---- Modo "Em perspectiva" com luz rasante ---- */
+
+.pgn-view-toggle {
+  position: absolute;
+  top: clamp(12px, 1.6vw, 20px);
+  left: clamp(12px, 1.6vw, 20px);
+  z-index: 2;
+  display: flex;
+  gap: 0.35rem;
+  background: rgba(255,255,255,0.85);
+  border-radius: 999px;
+  padding: 0.25rem;
+  backdrop-filter: blur(4px);
+}
+
+.pgn-ambient--escuro .pgn-view-toggle { background: rgba(20,18,14,0.6); }
+
+.pgn-preview-wrap {
+  perspective: 1200px;
+  perspective-origin: 32% 46%;
+}
+
+.pgn-wall {
+  transform-origin: 50% 55%;
+  transition: transform 0.85s cubic-bezier(0.66, 0, 0.28, 1), box-shadow 0.85s ease;
+}
+
+.pgn-view--persp .pgn-wall {
+  transform: rotateY(24deg) rotateX(1.5deg) scale(1.03);
+  box-shadow: 22px 30px 46px rgba(15, 10, 5, 0.22), inset 0 0 0 1px rgba(0,0,0,0.06);
+}
+
+.pgn-wall::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.7s ease 0.15s;
+  background: linear-gradient(100deg,
+    rgba(255, 246, 228, 0.30) 0%,
+    rgba(255, 246, 228, 0) 38%,
+    rgba(12, 7, 3, 0.30) 100%);
+}
+
+.pgn-view--persp .pgn-wall::after { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pgn-wall { transition: none; }
 }
 
 .pgn-grout-note {
@@ -2098,31 +2265,98 @@
   color: var(--concreto);
 }
 
-.pgn-pattern-list {
+.pgn-filtros {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  margin-bottom: 0.7rem;
 }
 
-.pgn-pattern-btn {
+.pgn-filtro-chip {
   font-family: var(--f-body);
-  font-size: 0.85rem;
-  padding: 0.5rem 1rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: transparent;
-  color: var(--grafite);
+  color: var(--concreto);
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-.pgn-pattern-btn:hover { border-color: var(--ferro); }
+.pgn-filtro-chip:hover { border-color: var(--ferro); color: var(--ferro); }
 
-.pgn-pattern-btn.is-active {
+.pgn-filtro-chip.is-active {
   background: var(--ferro);
   border-color: var(--ferro);
   color: var(--argamassa);
 }
+
+.pgn-pattern-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+@media (max-width: 520px) {
+  .pgn-pattern-list { grid-template-columns: repeat(2, 1fr); }
+}
+
+.pgn-pattern-btn {
+  font-family: var(--f-body);
+  font-size: 0.78rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem 0.4rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--grafite);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pgn-pattern-btn svg {
+  width: 100%;
+  height: 28px;
+  display: block;
+}
+
+.pgn-pattern-btn svg rect { fill: none; stroke: currentColor; stroke-width: 1.3; opacity: 0.55; }
+
+.pgn-pattern-name { line-height: 1.15; }
+
+.pgn-pattern-btn:hover { border-color: var(--ferro); }
+
+.pgn-pattern-btn.is-active {
+  border-color: var(--ferro);
+  box-shadow: 0 0 0 1.5px var(--ferro);
+  color: var(--ferro);
+  font-weight: 600;
+}
+
+.pgn-nivel {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.pgn-nivel i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.pgn-nivel i.on { background: var(--ferro); }
+
+.pgn-pattern-btn.is-active .pgn-nivel i.on { background: var(--ferro); }
 
 .pgn-pattern-desc {
   font-family: var(--f-body);
@@ -2533,3 +2767,334 @@
     }
 
 
+    /* ════════════════════════════════════════════
+       EXIT-INTENT — oferta do guia PDF
+       Injetado via exit-intent.js em todas as páginas
+    ════════════════════════════════════════════ */
+    .exit-intent__overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 990;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(10,10,10,.6);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .25s ease, visibility 0s linear .25s;
+    }
+    .exit-intent__overlay.is-visible {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity .25s ease, visibility 0s linear 0s;
+    }
+
+    .exit-intent__modal {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      background: var(--argamassa);
+      border: 1px solid var(--line);
+      padding: 40px 32px 28px;
+      text-align: center;
+      transform: translateY(12px);
+      transition: transform .25s ease;
+    }
+    .exit-intent__overlay.is-visible .exit-intent__modal { transform: translateY(0); }
+
+    .exit-intent__close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--concreto);
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .exit-intent__close:hover { color: var(--ferro); }
+
+    .exit-intent__icon {
+      font-size: 36px;
+      color: var(--ferro);
+      margin-bottom: 16px;
+    }
+    .exit-intent__icon--ok { color: #3a7d4f; }
+
+    .exit-intent__eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--concreto);
+      margin-bottom: 8px;
+    }
+    .exit-intent__title {
+      font-family: var(--f-display);
+      font-weight: 600;
+      font-size: 22px;
+      color: var(--ferro);
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+    .exit-intent__body {
+      font-size: 14px;
+      color: var(--concreto);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .exit-intent__form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .exit-intent__input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      font-family: var(--f-body);
+      font-size: 14px;
+      color: var(--ferro);
+      outline: none;
+    }
+    .exit-intent__input:focus { border-color: var(--ferro); }
+
+    .exit-intent__submit {
+      width: 100%;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .exit-intent__disclaimer {
+      margin-top: 14px;
+      font-size: 11px;
+      color: var(--concreto);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .exit-intent__overlay, .exit-intent__modal { transition: none; }
+    }
+
+/* ════════════════════════════════════════════
+   SACOLA DE AMOSTRAS
+   Injetado via amostras.js nas páginas de produto
+   ════════════════════════════════════════════ */
+
+.amostra-pill {
+  position: fixed;
+  right: 24px;
+  bottom: 80px;
+  z-index: 90;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  background: var(--ferro);
+  color: var(--argamassa);
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-body);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 6px 20px rgba(0,0,0,.18);
+  transition: background .2s ease, transform .2s ease;
+}
+.amostra-pill.is-visible { display: flex; }
+.amostra-pill:hover { background: var(--grafite); transform: translateY(-1px); }
+
+.amostra-pill__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--argamassa);
+  color: var(--ferro);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+@media (max-width: 600px) {
+  .amostra-pill { right: 16px; bottom: 66px; padding: 10px 14px; font-size: 12px; }
+}
+
+.amostra-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translate(-50%, 12px);
+  z-index: 1200;
+  max-width: 90vw;
+  padding: 12px 20px;
+  background: var(--ferro);
+  color: var(--argamassa);
+  font-family: var(--f-body);
+  font-size: 13px;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, transform .25s ease, visibility .25s;
+}
+.amostra-toast.is-visible { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+
+/* Botão "adicionar à sacola" nas páginas de produto */
+.amostra-add-btn.is-added {
+  background: var(--ferro);
+  color: var(--argamassa);
+  border-color: var(--ferro);
+}
+
+/* Lista de itens dentro do modal da sacola */
+.amostra-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.amostra-lista__vazia {
+  font-family: var(--f-body);
+  font-size: 13px;
+  color: var(--concreto);
+  line-height: 1.6;
+}
+
+.amostra-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border: 1px solid var(--line);
+}
+
+.amostra-item__img {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #f0eeeb;
+}
+
+.amostra-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.amostra-item__linha {
+  font-family: var(--f-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--concreto);
+}
+
+.amostra-item__nome {
+  font-family: var(--f-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ferro);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.amostra-item__remove {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--grafite);
+  cursor: pointer;
+}
+.amostra-item__remove:hover { background: var(--ferro); color: var(--argamassa); border-color: var(--ferro); }
+
+.amostra-modal textarea {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: var(--argamassa);
+  font-family: var(--f-body);
+  font-size: 14px;
+  color: var(--ferro);
+  resize: vertical;
+}
+.amostra-modal textarea:focus { outline: none; border-color: var(--ferro); }
+
+/* Status de busca de CEP (ViaCEP) no modal da sacola de amostras */
+.amostra-cep-status {
+  font-family: var(--f-body);
+  font-size: 11px;
+  min-height: 14px;
+  margin-top: 2px;
+}
+.amostra-cep-status.is-loading { color: var(--concreto); }
+.amostra-cep-status.is-success { color: #2E7D32; }
+.amostra-cep-status.is-error { color: #A33; }
+
+    /* ══════════════════════════════════════════
+       BARRA DE CTA FIXA — mobile (mobile-cta-bar.js)
+       Injetada via JS; visível só abaixo de 900px,
+       depois de 120px de rolagem (.is-visible).
+    ══════════════════════════════════════════ */
+    .mobile-cta-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 95;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+      background: var(--ferro);
+      color: var(--argamassa);
+      font-family: var(--f-body);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-top: 1px solid var(--line-dark);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(100%);
+      transition: opacity .25s ease, transform .25s ease, visibility .25s;
+    }
+    .mobile-cta-bar i { font-size: 19px; }
+    @media (max-width: 899px) {
+      .mobile-cta-bar { display: flex; }
+      .mobile-cta-bar.is-visible {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+      }
+      /* elementos flutuantes sobem para não ficarem atrás da barra */
+      .back-to-top { bottom: 72px; }
+      .amostra-pill { bottom: 124px; }
+      /* botão de cookies sobe pra mesma linha do back-to-top,
+         reproduzindo a mesma disposição do desktop (extremos opostos) */
+      .cookie-consent__reopen { bottom: 72px; }
+      .cookie-consent { bottom: 72px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mobile-cta-bar { transition: opacity .01s linear; }
+    }

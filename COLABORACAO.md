@@ -135,19 +135,29 @@ ficar desatualizado, corrija — não deixe a próxima sessão repetir o erro.
   com lista de produtos da linha), sem checkboxes nem lógica de filtro.
   As duas coisas coexistem por design: navegação simples na página de
   produto individual, filtro robusto na página de catálogo geral.
-- **`paginacoes.html`** (04/07/2026): os 25 cards têm `data-style`
-  (corrido/classico/geometrico/especial) e `data-ambiente`
+- **`paginacoes.html`** (04/07/2026, atualizado 09/07/2026): os 25 cards têm
+  `data-style` (corrido/classico/geometrico/especial) e `data-ambiente`
   (interno/externo/"interno externo") usados pelos chips de filtro no topo
   da página, mais um selo de dificuldade (`.pag-level--facil|medio|avancado`)
-  por card. O padrão **03 Espinha de Peixe** passou por duas versões: a
-  original usava `rotate()` por peça individual com espaçamento errado e
-  virava um bloco sólido; a correção seguinte trocou pra retângulos sem
-  rotação (sem bug, mas ficou com cara de "trançado" 90°, não de espinha de
-  peixe de verdade). A versão final gira o **grupo inteiro** em 45°
-  (`transform="translate(...) rotate(45) scale(1.05) translate(...)"`) por
-  cima de uma malha sem sobreposição — isso preserva o ângulo diagonal
-  correto sem reintroduzir o bug de overlap. Se for mexer nesse card de
-  novo, manter a rotação do grupo, não voltar a rotacionar peça por peça.
+  por card. O padrão **03 Espinha de Peixe** já passou por *três* versões:
+  (1) `rotate()` por peça individual com espaçamento errado, virava bloco
+  sólido; (2) retângulos sem rotação com o **grupo inteiro** girado 45°
+  (evitava o bug, mas não é a construção real de espinha de peixe); (3) —
+  **versão atual, 09/07/2026** — voltou a ser rotação por peça individual,
+  mas agora usando a mesma matemática já validada e corrigida do simulador
+  real (`genEspinha()` em `paginacoes.js`: cada FILEIRA inteira tem uma
+  única rotação — 45° ou 135° — alternando fileira a fileira, com
+  `step = L/√2` e meio-passo de deslocamento entre fileiras adjacentes).
+  Essa é a mesma fonte de verdade usada no simulador da página de produto —
+  **não são mais duas técnicas diferentes**. Cada peça também encolhe
+  ~3.2px em torno do próprio centro pra criar vão de massa real (o
+  simulador JS usa `border` do CSS pra isso, que não existe em `<rect>` de
+  SVG, por isso o ajuste manual). Testado visualmente: cobertura 100%, sem
+  buracos, sem peças se cruzando em X. **O aviso de versões anteriores
+  para "manter rotação de grupo, não voltar a rotacionar peça por peça"
+  está obsoleto — ignorar.** Se for mexer nesse card de novo, a fonte de
+  verdade é `genEspinha()` em `paginacoes.js`; regenerar o SVG a partir
+  dela em vez de ajustar à mão.
 - **`guia-paginacoes-bruto.pdf`** (04/07/2026): PDF gerado com reportlab a
   partir dos mesmos 25 padrões/textos/dificuldade de `paginacoes.html`
   (script fonte não versionado no repo, só o PDF final). Linkado via botão
@@ -862,3 +872,232 @@ JS inline por página (mesmo padrão dos outros cálculos ali), não um arquivo
 compartilhado. **Se o percentual do Pix mudar de novo, tem que editar os
 dois lugares** — `parcelamento.js` E as 19 páginas de produto (comentário
 deixado no código pra lembrar).
+
+---
+
+## 30. Reajuste de preços +10% (08/07/2026, a pedido do Ewerson)
+
+Todos os 19 produtos tiveram o preço aumentado em pelo menos 10%,
+arredondado pra cima até o próximo ",90" (mantém o padrão de preço
+"quebrado" já usado no site — ex: R$ 139,90 → R$ 153,90, não R$ 153,89).
+Aumento real ficou entre 10,00% e 10,54% dependendo do arredondamento.
+
+**Cada preço aparece em 4 lugares por produto — todos atualizados:**
+1. `<p class="price">` — preço principal exibido na página do produto
+2. `"price":` no JSON-LD (schema.org, usado por rich snippets do Google)
+3. `data-product-price=` no botão do `lead-pdf.js` — alimenta o PDF de
+   orçamento que o cliente recebe. **Esse é o mais importante de não
+   esquecer** — se ficar desatualizado, cliente recebe PDF com preço
+   errado (pra menos, prejuízo direto).
+4. `.tex-card__price` em `texturas.html` — card do produto no catálogo
+
+A primeira passada só cobriu o item 1. Os itens 2 e 3 usam formatos
+diferentes (JSON-LD usa ponto decimal sem "R$"; `data-product-price` usa
+vírgula mas sem o prefixo "R$ ") e ficaram de fora até uma varredura
+posterior pegar o resíduo. Se for reajustar preço de novo no futuro,
+**checar os 4 formatos**, não só o preço visível na tela.
+
+**`data-preco` em `texturas.html`** (usado pelo filtro de faixa de preço)
+foi recalculado caso a caso — 3 produtos que antes eram "até R$150" agora
+caem em "R$150–200" com o novo preço (as fronteiras do filtro em si
+— 150 e 200 — não mudaram, só a classificação de qual produto cai em
+qual faixa). Se o Rafael achar que as fronteiras do filtro fazem menos
+sentido agora com o catálogo todo mais caro, isso é uma decisão de design
+separada, não resolvida aqui.
+
+**`ordem-servico.js`**: catálogo interno (`CATALOGO`) também atualizado
+com os novos preços — sem isso, a ferramenta de OS ficaria gerando pedido
+com preço antigo.
+
+**Não tocado**: `bruto-produtos.json` (arquivo de referência solto em
+`/mnt/user-data/outputs`, não faz parte do site publicado, não estava
+com prioridade de atualizar).
+
+**Nota pra quem mexer no schema.org (item 27) ou no desconto Pix (item 29)
+depois desta seção:** confirme que os preços usados nesses cálculos já
+refletem os novos valores — outra sessão já teve que descartar um rascunho
+de schema.org que tinha sido feito com os preços antigos, antes deste
+reajuste ficar visível pra ela.
+
+---
+
+## 31. Deploy real é Hostinger, não GitHub Pages (09/07/2026)
+
+Descoberto nesta sessão, a pedido do Rafael: **o site em produção está
+hospedado na Hostinger**, não no GitHub Pages. Até este item, todo o
+protocolo deste documento (cache-busting `?v=N`, "confirmar que subiu"
+olhando `git log`/GitHub, etc.) foi escrito assumindo GitHub Pages como
+destino final — isso estava incompleto.
+
+**Pipeline real:** `git push` → GitHub → Hostinger faz **pull automático**
+do repositório e publica a partir daí. Ou seja, existe um elo a mais na
+cadeia entre o commit e o site ao vivo.
+
+**Por que isso importa pra próxima sessão:**
+- Confirmar `git log --oneline -3` ou olhar o commit no GitHub **não
+  garante** que a mudança já está no ar — isso só confirma que chegou no
+  GitHub. O Hostinger precisa completar o pull dele antes de refletir.
+- Se o pull do Hostinger for por polling (intervalo fixo) em vez de
+  webhook, pode haver um atraso real entre push e publicação — vale
+  confirmar com o Rafael qual é o mecanismo e, se possível, a frequência.
+- Cache-busting (`?v=N`, item 11) continua necessário do mesmo jeito —
+  isso é cache de navegador/CDN do lado do visitante, independente de qual
+  plataforma serve o arquivo.
+- Se algo parecer "commitado mas não mudou no site", antes de assumir bug
+  no CSS/JS, checar se o Hostinger já puxou o commit mais recente.
+
+**Pendência:** mecanismo exato do pull automático (webhook vs. polling,
+frequência) ainda não documentado aqui — perguntar ao Rafael se for
+relevante pra investigar uma defasagem futura.
+
+---
+
+## 32. `catalogo.json` criado como fonte única de preço/dimensão/SKU (09/07/2026)
+
+A pedido do Rafael, depois de discutir a necessidade real: preço e
+dimensão de cada produto viviam duplicados em até 5 lugares (página de
+produto x4 formatos + `ordem-servico.js`), e isso já causou dado
+temporariamente desatualizado pelo menos duas vezes (reajuste de +10%,
+item 30; desconto Pix, item 29).
+
+**Decisão de arquitetura — script gerador, não fetch em tempo real:** o
+site é estático sem processo de build, então `catalogo.json` **não é lido
+pelo navegador**. Ele é a fonte que um script (`scripts/sync-catalogo.py`)
+lê pra regenerar os arquivos estáticos sob demanda. Isso evita o risco de
+SEO/flash-de-conteúdo-vazio de uma abordagem client-side, e segue o padrão
+que o projeto já usa (scripts geradores pra PDFs, srcset, etc — ver itens
+13.3, 20, 28).
+
+**Arquivos:**
+- `catalogo.json` — 19 produtos, campos `slug`, `nome`, `linha`, `sku`,
+  `preco`, `dimensoes_mm`. **Não inclui peso** (removido de propósito, ver
+  item 22 — escala não confirmada com a Faion).
+- `scripts/sync-catalogo.py` — lê `catalogo.json` e escreve em:
+  1. `produto-<slug>.html` — preço visível (`.price`), JSON-LD (`"price"`),
+     `data-product-price` (usado pelo `lead-pdf.js`), dimensão (`.product-specs`).
+  2. `texturas.html` — `data-preco` (bucket do filtro, **derivado
+     automaticamente** do valor numérico: ≤150 `ate150`, ≤200 `150a200`,
+     acima `acima200` — antes isso era classificado manualmente a cada
+     reajuste, ver nota do item 30) e `.tex-card__price`.
+  3. `ordem-servico.js` — reescreve o array `CATALOGO` inteiro a partir do
+     `catalogo.json`.
+- Uso: `python3 scripts/sync-catalogo.py --check` (dry-run, só mostra o
+  que mudaria) e `python3 scripts/sync-catalogo.py` (aplica). **Rodar
+  sempre com `--check` primeiro.**
+
+**Bug real encontrado e corrigido nesta migração:** `ordem-servico.js`
+tinha a dimensão placeholder antiga (`240mm x 65mm x 12mm`) em **todos**
+os 15 produtos Brick e Cimentício — a correção real de dimensão (item 16)
+nunca tinha chegado nesse arquivo, só nas páginas de produto. Só Rockface
+estava certo lá. Corrigido automaticamente pelo primeiro `sync-catalogo.py`
+rodado (diff conferido linha a linha antes do commit, `node --check`
+validado).
+
+**O que o script NÃO faz:**
+- Não faz bump de `?v=N` em cache-busting (item 11) — isso continua
+  manual, avaliar se necessário a cada rodada.
+- Não sincroniza os textos de parcelamento (`parcelamento.js` e o
+  comentário duplicado do desconto Pix dentro de cada `produto-*.html`,
+  ver item 29) — isso é lógica de desconto, não dado de catálogo.
+- Não mexe no schema.org além do campo `"price"` já existente.
+
+**Quando o preço ou dimensão de um produto mudar no futuro:** editar só o
+`catalogo.json`, rodar `--check`, revisar o diff, depois rodar sem `--check`
+e commitar. Elimina a necessidade de caçar os 4-5 lugares manualmente.
+
+---
+
+## 26. Sacola de amostras físicas (08/07/2026)
+
+Benchmark de mercado (Portobello + fabricantes internacionais de brick/stone
+veneer) mostrou que amostra física funciona melhor como "produto" escolhido
+(até N por pedido) do que como CTA genérico de WhatsApp. Implementado:
+
+- **`amostras.js`** (novo) — sacola de até 3 produtos, persistida em
+  `localStorage` (`bruto_amostras_bag`), sobrevive entre páginas.
+  Pílula flutuante (`.amostra-pill`, canto inferior direito, acima do
+  back-to-top) some quando a sacola está vazia. Modal de revisão + endereço
+  segue exatamente o padrão visual do `lead-modal` já usado pelo
+  `lead-pdf.js` (mesmas classes CSS, reaproveitadas).
+- Envia por **Formspree** (nome, whatsapp, email, CEP, endereço, lista de
+  produtos) e abre o **WhatsApp** com mensagem estruturada — mesmo padrão
+  duplo-canal do resto do site.
+- Botão "Adicionar à sacola de amostras" inserido logo após o bloco
+  `cta-buttons` nas 19 páginas de produto, com classes `pd-btn`
+  (atenção: essas páginas usam `pd-btn`/`pd-btn--primary`/`pd-btn--secondary`
+  no `<style>` local de cada página, não `btn`/`btn--primary` do
+  `styles.css` global — são dois sistemas de botão coexistindo).
+- **Escopo v1: só nas páginas de produto.** Não adicionei o botão nos cards
+  de `texturas.html` porque lá cada card inteiro já é um `<a>` clicável
+  (decisão de 07/07) — não dá pra aninhar um botão interativo dentro de um
+  link sem quebrar HTML válido. Se quiser adicionar depois, precisa de uma
+  abordagem diferente (ex: overlay posicionado por fora do fluxo do link).
+
+**Achado de bug, não relacionado ao que eu fiz — não corrigi:**
+`mobile-cta-bar.js` está carregado em todas as páginas (barra fixa de
+WhatsApp pro mobile) mas **não existe nenhum CSS pra `.mobile-cta-bar`**
+em `styles.css`. O elemento é injetado no DOM mas não tem posicionamento
+fixo nem estilo — a feature parece estar quebrada/invisível desde que foi
+criada. Vale alguém dar uma olhada.
+
+
+---
+
+## 33. Rodada de aprimoramentos: bug da mobile-cta-bar + SEO + perf (09/07/2026)
+
+Auditoria completa do site seguida de 7 commits, um por tema:
+
+1. **`mobile-cta-bar` corrigida** — o bug registrado no item 26 (script
+   carregado em todas as páginas, mas nenhum CSS existia) foi resolvido:
+   bloco `.mobile-cta-bar` adicionado ao fim de `styles.css` (visível só
+   <900px, aparece com `.is-visible` após 120px de scroll, respeita
+   `safe-area-inset-bottom`). No mobile, `.back-to-top` e `.amostra-pill`
+   ganharam offset (`bottom: 72px`/`124px`) pra não ficarem atrás da barra.
+   `styles.css?v=15 → v16` nas 37 páginas.
+2. **Titles SEO nas 19 páginas de produto** — de "Natura — BRUTO" para
+   "Brick Natura — Tijolinho Artesanal para Revestimento | BRUTO" (sufixo
+   por linha). `title` + `og:title` + `twitter:title`, 3 tags por página.
+3. **FAQPage schema no `index.html`** — JSON-LD gerado a partir das 6
+   perguntas já visíveis no FAQ. Se o texto do FAQ mudar, o schema precisa
+   ser atualizado junto (estão duplicados por natureza do JSON-LD).
+4. **`og-image.jpg` dedicada (1200x630)** no index + `og:url` corrigida de
+   `/index.html` pra `/`. As páginas de produto continuam com a foto do
+   produto como og:image — isso é correto, não "corrigir".
+5. **`.htaccess` novo** — `ErrorDocument 404` (o `404.html` existia mas
+   nunca era servido), força HTTPS, headers de segurança (sem CSP de
+   propósito — inline scripts + GTM quebrariam), cache (HTML no-cache,
+   CSS/JS 7d, imagens 30d) e gzip. Tudo com guard `<IfModule>`.
+6. **Tabler Icons fixado em `3.44.0`** (era `@latest` — sem controle de
+   versão, atualização do pacote podia quebrar ícones silenciosamente).
+   Versão confirmada no registry do npm antes de fixar.
+7. **Perf no index** — `width`/`height` nas 13 `<img>` (CLS),
+   `fetchpriority="high"` nas 3 do hero (LCP), `loading="lazy"` na imagem
+   do Sobre (1200px, carregava eager abaixo da dobra).
+
+**Pendências que continuam abertas da auditoria (não feitas nesta rodada):**
+GTM-XXXXXXX placeholder (depende do ID real do Rafael — item nº 1 pra
+tráfego pago), consolidação de popups (frete + exit-intent + cookies
+empilham na mesma sessão), busca por texto em `texturas.html`, botão de
+amostra nos cards do catálogo, tabela de frete por região, seção "como
+funciona a compra", minificação de CSS/JS, limpeza de imagens órfãs
+(~dezenas de .webp não referenciados), automatizar bump de `?v=` no
+sync-catalogo, versionar scripts geradores de PDF, script de verificação
+de integridade (links + scripts compartilhados por página).
+
+---
+
+## 34. Correção do item 33.6 — caminho do Tabler Icons na v3 (09/07/2026)
+
+O pin pra `3.44.0` quebrou os ícones do site inteiro: na v3 do pacote o CSS
+mudou de `/tabler-icons.min.css` (raiz, padrão da v2) para
+`/dist/tabler-icons.min.css` — a URL antiga passou a dar 404 e a fonte de
+ícones não carregava (sintoma visível: círculo do cookie, seta do
+back-to-top, todos os `ti-*` na verdade). O `@latest` anterior só
+"funcionava" por resolução/cache antigo do jsDelivr.
+
+Corrigido adicionando `/dist/` à URL nas 37 páginas. Verificado contra o
+tarball real do npm: os 62 ícones `ti-*` usados no site existem todos na
+3.44.0 — não há renomeação pendente, era só o caminho.
+
+**Lição:** ao fixar versão de pacote de CDN, conferir a estrutura de
+arquivos do tarball daquela versão, não só que a versão existe.
