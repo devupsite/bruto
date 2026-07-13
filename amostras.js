@@ -212,7 +212,7 @@
 
   pill.addEventListener('click', openModal);
   modal.addEventListener('click', function (e) {
-    if (e.target.hasAttribute('data-close')) closeModal();
+    if (e.target.closest('[data-close]')) closeModal();
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
