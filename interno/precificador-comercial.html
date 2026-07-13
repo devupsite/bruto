@@ -46,6 +46,51 @@ body{background:var(--k);color:var(--w);font-family:'DM Sans',system-ui,sans-ser
 .bruto-wm{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:17px;letter-spacing:.26em;text-transform:uppercase;color:var(--w)}
 .hdr-mid{font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--g)}
 .upco{display:flex;align-items:center;gap:3px}
+
+/* ── Salvar / carregar cenários ──────────────────────────────── */
+.cen-actions{display:flex;align-items:center;gap:8px}
+.cen-btn{
+  font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:7px 12px;border:1px solid var(--tbd);background:var(--tbg);
+  color:var(--tl);cursor:pointer;white-space:nowrap;
+}
+.cen-btn:hover{background:var(--tbd);color:var(--w)}
+.cen-btn[disabled]{opacity:.5;cursor:default}
+.cen-toast{
+  position:fixed;bottom:20px;right:20px;z-index:200;
+  background:var(--k2);border:1px solid var(--tbd);color:var(--w);
+  font-family:'DM Sans',sans-serif;font-size:12px;padding:10px 16px;
+  max-width:320px;opacity:0;transform:translateY(8px);
+  transition:opacity .2s,transform .2s;pointer-events:none;
+}
+.cen-toast.on{opacity:1;transform:translateY(0)}
+.cen-modal-bg{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);
+  z-index:150;align-items:flex-start;justify-content:center;padding:60px 20px;
+}
+.cen-modal-bg.on{display:flex}
+.cen-modal{
+  background:var(--k2);border:1px solid var(--k4);max-width:640px;width:100%;
+  max-height:80vh;overflow:auto;font-family:'DM Sans',sans-serif;
+}
+.cen-modal-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--k4);position:sticky;top:0;background:var(--k2);
+}
+.cen-modal-hdr h3{font-family:'Syne',sans-serif;font-size:14px;color:var(--w);font-weight:700}
+.cen-modal-close{cursor:pointer;color:var(--gl);font-size:18px;line-height:1;background:none;border:none}
+.cen-modal-close:hover{color:var(--w)}
+.cen-item{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 20px;border-bottom:1px solid var(--k3);
+}
+.cen-item:last-child{border-bottom:none}
+.cen-item-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cen-item-nome{font-size:12px;color:var(--w);font-weight:500}
+.cen-item-meta{font-size:10px;color:var(--gl)}
+.cen-item-resumo{font-size:10px;color:var(--tl)}
+.cen-empty{padding:24px 20px;color:var(--gl);font-size:12px}
 .uc-by{font-size:9px;color:var(--k4);letter-spacing:.08em;text-transform:uppercase;margin-right:4px}
 .uc-up{font-family:'Syne',sans-serif;font-weight:800;font-size:12px;letter-spacing:-.02em;color:var(--gl)}
 .uc-d{color:var(--t);font-size:12px}.uc-co{color:var(--g);font-size:10px;font-family:'Syne',sans-serif}
@@ -318,11 +363,27 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
     <span class="bruto-wm">BRUTO</span>
   </div>
   <div class="hdr-mid">Precificador Comercial</div>
+  <div class="cen-actions">
+    <button class="cen-btn" id="cen-btn-salvar" onclick="salvarCenario()">Salvar cenário</button>
+    <button class="cen-btn" id="cen-btn-abrir" onclick="abrirModalCenarios()">Cenários salvos</button>
+  </div>
   <div class="upco">
     <span class="uc-by">por</span>
     <span class="uc-up">UP</span><span class="uc-d">—</span><span class="uc-co">Co.</span>
   </div>
 </header>
+
+<div class="cen-modal-bg" id="cen-modal-bg" onclick="if(event.target===this)fecharModalCenarios()">
+  <div class="cen-modal">
+    <div class="cen-modal-hdr">
+      <h3>Cenários salvos</h3>
+      <button class="cen-modal-close" onclick="fecharModalCenarios()">✕</button>
+    </div>
+    <div id="cen-modal-lista"><div class="cen-empty">Carregando...</div></div>
+  </div>
+</div>
+
+<div class="cen-toast" id="cen-toast"></div>
 
 <nav class="nav">
   <div class="ni on" onclick="tab('prec',this)">01 · Precificação</div>
@@ -1989,6 +2050,157 @@ function syncLongPhase(){
   calcBench();
   renderFeedback();
   renderDash();
+}
+
+// ── SALVAR / CARREGAR CENÁRIOS (persistência em banco) ──────────────────
+var API_SALVAR_CENARIO  = 'https://brutoceramica.com.br/api/salvar-cenario.php';
+var API_LISTAR_CENARIOS = 'https://brutoceramica.com.br/api/listar-cenarios.php';
+var CENARIOS_CARREGADOS = [];
+
+function moduloAtual(){
+  var painelAtivo = document.querySelector('.pnl.on');
+  return painelAtivo ? painelAtivo.id.replace(/^p-/, '') : 'prec';
+}
+
+// Captura TODOS os campos preenchíveis da tela (todos os 16 módulos),
+// de forma genérica — não precisa listar campo por campo.
+function snapshotParametros(){
+  var params = {};
+  document.querySelectorAll('input[id], select[id], textarea[id]').forEach(function (el) {
+    params[el.id] = el.value;
+  });
+  return params;
+}
+
+// Resumo dos números-chave calculados (painel Dashboard, id "dash-*")
+function snapshotResultado(){
+  var resultado = {};
+  document.querySelectorAll('[id^="dash-"]').forEach(function (el) {
+    resultado[el.id] = el.textContent;
+  });
+  return resultado;
+}
+
+function escaparHtml(s){
+  var d = document.createElement('div');
+  d.textContent = String(s == null ? '' : s);
+  return d.innerHTML;
+}
+
+function mostrarToast(msg, tipo){
+  var t = document.getElementById('cen-toast');
+  t.textContent = msg;
+  t.style.borderColor = tipo === 'erro' ? 'var(--er)' : 'var(--tbd)';
+  t.classList.add('on');
+  clearTimeout(window.__cenToastTimer);
+  window.__cenToastTimer = setTimeout(function () { t.classList.remove('on'); }, 4000);
+}
+
+function salvarCenario(){
+  var btn = document.getElementById('cen-btn-salvar');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+
+  try { renderDash(); } catch (e) { /* segue mesmo se o dashboard não puder recalcular agora */ }
+
+  var payload = {
+    nome_cenario: 'Cenário ' + new Date().toLocaleString('pt-BR'),
+    modulo: moduloAtual(),
+    parametros: snapshotParametros(),
+    resultado: snapshotResultado(),
+    criado_por: 'BRUTO'
+  };
+
+  fetch(API_SALVAR_CENARIO, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      if (!data || !data.sucesso) throw new Error((data && data.erro) || 'Falha ao salvar.');
+      mostrarToast('Cenário salvo: ' + payload.nome_cenario);
+    })
+    .catch(function (err) {
+      console.warn('Erro ao salvar cenário:', err);
+      mostrarToast('Não foi possível salvar o cenário agora. Tente de novo em instantes.', 'erro');
+    })
+    .then(function () {
+      btn.disabled = false;
+      btn.textContent = 'Salvar cenário';
+    });
+}
+
+function abrirModalCenarios(){
+  document.getElementById('cen-modal-bg').classList.add('on');
+  carregarListaCenarios();
+}
+
+function fecharModalCenarios(){
+  document.getElementById('cen-modal-bg').classList.remove('on');
+}
+
+function carregarListaCenarios(){
+  var lista = document.getElementById('cen-modal-lista');
+  lista.innerHTML = '<div class="cen-empty">Carregando...</div>';
+
+  fetch(API_LISTAR_CENARIOS)
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      var cenarios = (data && data.cenarios) || [];
+      CENARIOS_CARREGADOS = cenarios;
+      if (cenarios.length === 0) {
+        lista.innerHTML = '<div class="cen-empty">Nenhum cenário salvo ainda.</div>';
+        return;
+      }
+      lista.innerHTML = cenarios.map(function (c, i) {
+        var resumo = (c.resultado && c.resultado['dash-receita'])
+          ? ('Receita estimada: ' + c.resultado['dash-receita'])
+          : '';
+        return '<div class="cen-item">' +
+          '<div class="cen-item-info">' +
+            '<span class="cen-item-nome">' + escaparHtml(c.nome_cenario || 'Sem nome') + '</span>' +
+            '<span class="cen-item-meta">' + escaparHtml(c.criado_em || '') + ' · módulo ' + escaparHtml(c.modulo || '') + '</span>' +
+            (resumo ? '<span class="cen-item-resumo">' + escaparHtml(resumo) + '</span>' : '') +
+          '</div>' +
+          '<button class="cen-btn" onclick="carregarCenario(' + i + ')">Carregar</button>' +
+        '</div>';
+      }).join('');
+    })
+    .catch(function (err) {
+      console.warn('Erro ao listar cenários:', err);
+      lista.innerHTML = '<div class="cen-empty">Não foi possível carregar os cenários agora.</div>';
+    });
+}
+
+// Chama de volta todas as funções de cálculo/renderização, na ordem,
+// pra atualizar a tela inteira depois de restaurar os campos de um
+// cenário salvo. Cada uma é protegida individualmente — se uma falhar,
+// as outras continuam normalmente.
+function recalcularTudo(){
+  [calcPrec, calcFrete, calcCen, calcBE, calcLTV, calcV, calc90,
+   syncCalcs, renderFunil, renderMix, calcHealth, syncLongPhase]
+    .forEach(function (fn) {
+      try { if (typeof fn === 'function') fn(); } catch (e) { console.warn('Recalc falhou:', e); }
+    });
+}
+
+function carregarCenario(indice){
+  var c = CENARIOS_CARREGADOS[indice];
+  if (!c || !c.parametros) return;
+
+  Object.keys(c.parametros).forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.value = c.parametros[id];
+  });
+
+  var modulo = c.modulo || 'prec';
+  var navEl = document.querySelector('.ni[onclick*="\'' + modulo + '\'"]');
+  if (navEl) tab(modulo, navEl);
+
+  recalcularTudo();
+  fecharModalCenarios();
+  mostrarToast('Cenário carregado: ' + (c.nome_cenario || ''));
 }
 
 </script>
