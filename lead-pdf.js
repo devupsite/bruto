@@ -158,7 +158,7 @@
     }
     var corEl = document.querySelector('.pgn-current-name');
     var padraoEl = document.querySelector('.pgn-pattern-btn.is-active');
-    var ambienteEl = document.querySelector('.pgn-chip.is-active');
+    var ambienteEl = document.querySelector('.pgn-ambient-toggle .pgn-chip.is-active');
 
     return {
       produto:      currentBtn ? currentBtn.getAttribute('data-product-name') : '—',

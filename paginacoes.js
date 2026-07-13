@@ -34,6 +34,17 @@
     { id: 'espinha',   label: 'Espinha de Peixe', desc: 'Peças em 45° alternadas — acabamento premium.' }
   ];
 
+  // Cores de rejunte — a primeira replica a junta clara original do widget
+  var REJUNTES = [
+    { id: 'argamassa', nome: 'Argamassa clara', cor: '#f2efe9' },
+    { id: 'areia',     nome: 'Areia',           cor: '#d9c9ae' },
+    { id: 'cinza',     nome: 'Cinza platina',   cor: '#b9b4ab' },
+    { id: 'grafite',   nome: 'Grafite',         cor: '#4a453e' },
+    { id: 'terracota', nome: 'Terracota',       cor: '#9c5f43' }
+  ];
+
+  var PECA_LARGURA_MM = 240; // referência da peça Brick para converter junta mm → px
+
   /* ---------- Geradores de layout (retângulos por padrão) ---------- */
 
   function genCorrido(wallW, wallH, mw, mh, gap, offsetFrac) {
@@ -68,16 +79,18 @@
     return rects;
   }
 
-  function genEspinha(wallW, wallH, L) {
+  function genEspinha(wallW, wallH, L, gap) {
     // Construção validada: cada FILEIRA inteira (não cada peça) tem uma
     // única orientação (45° ou 135°), alternando fileira a fileira, com
     // deslocamento de meio passo entre elas — igual ao padrão clássico de
     // espinha de peixe (testado e comparado pixel a pixel contra uma
     // referência CSS de espinha de peixe consagrada antes de aplicar aqui).
     // Cobertura 100%, sem gaps e sem peças se cruzando em X.
+    // A junta é criada encolhendo cada peça em `gap`, revelando o rejunte.
     var rects = [];
     var thick = L / 2; // proporção clássica 2:1 (comprimento : espessura)
     var step = L / Math.SQRT2; // espaçamento entre fileiras e entre peças na mesma fileira
+    var g = gap || 0;
 
     var originX = wallW / 2;
     var originY = wallH / 2;
@@ -93,20 +106,21 @@
 
       for (var c = -colSteps; c <= colSteps; c++) {
         var x = c * step + xOffset + originX;
-        rects.push({ x: x - L / 2, y: y - thick / 2, w: L, h: thick, rot: rot });
+        rects.push({ x: x - L / 2 + g / 2, y: y - thick / 2 + g / 2, w: L - g, h: thick - g, rot: rot });
       }
     }
     return rects;
   }
 
-  function buildLayout(patternId, wallW, wallH) {
+  function buildLayout(patternId, wallW, wallH, juntaMm) {
     var mw = Math.max(48, wallW / 7.5);
     var mh = mw / 3.65;
-    var gap = Math.max(1.5, mw * 0.045);
+    // converte a junta real (mm) para pixels usando a largura da peça como régua
+    var gap = Math.max(1, mw * ((juntaMm || 8) / PECA_LARGURA_MM));
     switch (patternId) {
       case 'corrido13': return genCorrido(wallW, wallH, mw, mh, gap, 1 / 3);
       case 'empilhado':  return genEmpilhado(wallW, wallH, mw, mh, gap);
-      case 'espinha':    return genEspinha(wallW, wallH, mw * 1.35);
+      case 'espinha':    return genEspinha(wallW, wallH, mw * 1.35, gap);
       case 'corrido12':
       default:           return genCorrido(wallW, wallH, mw, mh, gap, 0.5);
     }
@@ -122,9 +136,12 @@
     var rectH = wallEl.clientHeight;
     if (!rectW || !rectH) return;
 
-    var layout = buildLayout(state.pattern, rectW, rectH);
+    var layout = buildLayout(state.pattern, rectW, rectH, state.junta);
     var url = "url('" + textureUrl(state.brickId) + "')";
     var frag = document.createDocumentFragment();
+
+    // o fundo da parede é o rejunte — as juntas entre as peças o revelam
+    wallEl.style.backgroundColor = state.rejunte.cor;
 
     layout.forEach(function (b) {
       var el = document.createElement('div');
@@ -205,6 +222,76 @@
     });
   }
 
+  function updateGroutNote(root, state) {
+    var note = root.querySelector('.pgn-grout-note');
+    if (!note) return;
+    note.innerHTML = '<i class="ti ti-line-dashed" aria-hidden="true"></i> ' +
+      'Junta de ' + state.junta + ' mm · rejunte ' + state.rejunte.nome.toLowerCase();
+  }
+
+  function buildGroutControls(root, state, onChange) {
+    var controls = root.querySelector('.pgn-controls');
+    if (!controls || controls.querySelector('.pgn-grout-group')) return;
+
+    var group = document.createElement('div');
+    group.className = 'pgn-control-group pgn-grout-group';
+
+    var label = document.createElement('span');
+    label.className = 'pgn-control-label';
+    label.textContent = 'Junta & rejunte';
+    group.appendChild(label);
+
+    // Slider de junta (mm)
+    var row = document.createElement('div');
+    row.className = 'pgn-grout-row';
+    var range = document.createElement('input');
+    range.type = 'range';
+    range.className = 'pgn-junta-range';
+    range.min = '3'; range.max = '15'; range.step = '1';
+    range.value = String(state.junta);
+    range.setAttribute('aria-label', 'Espessura da junta em milímetros');
+    var val = document.createElement('span');
+    val.className = 'pgn-junta-val';
+    val.textContent = state.junta + ' mm';
+    var raf = null;
+    range.addEventListener('input', function () {
+      state.junta = parseInt(range.value, 10) || 8;
+      val.textContent = state.junta + ' mm';
+      updateGroutNote(root, state);
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(onChange);
+    });
+    row.appendChild(range);
+    row.appendChild(val);
+    group.appendChild(row);
+
+    // Swatches de rejunte
+    var list = document.createElement('div');
+    list.className = 'pgn-rejunte-list';
+    list.setAttribute('role', 'group');
+    list.setAttribute('aria-label', 'Cor do rejunte');
+    REJUNTES.forEach(function (rj) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pgn-rejunte-swatch' + (rj.id === state.rejunte.id ? ' is-active' : '');
+      btn.style.backgroundColor = rj.cor;
+      btn.setAttribute('title', rj.nome);
+      btn.setAttribute('aria-label', 'Rejunte ' + rj.nome);
+      btn.addEventListener('click', function () {
+        if (state.rejunte.id === rj.id) return;
+        state.rejunte = rj;
+        list.querySelectorAll('.pgn-rejunte-swatch').forEach(function (s) { s.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        updateGroutNote(root, state);
+        onChange();
+      });
+      list.appendChild(btn);
+    });
+    group.appendChild(list);
+
+    controls.appendChild(group);
+  }
+
   function buildViewToggle(root, state) {
     var wrap = root.querySelector('.pgn-preview-wrap');
     if (!wrap || wrap.querySelector('.pgn-view-toggle')) return;
@@ -251,7 +338,14 @@
 
   function initOne(root) {
     var initialId = root.getAttribute('data-current') || BRICKS[0].id;
-    var state = { brickId: findBrick(initialId).id, pattern: 'corrido12', ambiente: 'claro', vista: 'frontal' };
+    var state = {
+      brickId: findBrick(initialId).id,
+      pattern: 'corrido12',
+      ambiente: 'claro',
+      vista: 'frontal',
+      junta: 8,                 // mm — mesmo valor da calculadora de m²
+      rejunte: REJUNTES[0]
+    };
 
     var nameLabel = root.querySelector('.pgn-current-name');
     if (nameLabel) nameLabel.textContent = findBrick(state.brickId).nome;
@@ -269,6 +363,8 @@
     buildPatternButtons(root, state, rerender);
     buildAmbientToggle(root, state);
     buildViewToggle(root, state);
+    buildGroutControls(root, state, rerender);
+    updateGroutNote(root, state);
 
     rerender();
 

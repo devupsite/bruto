@@ -2089,7 +2089,7 @@
   aspect-ratio: 4 / 3;
   overflow: hidden;
   border-radius: 4px;
-  background: #d8d2c8;
+  background: #f2efe9; /* rejunte padrão (argamassa clara) — o JS troca conforme a escolha */
   box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
 }
 
@@ -2100,12 +2100,63 @@
 .pgn-brick {
   position: absolute;
   box-sizing: border-box;
-  border: 1.5px solid #f2efe9;
   background-color: #cfc7ba;
   background-repeat: no-repeat;
+  /* a junta agora é o vão entre as peças, que revela a cor do rejunte
+     aplicada como fundo da .pgn-wall (controlada pelo usuário) */
   /* relevo sutil por peça — a luz rasante do modo perspectiva valoriza o bisel */
   box-shadow: inset 1px 1px 0 rgba(255, 252, 245, 0.16),
               inset -1px -2px 1px rgba(30, 18, 8, 0.18);
+}
+
+/* ---- Junta & rejunte ---- */
+
+.pgn-grout-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.pgn-junta-range {
+  flex: 1;
+  accent-color: var(--ferro);
+  cursor: pointer;
+}
+
+.pgn-junta-val {
+  font-family: var(--f-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ferro);
+  min-width: 3.4em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pgn-rejunte-list {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.pgn-rejunte-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+.pgn-rejunte-swatch:hover { transform: translateY(-1px); }
+
+.pgn-rejunte-swatch.is-active::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border: 2px solid var(--ferro);
+  border-radius: 50%;
 }
 
 /* ---- Chips dos toggles (vista e ambiente) ---- */
