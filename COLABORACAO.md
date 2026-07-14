@@ -1219,3 +1219,37 @@ mas não foi testado especificamente contra ladrilhamento lado a lado.
 **Progresso real de fotos reais no Brick:** Lumus, Eco Palha, Terra do
 Cerrado, Natura (4/12). Restam 8: Branco Rosé, Mescla Prime, Rosso Prime,
 Rusticatto (Fumê, Rosso, Sertão, Terra Negra), Vulcano.
+
+**Correção ao diagnóstico acima (14/07/2026) — a causa raiz era outra.**
+O Rafael reportou a mesma curvatura no site publicado mesmo depois do fix
+de inset. Investigando de novo com uma métrica objetiva (fração de pixels
+com cor de papel por linha, do topo/base do recorte até 20% para dentro),
+ficou claro que **"aumentar o inset" tratou o sintoma, não a causa**: a
+caixa de detecção (`minAreaRect` via segmentação de cor) estava mal
+ajustada — maior que a peça de verdade, capturando uma faixa enorme de
+papel/fundo dentro do que devia ser só peça (confirmado: a 20% de inset
+ainda havia até 98% de papel numa das faces). Nenhum valor razoável de
+inset percentual resolve uma caixa fundamentalmente errada — só reduz
+proporcionalmente o quanto do erro aparece.
+
+**Correção real:** trocar a segmentação por distância de cor (ruidosa,
+sensível a reflexos/objetos na cena) por `cv2.grabCut` com uma semente
+retangular no centro da imagem (mesmo enquadramento em todas as fotos
+deste lote: peça ocupa aproximadamente x∈[15%,85%], y∈[35%,70%] do
+quadro). Resultado muito mais fiel ao contorno real da peça. Antes de
+aceitar qualquer caixa nova, **validar quantitativamente**: medir a fração
+de pixels com cor de papel (`V>150` e `S<55` em HSV) nas primeiras/últimas
+linhas do recorte final — deve cair a ~0% já nos primeiros 2-4% de inset;
+se ainda houver 10%+ de papel a 15-20% de inset, a caixa está errada, não
+faltando margem. Teste adicional que expõe o problema de forma direta:
+empilhar duas cópias da textura com um gap fino da cor do rejunte e medir
+o desvio de cor **na própria linha do gap** — deve ser ~0 (junta
+perfeitamente uniforme). As 4 texturas (Lumus, Eco Palha corrigidas nesta
+rodada) passaram nesse teste com desvio 0,00.
+
+**Lição prática pra quem for processar Terra do Cerrado/Natura de novo ou
+qualquer peça nova:** não confiar em "aumentar % de inset" como fix
+genérico sem antes confirmar que a caixa de recorte está mesmo ajustada à
+peça. Rodar a métrica de fração-de-papel-por-linha antes de aceitar
+qualquer textura nova é barato (poucos segundos) e pega esse tipo de erro
+antes de virar reclamação visual no site.
