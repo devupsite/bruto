@@ -1101,3 +1101,77 @@ tarball real do npm: os 62 ícones `ti-*` usados no site existem todos na
 
 **Lição:** ao fixar versão de pacote de CDN, conferir a estrutura de
 arquivos do tarball daquela versão, não só que a versão existe.
+
+## Página de obrigado / conversão (obrigado.html)
+
+Criada `obrigado.html` — página dedicada de confirmação pós-conversão,
+usada como sinal de conversão mais confiável pro Google Ads (page load
+independe de JS/bloqueador de anúncio rodar até o fim).
+
+Redirecionamento com delay (não imediato — preserva o estado "concluído"
+que já existia nos modais):
+- `lead-pdf.js`: calculadora → 4s de delay → `obrigado.html?origem=calculadora`
+- `lead-pdf.js`: PDF estático (paginações/guias) → 4s → `?origem=paginacoes`
+- `exit-intent.js`: guia PDF → 6s → `?origem=exit-intent`, cancelável se a
+  pessoa fechar o modal manualmente (`fechar()` limpa o timer)
+
+Texto da página se adapta por `?origem=` via query string. `noindex` no
+`<meta robots>` — página não deve ser indexada nem aparecer em busca.
+
+Versões bumpadas: `lead-pdf.js` v9→v10 (22 páginas), `exit-intent.js`
+v1→v2 (35 páginas).
+
+**Pendência**: uma vez o GTM real estiver conectado, criar no painel um
+trigger de Page View pra `/obrigado.html` como ação de conversão do
+Google Ads — mais robusto que os eventos JS custom (`form_submit` etc.)
+porque não depende de bloqueador de anúncio deixar o script rodar.
+
+---
+
+## 30. Terra do Cerrado com fotos reais (2 faces) — mesmo padrão do Lumus (13/07/2026)
+
+Ewerson mandou 2 fotos físicas da peça (papel branco, luz natural, levemente
+rotacionada no quadro). Processo aplicado antes de virar `texturas`:
+
+1. Segmentação por cor pra isolar a peça do papel/piso (peça é bem mais
+   vermelha que o papel branco e mais clara que o piso cinza/marrom escuro)
+2. `cv2.minAreaRect` no maior componente conectado pra achar o ângulo real
+   da peça na foto, e rotação da imagem inteira pra endireitar
+3. Recorte interno generoso (não just bounding box) pra garantir zero fundo
+   visível nas bordas — a primeira tentativa com crop simples (bounding
+   box + margem fixa) deixava sliver de papel branco nos cantos porque a
+   peça estava rotacionada na foto original
+4. Correção de flat-field (divide pela própria versão borrada, technique
+   padrão de correção de vinheta/luz direcional) pra aproximar da
+   iluminação uniforme das fotos do Lumus — as fotos originais eram
+   externas, luz solar direcional, bem diferente da luz de estúdio do
+   Lumus
+5. Resize final pra 800px de largura (mesmo padrão do Lumus)
+
+Testado no simulador real (Playwright): modo padrão E espinha de peixe
+(pra confirmar que o giro/rotação de peça não quebra com a textura real).
+Sem erros JS. `w:260, h:70` (dimensão real já usada na ficha técnica da
+página, ao invés do genérico 240×65). `paginacoes.js?v=6 -> v7` nas 19
+páginas de produto (o motor é compartilhado, cache-bust precisa subir em
+todas mesmo só um produto tendo mudado de verdade).
+
+**Restam 10 produtos Brick sem fotos reais de peça** (só Lumus e Terra do
+Cerrado têm `texturas` até agora). Mesmo processo se repete quando as
+próximas fotos chegarem.
+
+---
+
+## 31. Natura com fotos reais (2 faces) — mesmo processo (13/07/2026)
+
+Mesmo pipeline do item 30 (Terra do Cerrado): segmentação de cor, endireita
+via `cv2.minAreaRect`, recorte interno generoso, flat-field, resize 800px.
+Única observação: a primeira leva de fotos veio com a segunda imagem
+totalmente preta (brilho médio 0 — falha de disparo), Ewerson reenviou e a
+segunda versão veio boa.
+
+`w:240, h:70` (dimensão real — largura 240 já estava certa por
+coincidência, mas a altura genérica 65 virou 70). `paginacoes.js?v=7 -> v8`
+nas 19 páginas. Testado no simulador real via Playwright, sem erros JS.
+
+**Progresso das fotos reais:** Lumus, Terra do Cerrado, Natura (3/12
+Brick). Restam 9.

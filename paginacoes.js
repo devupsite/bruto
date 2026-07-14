@@ -20,13 +20,15 @@
         { id: 'brick-lumus',                  nome: 'Lumus',                 w: 265, h: 65,
           texturas: ['brick-lumus-face1.webp', 'brick-lumus-face2.webp'] },
         { id: 'brick-mescla-prime',           nome: 'Mescla Prime',          w: 240, h: 65 },
-        { id: 'brick-natura',                 nome: 'Natura',                w: 240, h: 65 },
+        { id: 'brick-natura',                 nome: 'Natura',                w: 240, h: 70,
+          texturas: ['brick-natura-face1.webp', 'brick-natura-face2.webp'] },
         { id: 'brick-rosso-prime',            nome: 'Rosso Prime',           w: 240, h: 65 },
         { id: 'brick-rusticatto-sertao',      nome: 'Rusticatto do Sertão',  w: 240, h: 65 },
         { id: 'brick-rusticatto-fume',        nome: 'Rusticatto Fumê',       w: 240, h: 65 },
         { id: 'brick-rusticatto-rosso',       nome: 'Rusticatto Rosso',      w: 240, h: 65 },
         { id: 'brick-rusticatto-terra-negra', nome: 'Rusticatto Terra Negra', w: 240, h: 65 },
-        { id: 'brick-terra-cerrado',          nome: 'Terra do Cerrado',      w: 240, h: 65 },
+        { id: 'brick-terra-cerrado',          nome: 'Terra do Cerrado',      w: 260, h: 70,
+          texturas: ['brick-terra-cerrado-face1.webp', 'brick-terra-cerrado-face2.webp'] },
         { id: 'brick-vulcano',                nome: 'Vulcano',               w: 240, h: 65 }
       ]
     },
