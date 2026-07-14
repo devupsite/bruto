@@ -1175,3 +1175,47 @@ nas 19 páginas. Testado no simulador real via Playwright, sem erros JS.
 
 **Progresso das fotos reais:** Lumus, Terra do Cerrado, Natura (3/12
 Brick). Restam 9.
+
+---
+
+## 35. Merge de sessões paralelas + fix de curvatura de borda nas texturas reais (13/07/2026)
+
+Esta sessão (com o Rafael) e a sessão paralela (com o Ewerson, itens 30-31)
+convergiram no mesmo dia trabalhando no **mesmo recurso** — fotos reais de
+peça no simulador (`texturas` + modo foto-por-peça) — cada uma processando
+produtos diferentes sem se ver. Resultado: **4 produtos Brick com fotos
+reais** agora (Lumus e Eco Palha desta sessão; Terra do Cerrado e Natura da
+sessão paralela). Restam 8 dos 12 Brick.
+
+**Merge:** `git merge` teve 19 conflitos, todos triviais — as duas sessões
+bumparam a mesma linha de cache-busting (`paginacoes.js?v=` e, em 7 páginas,
+também `lead-pdf.js?v=`) para números diferentes no mesmo commit-base.
+Resolvido usando um número **maior que os dois lados** (não escolhendo um):
+`paginacoes.js?v=9`, `lead-pdf.js?v=10` em todas as 19 páginas de produto,
+garantindo cache-bust do conteúdo já combinado dos dois lados. O conteúdo de
+`paginacoes.js` em si mergeou automaticamente sem conflito — as duas sessões
+adicionaram entradas diferentes no mesmo array `coleções.brick.itens`.
+Validado com jsdom: as 4 texturas reais + os 9 padrões de assentamento
+(inclusive os 5 novos: Quarto Corrido, Fiadas Duplas, Vertical, Cesta,
+Diagonal) renderizam sem erro depois do merge.
+
+**Lição técnica pra quem for fotografar/processar a próxima peça (registrar
+aqui pros itens 30/31 também seguirem isso):** peça cerâmica artesanal real
+não é um retângulo perfeito — a borda física é levemente ondulada. Um
+recorte de perspectiva feito só pelos 4 cantos (`minAreaRect` +
+`getPerspectiveTransform`) deixa essa ondulação (e às vezes um triângulo do
+papel de fundo) visível perto da borda da textura extraída. Isso é
+invisível numa peça isolada, mas **no modo foto-por-peça, onde a foto vira
+um ladrilho de bordas retas encostado no vizinho, a curva denuncia a junta**
+— o pedreiro fica "torto". Correção: aumentar a margem de recorte para
+dentro (nesta sessão, de ~2,8% para 7% na vertical) até sobrar só o miolo
+reto da peça, e **validar simulando 4 fotos coladas lado a lado antes de
+aceitar** (não só olhar a textura isolada). As texturas do Lumus e Eco Palha
+já foram reprocessadas com esse inset maior; vale conferir se Terra do
+Cerrado/Natura (sessão paralela) têm o mesmo sintoma — o processo descrito
+nos itens 30/31 (recorte "generoso" + flat-field) parece já mitigar isso,
+mas não foi testado especificamente contra ladrilhamento lado a lado.
+
+**Progresso real de fotos reais no Brick:** Lumus, Eco Palha, Terra do
+Cerrado, Natura (4/12). Restam 8: Branco Rosé, Mescla Prime, Rosso Prime,
+Rusticatto (Fumê, Rosso, Sertão, Terra Negra), Vulcano.
