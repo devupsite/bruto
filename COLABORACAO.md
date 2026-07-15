@@ -1291,3 +1291,32 @@ dá 2 variantes, mas vale fotografar uma 2ª peça quando possível.
 **Pendência de dados:** Sertão e Terra Negra estão com a medida genérica
 antiga (240×65) no `COLECOES` — conferir com régua (as demais referências
 medidas variam: 265×65, 270×70, 260×70, 240×70).
+
+---
+
+## 37. Conformidade de cor: mescla das texturas com as capas de galeria (14/07/2026)
+
+O Rafael percebeu que os tons do simulador estavam mais escuros que o
+normal (Lumus deveria ser mais rosado). Medição confirmou de forma
+gritante: todas as 13 faces estavam de **62 a 90 pontos de L mais escuras**
+que a capa de galeria (`*-frontal.webp`) do próprio produto. Causa: a
+calibração pela folha branca na sombra produz consistência interna entre
+peças, mas num nível de exposição muito abaixo das capas (tratadas/mais
+claras) — e o cliente compara simulador × galeria lado a lado na mesma
+página, então a referência comercial é a galeria.
+
+**Solução (ideia do Rafael, implementada como transferência de cor):**
+mescla de 75% em LAB — mediana e dispersão (MAD, escala contida em
+0,7–1,4) de cada face puxadas em direção às da capa do próprio produto.
+Pós-mescla: ΔL caiu para −15..−23 (resíduo proposital da mescla) e
+Δa/Δb ≈ 0 (o rosado do Lumus voltou). Aplicado nas 13 faces + cache-bust
+`?v=3` em todas + bump paginacoes.js v11.
+
+**AVISO IMPORTANTE sobre a métrica de auditoria do item 36:** a detecção
+de papel (V>150, S<55) só é válida ANTES de normalização de brilho. Depois
+da mescla, peças claras (Lumus ~77-82% "papel" nas bordas) disparam falso
+positivo — é a própria cerâmica clara, confirmado por inspeção visual das
+tiras de borda (textura com grão, sem faixa lisa). A validação geométrica
+(recorte sem fundo) deve ser feita ANTES da correção de cor; operações de
+cor não alteram geometria. Para peças novas: 1º recorte + validação de
+papel; 2º flat-field; 3º mescla com a galeria; nessa ordem.
