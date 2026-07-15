@@ -1460,7 +1460,51 @@ genérica própria pra contexto de página não encontrada.
 
 ---
 
-## 39. 2ª face do Rusticatto Rosso (peça nova) + achado sobre recorte lateral (15/07/2026)
+---
+
+## 40. Auditoria do FAQ contra a operação real (14/07/2026)
+
+Rafael pediu pra revisar o FAQ (`index.html`) contra uma auditoria do site,
+sinalizando de antemão que a resposta de amostra ("frete por nossa conta")
+estava desatualizada. Existem **dois lugares** que precisam ficar sempre
+idênticos: a seção visível `.faq` e o `<script type="application/ld+json">`
+`FAQPage` (schema.org, lido pelo Google pra rich snippets) — os dois foram
+auditados e corrigidos juntos, e validados por script que confirma as 6
+perguntas batendo palavra por palavra entre os dois blocos.
+
+**Achados, cruzando contra `parcelamento.js` e `/interno/`
+(`atendimento-tecnico.html`, `precificador-comercial.html`):**
+
+1. **Amostra** — confirmado com Rafael: custo de frete varia por
+   localização, ainda sem regra definida. Resposta trocada pra genérica
+   ("varia conforme a localização, confirmado antes do envio"), sem
+   prometer valor ou faixa.
+2. **Prazo de entrega** — achado não solicitado, mas relevante: o FAQ
+   público prometia SP em 3-5 dias e demais regiões 7-12 dias. O documento
+   interno mostra que produção/separação já leva até 10 dias sozinha, mais
+   frete por região (Sudeste 3-6, Sul 4-7, Centro-Oeste 5-8, Nordeste 7-11,
+   Norte 10-15 dias úteis) — o real podia chegar a ~25 dias pro Norte,
+   contradizendo a promessa pública. Reportado a Rafael antes de mexer;
+   resposta dele: "de 7 a 15 dias, dependendo da região", com liberdade de
+   refinar a copy. Consolidei numa resposta única (a pergunta específica
+   de SP não fazia mais sentido separada) explicando que o intervalo já
+   soma produção + frete.
+3. **Garantia** — FAQ dizia 12 meses; Rafael confirmou que o correto é
+   **6 meses** contra defeitos de fábrica. Só esse número mudou.
+4. **Parcelamento/Pix — divergência objetiva, corrigida sem precisar
+   perguntar** (matemática direta de `parcelamento.js`, não é decisão de
+   negócio): o FAQ dizia "12x sem juros" e "Pix 3%", mas o código real só
+   dá sem juros até 4x (5x-12x tem juros de 4,5% a.m., Tabela Price) e o
+   desconto Pix real é 5%, não 3%. Corrigido pra refletir o que o site de
+   fato calcula em `#parcelamento-info` nas páginas de produto.
+5. **Boleto bancário** — aparece só no texto do FAQ, sem nenhuma lógica de
+   sistema que confirme ou negue (não é calculado em lugar nenhum do
+   código, ao contrário de cartão/Pix). Não mexido — não é uma divergência
+   que dá pra provar via código, fica como está até alguém confirmar.
+
+---
+
+## 41. 2ª face do Rusticatto Rosso (peça nova) + achado sobre recorte lateral (15/07/2026)
 
 Fila do item 38 pedia uma 2ª peça do Rosso (até então só `face1`). Cliente
 forneceu 2 fotos de uma peça nova (não a mesma da face1), mesma sessão de
@@ -1500,7 +1544,7 @@ Cimentício/Rockface sem textura real; cabeças pra aparelhos clássicos.
 
 ---
 
-## 40. Auditoria de segurança (15/07/2026) — achado real, ação tomada e pendência futura
+## 42. Auditoria de segurança (15/07/2026) — achado real, ação tomada e pendência futura
 
 Auditoria pedida pelo Rafael, com foco em "não deixar concorrente entender
 o backend". Resumo do que foi encontrado — ver a conversa completa pra
@@ -1635,9 +1679,103 @@ intervalo — merge automático sem conflito, versões já compatíveis.
 Prime, Rusticatto Fumê, Vulcano — Mescla Prime já saiu da lista);
 Cimentício/Rockface sem textura real; cabeças pra aparelhos clássicos.
 
+## 43. Coerência entre o FAQ público e o precificador interno (15/07/2026)
+
+Rafael perguntou se o `interno/precificador-comercial.html` ficou coerente
+com o FAQ corrigido no item 40. Não estava: a tabela de frete por região do
+precificador (painel "Frete & Margem Real") é só o trecho de **transporte**,
+sem incluir o prazo de produção/separação que `atendimento-tecnico.html`
+documenta à parte. Somando os dois pro pior caso de cada região, com
+produção fixa em 10 dias (valor antigo):
+
+- Sudeste 13-16 · Sul 14-17 · Centro-Oeste 15-18 · Nordeste 17-21 · Norte
+  20-25 dias úteis — **as 5 regiões estouravam o teto de 15 dias** que o
+  FAQ agora promete (não só o Norte, que foi o exemplo usado na pergunta
+  original a Rafael).
+
+Rafael decidiu manter o FAQ em "7 a 15 dias" e ajustar a ferramenta
+interna. Resolvido com o mínimo de mudança possível:
+
+- **Produção/separação**: `interno/atendimento-tecnico.html`, de "até 10
+  dias úteis" pra "até 4 dias úteis" (as 2 ocorrências do arquivo — linha
+  do resumo operacional e linha do script de atendimento pra pergunta de
+  urgência). Essa mudança sozinha já resolve Sudeste, Sul, Centro-Oeste e
+  Nordeste (todos ficam dentro de 7-15 sem tocar frete).
+- **Frete do Norte**: `interno/precificador-comercial.html`, de "10–15" pra
+  "9–11 dias úteis" — único trecho de frete alterado, os R$ 380 de custo
+  não foram tocados, só o texto do prazo.
+- **Validação final** (produção 4 + frete por região): Sudeste 7-10 · Sul
+  8-11 · Centro-Oeste 9-12 · Nordeste 11-15 · Norte 13-15 — todas as 5
+  cabem dentro de 7-15, com Sudeste tocando o piso e Nordeste/Norte
+  tocando o teto.
+
+**Ressalva importante, não escondida do Rafael:** isso é uma reconciliação
+numérica pra tornar o site e a ferramenta interna consistentes entre si —
+não é uma renegociação real de prazo de produção com a Faion nem de prazo
+de transporte com transportadora. Os "4 dias" de produção e o "9-11" do
+Norte são estimativas ajustadas pra caber no teto prometido, não dados
+operacionais revalidados. Se algum dia esses prazos forem confirmados
+como incorretos na prática, os dois arquivos (`atendimento-tecnico.html`
+e `precificador-comercial.html`) precisam ser revisitados juntos — e o
+FAQ público também, se o teto real for diferente de 15.
+
+**Não tocado, fora do escopo desta pergunta:** a linha "Prazo informado no
+site: 9 a 12 dias" pra amostra física, em `atendimento-tecnico.html`. Não
+cria contradição numérica com o FAQ público (que agora não promete número
+de dias pra amostra, só "varia conforme localização"), mas fica registrado
+caso alguém quera revisar esse número depois também.
+
 ---
 
-## 41. Rusticatto Fumê com fotos reais — 2 faces de uma vez (15/07/2026)
+## 44. Correção: Mescla Prime perdeu as manchas características no flat-field (15/07/2026)
+
+Rafael reportou, olhando a peça publicada, que o simulador do Mescla Prime
+"perdeu aquelas manchas características deste modelo" (o item 41 desta
+mesma sessão). Investigando: **causa raiz era o próprio flat-field do item
+38.B.4**, não a mescla de cor do 38.B.5.
+
+**Diagnóstico:** o flat-field usa `sigma ~ altura/3` do recorte pra estimar
+e remover sombreamento direcional. No Mescla Prime, a mancha característica
+do produto (a variação tonal ampla que dá nome à linha — "mescla") tem
+escala espacial parecida com a da própria peça, comparável ao sigma usado
+pro flat-field. Resultado: o algoritmo tratou a mancha como se fosse
+sombra de iluminação e a atenuou junto. Medido em desvio-padrão do canal L:
+o recorte cru tinha std 22,35 (face1) / 19,41 (face2); depois do
+flat-field original caía pra 14,39 / 15,02 — uma perda real de 20-35% de
+contraste local, camuflada porque a mescla de cor (item 38.B.5) parcialmente
+recompunha o contraste global (voltava pra ~18,6/19,5), mas sem devolver a
+mancha à forma/posição originais.
+
+**Correção:** sigma do flat-field recalculado proporcional à **largura**
+da peça (não altura/3), com blur calculado em baixa resolução e reescalado
+(mais rápido, evita timeout em imagens de 5000px+) — na prática um raio de
+blur bem maior que a mancha, corrigindo só a iluminação página-inteira e
+deixando a mancha intacta. Força reduzida de 0,88 pra 0,6. Resultado: std
+final de 27,09 (face1) / 24,31 (face2) — acima até do recorte cru, ou seja,
+a mancha característica ficou mais nítida que antes, não mais apagada.
+Reprocessado com o mesmo pipeline dos passos seguintes (mescla de cor 75%
+LAB inalterada, teste de junta empilhada: desvio 0,00 nas duas faces).
+
+**Nota de protocolo pra próximas peças (atualiza o item 38.B.4):** o sigma
+`altura/3` funcionou bem nas 7 peças anteriores porque a variação de cor
+delas é mais granular (grão/textura), não uma mancha ampla de escala
+comparável à peça inteira. Pra peças com mancha grande e proposital
+("Mescla", ou qualquer nome que sugira variação tonal como característica
+de venda), calibrar o sigma pela **largura da peça** (bem maior que a
+mancha esperada) em vez de usar o valor genérico de altura/3 — e, se
+possível, comparar o desvio-padrão do canal L antes/depois do flat-field
+como checagem rápida: uma queda de mais de ~15-20% no std é sinal de que o
+flat-field está comendo textura característica, não só sombra.
+
+**Arquivos atualizados:** `brick-mescla-prime-face1.webp` /
+`-face2.webp` sobrescritos (mesmo nome), cache-bust `?v=1 -> v=2` na
+entrada do `paginacoes.js`, bump geral `paginacoes.js?v=13 -> v=14` nas 19
+páginas de produto. Smoke test jsdom: 152 peças, todas usando `?v=2`,
+face1/face2 ~54/46%, `backgroundSize: 100% 100%` em todas.
+
+---
+
+## 45. Rusticatto Fumê com fotos reais — 2 faces de uma vez (15/07/2026)
 
 Cliente forneceu 2 peças físicas diferentes na mesma sessão de foto — já
 sai direto com 2 faces (melhor caso do item 38, evita a limitação do
@@ -1668,3 +1806,12 @@ test jsdom: 180 peças, face1/face2 97/83, 100% `backgroundSize: 100%
 **Fila do item 38 restante**: 4 Bricks sem foto real (Branco Rosé, Rosso
 Prime, Vulcano — Rusticatto Fumê sai da lista); Cimentício/Rockface sem
 textura real; cabeças pra aparelhos clássicos.
+
+**Nota pós-merge (item 44):** sessão paralela achou, no mesmo intervalo,
+que o flat-field com `sigma ~ altura/3` apaga manchas amplas em peças tipo
+"Mescla" (queda de std do canal L >15-20%). Conferido nas 2 faces do Fumê
+com o mesmo teste: queda de só 5-6% (22,09→20,68 e 19,59→18,59) — dentro
+do esperado pra correção de sombreamento em textura granular, sem indício
+do bug. Não precisou reprocessar. Daqui pra frente, seguir o critério
+atualizado do item 44 (sigma pela largura + checagem de std) em peças
+com variação tonal ampla proposital.

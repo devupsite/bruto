@@ -20,7 +20,7 @@
         { id: 'brick-lumus',                  nome: 'Lumus',                 w: 265, h: 65,
           texturas: ['brick-lumus-face1.webp?v=3', 'brick-lumus-face2.webp?v=3'] },
         { id: 'brick-mescla-prime',           nome: 'Mescla Prime',          w: 250, h: 70,
-          texturas: ['brick-mescla-prime-face1.webp?v=1', 'brick-mescla-prime-face2.webp?v=1'] },
+          texturas: ['brick-mescla-prime-face1.webp?v=2', 'brick-mescla-prime-face2.webp?v=2'] },
         { id: 'brick-natura',                 nome: 'Natura',                w: 240, h: 70,
           texturas: ['brick-natura-face1.webp?v=3', 'brick-natura-face2.webp?v=3'] },
         { id: 'brick-rosso-prime',            nome: 'Rosso Prime',           w: 240, h: 65 },
