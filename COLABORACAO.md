@@ -1587,3 +1587,94 @@ ninguém no momento.
 Basic Auth funcional no `.htaccess` de `/interno/` (o arquivo já tem o
 passo a passo do Hostinger escrito nos comentários) — hoje a pasta está
 sem proteção ativa nenhuma.
+
+---
+
+## 41. Mescla Prime com fotos reais (2 faces) + correção de dimensão (15/07/2026)
+
+Sessão em paralelo às dos itens 39-40 (mesmo dia), sem se ver — convergiu
+de novo no mesmo recurso do item 35. Seguido o protocolo do item 38 do
+início ao fim para a peça Mescla Prime, a partir de 2 fotos (1 peça por
+foto, 8000×6006px, papel A4 branco, luz do dia indireta — conforme
+protocolo A).
+
+**Pipeline (item 38.B) aplicado nesta ordem:**
+1. Recorte por `cv2.grabCut` com semente retangular (não segmentação por
+   cor) — rodado em resolução reduzida (max 1600px no lado maior, por limite
+   de memória do `cv2.grabCut` nas fotos de 8000px) para achar a caixa, e
+   `getPerspectiveTransform` aplicado depois na foto em resolução cheia.
+   Peça fotografada em pé (retrato); rotacionada 90° pro padrão paisagem do
+   simulador.
+2. Validação geométrica ANTES de qualquer cor: fração de papel (V>150,
+   S<55) nas linhas de borda caiu para 0,3%–2,2% após um aparo adicional de
+   2% em cada lado — dentro do limiar <3% do item 36.
+3. Flat-field (força 0,88, sigma = altura/3).
+4. Mescla de cor 75% em LAB (mediana + MAD, escala 0,7–1,4) puxando pra
+   `brick-mescla-prime-frontal.webp` (capa de galeria já publicada). ΔL
+   resultante -24 a -27 (mesma faixa de resíduo proposital do item 37).
+5. Teste da junta empilhada: desvio 0,00 nas duas faces.
+6. Export: `brick-mescla-prime-face1.webp` / `-face2.webp`, 800px de
+   largura, qualidade 84.
+
+**Integração (item 38.C):** `paginacoes.js` — item Mescla Prime ganhou
+`texturas: ['brick-mescla-prime-face1.webp?v=1', 'brick-mescla-prime-face2.webp?v=1']`,
+ativando o modo foto-por-peça. Cache-bust: bumpado junto com o `?v=12` que
+o item 39 (Rosso) já tinha aplicado nas 19 páginas de produto — sem
+conflito real no merge, as duas sessões mexeram em entradas diferentes do
+mesmo array `texturas` do `paginacoes.js` e o merge automático do Git
+resolveu sozinho (mesmo padrão do item 35).
+
+**Correção de dimensão:** medida com régua durante esta sessão deu
+**250×70×15mm** (25×7×1,5cm) para a peça fotografada — diferente do
+260×70×15mm que estava em `catalogo.json` (valor genérico/pendente,
+registrado no item 33/36). Atualizado `catalogo.json` e propagado com
+`python3 scripts/sync-catalogo.py` (regenerou o spec de dimensão em
+`produto-brick-mescla-prime.html` e a entrada correspondente em
+`ordem-servico.js`). O `w`/`h` do item no `paginacoes.js` também usa
+250×70 agora, batendo com a medida real.
+
+**Smoke test (item 38.C.3):** jsdom com `data-current="brick-mescla-prime"`
+— 152 peças renderizadas, face1/face2 ~46/54, giro ~52%, `backgroundSize:
+100% 100%` em todas. Script de teste não commitado (ferramenta ad-hoc, sem
+dependência nova no repo).
+
+**Estado pós-merge (considerando também o item 39 do Rosso):** Texturas
+reais 9/12 Brick (Lumus, Eco Palha, Natura, Terra do Cerrado, Sertão,
+Terra Negra, Rosso [2 faces], **Mescla Prime**). **Fila**: 4 Bricks
+restantes (Branco Rosé, Rosso Prime, Rusticatto Fumê, Vulcano); régua no
+Sertão/Terra Negra; cabeças das peças p/ aparelhos clássicos; texturizar
+cimentício/rockface; limpeza do histórico do `.htpasswd` (item 40, aguarda
+coordenação com o Rafael e janela sem push pendente de ninguém).
+
+---
+
+## 40. Régua real de Sertão e Terra Negra (15/07/2026)
+
+Última pendência de dados do item 38 resolvida. Cliente mediu com régua:
+
+- **Rusticatto do Sertão**: 25,5 × 7 × 2 cm → `255mm x 70mm x 20mm`
+  (era genérico `240x65`).
+- **Rusticatto Terra Negra**: 26 × 6,5 × 2 cm → `260mm x 65mm x 20mm`
+  (era genérico `240x65`).
+
+**3 lugares por produto que guardam a dimensão, todos atualizados:**
+1. `paginacoes.js` — `w`/`h` (mm) da entrada em `COLECOES`, usado pra
+   escala/proporção da peça no simulador de paginação.
+2. Ficha técnica da página do produto — 2 ocorrências (JSON-LD
+   `additionalProperty` + `.product-specs .spec-item` visível). Essa
+   última também alimenta a calculadora de peças/m² da página (lê o
+   texto via regex, não precisou de código novo).
+3. `ordem-servico.js` — campo `dimensoes` da linha do produto no
+   formulário de ordem de serviço.
+
+Espessura (2cm/20mm) confirmada igual nos dois — mantida, não é usada
+pelo simulador de paginação (só length/height), só aparece nas fichas
+técnicas e no ordem de serviço.
+
+Cache-bust: `paginacoes.js?v=13` (19 páginas) e `ordem-servico.js?v=2`
+(1 página). Sessão paralela havia adicionado Mescla Prime no mesmo
+intervalo — merge automático sem conflito, versões já compatíveis.
+
+**Fila do item 38 restante:** 5 Bricks sem foto real (Branco Rosé, Rosso
+Prime, Rusticatto Fumê, Vulcano — Mescla Prime já saiu da lista);
+Cimentício/Rockface sem textura real; cabeças pra aparelhos clássicos.

@@ -4,7 +4,7 @@
     { "slug": "brick-branco-rose",          "nome": "Branco Rosé",           "linha": "brick",      "sku": 56, "preco": 153.90, "dimensoes_mm": [270, 70, 15] },
     { "slug": "brick-eco-palha",            "nome": "Eco Palha",             "linha": "brick",      "sku": 57, "preco": 153.90, "dimensoes_mm": [270, 70, 15] },
     { "slug": "brick-lumus",                "nome": "Lumus",                 "linha": "brick",      "sku": 73, "preco": 164.90, "dimensoes_mm": [270, 70, 15] },
-    { "slug": "brick-mescla-prime",         "nome": "Mescla Prime",          "linha": "brick",      "sku": 54, "preco": 153.90, "dimensoes_mm": [260, 70, 15] },
+    { "slug": "brick-mescla-prime",         "nome": "Mescla Prime",          "linha": "brick",      "sku": 54, "preco": 153.90, "dimensoes_mm": [250, 70, 15] },
     { "slug": "brick-natura",               "nome": "Natura",                "linha": "brick",      "sku": 48, "preco": 104.90, "dimensoes_mm": [240, 70, 15] },
     { "slug": "brick-rosso-prime",          "nome": "Rosso Prime",           "linha": "brick",      "sku": 53, "preco": 142.90, "dimensoes_mm": [270, 70, 15] },
     { "slug": "brick-rusticatto-fume",      "nome": "Rusticatto Fumê",       "linha": "brick",      "sku": 72, "preco": 186.90, "dimensoes_mm": [270, 70, 20] },
