@@ -1457,3 +1457,45 @@ WhatsApp (só linkava pra `index.html#amostra`). Adicionado um terceiro
 botão ("Falar no WhatsApp") ao lado de "Página inicial" e "Ver coleções",
 mesmo padrão visual (`btn btn--outline`) e mesmo número, com mensagem
 genérica própria pra contexto de página não encontrada.
+
+---
+
+## 40. Auditoria do FAQ contra a operação real (14/07/2026)
+
+Rafael pediu pra revisar o FAQ (`index.html`) contra uma auditoria do site,
+sinalizando de antemão que a resposta de amostra ("frete por nossa conta")
+estava desatualizada. Existem **dois lugares** que precisam ficar sempre
+idênticos: a seção visível `.faq` e o `<script type="application/ld+json">`
+`FAQPage` (schema.org, lido pelo Google pra rich snippets) — os dois foram
+auditados e corrigidos juntos, e validados por script que confirma as 6
+perguntas batendo palavra por palavra entre os dois blocos.
+
+**Achados, cruzando contra `parcelamento.js` e `/interno/`
+(`atendimento-tecnico.html`, `precificador-comercial.html`):**
+
+1. **Amostra** — confirmado com Rafael: custo de frete varia por
+   localização, ainda sem regra definida. Resposta trocada pra genérica
+   ("varia conforme a localização, confirmado antes do envio"), sem
+   prometer valor ou faixa.
+2. **Prazo de entrega** — achado não solicitado, mas relevante: o FAQ
+   público prometia SP em 3-5 dias e demais regiões 7-12 dias. O documento
+   interno mostra que produção/separação já leva até 10 dias sozinha, mais
+   frete por região (Sudeste 3-6, Sul 4-7, Centro-Oeste 5-8, Nordeste 7-11,
+   Norte 10-15 dias úteis) — o real podia chegar a ~25 dias pro Norte,
+   contradizendo a promessa pública. Reportado a Rafael antes de mexer;
+   resposta dele: "de 7 a 15 dias, dependendo da região", com liberdade de
+   refinar a copy. Consolidei numa resposta única (a pergunta específica
+   de SP não fazia mais sentido separada) explicando que o intervalo já
+   soma produção + frete.
+3. **Garantia** — FAQ dizia 12 meses; Rafael confirmou que o correto é
+   **6 meses** contra defeitos de fábrica. Só esse número mudou.
+4. **Parcelamento/Pix — divergência objetiva, corrigida sem precisar
+   perguntar** (matemática direta de `parcelamento.js`, não é decisão de
+   negócio): o FAQ dizia "12x sem juros" e "Pix 3%", mas o código real só
+   dá sem juros até 4x (5x-12x tem juros de 4,5% a.m., Tabela Price) e o
+   desconto Pix real é 5%, não 3%. Corrigido pra refletir o que o site de
+   fato calcula em `#parcelamento-info` nas páginas de produto.
+5. **Boleto bancário** — aparece só no texto do FAQ, sem nenhuma lógica de
+   sistema que confirme ou negue (não é calculado em lugar nenhum do
+   código, ao contrário de cartão/Pix). Não mexido — não é uma divergência
+   que dá pra provar via código, fica como está até alguém confirmar.
