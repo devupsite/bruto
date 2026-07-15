@@ -1451,3 +1451,9 @@ alguma sessão anterior ao copiar a página a partir de um template mais
 antigo. Corrigido nas duas páginas, seguindo exatamente o padrão das
 outras 17 (mesma estrutura de mensagem: "Olá! Tenho interesse no
 {produto}, poderia me ajudar?").
+
+**Melhoria aplicada em `404.html`:** único ponto do site sem link direto de
+WhatsApp (só linkava pra `index.html#amostra`). Adicionado um terceiro
+botão ("Falar no WhatsApp") ao lado de "Página inicial" e "Ver coleções",
+mesmo padrão visual (`btn btn--outline`) e mesmo número, com mensagem
+genérica própria pra contexto de página não encontrada.
