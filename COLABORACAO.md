@@ -1460,6 +1460,8 @@ genérica própria pra contexto de página não encontrada.
 
 ---
 
+---
+
 ## 40. Auditoria do FAQ contra a operação real (14/07/2026)
 
 Rafael pediu pra revisar o FAQ (`index.html`) contra uma auditoria do site,
@@ -1499,3 +1501,89 @@ perguntas batendo palavra por palavra entre os dois blocos.
    sistema que confirme ou negue (não é calculado em lugar nenhum do
    código, ao contrário de cartão/Pix). Não mexido — não é uma divergência
    que dá pra provar via código, fica como está até alguém confirmar.
+
+---
+
+## 41. 2ª face do Rusticatto Rosso (peça nova) + achado sobre recorte lateral (15/07/2026)
+
+Fila do item 38 pedia uma 2ª peça do Rosso (até então só `face1`). Cliente
+forneceu 2 fotos de uma peça nova (não a mesma da face1), mesma sessão de
+luz. Seguido o pipeline do item 38 à risca, com uma diferença relevante:
+
+**Achado novo — recorte lateral às vezes é necessário, não só topo/base.**
+O item 36 registrava "aparar SÓ topo/base, sem recorte de colunas" como
+lição aprendida. Nesta peça, porém, o enquadramento capturou as **cabeças**
+(faces curtas) com folga generosa, deixando 25-38% de papel nas colunas
+extremas — bem acima do limiar de 3% e nada relacionado a falso positivo
+de textura clara (item 36.1): o perfil coluna-a-coluna era suave e
+monotônico (37%→0% ao longo de ~130px), não ruído disperso. A proibição do
+item 36 era especificamente contra recorte ADAPTATIVO reagindo a ruído +
+resize desproporcional (quase destruiu a lumus-face2). Aqui foi aplicado o
+mesmo método já usado pra linhas (limiar robusto: exige 200 colunas
+consecutivas <3% de papel antes de aceitar a borda), sem resize
+desproporcional — só um crop, com o resize final uniforme de sempre (passo
+7, 800px de largura). Validado com teste da junta empilhada nas 5 cores de
+rejunte (inclusive grafite, pior contraste): sem halo.
+
+**Distinção que vale registrar:** uma faixa clara de ~L167 (escala 0-255)
+no topo da peça passou no critério de papel (S=73,8, acima do limiar
+S<55) — é variação natural de queima da argila (mancha clara), não papel.
+Confirma na prática o alerta do item 36.1: nem toda claridade é papel: o
+teste de saturação, não só de brilho, é o que decide.
+
+**Resultado:** `brick-rusticatto-rosso-face2.webp` exportado (800×242px,
+webp q84), registrado em `paginacoes.js` (`?v=4` na entrada, bump geral
+`?v=12` nas 19 páginas). Rosso agora tem 2 faces × giro de 180° = 4
+variantes na parede (era 2). Smoke test jsdom: 153 peças, face1/face2
+41/59%, 100% com `backgroundSize: 100% 100%`.
+
+**Pendências que seguem em aberto** (não avançadas nesta sessão): régua
+real de Sertão/Terra Negra (ainda 240×65 genérico); 5 Bricks sem foto real
+(Branco Rosé, Mescla Prime, Rosso Prime, Rusticatto Fumê, Vulcano);
+Cimentício/Rockface sem textura real; cabeças pra aparelhos clássicos.
+
+---
+
+## 42. Auditoria de segurança (15/07/2026) — achado real, ação tomada e pendência futura
+
+Auditoria pedida pelo Rafael, com foco em "não deixar concorrente entender
+o backend". Resumo do que foi encontrado — ver a conversa completa pra
+detalhe da investigação (repo é público, confirmado via API do GitHub):
+
+**Achado crítico:** o arquivo `interno/.htpasswd` (hash da senha da área
+`/interno/`) foi commitado no repo público no commit `1180ea3` e removido
+depois no `9b095ba` — mas isso não some do histórico. Confirmado que o
+arquivo continua recuperável publicamente via
+`raw.githubusercontent.com/devupsite/bruto/1180ea3/interno/.htpasswd`
+(testado, retornou 200). Além disso, `interno/precificador-comercial.html`
+expõe nome real de fornecedor ("Faion"), fórmulas de margem e números de
+lucro de exemplo — e a proteção Basic Auth do `.htaccess` **ainda não
+está funcional** (falta o caminho absoluto do servidor, conforme
+comentário no próprio arquivo).
+
+**O que NÃO é problema:** os stubs em `/api/*.php` (enviar-email,
+salvar-ordem, whatsapp-fornecedor, chat) só fazem `require` de um
+arquivo real fora do repo (`bruto-secrets/`) — não vazam segredo nenhum.
+O chat com IA em `atendimento-tecnico.html` também não expõe chave de
+API no cliente. Esse padrão está correto — manter religiosamente.
+
+**Ação tomada:** o Rafael vai trocar a senha real de `/interno/`
+(a que está hoje em `bruto-secrets/` no servidor) — isso neutraliza o
+hash vazado, independente dele continuar no histórico do Git pra sempre.
+
+**PENDÊNCIA FUTURA — limpeza do histórico do Git.** Ainda falta remover
+o `.htpasswd` de vez do histórico (ex: `git filter-repo` ou BFG Repo-Cleaner)
+pra ele parar de ser recuperável via commit antigo. Não foi feito agora
+de propósito: é uma reescrita de todo o histórico de commits, exige
+force-push, e quebra o clone local de QUALQUER sessão que esteja
+trabalhando no repo no momento (teria que re-clonar do zero). Com várias
+sessões atuando em paralelo neste projeto, isso precisa ser coordenado —
+avisar todo mundo, ou fazer num momento de baixa atividade. Se você é
+uma sessão futura lendo isso: **não faça essa limpeza sozinho sem
+avisar o Rafael antes**, e confirme que não há push pendente de
+ninguém no momento.
+
+**Enquanto isso não é feito:** também vale terminar de configurar o
+Basic Auth funcional no `.htaccess` de `/interno/` (o arquivo já tem o
+passo a passo do Hostinger escrito nos comentários) — hoje a pasta está
+sem proteção ativa nenhuma.
