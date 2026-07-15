@@ -1457,3 +1457,43 @@ WhatsApp (só linkava pra `index.html#amostra`). Adicionado um terceiro
 botão ("Falar no WhatsApp") ao lado de "Página inicial" e "Ver coleções",
 mesmo padrão visual (`btn btn--outline`) e mesmo número, com mensagem
 genérica própria pra contexto de página não encontrada.
+
+---
+
+## 39. 2ª face do Rusticatto Rosso (peça nova) + achado sobre recorte lateral (15/07/2026)
+
+Fila do item 38 pedia uma 2ª peça do Rosso (até então só `face1`). Cliente
+forneceu 2 fotos de uma peça nova (não a mesma da face1), mesma sessão de
+luz. Seguido o pipeline do item 38 à risca, com uma diferença relevante:
+
+**Achado novo — recorte lateral às vezes é necessário, não só topo/base.**
+O item 36 registrava "aparar SÓ topo/base, sem recorte de colunas" como
+lição aprendida. Nesta peça, porém, o enquadramento capturou as **cabeças**
+(faces curtas) com folga generosa, deixando 25-38% de papel nas colunas
+extremas — bem acima do limiar de 3% e nada relacionado a falso positivo
+de textura clara (item 36.1): o perfil coluna-a-coluna era suave e
+monotônico (37%→0% ao longo de ~130px), não ruído disperso. A proibição do
+item 36 era especificamente contra recorte ADAPTATIVO reagindo a ruído +
+resize desproporcional (quase destruiu a lumus-face2). Aqui foi aplicado o
+mesmo método já usado pra linhas (limiar robusto: exige 200 colunas
+consecutivas <3% de papel antes de aceitar a borda), sem resize
+desproporcional — só um crop, com o resize final uniforme de sempre (passo
+7, 800px de largura). Validado com teste da junta empilhada nas 5 cores de
+rejunte (inclusive grafite, pior contraste): sem halo.
+
+**Distinção que vale registrar:** uma faixa clara de ~L167 (escala 0-255)
+no topo da peça passou no critério de papel (S=73,8, acima do limiar
+S<55) — é variação natural de queima da argila (mancha clara), não papel.
+Confirma na prática o alerta do item 36.1: nem toda claridade é papel: o
+teste de saturação, não só de brilho, é o que decide.
+
+**Resultado:** `brick-rusticatto-rosso-face2.webp` exportado (800×242px,
+webp q84), registrado em `paginacoes.js` (`?v=4` na entrada, bump geral
+`?v=12` nas 19 páginas). Rosso agora tem 2 faces × giro de 180° = 4
+variantes na parede (era 2). Smoke test jsdom: 153 peças, face1/face2
+41/59%, 100% com `backgroundSize: 100% 100%`.
+
+**Pendências que seguem em aberto** (não avançadas nesta sessão): régua
+real de Sertão/Terra Negra (ainda 240×65 genérico); 5 Bricks sem foto real
+(Branco Rosé, Mescla Prime, Rosso Prime, Rusticatto Fumê, Vulcano);
+Cimentício/Rockface sem textura real; cabeças pra aparelhos clássicos.
