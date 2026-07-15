@@ -1678,3 +1678,51 @@ intervalo — merge automático sem conflito, versões já compatíveis.
 **Fila do item 38 restante:** 5 Bricks sem foto real (Branco Rosé, Rosso
 Prime, Rusticatto Fumê, Vulcano — Mescla Prime já saiu da lista);
 Cimentício/Rockface sem textura real; cabeças pra aparelhos clássicos.
+
+---
+
+## 43. Coerência entre o FAQ público e o precificador interno (15/07/2026)
+
+Rafael perguntou se o `interno/precificador-comercial.html` ficou coerente
+com o FAQ corrigido no item 40. Não estava: a tabela de frete por região do
+precificador (painel "Frete & Margem Real") é só o trecho de **transporte**,
+sem incluir o prazo de produção/separação que `atendimento-tecnico.html`
+documenta à parte. Somando os dois pro pior caso de cada região, com
+produção fixa em 10 dias (valor antigo):
+
+- Sudeste 13-16 · Sul 14-17 · Centro-Oeste 15-18 · Nordeste 17-21 · Norte
+  20-25 dias úteis — **as 5 regiões estouravam o teto de 15 dias** que o
+  FAQ agora promete (não só o Norte, que foi o exemplo usado na pergunta
+  original a Rafael).
+
+Rafael decidiu manter o FAQ em "7 a 15 dias" e ajustar a ferramenta
+interna. Resolvido com o mínimo de mudança possível:
+
+- **Produção/separação**: `interno/atendimento-tecnico.html`, de "até 10
+  dias úteis" pra "até 4 dias úteis" (as 2 ocorrências do arquivo — linha
+  do resumo operacional e linha do script de atendimento pra pergunta de
+  urgência). Essa mudança sozinha já resolve Sudeste, Sul, Centro-Oeste e
+  Nordeste (todos ficam dentro de 7-15 sem tocar frete).
+- **Frete do Norte**: `interno/precificador-comercial.html`, de "10–15" pra
+  "9–11 dias úteis" — único trecho de frete alterado, os R$ 380 de custo
+  não foram tocados, só o texto do prazo.
+- **Validação final** (produção 4 + frete por região): Sudeste 7-10 · Sul
+  8-11 · Centro-Oeste 9-12 · Nordeste 11-15 · Norte 13-15 — todas as 5
+  cabem dentro de 7-15, com Sudeste tocando o piso e Nordeste/Norte
+  tocando o teto.
+
+**Ressalva importante, não escondida do Rafael:** isso é uma reconciliação
+numérica pra tornar o site e a ferramenta interna consistentes entre si —
+não é uma renegociação real de prazo de produção com a Faion nem de prazo
+de transporte com transportadora. Os "4 dias" de produção e o "9-11" do
+Norte são estimativas ajustadas pra caber no teto prometido, não dados
+operacionais revalidados. Se algum dia esses prazos forem confirmados
+como incorretos na prática, os dois arquivos (`atendimento-tecnico.html`
+e `precificador-comercial.html`) precisam ser revisitados juntos — e o
+FAQ público também, se o teto real for diferente de 15.
+
+**Não tocado, fora do escopo desta pergunta:** a linha "Prazo informado no
+site: 9 a 12 dias" pra amostra física, em `atendimento-tecnico.html`. Não
+cria contradição numérica com o FAQ público (que agora não promete número
+de dias pra amostra, só "varia conforme localização"), mas fica registrado
+caso alguém quera revisar esse número depois também.
