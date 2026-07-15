@@ -1253,3 +1253,41 @@ genérico sem antes confirmar que a caixa de recorte está mesmo ajustada à
 peça. Rodar a métrica de fração-de-papel-por-linha antes de aceitar
 qualquer textura nova é barato (poucos segundos) e pega esse tipo de erro
 antes de virar reclamação visual no site.
+
+---
+
+## 36. Auditoria de qualidade nas 13 texturas de face + correções (14/07/2026)
+
+Rodada a validação quantitativa do item 35 (fração de papel por linha +
+teste da junta empilhada) em TODAS as 13 texturas `*-face*.webp` de todas
+as sessões. Resultado: 9 aprovadas de primeira; 4 reprovadas e corrigidas:
+
+- `brick-rusticatto-terra-negra-face2`: faixa de papel branco nos últimos
+  ~8% da base (100% da linha era papel) — na parede, virava listra branca
+  na base de cada peça. Aparada.
+- `brick-rusticatto-terra-negra-face1`: mesma faixa, menor (78% na última
+  linha). Aparada.
+- `brick-rusticatto-rosso-face1`: 10,8% de papel no topo. Aparada e
+  normalizada de 1600px para 800px de largura (padrão das demais).
+- `brick-lumus-face2`: resíduo de 1,4% no topo. Aparada.
+
+**Armadilhas descobertas no processo (importante pra próxima sessão):**
+1. Peças ESCURAS (Terra Negra) têm pontos claros naturais que o detector
+   de papel (V>150, S<55 em HSV) marca como falso positivo no miolo
+   (1–3% por linha). Isso é normal — o critério de aprovação vale para as
+   BORDAS (primeira/última linha), não para o miolo. Limiar de aprovação
+   usado: <3% nas bordas.
+2. NÃO usar recorte adaptativo de colunas + resize para consertar textura:
+   os falsos positivos espalhados estreitam a "faixa limpa" de colunas e o
+   resize estica a textura (quase destruiu a lumus-face2; recuperada via
+   git checkout). Aparar SÓ topo/base, de fora pra dentro, sem resize.
+3. Textura corrigida = mesma URL com conteúdo novo = navegador serve a
+   velha. Ao modificar um webp de face, adicionar `?v=N` na entrada
+   correspondente do array `texturas` no paginacoes.js (feito nas 4).
+
+**Estado pós-auditoria:** 13/13 texturas aprovadas (junta empilhada com
+desvio 0,00 em todas). Rosso segue com 1 face — o giro de 180° do render
+dá 2 variantes, mas vale fotografar uma 2ª peça quando possível.
+**Pendência de dados:** Sertão e Terra Negra estão com a medida genérica
+antiga (240×65) no `COLECOES` — conferir com régua (as demais referências
+medidas variam: 265×65, 270×70, 260×70, 240×70).
