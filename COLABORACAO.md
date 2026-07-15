@@ -1634,3 +1634,37 @@ intervalo — merge automático sem conflito, versões já compatíveis.
 **Fila do item 38 restante:** 5 Bricks sem foto real (Branco Rosé, Rosso
 Prime, Rusticatto Fumê, Vulcano — Mescla Prime já saiu da lista);
 Cimentício/Rockface sem textura real; cabeças pra aparelhos clássicos.
+
+---
+
+## 41. Rusticatto Fumê com fotos reais — 2 faces de uma vez (15/07/2026)
+
+Cliente forneceu 2 peças físicas diferentes na mesma sessão de foto — já
+sai direto com 2 faces (melhor caso do item 38, evita a limitação do
+Rosso que só tinha 1 até a sessão anterior). Pipeline consolidado num
+script único (`pipeline.py`, não versionado) cobrindo os 7 passos do item
+38.B de ponta a ponta pras duas peças.
+
+**Achado**: face1 apresentou uma faixa mais clara nos primeiros/últimos
+~20px de topo/base (ΔL ≈ 8-13 em relação ao miolo) mesmo após o recorte
+aprovado (fração de papel <1% nas bordas). Checado ANTES do flat-field/
+mescla de cor — já existia no recorte bruto, com saturação bem abaixo do
+limiar de papel (S≈18-22 vs S<55) e brilho bem abaixo de papel (V≈54-57
+vs V>150 de papel). Não é contaminação: é a crosta de queima mais clara
+nas bordas da peça escura, natural do Fumê. Registrando pra próxima
+sessão não confundir com o item 36.1 (que era sobre pontos claros no
+MIOLO de peças claras) — aqui é BORDA de peça escura, mecanismo
+diferente, mesma conclusão (checar saturação, não só brilho).
+
+**Resultado**: `brick-rusticatto-fume-face1.webp` e `-face2.webp`
+exportados (800px largura, q84). Registrado em `paginacoes.js`
+(`texturas: [...face1.webp?v=1, ...face2.webp?v=1]`) — dimensão w/h
+mantida genérica (240×65, não estava na lista de régua pendente do
+cliente). Cache-bust `paginacoes.js?v=14` nas 19 páginas. Teste da junta
+empilhada (grafite, pior contraste) sem halo visível nas 2 faces. Smoke
+test jsdom: 180 peças, face1/face2 97/83, 100% `backgroundSize: 100%
+100%`.
+
+**Fila do item 38 restante**: 4 Bricks sem foto real (Branco Rosé, Rosso
+Prime, Vulcano — Rusticatto Fumê sai da lista); Cimentício/Rockface sem
+textura real; cabeças pra aparelhos clássicos.
