@@ -1726,3 +1726,51 @@ site: 9 a 12 dias" pra amostra física, em `atendimento-tecnico.html`. Não
 cria contradição numérica com o FAQ público (que agora não promete número
 de dias pra amostra, só "varia conforme localização"), mas fica registrado
 caso alguém quera revisar esse número depois também.
+
+---
+
+## 44. Correção: Mescla Prime perdeu as manchas características no flat-field (15/07/2026)
+
+Rafael reportou, olhando a peça publicada, que o simulador do Mescla Prime
+"perdeu aquelas manchas características deste modelo" (o item 41 desta
+mesma sessão). Investigando: **causa raiz era o próprio flat-field do item
+38.B.4**, não a mescla de cor do 38.B.5.
+
+**Diagnóstico:** o flat-field usa `sigma ~ altura/3` do recorte pra estimar
+e remover sombreamento direcional. No Mescla Prime, a mancha característica
+do produto (a variação tonal ampla que dá nome à linha — "mescla") tem
+escala espacial parecida com a da própria peça, comparável ao sigma usado
+pro flat-field. Resultado: o algoritmo tratou a mancha como se fosse
+sombra de iluminação e a atenuou junto. Medido em desvio-padrão do canal L:
+o recorte cru tinha std 22,35 (face1) / 19,41 (face2); depois do
+flat-field original caía pra 14,39 / 15,02 — uma perda real de 20-35% de
+contraste local, camuflada porque a mescla de cor (item 38.B.5) parcialmente
+recompunha o contraste global (voltava pra ~18,6/19,5), mas sem devolver a
+mancha à forma/posição originais.
+
+**Correção:** sigma do flat-field recalculado proporcional à **largura**
+da peça (não altura/3), com blur calculado em baixa resolução e reescalado
+(mais rápido, evita timeout em imagens de 5000px+) — na prática um raio de
+blur bem maior que a mancha, corrigindo só a iluminação página-inteira e
+deixando a mancha intacta. Força reduzida de 0,88 pra 0,6. Resultado: std
+final de 27,09 (face1) / 24,31 (face2) — acima até do recorte cru, ou seja,
+a mancha característica ficou mais nítida que antes, não mais apagada.
+Reprocessado com o mesmo pipeline dos passos seguintes (mescla de cor 75%
+LAB inalterada, teste de junta empilhada: desvio 0,00 nas duas faces).
+
+**Nota de protocolo pra próximas peças (atualiza o item 38.B.4):** o sigma
+`altura/3` funcionou bem nas 7 peças anteriores porque a variação de cor
+delas é mais granular (grão/textura), não uma mancha ampla de escala
+comparável à peça inteira. Pra peças com mancha grande e proposital
+("Mescla", ou qualquer nome que sugira variação tonal como característica
+de venda), calibrar o sigma pela **largura da peça** (bem maior que a
+mancha esperada) em vez de usar o valor genérico de altura/3 — e, se
+possível, comparar o desvio-padrão do canal L antes/depois do flat-field
+como checagem rápida: uma queda de mais de ~15-20% no std é sinal de que o
+flat-field está comendo textura característica, não só sombra.
+
+**Arquivos atualizados:** `brick-mescla-prime-face1.webp` /
+`-face2.webp` sobrescritos (mesmo nome), cache-bust `?v=1 -> v=2` na
+entrada do `paginacoes.js`, bump geral `paginacoes.js?v=13 -> v=14` nas 19
+páginas de produto. Smoke test jsdom: 152 peças, todas usando `?v=2`,
+face1/face2 ~54/46%, `backgroundSize: 100% 100%` em todas.
