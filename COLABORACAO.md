@@ -1410,11 +1410,149 @@ Registrar o que fez neste arquivo ao final.
 
 ---
 
-## 39. Mescla Prime com fotos reais (2 faces) + correção de dimensão (15/07/2026)
+## 39. Auditoria de WhatsApp em todo o site (14/07/2026)
 
-Seguido o protocolo do item 38 do início ao fim para a peça Mescla Prime, a
-partir de 2 fotos (1 peça por foto, 8000×6006px, papel A4 branco, luz do dia
-indireta — conforme protocolo A).
+Rafael passou um número (11956599809) achando que era pra preencher um
+placeholder pendente. Antes de aplicar, chequei: o número do cliente já
+está resolvido desde o item 13 (`5511990049468`), e o número do fornecedor
+não vive mais no código — outra sessão já moveu pra
+`bruto-secrets/API/whatsapp-fornecedor.php` no servidor Hostinger, fora do
+Git (mesmo padrão do `.htpasswd`). Perguntei pra qual finalidade era o
+número novo; Rafael respondeu **descartar o número e auditar** se o que já
+existe está correto em todo lugar.
+
+**Auditoria feita, cobrindo as 33 páginas HTML + 5 arquivos JS que tocam
+WhatsApp:**
+- `wa.me/5511990049468`: presente e idêntico em todas as páginas que
+  deveriam ter (blog, produto, index, texturas, paginações, quiz, termos,
+  privacidade). `404.html` não tem link direto de WhatsApp, mas linka pra
+  `index.html#amostra` que tem — não corrigido, pareceu aceitável pra uma
+  página de erro, mas fica registrado caso alguém prefira um botão direto.
+  `ordem-servico.html` corretamente não tem `wa.me` estático (usa a API do
+  fornecedor via JS, não é o número do cliente).
+- `WHATSAPP_NUMBER` nos 4 JS que declaram a variável (`mobile-cta-bar.js`,
+  `promo-frete-gratis.js`, `lead-pdf.js`, `amostras.js`) e o valor
+  hardcoded em `exit-intent.js`: todos `5511990049468`, sem divergência.
+- Schema.org `"telephone"`: só em `index.html` (correto, é ali que mora o
+  LocalBusiness), valor `+55-11-99004-9468` batendo com o resto.
+- `tel:+5511990049468`: presente e idêntico nas 31 páginas que têm footer
+  completo.
+- Zero placeholders residuais (`SEUNUMERO`, `XXXXXXXXXX`, `0000000000`) em
+  qualquer HTML/JS.
+
+**Bug real encontrado e corrigido:** em
+`produto-brick-rusticatto-sertao.html` e
+`produto-brick-rusticatto-terra-negra.html`, o botão secundário "Falar com
+consultor" apontava para `index.html#amostra` em vez do `wa.me` direto com
+mensagem pré-preenchida — visualmente idêntico aos outros 17 produtos
+(mesmo label, mesmo ícone), mas o clique mandava o cliente de volta pro
+início do site em vez de abrir o WhatsApp. Provavelmente um esquecimento de
+alguma sessão anterior ao copiar a página a partir de um template mais
+antigo. Corrigido nas duas páginas, seguindo exatamente o padrão das
+outras 17 (mesma estrutura de mensagem: "Olá! Tenho interesse no
+{produto}, poderia me ajudar?").
+
+**Melhoria aplicada em `404.html`:** único ponto do site sem link direto de
+WhatsApp (só linkava pra `index.html#amostra`). Adicionado um terceiro
+botão ("Falar no WhatsApp") ao lado de "Página inicial" e "Ver coleções",
+mesmo padrão visual (`btn btn--outline`) e mesmo número, com mensagem
+genérica própria pra contexto de página não encontrada.
+
+---
+
+## 39. 2ª face do Rusticatto Rosso (peça nova) + achado sobre recorte lateral (15/07/2026)
+
+Fila do item 38 pedia uma 2ª peça do Rosso (até então só `face1`). Cliente
+forneceu 2 fotos de uma peça nova (não a mesma da face1), mesma sessão de
+luz. Seguido o pipeline do item 38 à risca, com uma diferença relevante:
+
+**Achado novo — recorte lateral às vezes é necessário, não só topo/base.**
+O item 36 registrava "aparar SÓ topo/base, sem recorte de colunas" como
+lição aprendida. Nesta peça, porém, o enquadramento capturou as **cabeças**
+(faces curtas) com folga generosa, deixando 25-38% de papel nas colunas
+extremas — bem acima do limiar de 3% e nada relacionado a falso positivo
+de textura clara (item 36.1): o perfil coluna-a-coluna era suave e
+monotônico (37%→0% ao longo de ~130px), não ruído disperso. A proibição do
+item 36 era especificamente contra recorte ADAPTATIVO reagindo a ruído +
+resize desproporcional (quase destruiu a lumus-face2). Aqui foi aplicado o
+mesmo método já usado pra linhas (limiar robusto: exige 200 colunas
+consecutivas <3% de papel antes de aceitar a borda), sem resize
+desproporcional — só um crop, com o resize final uniforme de sempre (passo
+7, 800px de largura). Validado com teste da junta empilhada nas 5 cores de
+rejunte (inclusive grafite, pior contraste): sem halo.
+
+**Distinção que vale registrar:** uma faixa clara de ~L167 (escala 0-255)
+no topo da peça passou no critério de papel (S=73,8, acima do limiar
+S<55) — é variação natural de queima da argila (mancha clara), não papel.
+Confirma na prática o alerta do item 36.1: nem toda claridade é papel: o
+teste de saturação, não só de brilho, é o que decide.
+
+**Resultado:** `brick-rusticatto-rosso-face2.webp` exportado (800×242px,
+webp q84), registrado em `paginacoes.js` (`?v=4` na entrada, bump geral
+`?v=12` nas 19 páginas). Rosso agora tem 2 faces × giro de 180° = 4
+variantes na parede (era 2). Smoke test jsdom: 153 peças, face1/face2
+41/59%, 100% com `backgroundSize: 100% 100%`.
+
+**Pendências que seguem em aberto** (não avançadas nesta sessão): régua
+real de Sertão/Terra Negra (ainda 240×65 genérico); 5 Bricks sem foto real
+(Branco Rosé, Mescla Prime, Rosso Prime, Rusticatto Fumê, Vulcano);
+Cimentício/Rockface sem textura real; cabeças pra aparelhos clássicos.
+
+---
+
+## 40. Auditoria de segurança (15/07/2026) — achado real, ação tomada e pendência futura
+
+Auditoria pedida pelo Rafael, com foco em "não deixar concorrente entender
+o backend". Resumo do que foi encontrado — ver a conversa completa pra
+detalhe da investigação (repo é público, confirmado via API do GitHub):
+
+**Achado crítico:** o arquivo `interno/.htpasswd` (hash da senha da área
+`/interno/`) foi commitado no repo público no commit `1180ea3` e removido
+depois no `9b095ba` — mas isso não some do histórico. Confirmado que o
+arquivo continua recuperável publicamente via
+`raw.githubusercontent.com/devupsite/bruto/1180ea3/interno/.htpasswd`
+(testado, retornou 200). Além disso, `interno/precificador-comercial.html`
+expõe nome real de fornecedor ("Faion"), fórmulas de margem e números de
+lucro de exemplo — e a proteção Basic Auth do `.htaccess` **ainda não
+está funcional** (falta o caminho absoluto do servidor, conforme
+comentário no próprio arquivo).
+
+**O que NÃO é problema:** os stubs em `/api/*.php` (enviar-email,
+salvar-ordem, whatsapp-fornecedor, chat) só fazem `require` de um
+arquivo real fora do repo (`bruto-secrets/`) — não vazam segredo nenhum.
+O chat com IA em `atendimento-tecnico.html` também não expõe chave de
+API no cliente. Esse padrão está correto — manter religiosamente.
+
+**Ação tomada:** o Rafael vai trocar a senha real de `/interno/`
+(a que está hoje em `bruto-secrets/` no servidor) — isso neutraliza o
+hash vazado, independente dele continuar no histórico do Git pra sempre.
+
+**PENDÊNCIA FUTURA — limpeza do histórico do Git.** Ainda falta remover
+o `.htpasswd` de vez do histórico (ex: `git filter-repo` ou BFG Repo-Cleaner)
+pra ele parar de ser recuperável via commit antigo. Não foi feito agora
+de propósito: é uma reescrita de todo o histórico de commits, exige
+force-push, e quebra o clone local de QUALQUER sessão que esteja
+trabalhando no repo no momento (teria que re-clonar do zero). Com várias
+sessões atuando em paralelo neste projeto, isso precisa ser coordenado —
+avisar todo mundo, ou fazer num momento de baixa atividade. Se você é
+uma sessão futura lendo isso: **não faça essa limpeza sozinho sem
+avisar o Rafael antes**, e confirme que não há push pendente de
+ninguém no momento.
+
+**Enquanto isso não é feito:** também vale terminar de configurar o
+Basic Auth funcional no `.htaccess` de `/interno/` (o arquivo já tem o
+passo a passo do Hostinger escrito nos comentários) — hoje a pasta está
+sem proteção ativa nenhuma.
+
+---
+
+## 41. Mescla Prime com fotos reais (2 faces) + correção de dimensão (15/07/2026)
+
+Sessão em paralelo às dos itens 39-40 (mesmo dia), sem se ver — convergiu
+de novo no mesmo recurso do item 35. Seguido o protocolo do item 38 do
+início ao fim para a peça Mescla Prime, a partir de 2 fotos (1 peça por
+foto, 8000×6006px, papel A4 branco, luz do dia indireta — conforme
+protocolo A).
 
 **Pipeline (item 38.B) aplicado nesta ordem:**
 1. Recorte por `cv2.grabCut` com semente retangular (não segmentação por
@@ -1436,8 +1574,11 @@ indireta — conforme protocolo A).
 
 **Integração (item 38.C):** `paginacoes.js` — item Mescla Prime ganhou
 `texturas: ['brick-mescla-prime-face1.webp?v=1', 'brick-mescla-prime-face2.webp?v=1']`,
-ativando o modo foto-por-peça. Cache-bust: `paginacoes.js?v=11 -> v12` nas
-19 páginas de produto que carregam o script.
+ativando o modo foto-por-peça. Cache-bust: bumpado junto com o `?v=12` que
+o item 39 (Rosso) já tinha aplicado nas 19 páginas de produto — sem
+conflito real no merge, as duas sessões mexeram em entradas diferentes do
+mesmo array `texturas` do `paginacoes.js` e o merge automático do Git
+resolveu sozinho (mesmo padrão do item 35).
 
 **Correção de dimensão:** medida com régua durante esta sessão deu
 **250×70×15mm** (25×7×1,5cm) para a peça fotografada — diferente do
@@ -1453,8 +1594,10 @@ registrado no item 33/36). Atualizado `catalogo.json` e propagado com
 100% 100%` em todas. Script de teste não commitado (ferramenta ad-hoc, sem
 dependência nova no repo).
 
-**Estado pós-sessão:** Texturas reais 8/12 Brick (Lumus, Eco Palha, Natura,
-Terra do Cerrado, Sertão, Terra Negra, Rosso [1 face], **Mescla Prime**).
-**Fila**: 4 Bricks restantes (Branco Rosé, Rosso Prime, Rusticatto Fumê,
-Vulcano); 2ª peça do Rosso; régua no Sertão/Terra Negra; cabeças das peças
-p/ aparelhos clássicos; texturizar cimentício/rockface.
+**Estado pós-merge (considerando também o item 39 do Rosso):** Texturas
+reais 9/12 Brick (Lumus, Eco Palha, Natura, Terra do Cerrado, Sertão,
+Terra Negra, Rosso [2 faces], **Mescla Prime**). **Fila**: 4 Bricks
+restantes (Branco Rosé, Rosso Prime, Rusticatto Fumê, Vulcano); régua no
+Sertão/Terra Negra; cabeças das peças p/ aparelhos clássicos; texturizar
+cimentício/rockface; limpeza do histórico do `.htpasswd` (item 40, aguarda
+coordenação com o Rafael e janela sem push pendente de ninguém).

@@ -28,7 +28,7 @@
           texturas: ['brick-rusticatto-sertao-face1.webp?v=3', 'brick-rusticatto-sertao-face2.webp?v=3'] },
         { id: 'brick-rusticatto-fume',        nome: 'Rusticatto Fumê',       w: 240, h: 65 },
         { id: 'brick-rusticatto-rosso',       nome: 'Rusticatto Rosso',      w: 270, h: 70,
-          texturas: ['brick-rusticatto-rosso-face1.webp?v=3'] },
+          texturas: ['brick-rusticatto-rosso-face1.webp?v=3', 'brick-rusticatto-rosso-face2.webp?v=4'] },
         { id: 'brick-rusticatto-terra-negra', nome: 'Rusticatto Terra Negra', w: 240, h: 65,
           texturas: ['brick-rusticatto-terra-negra-face1.webp?v=3', 'brick-rusticatto-terra-negra-face2.webp?v=3'] },
         { id: 'brick-terra-cerrado',          nome: 'Terra do Cerrado',      w: 260, h: 70,
