@@ -1407,3 +1407,47 @@ Registrar o que fez neste arquivo ao final.
   cabeças das peças p/ aparelhos clássicos; texturizar cimentício/rockface;
   GTM placeholder antes de tráfego pago (prioridade do Rafael, fora do
   simulador).
+
+---
+
+## 39. Auditoria de WhatsApp em todo o site (14/07/2026)
+
+Rafael passou um número (11956599809) achando que era pra preencher um
+placeholder pendente. Antes de aplicar, chequei: o número do cliente já
+está resolvido desde o item 13 (`5511990049468`), e o número do fornecedor
+não vive mais no código — outra sessão já moveu pra
+`bruto-secrets/API/whatsapp-fornecedor.php` no servidor Hostinger, fora do
+Git (mesmo padrão do `.htpasswd`). Perguntei pra qual finalidade era o
+número novo; Rafael respondeu **descartar o número e auditar** se o que já
+existe está correto em todo lugar.
+
+**Auditoria feita, cobrindo as 33 páginas HTML + 5 arquivos JS que tocam
+WhatsApp:**
+- `wa.me/5511990049468`: presente e idêntico em todas as páginas que
+  deveriam ter (blog, produto, index, texturas, paginações, quiz, termos,
+  privacidade). `404.html` não tem link direto de WhatsApp, mas linka pra
+  `index.html#amostra` que tem — não corrigido, pareceu aceitável pra uma
+  página de erro, mas fica registrado caso alguém prefira um botão direto.
+  `ordem-servico.html` corretamente não tem `wa.me` estático (usa a API do
+  fornecedor via JS, não é o número do cliente).
+- `WHATSAPP_NUMBER` nos 4 JS que declaram a variável (`mobile-cta-bar.js`,
+  `promo-frete-gratis.js`, `lead-pdf.js`, `amostras.js`) e o valor
+  hardcoded em `exit-intent.js`: todos `5511990049468`, sem divergência.
+- Schema.org `"telephone"`: só em `index.html` (correto, é ali que mora o
+  LocalBusiness), valor `+55-11-99004-9468` batendo com o resto.
+- `tel:+5511990049468`: presente e idêntico nas 31 páginas que têm footer
+  completo.
+- Zero placeholders residuais (`SEUNUMERO`, `XXXXXXXXXX`, `0000000000`) em
+  qualquer HTML/JS.
+
+**Bug real encontrado e corrigido:** em
+`produto-brick-rusticatto-sertao.html` e
+`produto-brick-rusticatto-terra-negra.html`, o botão secundário "Falar com
+consultor" apontava para `index.html#amostra` em vez do `wa.me` direto com
+mensagem pré-preenchida — visualmente idêntico aos outros 17 produtos
+(mesmo label, mesmo ícone), mas o clique mandava o cliente de volta pro
+início do site em vez de abrir o WhatsApp. Provavelmente um esquecimento de
+alguma sessão anterior ao copiar a página a partir de um template mais
+antigo. Corrigido nas duas páginas, seguindo exatamente o padrão das
+outras 17 (mesma estrutura de mensagem: "Olá! Tenho interesse no
+{produto}, poderia me ajudar?").
