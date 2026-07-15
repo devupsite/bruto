@@ -1497,3 +1497,107 @@ variantes na parede (era 2). Smoke test jsdom: 153 peças, face1/face2
 real de Sertão/Terra Negra (ainda 240×65 genérico); 5 Bricks sem foto real
 (Branco Rosé, Mescla Prime, Rosso Prime, Rusticatto Fumê, Vulcano);
 Cimentício/Rockface sem textura real; cabeças pra aparelhos clássicos.
+
+---
+
+## 40. Auditoria de segurança (15/07/2026) — achado real, ação tomada e pendência futura
+
+Auditoria pedida pelo Rafael, com foco em "não deixar concorrente entender
+o backend". Resumo do que foi encontrado — ver a conversa completa pra
+detalhe da investigação (repo é público, confirmado via API do GitHub):
+
+**Achado crítico:** o arquivo `interno/.htpasswd` (hash da senha da área
+`/interno/`) foi commitado no repo público no commit `1180ea3` e removido
+depois no `9b095ba` — mas isso não some do histórico. Confirmado que o
+arquivo continua recuperável publicamente via
+`raw.githubusercontent.com/devupsite/bruto/1180ea3/interno/.htpasswd`
+(testado, retornou 200). Além disso, `interno/precificador-comercial.html`
+expõe nome real de fornecedor ("Faion"), fórmulas de margem e números de
+lucro de exemplo — e a proteção Basic Auth do `.htaccess` **ainda não
+está funcional** (falta o caminho absoluto do servidor, conforme
+comentário no próprio arquivo).
+
+**O que NÃO é problema:** os stubs em `/api/*.php` (enviar-email,
+salvar-ordem, whatsapp-fornecedor, chat) só fazem `require` de um
+arquivo real fora do repo (`bruto-secrets/`) — não vazam segredo nenhum.
+O chat com IA em `atendimento-tecnico.html` também não expõe chave de
+API no cliente. Esse padrão está correto — manter religiosamente.
+
+**Ação tomada:** o Rafael vai trocar a senha real de `/interno/`
+(a que está hoje em `bruto-secrets/` no servidor) — isso neutraliza o
+hash vazado, independente dele continuar no histórico do Git pra sempre.
+
+**PENDÊNCIA FUTURA — limpeza do histórico do Git.** Ainda falta remover
+o `.htpasswd` de vez do histórico (ex: `git filter-repo` ou BFG Repo-Cleaner)
+pra ele parar de ser recuperável via commit antigo. Não foi feito agora
+de propósito: é uma reescrita de todo o histórico de commits, exige
+force-push, e quebra o clone local de QUALQUER sessão que esteja
+trabalhando no repo no momento (teria que re-clonar do zero). Com várias
+sessões atuando em paralelo neste projeto, isso precisa ser coordenado —
+avisar todo mundo, ou fazer num momento de baixa atividade. Se você é
+uma sessão futura lendo isso: **não faça essa limpeza sozinho sem
+avisar o Rafael antes**, e confirme que não há push pendente de
+ninguém no momento.
+
+**Enquanto isso não é feito:** também vale terminar de configurar o
+Basic Auth funcional no `.htaccess` de `/interno/` (o arquivo já tem o
+passo a passo do Hostinger escrito nos comentários) — hoje a pasta está
+sem proteção ativa nenhuma.
+
+---
+
+## 41. Mescla Prime com fotos reais (2 faces) + correção de dimensão (15/07/2026)
+
+Sessão em paralelo às dos itens 39-40 (mesmo dia), sem se ver — convergiu
+de novo no mesmo recurso do item 35. Seguido o protocolo do item 38 do
+início ao fim para a peça Mescla Prime, a partir de 2 fotos (1 peça por
+foto, 8000×6006px, papel A4 branco, luz do dia indireta — conforme
+protocolo A).
+
+**Pipeline (item 38.B) aplicado nesta ordem:**
+1. Recorte por `cv2.grabCut` com semente retangular (não segmentação por
+   cor) — rodado em resolução reduzida (max 1600px no lado maior, por limite
+   de memória do `cv2.grabCut` nas fotos de 8000px) para achar a caixa, e
+   `getPerspectiveTransform` aplicado depois na foto em resolução cheia.
+   Peça fotografada em pé (retrato); rotacionada 90° pro padrão paisagem do
+   simulador.
+2. Validação geométrica ANTES de qualquer cor: fração de papel (V>150,
+   S<55) nas linhas de borda caiu para 0,3%–2,2% após um aparo adicional de
+   2% em cada lado — dentro do limiar <3% do item 36.
+3. Flat-field (força 0,88, sigma = altura/3).
+4. Mescla de cor 75% em LAB (mediana + MAD, escala 0,7–1,4) puxando pra
+   `brick-mescla-prime-frontal.webp` (capa de galeria já publicada). ΔL
+   resultante -24 a -27 (mesma faixa de resíduo proposital do item 37).
+5. Teste da junta empilhada: desvio 0,00 nas duas faces.
+6. Export: `brick-mescla-prime-face1.webp` / `-face2.webp`, 800px de
+   largura, qualidade 84.
+
+**Integração (item 38.C):** `paginacoes.js` — item Mescla Prime ganhou
+`texturas: ['brick-mescla-prime-face1.webp?v=1', 'brick-mescla-prime-face2.webp?v=1']`,
+ativando o modo foto-por-peça. Cache-bust: bumpado junto com o `?v=12` que
+o item 39 (Rosso) já tinha aplicado nas 19 páginas de produto — sem
+conflito real no merge, as duas sessões mexeram em entradas diferentes do
+mesmo array `texturas` do `paginacoes.js` e o merge automático do Git
+resolveu sozinho (mesmo padrão do item 35).
+
+**Correção de dimensão:** medida com régua durante esta sessão deu
+**250×70×15mm** (25×7×1,5cm) para a peça fotografada — diferente do
+260×70×15mm que estava em `catalogo.json` (valor genérico/pendente,
+registrado no item 33/36). Atualizado `catalogo.json` e propagado com
+`python3 scripts/sync-catalogo.py` (regenerou o spec de dimensão em
+`produto-brick-mescla-prime.html` e a entrada correspondente em
+`ordem-servico.js`). O `w`/`h` do item no `paginacoes.js` também usa
+250×70 agora, batendo com a medida real.
+
+**Smoke test (item 38.C.3):** jsdom com `data-current="brick-mescla-prime"`
+— 152 peças renderizadas, face1/face2 ~46/54, giro ~52%, `backgroundSize:
+100% 100%` em todas. Script de teste não commitado (ferramenta ad-hoc, sem
+dependência nova no repo).
+
+**Estado pós-merge (considerando também o item 39 do Rosso):** Texturas
+reais 9/12 Brick (Lumus, Eco Palha, Natura, Terra do Cerrado, Sertão,
+Terra Negra, Rosso [2 faces], **Mescla Prime**). **Fila**: 4 Bricks
+restantes (Branco Rosé, Rosso Prime, Rusticatto Fumê, Vulcano); régua no
+Sertão/Terra Negra; cabeças das peças p/ aparelhos clássicos; texturizar
+cimentício/rockface; limpeza do histórico do `.htpasswd` (item 40, aguarda
+coordenação com o Rafael e janela sem push pendente de ninguém).

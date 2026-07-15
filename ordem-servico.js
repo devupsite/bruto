@@ -21,7 +21,7 @@
     { slug: "brick-branco-rose", categoria: "Brick", nome: "Branco Rosé", sku: "56", preco: 153.90, dimensoes: "270mm x 70mm x 15mm" },
     { slug: "brick-eco-palha", categoria: "Brick", nome: "Eco Palha", sku: "57", preco: 153.90, dimensoes: "270mm x 70mm x 15mm" },
     { slug: "brick-lumus", categoria: "Brick", nome: "Lumus", sku: "73", preco: 164.90, dimensoes: "270mm x 70mm x 15mm" },
-    { slug: "brick-mescla-prime", categoria: "Brick", nome: "Mescla Prime", sku: "54", preco: 153.90, dimensoes: "260mm x 70mm x 15mm" },
+    { slug: "brick-mescla-prime", categoria: "Brick", nome: "Mescla Prime", sku: "54", preco: 153.90, dimensoes: "250mm x 70mm x 15mm" },
     { slug: "brick-natura", categoria: "Brick", nome: "Natura", sku: "48", preco: 104.90, dimensoes: "240mm x 70mm x 15mm" },
     { slug: "brick-rosso-prime", categoria: "Brick", nome: "Rosso Prime", sku: "53", preco: 142.90, dimensoes: "270mm x 70mm x 15mm" },
     { slug: "brick-rusticatto-fume", categoria: "Brick", nome: "Rusticatto Fumê", sku: "72", preco: 186.90, dimensoes: "270mm x 70mm x 20mm" },
