@@ -1601,3 +1601,36 @@ restantes (Branco Rosé, Rosso Prime, Rusticatto Fumê, Vulcano); régua no
 Sertão/Terra Negra; cabeças das peças p/ aparelhos clássicos; texturizar
 cimentício/rockface; limpeza do histórico do `.htpasswd` (item 40, aguarda
 coordenação com o Rafael e janela sem push pendente de ninguém).
+
+---
+
+## 40. Régua real de Sertão e Terra Negra (15/07/2026)
+
+Última pendência de dados do item 38 resolvida. Cliente mediu com régua:
+
+- **Rusticatto do Sertão**: 25,5 × 7 × 2 cm → `255mm x 70mm x 20mm`
+  (era genérico `240x65`).
+- **Rusticatto Terra Negra**: 26 × 6,5 × 2 cm → `260mm x 65mm x 20mm`
+  (era genérico `240x65`).
+
+**3 lugares por produto que guardam a dimensão, todos atualizados:**
+1. `paginacoes.js` — `w`/`h` (mm) da entrada em `COLECOES`, usado pra
+   escala/proporção da peça no simulador de paginação.
+2. Ficha técnica da página do produto — 2 ocorrências (JSON-LD
+   `additionalProperty` + `.product-specs .spec-item` visível). Essa
+   última também alimenta a calculadora de peças/m² da página (lê o
+   texto via regex, não precisou de código novo).
+3. `ordem-servico.js` — campo `dimensoes` da linha do produto no
+   formulário de ordem de serviço.
+
+Espessura (2cm/20mm) confirmada igual nos dois — mantida, não é usada
+pelo simulador de paginação (só length/height), só aparece nas fichas
+técnicas e no ordem de serviço.
+
+Cache-bust: `paginacoes.js?v=13` (19 páginas) e `ordem-servico.js?v=2`
+(1 página). Sessão paralela havia adicionado Mescla Prime no mesmo
+intervalo — merge automático sem conflito, versões já compatíveis.
+
+**Fila do item 38 restante:** 5 Bricks sem foto real (Branco Rosé, Rosso
+Prime, Rusticatto Fumê, Vulcano — Mescla Prime já saiu da lista);
+Cimentício/Rockface sem textura real; cabeças pra aparelhos clássicos.
