@@ -404,6 +404,7 @@
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="ti ti-file-download" aria-hidden="true"></i> Gerar meu PDF';
         form.reset();
+        setTimeout(function () { window.location.href = 'obrigado.html?origem=paginacoes'; }, 4000);
       });
       return;
     }
@@ -429,6 +430,7 @@
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="ti ti-file-download" aria-hidden="true"></i> Gerar meu PDF';
         form.reset();
+        setTimeout(function () { window.location.href = 'obrigado.html?origem=calculadora'; }, 4000);
       });
     }).catch(function () {
       errEl.textContent = 'Não foi possível gerar o PDF agora. Tente novamente.';

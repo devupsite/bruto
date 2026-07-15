@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <!-- Google Tag Manager
+       TODO: substituir GTM-XXXXXXX pelo container ID real (criar em tagmanager.google.com).
+       Esta página é o evento de conversão mais confiável para o Google Ads —
+       uma vez com o GTM real, criar um trigger de "Page View" para
+       /obrigado.html como ação de conversão (mais robusto que eventos JS,
+       porque não depende de bloqueador de anúncio deixar o script rodar). -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+  <!-- End Google Tag Manager -->
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="BRUTO — Recebemos seu contato. Em breve alguém do nosso time responde.">
+  <title>Recebemos seu contato — BRUTO</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.44.0/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="styles.css?v=18">
+
+  <style>
+    .obrigado-section {
+      padding: clamp(64px, 10vw, 120px) 0;
+      min-height: 55vh;
+      display: flex;
+      align-items: center;
+    }
+    .obrigado-box {
+      max-width: 560px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .obrigado-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 24px;
+      border-radius: 50%;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      color: var(--ferro);
+    }
+    .obrigado-eyebrow {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--concreto);
+      margin-bottom: 10px;
+    }
+    .obrigado-title {
+      font-family: var(--f-display);
+      font-weight: 600;
+      font-size: clamp(26px, 4vw, 36px);
+      color: var(--ferro);
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+    .obrigado-body {
+      font-size: 15px;
+      color: var(--concreto);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+    .obrigado-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+    .obrigado-links {
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 24px;
+    }
+    .obrigado-links a {
+      font-size: 13px;
+      color: var(--concreto);
+      text-decoration: none;
+    }
+    .obrigado-links a:hover { color: var(--ferro); }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="wrap header__inner">
+      <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+        <span class="logo-box">
+          <svg class="logo-mark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+          </svg>
+        </span>
+        <span class="logo-divider" aria-hidden="true"></span>
+        <span class="logo-word">Bruto</span>
+      </a>
+      <nav class="nav" id="main-nav" aria-label="Navegação principal">
+        <a href="texturas.html">Coleções &amp; Texturas</a>
+        <a href="paginacoes.html">Paginações</a>
+        <a href="blog.html">Blog</a>
+        <a href="index.html#projetos">Projetos</a>
+        <a href="index.html#sobre">Sobre</a>
+        <a href="index.html#amostra">Contato</a>
+      </nav>
+      <a href="index.html#amostra" class="btn btn--outline header__cta">Solicitar amostra</a>
+      <button class="burger" id="menu-btn" aria-label="Abrir menu" aria-expanded="false">
+        <i class="ti ti-menu-2" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+
+  <section class="obrigado-section">
+    <div class="wrap obrigado-box">
+      <div class="obrigado-icon"><i class="ti ti-circle-check" aria-hidden="true"></i></div>
+      <p class="obrigado-eyebrow">Recebemos seu contato</p>
+      <h1 class="obrigado-title" id="obrigado-title">Obrigado! Já estamos com sua mensagem</h1>
+      <p class="obrigado-body" id="obrigado-body">
+        Nosso time entra em contato pelo WhatsApp normalmente em até 1 dia útil.
+        Se preferir, você já pode continuar falando com a gente por lá.
+      </p>
+
+      <div class="obrigado-actions">
+        <a href="https://wa.me/5511990049468?text=Ol%C3%A1%21%20Vim%20pelo%20site%20da%20Bruto%20e%20gostaria%20de%20continuar%20a%20conversa." target="_blank" rel="noopener" class="btn btn--solid">
+          <i class="ti ti-brand-whatsapp" aria-hidden="true"></i> Continuar no WhatsApp
+        </a>
+        <a href="texturas.html" class="btn btn--outline">
+          Continuar explorando <i class="ti ti-arrow-right" aria-hidden="true"></i>
+        </a>
+      </div>
+
+      <div class="obrigado-links">
+        <a href="quiz.html">Fazer o quiz de estilo</a>
+        <a href="blog.html">Ler o blog</a>
+        <a href="index.html">Voltar à página inicial</a>
+      </div>
+    </div>
+  </section>
+
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__grid">
+        <div>
+          <a href="index.html" class="logo" aria-label="BRUTO — página inicial">
+            <span class="logo-box">
+              <svg class="logo-mark" viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+              </svg>
+            </span>
+            <span class="logo-divider" aria-hidden="true"></span>
+            <span class="logo-word">Bruto</span>
+          </a>
+          <p class="footer__tagline">Curadoria de revestimentos artesanais para projetos de alta exigência.</p>
+        </div>
+        <div>
+          <p class="footer__col-title">Coleções</p>
+          <nav class="footer__links">
+            <a href="texturas.html#brick">Brick</a>
+            <a href="texturas.html#cimenticio">Cimentício</a>
+            <a href="texturas.html#rockface">Rockface</a>
+          </nav>
+        </div>
+        <div>
+          <p class="footer__col-title">Navegação</p>
+          <nav class="footer__links">
+            <a href="paginacoes.html">Paginações</a>
+            <a href="blog.html">Blog</a>
+            <a href="index.html#projetos">Projetos</a>
+            <a href="index.html#sobre">Sobre</a>
+          </nav>
+        </div>
+        <div>
+          <p class="footer__col-title">Contato</p>
+          <nav class="footer__links">
+            <a href="mailto:contato@brutoceramica.com.br">contato@brutoceramica.com.br</a>
+            <a href="https://www.instagram.com/brutorevestimentos" target="_blank" rel="noopener">Instagram</a>
+            <a href="https://wa.me/5511990049468?text=Ol%C3%A1%21%20Vim%20pelo%20site%20da%20Bruto%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." target="_blank" rel="noopener">WhatsApp</a>
+          </nav>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p>© 2026 Bruto. Todos os direitos reservados.</p>
+        <div class="footer__bottom-links">
+          <a href="privacidade.html">Privacidade</a>
+          <a href="termos.html">Termos</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script>
+    // Personaliza a mensagem conforme a origem (?origem=calculadora|paginacoes|exit-intent)
+    var params = new URLSearchParams(window.location.search);
+    var origem = params.get('origem') || 'generico';
+    var textos = {
+      'calculadora': 'Recebemos seu orçamento! Já estamos com os detalhes do produto e da metragem que você calculou.',
+      'paginacoes': 'Recebemos seu pedido do guia! Já estamos com seus dados e o material foi baixado.',
+      'exit-intent': 'Recebemos seu pedido do guia de aplicação! O download já deve ter começado no seu navegador.',
+      'generico': 'Nosso time entra em contato pelo WhatsApp normalmente em até 1 dia útil. Se preferir, você já pode continuar falando com a gente por lá.'
+    };
+    if (textos[origem] && origem !== 'generico') {
+      document.getElementById('obrigado-body').textContent = textos[origem];
+    }
+
+    if (window.dataLayer) {
+      window.dataLayer.push({ event: 'conversion_page_view', origem: origem });
+    }
+
+    // Menu mobile
+    var menuBtn = document.getElementById('menu-btn');
+    var mainNav = document.getElementById('main-nav');
+    menuBtn.addEventListener('click', function () {
+      var isOpen = mainNav.classList.toggle('nav--open');
+      menuBtn.setAttribute('aria-expanded', isOpen);
+      menuBtn.querySelector('i').className = isOpen ? 'ti ti-x' : 'ti ti-menu-2';
+    });
+    mainNav.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        mainNav.classList.remove('nav--open');
+        menuBtn.setAttribute('aria-expanded', false);
+        menuBtn.querySelector('i').className = 'ti ti-menu-2';
+      });
+    });
+  </script>
+
+  <script src="analytics.js"></script>
+  <script defer src="header-scroll.js?v=3"></script>
+  <script defer src="back-to-top.js?v=1"></script>
+  <script defer src="mobile-cta-bar.js?v=1"></script>
+  <script defer src="cookie-consent.js?v=1"></script>
+
+</body>
+</html>

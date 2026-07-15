@@ -1101,3 +1101,536 @@ tarball real do npm: os 62 ícones `ti-*` usados no site existem todos na
 
 **Lição:** ao fixar versão de pacote de CDN, conferir a estrutura de
 arquivos do tarball daquela versão, não só que a versão existe.
+
+## Página de obrigado / conversão (obrigado.html)
+
+Criada `obrigado.html` — página dedicada de confirmação pós-conversão,
+usada como sinal de conversão mais confiável pro Google Ads (page load
+independe de JS/bloqueador de anúncio rodar até o fim).
+
+Redirecionamento com delay (não imediato — preserva o estado "concluído"
+que já existia nos modais):
+- `lead-pdf.js`: calculadora → 4s de delay → `obrigado.html?origem=calculadora`
+- `lead-pdf.js`: PDF estático (paginações/guias) → 4s → `?origem=paginacoes`
+- `exit-intent.js`: guia PDF → 6s → `?origem=exit-intent`, cancelável se a
+  pessoa fechar o modal manualmente (`fechar()` limpa o timer)
+
+Texto da página se adapta por `?origem=` via query string. `noindex` no
+`<meta robots>` — página não deve ser indexada nem aparecer em busca.
+
+Versões bumpadas: `lead-pdf.js` v9→v10 (22 páginas), `exit-intent.js`
+v1→v2 (35 páginas).
+
+**Pendência**: uma vez o GTM real estiver conectado, criar no painel um
+trigger de Page View pra `/obrigado.html` como ação de conversão do
+Google Ads — mais robusto que os eventos JS custom (`form_submit` etc.)
+porque não depende de bloqueador de anúncio deixar o script rodar.
+
+---
+
+## 30. Terra do Cerrado com fotos reais (2 faces) — mesmo padrão do Lumus (13/07/2026)
+
+Ewerson mandou 2 fotos físicas da peça (papel branco, luz natural, levemente
+rotacionada no quadro). Processo aplicado antes de virar `texturas`:
+
+1. Segmentação por cor pra isolar a peça do papel/piso (peça é bem mais
+   vermelha que o papel branco e mais clara que o piso cinza/marrom escuro)
+2. `cv2.minAreaRect` no maior componente conectado pra achar o ângulo real
+   da peça na foto, e rotação da imagem inteira pra endireitar
+3. Recorte interno generoso (não just bounding box) pra garantir zero fundo
+   visível nas bordas — a primeira tentativa com crop simples (bounding
+   box + margem fixa) deixava sliver de papel branco nos cantos porque a
+   peça estava rotacionada na foto original
+4. Correção de flat-field (divide pela própria versão borrada, technique
+   padrão de correção de vinheta/luz direcional) pra aproximar da
+   iluminação uniforme das fotos do Lumus — as fotos originais eram
+   externas, luz solar direcional, bem diferente da luz de estúdio do
+   Lumus
+5. Resize final pra 800px de largura (mesmo padrão do Lumus)
+
+Testado no simulador real (Playwright): modo padrão E espinha de peixe
+(pra confirmar que o giro/rotação de peça não quebra com a textura real).
+Sem erros JS. `w:260, h:70` (dimensão real já usada na ficha técnica da
+página, ao invés do genérico 240×65). `paginacoes.js?v=6 -> v7` nas 19
+páginas de produto (o motor é compartilhado, cache-bust precisa subir em
+todas mesmo só um produto tendo mudado de verdade).
+
+**Restam 10 produtos Brick sem fotos reais de peça** (só Lumus e Terra do
+Cerrado têm `texturas` até agora). Mesmo processo se repete quando as
+próximas fotos chegarem.
+
+---
+
+## 31. Natura com fotos reais (2 faces) — mesmo processo (13/07/2026)
+
+Mesmo pipeline do item 30 (Terra do Cerrado): segmentação de cor, endireita
+via `cv2.minAreaRect`, recorte interno generoso, flat-field, resize 800px.
+Única observação: a primeira leva de fotos veio com a segunda imagem
+totalmente preta (brilho médio 0 — falha de disparo), Ewerson reenviou e a
+segunda versão veio boa.
+
+`w:240, h:70` (dimensão real — largura 240 já estava certa por
+coincidência, mas a altura genérica 65 virou 70). `paginacoes.js?v=7 -> v8`
+nas 19 páginas. Testado no simulador real via Playwright, sem erros JS.
+
+**Progresso das fotos reais:** Lumus, Terra do Cerrado, Natura (3/12
+Brick). Restam 9.
+
+---
+
+## 35. Merge de sessões paralelas + fix de curvatura de borda nas texturas reais (13/07/2026)
+
+Esta sessão (com o Rafael) e a sessão paralela (com o Ewerson, itens 30-31)
+convergiram no mesmo dia trabalhando no **mesmo recurso** — fotos reais de
+peça no simulador (`texturas` + modo foto-por-peça) — cada uma processando
+produtos diferentes sem se ver. Resultado: **4 produtos Brick com fotos
+reais** agora (Lumus e Eco Palha desta sessão; Terra do Cerrado e Natura da
+sessão paralela). Restam 8 dos 12 Brick.
+
+**Merge:** `git merge` teve 19 conflitos, todos triviais — as duas sessões
+bumparam a mesma linha de cache-busting (`paginacoes.js?v=` e, em 7 páginas,
+também `lead-pdf.js?v=`) para números diferentes no mesmo commit-base.
+Resolvido usando um número **maior que os dois lados** (não escolhendo um):
+`paginacoes.js?v=9`, `lead-pdf.js?v=10` em todas as 19 páginas de produto,
+garantindo cache-bust do conteúdo já combinado dos dois lados. O conteúdo de
+`paginacoes.js` em si mergeou automaticamente sem conflito — as duas sessões
+adicionaram entradas diferentes no mesmo array `coleções.brick.itens`.
+Validado com jsdom: as 4 texturas reais + os 9 padrões de assentamento
+(inclusive os 5 novos: Quarto Corrido, Fiadas Duplas, Vertical, Cesta,
+Diagonal) renderizam sem erro depois do merge.
+
+**Lição técnica pra quem for fotografar/processar a próxima peça (registrar
+aqui pros itens 30/31 também seguirem isso):** peça cerâmica artesanal real
+não é um retângulo perfeito — a borda física é levemente ondulada. Um
+recorte de perspectiva feito só pelos 4 cantos (`minAreaRect` +
+`getPerspectiveTransform`) deixa essa ondulação (e às vezes um triângulo do
+papel de fundo) visível perto da borda da textura extraída. Isso é
+invisível numa peça isolada, mas **no modo foto-por-peça, onde a foto vira
+um ladrilho de bordas retas encostado no vizinho, a curva denuncia a junta**
+— o pedreiro fica "torto". Correção: aumentar a margem de recorte para
+dentro (nesta sessão, de ~2,8% para 7% na vertical) até sobrar só o miolo
+reto da peça, e **validar simulando 4 fotos coladas lado a lado antes de
+aceitar** (não só olhar a textura isolada). As texturas do Lumus e Eco Palha
+já foram reprocessadas com esse inset maior; vale conferir se Terra do
+Cerrado/Natura (sessão paralela) têm o mesmo sintoma — o processo descrito
+nos itens 30/31 (recorte "generoso" + flat-field) parece já mitigar isso,
+mas não foi testado especificamente contra ladrilhamento lado a lado.
+
+**Progresso real de fotos reais no Brick:** Lumus, Eco Palha, Terra do
+Cerrado, Natura (4/12). Restam 8: Branco Rosé, Mescla Prime, Rosso Prime,
+Rusticatto (Fumê, Rosso, Sertão, Terra Negra), Vulcano.
+
+**Correção ao diagnóstico acima (14/07/2026) — a causa raiz era outra.**
+O Rafael reportou a mesma curvatura no site publicado mesmo depois do fix
+de inset. Investigando de novo com uma métrica objetiva (fração de pixels
+com cor de papel por linha, do topo/base do recorte até 20% para dentro),
+ficou claro que **"aumentar o inset" tratou o sintoma, não a causa**: a
+caixa de detecção (`minAreaRect` via segmentação de cor) estava mal
+ajustada — maior que a peça de verdade, capturando uma faixa enorme de
+papel/fundo dentro do que devia ser só peça (confirmado: a 20% de inset
+ainda havia até 98% de papel numa das faces). Nenhum valor razoável de
+inset percentual resolve uma caixa fundamentalmente errada — só reduz
+proporcionalmente o quanto do erro aparece.
+
+**Correção real:** trocar a segmentação por distância de cor (ruidosa,
+sensível a reflexos/objetos na cena) por `cv2.grabCut` com uma semente
+retangular no centro da imagem (mesmo enquadramento em todas as fotos
+deste lote: peça ocupa aproximadamente x∈[15%,85%], y∈[35%,70%] do
+quadro). Resultado muito mais fiel ao contorno real da peça. Antes de
+aceitar qualquer caixa nova, **validar quantitativamente**: medir a fração
+de pixels com cor de papel (`V>150` e `S<55` em HSV) nas primeiras/últimas
+linhas do recorte final — deve cair a ~0% já nos primeiros 2-4% de inset;
+se ainda houver 10%+ de papel a 15-20% de inset, a caixa está errada, não
+faltando margem. Teste adicional que expõe o problema de forma direta:
+empilhar duas cópias da textura com um gap fino da cor do rejunte e medir
+o desvio de cor **na própria linha do gap** — deve ser ~0 (junta
+perfeitamente uniforme). As 4 texturas (Lumus, Eco Palha corrigidas nesta
+rodada) passaram nesse teste com desvio 0,00.
+
+**Lição prática pra quem for processar Terra do Cerrado/Natura de novo ou
+qualquer peça nova:** não confiar em "aumentar % de inset" como fix
+genérico sem antes confirmar que a caixa de recorte está mesmo ajustada à
+peça. Rodar a métrica de fração-de-papel-por-linha antes de aceitar
+qualquer textura nova é barato (poucos segundos) e pega esse tipo de erro
+antes de virar reclamação visual no site.
+
+---
+
+## 36. Auditoria de qualidade nas 13 texturas de face + correções (14/07/2026)
+
+Rodada a validação quantitativa do item 35 (fração de papel por linha +
+teste da junta empilhada) em TODAS as 13 texturas `*-face*.webp` de todas
+as sessões. Resultado: 9 aprovadas de primeira; 4 reprovadas e corrigidas:
+
+- `brick-rusticatto-terra-negra-face2`: faixa de papel branco nos últimos
+  ~8% da base (100% da linha era papel) — na parede, virava listra branca
+  na base de cada peça. Aparada.
+- `brick-rusticatto-terra-negra-face1`: mesma faixa, menor (78% na última
+  linha). Aparada.
+- `brick-rusticatto-rosso-face1`: 10,8% de papel no topo. Aparada e
+  normalizada de 1600px para 800px de largura (padrão das demais).
+- `brick-lumus-face2`: resíduo de 1,4% no topo. Aparada.
+
+**Armadilhas descobertas no processo (importante pra próxima sessão):**
+1. Peças ESCURAS (Terra Negra) têm pontos claros naturais que o detector
+   de papel (V>150, S<55 em HSV) marca como falso positivo no miolo
+   (1–3% por linha). Isso é normal — o critério de aprovação vale para as
+   BORDAS (primeira/última linha), não para o miolo. Limiar de aprovação
+   usado: <3% nas bordas.
+2. NÃO usar recorte adaptativo de colunas + resize para consertar textura:
+   os falsos positivos espalhados estreitam a "faixa limpa" de colunas e o
+   resize estica a textura (quase destruiu a lumus-face2; recuperada via
+   git checkout). Aparar SÓ topo/base, de fora pra dentro, sem resize.
+3. Textura corrigida = mesma URL com conteúdo novo = navegador serve a
+   velha. Ao modificar um webp de face, adicionar `?v=N` na entrada
+   correspondente do array `texturas` no paginacoes.js (feito nas 4).
+
+**Estado pós-auditoria:** 13/13 texturas aprovadas (junta empilhada com
+desvio 0,00 em todas). Rosso segue com 1 face — o giro de 180° do render
+dá 2 variantes, mas vale fotografar uma 2ª peça quando possível.
+**Pendência de dados:** Sertão e Terra Negra estão com a medida genérica
+antiga (240×65) no `COLECOES` — conferir com régua (as demais referências
+medidas variam: 265×65, 270×70, 260×70, 240×70).
+
+---
+
+## 37. Conformidade de cor: mescla das texturas com as capas de galeria (14/07/2026)
+
+O Rafael percebeu que os tons do simulador estavam mais escuros que o
+normal (Lumus deveria ser mais rosado). Medição confirmou de forma
+gritante: todas as 13 faces estavam de **62 a 90 pontos de L mais escuras**
+que a capa de galeria (`*-frontal.webp`) do próprio produto. Causa: a
+calibração pela folha branca na sombra produz consistência interna entre
+peças, mas num nível de exposição muito abaixo das capas (tratadas/mais
+claras) — e o cliente compara simulador × galeria lado a lado na mesma
+página, então a referência comercial é a galeria.
+
+**Solução (ideia do Rafael, implementada como transferência de cor):**
+mescla de 75% em LAB — mediana e dispersão (MAD, escala contida em
+0,7–1,4) de cada face puxadas em direção às da capa do próprio produto.
+Pós-mescla: ΔL caiu para −15..−23 (resíduo proposital da mescla) e
+Δa/Δb ≈ 0 (o rosado do Lumus voltou). Aplicado nas 13 faces + cache-bust
+`?v=3` em todas + bump paginacoes.js v11.
+
+**AVISO IMPORTANTE sobre a métrica de auditoria do item 36:** a detecção
+de papel (V>150, S<55) só é válida ANTES de normalização de brilho. Depois
+da mescla, peças claras (Lumus ~77-82% "papel" nas bordas) disparam falso
+positivo — é a própria cerâmica clara, confirmado por inspeção visual das
+tiras de borda (textura com grão, sem faixa lisa). A validação geométrica
+(recorte sem fundo) deve ser feita ANTES da correção de cor; operações de
+cor não alteram geometria. Para peças novas: 1º recorte + validação de
+papel; 2º flat-field; 3º mescla com a galeria; nessa ordem.
+
+---
+
+## 38. GUIA CONSOLIDADO — Texturização real no simulador de paginação (referência definitiva)
+
+Consolidação de tudo que os itens 30-31 e 35-37 aprenderam, na ordem certa.
+Qualquer sessão que for texturizar uma peça nova segue SÓ este item.
+
+### A. Protocolo de fotografia (orientar o Rafael/quem fotografar)
+1. **Luz do dia indireta** — dia nublado ou sombra aberta. NUNCA sol direto
+   (assa sombra direcional na foto, que briga com a luz rasante do widget e
+   denuncia o giro de 180° das peças).
+2. Peça sobre **folha branca A4** (referência de branco + fundo de recorte).
+3. Câmera o mais **perpendicular** possível, ~20 cm de altura funciona
+   (8000px de captura dá ~5000px por peça — sobra).
+4. **2+ peças por referência**, todas na MESMA sessão/luz/horário (meio-dia
+   nublado ideal; fim de tarde muda a temperatura de cor e as faces não
+   casam). Com 2 faces + giro de 180° o render gera 4 variantes — mínimo
+   aceitável; 3-4 peças é melhor.
+5. Anotar as **medidas reais com régua** (L × A × espessura) — cada
+   referência tem a sua (já medidas: Lumus/Eco Palha 265×65, Natura 240×70,
+   Terra do Cerrado 260×70, Rosso 270×70; PENDENTE régua: Sertão e Terra
+   Negra, hoje com 240×65 genérico).
+6. Fotografar também as **cabeças** (face curta) quando possível — destrava
+   os aparelhos clássicos (Inglês, Flandrês, Monge) que hoje ficam fora do
+   simulador.
+
+### B. Pipeline de processamento (ORDEM OBRIGATÓRIA)
+A ordem importa: a validação geométrica só funciona antes da correção de
+cor (item 37).
+
+1. **Escolher a foto mais nítida** de cada peça (variância do Laplaciano).
+2. **Recorte**: `cv2.grabCut` com semente retangular central
+   (x∈[15%,85%], y∈[35%,70%] do quadro neste enquadramento) →
+   `minAreaRect` → `getPerspectiveTransform`. NÃO usar segmentação por
+   cor/limiar (reflexos do piso e objetos claros na cena a enganam — item
+   35/36).
+3. **Validação geométrica (ANTES de qualquer cor)**: fração de pixels com
+   cor de papel (V>150, S<55 em HSV) por linha — deve ser ~0% nas
+   primeiras/últimas linhas. Se houver 10%+ de papel a 15-20% pra dentro, a
+   CAIXA está errada (refazer o recorte); não adianta aumentar margem.
+   Aparar bordas só em LINHAS, de fora pra dentro, SEM recorte de colunas e
+   SEM resize (quase destruiu uma face — item 36).
+4. **Flat-field** (remove sombreamento direcional): dividir o canal L pelo
+   seu blur gaussiano pesado (sigma ~ altura/3), força 0,88 (12% do
+   sombreado natural fica, senão vira plástico).
+5. **Mescla de cor com a galeria** (item 37): transferência em LAB, mediana
+   + MAD (escala 0,7-1,4) em direção ao `<id>-frontal.webp` do produto,
+   **força 0,75**. É o que mantém simulador e galeria parecendo o mesmo
+   produto na mesma página. Depois desta etapa a métrica de papel do passo
+   3 dá falso positivo em peça clara — não reexecutar.
+6. **Teste da junta empilhada** (vale em qualquer etapa): empilhar 2 cópias
+   com gap fino cor de rejunte e medir desvio de cor NA linha do gap —
+   deve ser 0,00.
+7. **Export**: webp, 800px de largura, qualidade 84, nomes
+   `<id>-face1.webp`, `<id>-face2.webp`… (NUNCA sobrescrever o
+   `<id>-frontal.webp` — é a foto de marketing da galeria/cards).
+
+### C. Integração no código
+1. Em `paginacoes.js`, no item da coleção: dimensão real (`w`, `h` em mm) e
+   `texturas: ['<id>-face1.webp?v=N', ...]`. O modo foto-por-peça +
+   sorteio estável de face + giro de 180° é automático quando `texturas`
+   existe. Face única funciona (giro dá 2 variantes), mas priorizar 2+.
+2. **Cache-busting SEMPRE**: textura modificada = `?v=` incrementado na
+   entrada do array; `paginacoes.js` modificado = bump do `?v=` nas ~19
+   páginas HTML que o carregam. Conteúdo novo em URL velha = usuário vê o
+   antigo (mordeu duas vezes: itens sobre v17→v18 e as texturas).
+3. **Smoke test jsdom** antes de commitar: init com o `data-current` do
+   produto, conferir contagem de peças, distribuição face1/face2 ~50/50,
+   giradas ~50%, `backgroundSize: 100% 100%`.
+
+### D. Fluxo git entre sessões paralelas (reforço do topo deste arquivo)
+`git fetch` + conferir `HEAD..FETCH_HEAD` **antes de commitar E antes de
+push** (duas sessões já colidiram no dia 13/07 — item 35). Conflito de
+linha `?v=` entre sessões: resolver com número MAIOR que os dois lados.
+Registrar o que fez neste arquivo ao final.
+
+### E. Estado atual (14/07/2026) e fila
+- **Texturas reais**: 7/12 Brick (Lumus, Eco Palha, Natura, Terra do
+  Cerrado, Sertão, Terra Negra, Rosso — este com 1 face). 13 faces, todas
+  auditadas e mescladas com a galeria. Cimentício e Rockface: 0 (ainda na
+  janela reveladora com foto de marketing).
+- **Fila**: 5 Bricks restantes (Branco Rosé, Mescla Prime, Rosso Prime,
+  Rusticatto Fumê, Vulcano); 2ª peça do Rosso; régua no Sertão/Terra Negra;
+  cabeças das peças p/ aparelhos clássicos; texturizar cimentício/rockface;
+  GTM placeholder antes de tráfego pago (prioridade do Rafael, fora do
+  simulador).
+
+---
+
+## 39. Auditoria de WhatsApp em todo o site (14/07/2026)
+
+Rafael passou um número (11956599809) achando que era pra preencher um
+placeholder pendente. Antes de aplicar, chequei: o número do cliente já
+está resolvido desde o item 13 (`5511990049468`), e o número do fornecedor
+não vive mais no código — outra sessão já moveu pra
+`bruto-secrets/API/whatsapp-fornecedor.php` no servidor Hostinger, fora do
+Git (mesmo padrão do `.htpasswd`). Perguntei pra qual finalidade era o
+número novo; Rafael respondeu **descartar o número e auditar** se o que já
+existe está correto em todo lugar.
+
+**Auditoria feita, cobrindo as 33 páginas HTML + 5 arquivos JS que tocam
+WhatsApp:**
+- `wa.me/5511990049468`: presente e idêntico em todas as páginas que
+  deveriam ter (blog, produto, index, texturas, paginações, quiz, termos,
+  privacidade). `404.html` não tem link direto de WhatsApp, mas linka pra
+  `index.html#amostra` que tem — não corrigido, pareceu aceitável pra uma
+  página de erro, mas fica registrado caso alguém prefira um botão direto.
+  `ordem-servico.html` corretamente não tem `wa.me` estático (usa a API do
+  fornecedor via JS, não é o número do cliente).
+- `WHATSAPP_NUMBER` nos 4 JS que declaram a variável (`mobile-cta-bar.js`,
+  `promo-frete-gratis.js`, `lead-pdf.js`, `amostras.js`) e o valor
+  hardcoded em `exit-intent.js`: todos `5511990049468`, sem divergência.
+- Schema.org `"telephone"`: só em `index.html` (correto, é ali que mora o
+  LocalBusiness), valor `+55-11-99004-9468` batendo com o resto.
+- `tel:+5511990049468`: presente e idêntico nas 31 páginas que têm footer
+  completo.
+- Zero placeholders residuais (`SEUNUMERO`, `XXXXXXXXXX`, `0000000000`) em
+  qualquer HTML/JS.
+
+**Bug real encontrado e corrigido:** em
+`produto-brick-rusticatto-sertao.html` e
+`produto-brick-rusticatto-terra-negra.html`, o botão secundário "Falar com
+consultor" apontava para `index.html#amostra` em vez do `wa.me` direto com
+mensagem pré-preenchida — visualmente idêntico aos outros 17 produtos
+(mesmo label, mesmo ícone), mas o clique mandava o cliente de volta pro
+início do site em vez de abrir o WhatsApp. Provavelmente um esquecimento de
+alguma sessão anterior ao copiar a página a partir de um template mais
+antigo. Corrigido nas duas páginas, seguindo exatamente o padrão das
+outras 17 (mesma estrutura de mensagem: "Olá! Tenho interesse no
+{produto}, poderia me ajudar?").
+
+**Melhoria aplicada em `404.html`:** único ponto do site sem link direto de
+WhatsApp (só linkava pra `index.html#amostra`). Adicionado um terceiro
+botão ("Falar no WhatsApp") ao lado de "Página inicial" e "Ver coleções",
+mesmo padrão visual (`btn btn--outline`) e mesmo número, com mensagem
+genérica própria pra contexto de página não encontrada.
+
+---
+
+## 39. 2ª face do Rusticatto Rosso (peça nova) + achado sobre recorte lateral (15/07/2026)
+
+Fila do item 38 pedia uma 2ª peça do Rosso (até então só `face1`). Cliente
+forneceu 2 fotos de uma peça nova (não a mesma da face1), mesma sessão de
+luz. Seguido o pipeline do item 38 à risca, com uma diferença relevante:
+
+**Achado novo — recorte lateral às vezes é necessário, não só topo/base.**
+O item 36 registrava "aparar SÓ topo/base, sem recorte de colunas" como
+lição aprendida. Nesta peça, porém, o enquadramento capturou as **cabeças**
+(faces curtas) com folga generosa, deixando 25-38% de papel nas colunas
+extremas — bem acima do limiar de 3% e nada relacionado a falso positivo
+de textura clara (item 36.1): o perfil coluna-a-coluna era suave e
+monotônico (37%→0% ao longo de ~130px), não ruído disperso. A proibição do
+item 36 era especificamente contra recorte ADAPTATIVO reagindo a ruído +
+resize desproporcional (quase destruiu a lumus-face2). Aqui foi aplicado o
+mesmo método já usado pra linhas (limiar robusto: exige 200 colunas
+consecutivas <3% de papel antes de aceitar a borda), sem resize
+desproporcional — só um crop, com o resize final uniforme de sempre (passo
+7, 800px de largura). Validado com teste da junta empilhada nas 5 cores de
+rejunte (inclusive grafite, pior contraste): sem halo.
+
+**Distinção que vale registrar:** uma faixa clara de ~L167 (escala 0-255)
+no topo da peça passou no critério de papel (S=73,8, acima do limiar
+S<55) — é variação natural de queima da argila (mancha clara), não papel.
+Confirma na prática o alerta do item 36.1: nem toda claridade é papel: o
+teste de saturação, não só de brilho, é o que decide.
+
+**Resultado:** `brick-rusticatto-rosso-face2.webp` exportado (800×242px,
+webp q84), registrado em `paginacoes.js` (`?v=4` na entrada, bump geral
+`?v=12` nas 19 páginas). Rosso agora tem 2 faces × giro de 180° = 4
+variantes na parede (era 2). Smoke test jsdom: 153 peças, face1/face2
+41/59%, 100% com `backgroundSize: 100% 100%`.
+
+**Pendências que seguem em aberto** (não avançadas nesta sessão): régua
+real de Sertão/Terra Negra (ainda 240×65 genérico); 5 Bricks sem foto real
+(Branco Rosé, Mescla Prime, Rosso Prime, Rusticatto Fumê, Vulcano);
+Cimentício/Rockface sem textura real; cabeças pra aparelhos clássicos.
+
+---
+
+## 40. Auditoria de segurança (15/07/2026) — achado real, ação tomada e pendência futura
+
+Auditoria pedida pelo Rafael, com foco em "não deixar concorrente entender
+o backend". Resumo do que foi encontrado — ver a conversa completa pra
+detalhe da investigação (repo é público, confirmado via API do GitHub):
+
+**Achado crítico:** o arquivo `interno/.htpasswd` (hash da senha da área
+`/interno/`) foi commitado no repo público no commit `1180ea3` e removido
+depois no `9b095ba` — mas isso não some do histórico. Confirmado que o
+arquivo continua recuperável publicamente via
+`raw.githubusercontent.com/devupsite/bruto/1180ea3/interno/.htpasswd`
+(testado, retornou 200). Além disso, `interno/precificador-comercial.html`
+expõe nome real de fornecedor ("Faion"), fórmulas de margem e números de
+lucro de exemplo — e a proteção Basic Auth do `.htaccess` **ainda não
+está funcional** (falta o caminho absoluto do servidor, conforme
+comentário no próprio arquivo).
+
+**O que NÃO é problema:** os stubs em `/api/*.php` (enviar-email,
+salvar-ordem, whatsapp-fornecedor, chat) só fazem `require` de um
+arquivo real fora do repo (`bruto-secrets/`) — não vazam segredo nenhum.
+O chat com IA em `atendimento-tecnico.html` também não expõe chave de
+API no cliente. Esse padrão está correto — manter religiosamente.
+
+**Ação tomada:** o Rafael vai trocar a senha real de `/interno/`
+(a que está hoje em `bruto-secrets/` no servidor) — isso neutraliza o
+hash vazado, independente dele continuar no histórico do Git pra sempre.
+
+**PENDÊNCIA FUTURA — limpeza do histórico do Git.** Ainda falta remover
+o `.htpasswd` de vez do histórico (ex: `git filter-repo` ou BFG Repo-Cleaner)
+pra ele parar de ser recuperável via commit antigo. Não foi feito agora
+de propósito: é uma reescrita de todo o histórico de commits, exige
+force-push, e quebra o clone local de QUALQUER sessão que esteja
+trabalhando no repo no momento (teria que re-clonar do zero). Com várias
+sessões atuando em paralelo neste projeto, isso precisa ser coordenado —
+avisar todo mundo, ou fazer num momento de baixa atividade. Se você é
+uma sessão futura lendo isso: **não faça essa limpeza sozinho sem
+avisar o Rafael antes**, e confirme que não há push pendente de
+ninguém no momento.
+
+**Enquanto isso não é feito:** também vale terminar de configurar o
+Basic Auth funcional no `.htaccess` de `/interno/` (o arquivo já tem o
+passo a passo do Hostinger escrito nos comentários) — hoje a pasta está
+sem proteção ativa nenhuma.
+
+---
+
+## 41. Mescla Prime com fotos reais (2 faces) + correção de dimensão (15/07/2026)
+
+Sessão em paralelo às dos itens 39-40 (mesmo dia), sem se ver — convergiu
+de novo no mesmo recurso do item 35. Seguido o protocolo do item 38 do
+início ao fim para a peça Mescla Prime, a partir de 2 fotos (1 peça por
+foto, 8000×6006px, papel A4 branco, luz do dia indireta — conforme
+protocolo A).
+
+**Pipeline (item 38.B) aplicado nesta ordem:**
+1. Recorte por `cv2.grabCut` com semente retangular (não segmentação por
+   cor) — rodado em resolução reduzida (max 1600px no lado maior, por limite
+   de memória do `cv2.grabCut` nas fotos de 8000px) para achar a caixa, e
+   `getPerspectiveTransform` aplicado depois na foto em resolução cheia.
+   Peça fotografada em pé (retrato); rotacionada 90° pro padrão paisagem do
+   simulador.
+2. Validação geométrica ANTES de qualquer cor: fração de papel (V>150,
+   S<55) nas linhas de borda caiu para 0,3%–2,2% após um aparo adicional de
+   2% em cada lado — dentro do limiar <3% do item 36.
+3. Flat-field (força 0,88, sigma = altura/3).
+4. Mescla de cor 75% em LAB (mediana + MAD, escala 0,7–1,4) puxando pra
+   `brick-mescla-prime-frontal.webp` (capa de galeria já publicada). ΔL
+   resultante -24 a -27 (mesma faixa de resíduo proposital do item 37).
+5. Teste da junta empilhada: desvio 0,00 nas duas faces.
+6. Export: `brick-mescla-prime-face1.webp` / `-face2.webp`, 800px de
+   largura, qualidade 84.
+
+**Integração (item 38.C):** `paginacoes.js` — item Mescla Prime ganhou
+`texturas: ['brick-mescla-prime-face1.webp?v=1', 'brick-mescla-prime-face2.webp?v=1']`,
+ativando o modo foto-por-peça. Cache-bust: bumpado junto com o `?v=12` que
+o item 39 (Rosso) já tinha aplicado nas 19 páginas de produto — sem
+conflito real no merge, as duas sessões mexeram em entradas diferentes do
+mesmo array `texturas` do `paginacoes.js` e o merge automático do Git
+resolveu sozinho (mesmo padrão do item 35).
+
+**Correção de dimensão:** medida com régua durante esta sessão deu
+**250×70×15mm** (25×7×1,5cm) para a peça fotografada — diferente do
+260×70×15mm que estava em `catalogo.json` (valor genérico/pendente,
+registrado no item 33/36). Atualizado `catalogo.json` e propagado com
+`python3 scripts/sync-catalogo.py` (regenerou o spec de dimensão em
+`produto-brick-mescla-prime.html` e a entrada correspondente em
+`ordem-servico.js`). O `w`/`h` do item no `paginacoes.js` também usa
+250×70 agora, batendo com a medida real.
+
+**Smoke test (item 38.C.3):** jsdom com `data-current="brick-mescla-prime"`
+— 152 peças renderizadas, face1/face2 ~46/54, giro ~52%, `backgroundSize:
+100% 100%` em todas. Script de teste não commitado (ferramenta ad-hoc, sem
+dependência nova no repo).
+
+**Estado pós-merge (considerando também o item 39 do Rosso):** Texturas
+reais 9/12 Brick (Lumus, Eco Palha, Natura, Terra do Cerrado, Sertão,
+Terra Negra, Rosso [2 faces], **Mescla Prime**). **Fila**: 4 Bricks
+restantes (Branco Rosé, Rosso Prime, Rusticatto Fumê, Vulcano); régua no
+Sertão/Terra Negra; cabeças das peças p/ aparelhos clássicos; texturizar
+cimentício/rockface; limpeza do histórico do `.htpasswd` (item 40, aguarda
+coordenação com o Rafael e janela sem push pendente de ninguém).
+
+---
+
+## 40. Régua real de Sertão e Terra Negra (15/07/2026)
+
+Última pendência de dados do item 38 resolvida. Cliente mediu com régua:
+
+- **Rusticatto do Sertão**: 25,5 × 7 × 2 cm → `255mm x 70mm x 20mm`
+  (era genérico `240x65`).
+- **Rusticatto Terra Negra**: 26 × 6,5 × 2 cm → `260mm x 65mm x 20mm`
+  (era genérico `240x65`).
+
+**3 lugares por produto que guardam a dimensão, todos atualizados:**
+1. `paginacoes.js` — `w`/`h` (mm) da entrada em `COLECOES`, usado pra
+   escala/proporção da peça no simulador de paginação.
+2. Ficha técnica da página do produto — 2 ocorrências (JSON-LD
+   `additionalProperty` + `.product-specs .spec-item` visível). Essa
+   última também alimenta a calculadora de peças/m² da página (lê o
+   texto via regex, não precisou de código novo).
+3. `ordem-servico.js` — campo `dimensoes` da linha do produto no
+   formulário de ordem de serviço.
+
+Espessura (2cm/20mm) confirmada igual nos dois — mantida, não é usada
+pelo simulador de paginação (só length/height), só aparece nas fichas
+técnicas e no ordem de serviço.
+
+Cache-bust: `paginacoes.js?v=13` (19 páginas) e `ordem-servico.js?v=2`
+(1 página). Sessão paralela havia adicionado Mescla Prime no mesmo
+intervalo — merge automático sem conflito, versões já compatíveis.
+
+**Fila do item 38 restante:** 5 Bricks sem foto real (Branco Rosé, Rosso
+Prime, Rusticatto Fumê, Vulcano — Mescla Prime já saiu da lista);
+Cimentício/Rockface sem textura real; cabeças pra aparelhos clássicos.

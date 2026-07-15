@@ -25,7 +25,7 @@
     try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) {}
   }
 
-  var overlay, modal, shown = false;
+  var overlay, modal, shown = false, redirectTimer = null;
 
   function montar() {
     overlay = document.createElement('div');
@@ -93,6 +93,7 @@
         '<a href="https://wa.me/5511990049468?text=' + encodeURIComponent('Olá! Baixei o guia de aplicação e queria mais informações.') + '" target="_blank" rel="noopener" class="btn btn--outline exit-intent__submit">' +
           '<i class="ti ti-brand-whatsapp" aria-hidden="true"></i> Falar no WhatsApp' +
         '</a>';
+      redirectTimer = setTimeout(function () { window.location.href = 'obrigado.html?origem=exit-intent'; }, 6000);
       modal.querySelector('.exit-intent__close').addEventListener('click', fechar);
     });
   }
@@ -110,6 +111,7 @@
 
   function fechar() {
     if (overlay) overlay.classList.remove('is-visible');
+    if (redirectTimer) { clearTimeout(redirectTimer); redirectTimer = null; }
   }
 
   document.addEventListener('DOMContentLoaded', function () {
