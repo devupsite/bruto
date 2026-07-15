@@ -1320,3 +1320,90 @@ tiras de borda (textura com grão, sem faixa lisa). A validação geométrica
 (recorte sem fundo) deve ser feita ANTES da correção de cor; operações de
 cor não alteram geometria. Para peças novas: 1º recorte + validação de
 papel; 2º flat-field; 3º mescla com a galeria; nessa ordem.
+
+---
+
+## 38. GUIA CONSOLIDADO — Texturização real no simulador de paginação (referência definitiva)
+
+Consolidação de tudo que os itens 30-31 e 35-37 aprenderam, na ordem certa.
+Qualquer sessão que for texturizar uma peça nova segue SÓ este item.
+
+### A. Protocolo de fotografia (orientar o Rafael/quem fotografar)
+1. **Luz do dia indireta** — dia nublado ou sombra aberta. NUNCA sol direto
+   (assa sombra direcional na foto, que briga com a luz rasante do widget e
+   denuncia o giro de 180° das peças).
+2. Peça sobre **folha branca A4** (referência de branco + fundo de recorte).
+3. Câmera o mais **perpendicular** possível, ~20 cm de altura funciona
+   (8000px de captura dá ~5000px por peça — sobra).
+4. **2+ peças por referência**, todas na MESMA sessão/luz/horário (meio-dia
+   nublado ideal; fim de tarde muda a temperatura de cor e as faces não
+   casam). Com 2 faces + giro de 180° o render gera 4 variantes — mínimo
+   aceitável; 3-4 peças é melhor.
+5. Anotar as **medidas reais com régua** (L × A × espessura) — cada
+   referência tem a sua (já medidas: Lumus/Eco Palha 265×65, Natura 240×70,
+   Terra do Cerrado 260×70, Rosso 270×70; PENDENTE régua: Sertão e Terra
+   Negra, hoje com 240×65 genérico).
+6. Fotografar também as **cabeças** (face curta) quando possível — destrava
+   os aparelhos clássicos (Inglês, Flandrês, Monge) que hoje ficam fora do
+   simulador.
+
+### B. Pipeline de processamento (ORDEM OBRIGATÓRIA)
+A ordem importa: a validação geométrica só funciona antes da correção de
+cor (item 37).
+
+1. **Escolher a foto mais nítida** de cada peça (variância do Laplaciano).
+2. **Recorte**: `cv2.grabCut` com semente retangular central
+   (x∈[15%,85%], y∈[35%,70%] do quadro neste enquadramento) →
+   `minAreaRect` → `getPerspectiveTransform`. NÃO usar segmentação por
+   cor/limiar (reflexos do piso e objetos claros na cena a enganam — item
+   35/36).
+3. **Validação geométrica (ANTES de qualquer cor)**: fração de pixels com
+   cor de papel (V>150, S<55 em HSV) por linha — deve ser ~0% nas
+   primeiras/últimas linhas. Se houver 10%+ de papel a 15-20% pra dentro, a
+   CAIXA está errada (refazer o recorte); não adianta aumentar margem.
+   Aparar bordas só em LINHAS, de fora pra dentro, SEM recorte de colunas e
+   SEM resize (quase destruiu uma face — item 36).
+4. **Flat-field** (remove sombreamento direcional): dividir o canal L pelo
+   seu blur gaussiano pesado (sigma ~ altura/3), força 0,88 (12% do
+   sombreado natural fica, senão vira plástico).
+5. **Mescla de cor com a galeria** (item 37): transferência em LAB, mediana
+   + MAD (escala 0,7-1,4) em direção ao `<id>-frontal.webp` do produto,
+   **força 0,75**. É o que mantém simulador e galeria parecendo o mesmo
+   produto na mesma página. Depois desta etapa a métrica de papel do passo
+   3 dá falso positivo em peça clara — não reexecutar.
+6. **Teste da junta empilhada** (vale em qualquer etapa): empilhar 2 cópias
+   com gap fino cor de rejunte e medir desvio de cor NA linha do gap —
+   deve ser 0,00.
+7. **Export**: webp, 800px de largura, qualidade 84, nomes
+   `<id>-face1.webp`, `<id>-face2.webp`… (NUNCA sobrescrever o
+   `<id>-frontal.webp` — é a foto de marketing da galeria/cards).
+
+### C. Integração no código
+1. Em `paginacoes.js`, no item da coleção: dimensão real (`w`, `h` em mm) e
+   `texturas: ['<id>-face1.webp?v=N', ...]`. O modo foto-por-peça +
+   sorteio estável de face + giro de 180° é automático quando `texturas`
+   existe. Face única funciona (giro dá 2 variantes), mas priorizar 2+.
+2. **Cache-busting SEMPRE**: textura modificada = `?v=` incrementado na
+   entrada do array; `paginacoes.js` modificado = bump do `?v=` nas ~19
+   páginas HTML que o carregam. Conteúdo novo em URL velha = usuário vê o
+   antigo (mordeu duas vezes: itens sobre v17→v18 e as texturas).
+3. **Smoke test jsdom** antes de commitar: init com o `data-current` do
+   produto, conferir contagem de peças, distribuição face1/face2 ~50/50,
+   giradas ~50%, `backgroundSize: 100% 100%`.
+
+### D. Fluxo git entre sessões paralelas (reforço do topo deste arquivo)
+`git fetch` + conferir `HEAD..FETCH_HEAD` **antes de commitar E antes de
+push** (duas sessões já colidiram no dia 13/07 — item 35). Conflito de
+linha `?v=` entre sessões: resolver com número MAIOR que os dois lados.
+Registrar o que fez neste arquivo ao final.
+
+### E. Estado atual (14/07/2026) e fila
+- **Texturas reais**: 7/12 Brick (Lumus, Eco Palha, Natura, Terra do
+  Cerrado, Sertão, Terra Negra, Rosso — este com 1 face). 13 faces, todas
+  auditadas e mescladas com a galeria. Cimentício e Rockface: 0 (ainda na
+  janela reveladora com foto de marketing).
+- **Fila**: 5 Bricks restantes (Branco Rosé, Mescla Prime, Rosso Prime,
+  Rusticatto Fumê, Vulcano); 2ª peça do Rosso; régua no Sertão/Terra Negra;
+  cabeças das peças p/ aparelhos clássicos; texturizar cimentício/rockface;
+  GTM placeholder antes de tráfego pago (prioridade do Rafael, fora do
+  simulador).
