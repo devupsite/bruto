@@ -1815,3 +1815,45 @@ do esperado pra correção de sombreamento em textura granular, sem indício
 do bug. Não precisou reprocessar. Daqui pra frente, seguir o critério
 atualizado do item 44 (sigma pela largura + checagem de std) em peças
 com variação tonal ampla proposital.
+
+---
+
+## 41. Investigação de layout quebrado no Cimentício Alpino (17/07/2026)
+
+O Rafael reportou (com print) um bloco flutuante com sombra sobreposto ao
+widget de paginação na página do Cimentício Alpino — texto "5% OFF NO
+PIX / até 4x / Ver todas as parcelas / Certificação..." (conteúdo do
+`#parcelamento-info` + `.trust-badge`, normalmente no fluxo normal da
+coluna `.product-info`) aparecendo atrás/à esquerda do widget, e a textura
+do padrão parecendo pálida/sem foto real.
+
+**Achado real e corrigido:** `styles.css` tinha blocos CSS DUPLICADOS —
+`.pgn-preview-wrap` e `.pgn-wall` cada um definido DUAS VEZES (mesmo
+padrão de artefato de merge do item 35/37). Consolidados num bloco único
+cada. Isso não muda comportamento hoje (as duas versões não tinham
+propriedades conflitantes, só espalhadas), mas eliminava um risco real:
+qualquer edição futura em uma cópia e não na outra teria causado
+exatamente esse tipo de bug fantasma.
+
+**Não confirmado — falta acesso a navegador ao vivo (Claude in Chrome
+desconectado nesta sessão):** não consegui reproduzir/confirmar a causa
+exata do bloco flutuante por análise estática de código. Investigado e
+DESCARTADO como causa: `.price-parc` sem position especial; `.product-
+gallery` é sticky mas CSS sticky não pode vazar pra fora do próprio grid
+cell (por spec, não é candidato); `.product-lightbox` tem display:none
+correto por padrão; sem `<div>` não fechada entre o header do produto e
+o widget (contagem bate). **Hipótese mais provável não descartada**: FOUC
+(flash of unstyled content) — screenshot capturado antes do `styles.css`
+terminar de carregar, o que explicaria tanto o card sem estilo quanto o
+padrão "pálido" (peças sem o bisel/box-shadow do CSS externo ainda não
+aplicado). Se o Rafael reportar de novo após um hard-refresh + esperar a
+página assentar, e o problema persistir, a próxima sessão com Claude in
+Chrome disponível deve inspecionar ao vivo (computed styles do elemento
+sobreposto) em vez de re-percorrer esta lista de hipóteses descartadas.
+
+**Nota — trabalho perdido:** o commit local `cd4d797` (refino de cor do
+Sertão/Fumê/Rosso-face2 com a métrica de R², item 40) NUNCA foi enviado
+ao GitHub — o ambiente de execução reiniciou antes do push, e o clone
+seguinte partiu de `e97b1f0`, sem aquele trabalho. Sertão/Fumê ainda têm
+os defeitos descritos no item 40 (sombra real no Sertão, vazamento leve
+no Fumê, faixa branca na Rosso-face2) — refazer quando houver prioridade.

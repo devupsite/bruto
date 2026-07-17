@@ -2060,6 +2060,8 @@
   padding: clamp(16px, 2vw, 24px);
   transition: background 0.35s ease;
   background: linear-gradient(180deg, #f7f5f2 0%, #ece8e2 100%);
+  perspective: 1200px;
+  perspective-origin: 32% 46%;
 }
 
 .pgn-preview-wrap.pgn-ambient--escuro {
@@ -2091,6 +2093,8 @@
   border-radius: 4px;
   background: #f2efe9; /* rejunte padrão (argamassa clara) — o JS troca conforme a escolha */
   box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+  transform-origin: 50% 55%;
+  transition: transform 0.85s cubic-bezier(0.66, 0, 0.28, 1), box-shadow 0.85s ease;
 }
 
 .pgn-ambient--escuro .pgn-wall {
@@ -2196,16 +2200,6 @@
 }
 
 .pgn-ambient--escuro .pgn-view-toggle { background: rgba(20,18,14,0.6); }
-
-.pgn-preview-wrap {
-  perspective: 1200px;
-  perspective-origin: 32% 46%;
-}
-
-.pgn-wall {
-  transform-origin: 50% 55%;
-  transition: transform 0.85s cubic-bezier(0.66, 0, 0.28, 1), box-shadow 0.85s ease;
-}
 
 .pgn-view--persp .pgn-wall {
   transform: rotateY(24deg) rotateX(1.5deg) scale(1.03);
