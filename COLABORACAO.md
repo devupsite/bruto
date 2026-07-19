@@ -1943,3 +1943,30 @@ fora). Bump `styles.css` v18→v19 em 36 páginas.
 TODOS os estados/modos interativos do componente (aqui: Frontal vs Em
 perspectiva) antes de declarar resolvido — um print no estado errado
 pode confirmar falsamente uma hipótese (FOUC) que não é a causa real.
+
+---
+
+## 44. Confirmação por diff direto: por que só Cimentício/Rockface (19/07/2026)
+
+O Rafael pediu, com razão, pra eu simplesmente comparar a página Brick
+(funcionando) com a Cimentício (quebrada) em vez de só teorizar. Diff
+direto confirmou uma diferença estrutural real: as 6 páginas Cimentício/
+Rockface têm um bloco `.cross-sell` extra ("Outras cores da linha X",
+grid de imagens) posicionado IMEDIATAMENTE ANTES da `<section
+class="pgn-section">` — bloco que **nenhuma das páginas Brick tem** (o
+cross-sell do Brick, `.combina-com`/`grid-3`, fica DEPOIS do widget, perto
+do rodapé). Confirmado nas 6 páginas Cimentício/Rockface, ausente nas
+Brick — 100% de correlação com onde o bug aparecia.
+
+Isso não é uma causa alternativa ao overflow:hidden do item 43 — é o
+motivo do sintoma só ser VISÍVEL ali: o bug geométrico (peça 3D +
+sombra vazando por falta de `overflow:hidden`) sempre existiu em
+qualquer página, nas duas linhas. No Brick, o widget tem bastante
+respiro até o conteúdo anterior, então o vazamento provavelmente saía da
+área visível/não encostava em nada. No Cimentício/Rockface, esse bloco
+extra empurra o widget pra mais perto do preço/parcelamento, e o
+vazamento passou a colidir visivelmente com esse conteúdo — exatamente o
+"card fantasma" reportado.
+
+O fix do item 43 (`overflow: hidden` em `.pgn-preview-wrap`) resolve na
+raiz independente da distância — já estava publicado antes deste diff.
