@@ -2062,6 +2062,9 @@
   background: linear-gradient(180deg, #f7f5f2 0%, #ece8e2 100%);
   perspective: 1200px;
   perspective-origin: 32% 46%;
+  overflow: hidden; /* contém a peça 3D + sombra do modo "Em perspectiva"
+                       dentro do próprio card — sem isso, o rotateY/shadow
+                       pinta por cima do conteúdo anterior da página */
 }
 
 .pgn-preview-wrap.pgn-ambient--escuro {

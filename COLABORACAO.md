@@ -1913,3 +1913,33 @@ itens 30-41 deste documento — é log cronológico, não reescrevo o passado.
 **Estado atual:** Brick com 10 produtos (7 com foto real — ver item 40/41
 pra pendências de qualidade; Sertão e Fumê ainda com o refino de cor
 perdido no reinício de ambiente, ver item 41).
+
+---
+
+## 43. Causa raiz real do bug do item 41: falta overflow:hidden no modo perspectiva (19/07/2026)
+
+O item 41 foi encerrado como "FOUC" com base num print que mostrava a
+página limpa — mas era o modo **Frontal** naquele print. O Rafael mandou
+um segundo print, desta vez com **"Em perspectiva" ativo**, e o bug
+apareceu de novo, clara e consistentemente: o card do widget (`.pgn-wall`
+com `rotateY(24deg) rotateX(1.5deg) scale(1.03)` + `box-shadow: 22px 30px
+46px`) pintava por cima do conteúdo ANTERIOR da página (preço,
+parcelamento, título) — não porque o layout/fluxo do documento estivesse
+quebrado, mas porque **transforms 3D e sombras não afetam o fluxo,
+apenas a pintura** — sem `overflow: hidden` no elemento pai
+(`.pgn-preview-wrap`), a peça inclinada + sombra vazam visualmente pra
+fora dos próprios limites do card e cobrem o que estiver por perto.
+
+Isso existia desde a alteração 1 (implementação original do modo
+perspectiva) — nunca foi pego porque em telas/scrolls onde o widget não
+fica colado perto de outro conteúdo, o vazamento não é visível.
+
+**Correção:** `overflow: hidden` em `.pgn-preview-wrap`. Contém a peça 3D
+e a sombra dentro do próprio card — o efeito de profundidade continua
+visível, só que emoldurado (sombra corta na borda em vez de vazar pra
+fora). Bump `styles.css` v18→v19 em 36 páginas.
+
+**Lição de processo:** ao investigar um bug visual "aleatório", checar
+TODOS os estados/modos interativos do componente (aqui: Frontal vs Em
+perspectiva) antes de declarar resolvido — um print no estado errado
+pode confirmar falsamente uma hipótese (FOUC) que não é a causa real.
