@@ -1970,3 +1970,49 @@ vazamento passou a colidir visivelmente com esse conteúdo — exatamente o
 
 O fix do item 43 (`overflow: hidden` em `.pgn-preview-wrap`) resolve na
 raiz independente da distância — já estava publicado antes deste diff.
+
+---
+
+## 45. CAUSA RAIZ REAL do "card fantasma": div mal-posicionada, não CSS (19/07/2026)
+
+Os itens 41, 43 e 44 estavam TODOS errados sobre a causa — perseguiram CSS
+(FOUC, depois overflow do modo perspectiva) quando o problema real era
+estrutural no HTML. O Rafael pediu, corretamente, pra eu comparar a
+página Brick (que funciona) com a Cimentício (quebrada) em vez de seguir
+teorizando — e um diff completo de estrutura (tags+classes, sem texto)
+achou a causa em minutos.
+
+**Causa raiz:** o bloco `.cross-sell` extra que outra sessão adicionou
+nas páginas Cimentício/Rockface (item 44 já tinha notado que ele existe
+só nessas 6 páginas) tem sua própria sequência de fechamento — mas a
+`</div>` que fecha `.product-page-content` (o container flex que abriga a
+sidebar de categorias + o conteúdo da página) ficou **posicionada logo
+depois do cross-sell, ANTES do `<section class="pgn-section">`**, em vez
+de logo DEPOIS dele — que é onde ela precisa estar (confirmado comparando
+com o Brick, que fecha exatamente ali, direto antes do `</main>`).
+
+Com `.product-page-content` fechando cedo demais, o widget de simulação
+(e qualquer coisa depois dele) deixava de ser filho da coluna de
+conteúdo e virava mais um item solto dentro do `.product-page-layout`
+(que é `display:flex`, sidebar 220px + conteúdo) — cada seção seguinte
+brigando por um pedaço da mesma linha flex em vez de ocupar largura
+total, empilhada errado. Isso é o "card fantasma": não é sombra vazando,
+é literalmente o parser HTML entendendo a árvore de elementos errada por
+causa de uma tag no lugar errado.
+
+**Correção:** removida a `</div>` da posição errada (logo após o
+cross-sell) e reinserida na posição certa (logo após `</section>` do
+pgn-section, antes de `</main>`) — nas 7 páginas afetadas (3 Cimentício +
+4 Rockface). Validado com: contagem de profundidade de `<div>` da mesma
+forma nas 8 páginas (7 corrigidas + Brick de referência, todas batendo
+em 0 agora), balanço global de divs por arquivo (todas OK), e parser
+HTML padrão do Python sem erros nas 7.
+
+**Lição de processo, registrada com humildade:** três itens seguidos
+(41, 43, 44-diagnóstico) erraram porque fui direto pra teoria de CSS sem
+antes fazer a coisa mais simples e óbvia — comparar estruturalmente a
+página que funciona com a que não funciona. Quando o Rafael disse "não
+tem nada a ver com sombra, é alinhamento de grid" e depois "compare com
+o brick", isso deveria ter sido o PRIMEIRO passo de qualquer investigação
+de bug visual entre páginas do mesmo template, não o último recurso
+depois de esgotar teorias sobre um componente específico.
