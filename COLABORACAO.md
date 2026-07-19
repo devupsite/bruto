@@ -1851,12 +1851,14 @@ página assentar, e o problema persistir, a próxima sessão com Claude in
 Chrome disponível deve inspecionar ao vivo (computed styles do elemento
 sobreposto) em vez de re-percorrer esta lista de hipóteses descartadas.
 
-**Nota — trabalho perdido:** o commit local `cd4d797` (refino de cor do
-Sertão/Fumê/Rosso-face2 com a métrica de R², item 40) NUNCA foi enviado
-ao GitHub — o ambiente de execução reiniciou antes do push, e o clone
-seguinte partiu de `e97b1f0`, sem aquele trabalho. Sertão/Fumê ainda têm
-os defeitos descritos no item 40 (sombra real no Sertão, vazamento leve
-no Fumê, faixa branca na Rosso-face2) — refazer quando houver prioridade.
+**Nota — trabalho perdido, refeito (18/07/2026):** o commit local `cd4d797`
+(refino de cor do Sertão/Fumê/Rosso-face2 do item 40) nunca chegou a ser
+enviado — o ambiente reiniciou antes do push. Reaplicado do zero nesta
+sessão com a mesma metodologia (flat-field de plano no Sertão, aparo por
+razão borda/miolo no Fumê, aparo forte na Rosso-face2), com os MESMOS
+resultados numéricos de antes (Sertão R² 0,75→0,13-0,14, ΔL -22→-5/-6) —
+confirma que o método é reprodutível. Cache-bust + bump aplicados. Deixa
+de ser pendência.
 
 ---
 
