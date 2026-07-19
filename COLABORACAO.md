@@ -1851,6 +1851,15 @@ página assentar, e o problema persistir, a próxima sessão com Claude in
 Chrome disponível deve inspecionar ao vivo (computed styles do elemento
 sobreposto) em vez de re-percorrer esta lista de hipóteses descartadas.
 
+**RESOLVIDO (19/07/2026):** o Rafael mandou um novo print após hard
+refresh — página carregada por completo, sem o bloco flutuante, padrão
+"Junta a Prumo" renderizando normal com a textura cinza clara real do
+Cimentício. Confirma a hipótese do FOUC: não era bug de código, era a
+captura anterior pegando a página no meio do carregamento do CSS. A
+consolidação dos blocos CSS duplicados (achado real deste item) continua
+valendo como melhoria de higiene, mas não era a causa do sintoma
+reportado. Item encerrado — nenhuma ação de código pendente aqui.
+
 **Nota — trabalho perdido, refeito (18/07/2026):** o commit local `cd4d797`
 (refino de cor do Sertão/Fumê/Rosso-face2 do item 40) nunca chegou a ser
 enviado — o ambiente reiniciou antes do push. Reaplicado do zero nesta
