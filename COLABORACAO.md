@@ -1857,3 +1857,48 @@ ao GitHub — o ambiente de execução reiniciou antes do push, e o clone
 seguinte partiu de `e97b1f0`, sem aquele trabalho. Sertão/Fumê ainda têm
 os defeitos descritos no item 40 (sombra real no Sertão, vazamento leve
 no Fumê, faixa branca na Rosso-face2) — refazer quando houver prioridade.
+
+---
+
+## 42. Descontinuação de Branco Rosé e Vulcano (17/07/2026)
+
+A pedido do Rafael: **Branco Rosé e Vulcano foram descontinuados** e
+removidos de toda a base — não são mais parte do catálogo. Isso invalida
+as menções a eles em "fila de texturização" nos itens anteriores deste
+documento (30 a 41) — não fotografar/texturizar esses dois, o Brick tem
+**10 produtos ativos agora**, não 12.
+
+**O que foi removido/ajustado (varredura completa no repo):**
+- `produto-brick-branco-rose.html` e `produto-brick-vulcano.html` (páginas)
+- Todos os assets `brick-branco-rose-*.webp` e `brick-vulcano-*.webp`
+- `paginacoes.js` — 2 entradas de `COLECOES.brick.itens`
+- Lista lateral de cores (sidebar) nas 17 páginas de produto restantes
+- Cards de cross-sell ("Combina com estes também") que citavam os 2 —
+  substituídos por outro produto Brick real, variado por página (nunca
+  auto-referência, nunca duplicado dentro do mesmo grid de 3)
+- `index.html` — card de destaque do Branco Rosé na home
+- `sitemap.xml` — 2 URLs
+- `texturas.html` — 2 cards do catálogo de texturas
+- `quiz.html` — 2 entradas do array de recomendação
+- `catalogo.json` — 2 entradas (`produtos` foi de 19 para 17)
+- `ordem-servico.js` — 2 entradas do dropdown de produtos
+- `interno/atendimento-tecnico.html` — 2 linhas de referência de preço
+- `interno/precificador-comercial.html` — 4 `<option>` (o produto aparece
+  2x no arquivo, provavelmente 2 formulários/calculadoras). **Achado
+  fino**: o mapa `PRODS` indexa por PREÇO, não por slug — `'139.9'`
+  apontava pro nome "Brick Branco Rosé", mas o Eco Palha usa o MESMO
+  preço (R$139,90). Corrigido pra `'Brick Eco Palha'` em vez de só
+  apagar a chave, senão o rótulo ficaria errado pra quem seleciona Eco
+  Palha na calculadora.
+- **Fallback global de og:image/twitter:image** — 12 páginas (blog,
+  termos, privacidade, texturas, quiz, paginacoes) usavam
+  `brick-branco-rose-frontal.webp` como imagem padrão de compartilhamento
+  social (não relacionado ao produto em si, só era a imagem "genérica" de
+  fallback). Trocado por `brick-lumus-frontal.webp` em todas.
+
+**Não removido de propósito:** as menções históricas a esses produtos nos
+itens 30-41 deste documento — é log cronológico, não reescrevo o passado.
+
+**Estado atual:** Brick com 10 produtos (7 com foto real — ver item 40/41
+pra pendências de qualidade; Sertão e Fumê ainda com o refino de cor
+perdido no reinício de ambiente, ver item 41).

@@ -18,7 +18,6 @@
   var API_ENVIAR_EMAIL = 'https://brutoceramica.com.br/api/enviar-email.php';
 
   var CATALOGO = [
-    { slug: "brick-branco-rose", categoria: "Brick", nome: "Branco Rosé", sku: "56", preco: 153.90, dimensoes: "270mm x 70mm x 15mm" },
     { slug: "brick-eco-palha", categoria: "Brick", nome: "Eco Palha", sku: "57", preco: 153.90, dimensoes: "270mm x 70mm x 15mm" },
     { slug: "brick-lumus", categoria: "Brick", nome: "Lumus", sku: "73", preco: 164.90, dimensoes: "270mm x 70mm x 15mm" },
     { slug: "brick-mescla-prime", categoria: "Brick", nome: "Mescla Prime", sku: "54", preco: 153.90, dimensoes: "250mm x 70mm x 15mm" },
@@ -29,7 +28,6 @@
     { slug: "brick-rusticatto-sertao", categoria: "Brick", nome: "Rusticatto do Sertão", sku: "61", preco: 164.90, dimensoes: "255mm x 70mm x 20mm" },
     { slug: "brick-rusticatto-terra-negra", categoria: "Brick", nome: "Rusticatto Terra Negra", sku: "60", preco: 197.90, dimensoes: "260mm x 65mm x 20mm" },
     { slug: "brick-terra-cerrado", categoria: "Brick", nome: "Terra do Cerrado", sku: "47", preco: 148.90, dimensoes: "260mm x 70mm x 15mm" },
-    { slug: "brick-vulcano", categoria: "Brick", nome: "Vulcano", sku: "59", preco: 164.90, dimensoes: "270mm x 70mm x 15mm" },
     { slug: "cimenticio-alpino", categoria: "Cimentício", nome: "Alpino", sku: "80", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
     { slug: "cimenticio-grigio", categoria: "Cimentício", nome: "Grigio", sku: "81", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
     { slug: "cimenticio-urban", categoria: "Cimentício", nome: "Urban", sku: "82", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },

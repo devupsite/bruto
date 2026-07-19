@@ -14,7 +14,6 @@
     brick: {
       nome: 'Brick',
       itens: [
-        { id: 'brick-branco-rose',            nome: 'Branco Rosé',           w: 240, h: 65 },
         { id: 'brick-eco-palha',              nome: 'Eco Palha',             w: 265, h: 65,
           texturas: ['brick-eco-palha-face1.webp?v=3', 'brick-eco-palha-face2.webp?v=3'] },
         { id: 'brick-lumus',                  nome: 'Lumus',                 w: 265, h: 65,
@@ -33,8 +32,7 @@
         { id: 'brick-rusticatto-terra-negra', nome: 'Rusticatto Terra Negra', w: 260, h: 65,
           texturas: ['brick-rusticatto-terra-negra-face1.webp?v=3', 'brick-rusticatto-terra-negra-face2.webp?v=3'] },
         { id: 'brick-terra-cerrado',          nome: 'Terra do Cerrado',      w: 260, h: 70,
-          texturas: ['brick-terra-cerrado-face1.webp?v=3', 'brick-terra-cerrado-face2.webp?v=3'] },
-        { id: 'brick-vulcano',                nome: 'Vulcano',               w: 240, h: 65 }
+          texturas: ['brick-terra-cerrado-face1.webp?v=3', 'brick-terra-cerrado-face2.webp?v=3'] }
       ]
     },
     cimenticio: {
