@@ -816,21 +816,29 @@ function BrutoAtendimento() {
 
   async function exportHistory() {
     try {
-      let index = [];
-      try {
-        const idxRes = await storage.get("session-index");
-        if (idxRes?.value) index = JSON.parse(idxRes.value);
-      } catch (_) {}
+      // Fonte da lista: o que já está na tela (servidor + local mesclados),
+      // não só o cache local — senão perde sessões de outros dispositivos/abas.
+      const index = adminViewAll && currentUser.papel === "admin" ? adminIndex : sessionIndex;
 
       if (index.length === 0) { alert("Nenhuma sessão para exportar."); return; }
 
       const sessions = [];
       for (const s of index) {
+        let parsed = null;
         try {
-          const res = await storage.get(`session:${s.id}`);
-          if (res?.value) sessions.push(JSON.parse(res.value));
+          const data = await apiCall("api/historico.php", { acao: "obter", id: s.id });
+          if (data?.payload) parsed = JSON.parse(data.payload);
         } catch (_) {}
+        if (!parsed) {
+          try {
+            const res = await storage.get(`session:${s.id}`);
+            if (res?.value) parsed = JSON.parse(res.value);
+          } catch (_) {}
+        }
+        if (parsed) sessions.push(parsed);
       }
+
+      if (sessions.length === 0) { alert("Não consegui carregar nenhuma sessão do servidor ou do cache local para exportar."); return; }
 
       const json = JSON.stringify({ version: 1, exportedAt: Date.now(), sessions }, null, 2);
       setExportModal(json);
