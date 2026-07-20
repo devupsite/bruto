@@ -2048,4 +2048,49 @@ prioridade). Três eixos:
 qualquer mudança (o que já existe vs. o que falta), documentar aqui como
 subitens antes de implementar.
 
+### 46.1 Levantamento inicial (20/07/2026)
+
+**Eixo 1 — Google Tags:**
+- `GTM-XXXXXXX` é placeholder, presente em 35 das 36 páginas HTML
+  (falta em `ordem-servico.html`, ferramenta interna — decidir se deve
+  ou não ter GTM, é ferramenta de uso interno da equipe, não de cliente).
+- **Zero eventos customizados hoje** — nenhum `onclick`, `data-gtm`,
+  `data-event` ou `gtag()` disparado por interação; o snippet só manda
+  pageview via `gtm.js` padrão.
+- CTAs candidatos a evento de conversão: **73 links `wa.me`** (WhatsApp,
+  vários textos/contextos diferentes), **37 "Solicitar amostra"**, **19
+  "Falar com consultor"**, **2 "Fazer o quiz"**. Precisa container GTM
+  real criado (tagmanager.google.com) antes de qualquer disparo.
+
+**Eixo 2 — Otimização de página:**
+- Repo com ~36MB de imagens `.webp` (já otimizado nesse formato).
+- `loading="lazy"` em 237 de 266 `<img>` (89%) — 29 sem lazy, checar se
+  são justamente as acima da dobra (correto não ter lazy) ou esquecidas.
+- `fetchpriority="high"` em só 1 página — checar LCP das demais.
+
+**Eixo 3 — SEO técnico:**
+- `robots.txt` e `sitemap.xml` existem.
+- `canonical` em 32/36 — faltando em `404.html`, `obrigado.html`,
+  `ordem-servico.html`, `quiz.html` (os 3 primeiros fazem sentido não
+  indexar; `quiz.html` provavelmente deveria ter).
+- `meta description` em 35/36 — falta só em `ordem-servico.html`
+  (ferramenta interna, ok não ter).
+- JSON-LD (schema.org) em 27/36.
+- 0 imagens sem `alt` (bom, já coberto — ver item 28).
+
+**Observação geral:** `ordem-servico.html` e `interno/*.html` são
+ferramentas internas da operação, não páginas de cliente — vale decidir
+explicitamente se entram nos 3 eixos ou ficam de fora (provável: fora,
+exceto por não vazar pro Google — checar se estão no `robots.txt`
+como `disallow`).
+
+**Achado de risco:** `robots.txt` só bloqueia `/interno/` — mas
+`ordem-servico.html` está na RAIZ do site, fora dessa pasta, e portanto
+**não está protegida contra indexação/crawling do Google** hoje. Não
+está no sitemap (não seria descoberta por ali), mas se houver qualquer
+link apontando pra ela (interno ou externo), o Google pode indexar uma
+ferramenta operacional interna. Ação recomendada: mover pra `/interno/`
+ou adicionar `Disallow: /ordem-servico.html` explícito no `robots.txt`.
+Pendente de decisão antes do lançamento.
+
 ---
