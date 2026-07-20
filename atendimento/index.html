@@ -44,7 +44,7 @@ import {
   Hammer, RotateCcw, CheckCircle2, Settings, Plug, Send,
   X, MessageCircle, Lightbulb, Copy, Check, History, Plus, Trash2, Download, Upload,
   Image as ImageIcon, Camera,
-  Target, ClipboardList, GraduationCap, Dices, MessageSquareShare, Users,
+  Target, ClipboardList, GraduationCap, Dices, MessageSquareShare, Users, Pencil,
 } from "lucide-react";
 
 // ── CONFIG DE DEPLOY (fora do Claude.ai) ───────────────────────────
@@ -483,7 +483,7 @@ function ExportCopyBtn({ text, label = "Copiar JSON" }) {
 
 function BrutoAtendimento() {
   const [mode, setMode] = useState("consulta");
-  const [client, setClient] = useState({ name: "Cliente", type: "", project: "", tags: ["Consulta Técnica"] });
+  const [client, setClient] = useState({ name: "Cliente", type: "", project: "", phone: "", tags: ["Consulta Técnica"] });
   const [messages, setMessages] = useState([]);
   const [selectedKB, setSelectedKB] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -531,6 +531,12 @@ function BrutoAtendimento() {
   const [newUserUsuario, setNewUserUsuario] = useState("");
   const [newUserNome, setNewUserNome] = useState("");
   const [newUserPapel, setNewUserPapel] = useState("atendente");
+
+  // ── EDITAR PERFIL DO CLIENTE DE UMA CONVERSA JÁ SALVA (sem abrir a conversa) ──
+  const [editClientModal, setEditClientModal] = useState(null); // { id, name, type, project } | null
+  const [editClientFull, setEditClientFull] = useState(null); // payload completo (meta/client/messages) da sessão sendo editada
+  const [editClientBusy, setEditClientBusy] = useState(false);
+  const [editClientErr, setEditClientErr] = useState("");
 
   const msgEndRef = useRef(null);
   const saveTimerRef = useRef(null);
@@ -688,7 +694,7 @@ function BrutoAtendimento() {
     setInput("");
     setDiagFlow(null);
     setSelectedKB([]);
-    setClient({ name: "Cliente", type: "", project: "", tags: ["Consulta Técnica"] });
+    setClient({ name: "Cliente", type: "", project: "", phone: "", tags: ["Consulta Técnica"] });
     setCurrentSessionId(null);
   }
 
@@ -733,6 +739,79 @@ function BrutoAtendimento() {
       await apiCall("api/historico.php", { acao: "excluir", id });
       setAdminIndex((prev) => prev.filter((s) => s.id !== id));
     } catch (_) {}
+  }
+
+  // ── Editar só o perfil do cliente de uma sessão salva, sem abrir a conversa ──
+  async function openEditClient(sessionMeta, e) {
+    if (e) e.stopPropagation();
+    setEditClientErr("");
+    setEditClientBusy(true);
+    let parsed = null;
+    try {
+      const data = await apiCall("api/historico.php", { acao: "obter", id: sessionMeta.id });
+      if (data?.payload) parsed = JSON.parse(data.payload);
+    } catch (_) {}
+    if (!parsed) {
+      try {
+        const res = await storage.get(`session:${sessionMeta.id}`);
+        if (res?.value) parsed = JSON.parse(res.value);
+      } catch (_) {}
+    }
+    setEditClientBusy(false);
+    if (!parsed) {
+      alert("Não consegui carregar essa conversa pra editar o perfil.");
+      return;
+    }
+    setEditClientFull(parsed);
+    setEditClientModal({
+      id: sessionMeta.id,
+      name: parsed.client?.name || "",
+      phone: parsed.client?.phone || "",
+      type: parsed.client?.type || "",
+      project: parsed.client?.project || "",
+    });
+  }
+
+  async function saveEditClient() {
+    if (!editClientModal || !editClientFull || editClientBusy) return;
+    setEditClientBusy(true);
+    setEditClientErr("");
+    const updatedClient = {
+      ...editClientFull.client,
+      name: editClientModal.name.trim() || "Cliente",
+      phone: editClientModal.phone.trim(),
+      type: editClientModal.type,
+      project: editClientModal.project.trim(),
+    };
+    const updatedPayload = { ...editClientFull, client: updatedClient };
+    const payloadStr = JSON.stringify(updatedPayload);
+    try {
+      await apiCall("api/historico.php", {
+        acao: "salvar",
+        id: editClientModal.id,
+        clienteNome: updatedClient.name,
+        clienteTipo: updatedClient.type,
+        preview: editClientFull.meta?.preview || "",
+        msgCount: (editClientFull.messages || []).length,
+        criadoEm: editClientFull.meta?.createdAt || 0,
+        payload: payloadStr,
+      });
+      try { await storage.set(`session:${editClientModal.id}`, payloadStr); } catch (_) {}
+
+      const patch = (s) => s.id === editClientModal.id
+        ? { ...s, clientName: updatedClient.name, clientType: updatedClient.type }
+        : s;
+      setSessionIndex((prev) => prev.map(patch));
+      setAdminIndex((prev) => prev.map(patch));
+      if (currentSessionId === editClientModal.id) setClient(updatedClient);
+
+      setEditClientModal(null);
+      setEditClientFull(null);
+    } catch (e) {
+      setEditClientErr(e.message || "Não consegui salvar as alterações.");
+    } finally {
+      setEditClientBusy(false);
+    }
   }
 
   async function exportHistory() {
@@ -1084,6 +1163,7 @@ function BrutoAtendimento() {
     const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
     let txt = `RESUMO DE ATENDIMENTO — BRUTO\n\n`;
     txt += `Cliente: ${client.name}\n`;
+    if (client.phone) txt += `Telefone: ${client.phone}\n`;
     if (client.type) txt += `Tipo: ${client.type}\n`;
     if (client.project) txt += `Projeto: ${client.project}\n`;
     if (calcArea && !isNaN(parseFloat(calcArea))) {
@@ -1317,6 +1397,7 @@ function BrutoAtendimento() {
                 <div style={S.clientName}>{client.name || "— Perfil não carregado"}</div>
                 <div style={S.clientDetail} dangerouslySetInnerHTML={{ __html:
                   [
+                    client.phone ? `<strong>Telefone:</strong> ${client.phone}` : "",
                     client.type ? `<strong>Tipo:</strong> ${client.type}` : "",
                     client.project ? `<strong>Projeto:</strong> ${client.project}` : "",
                     client.tags.length ? `<strong>Tags:</strong> ${client.tags.join(", ")}` : "",
@@ -1505,6 +1586,7 @@ function BrutoAtendimento() {
                           <div style={S.histPreview}>{s.preview || "Sem mensagens"}</div>
                           <div style={S.histMeta}>{s.msgCount} msgs · {new Date(s.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} {new Date(s.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
                         </div>
+                        <button style={S.histDelete} onClick={(e) => openEditClient(s, e)} title="Editar perfil do cliente"><Pencil size={10} strokeWidth={1.75}/></button>
                         <button style={S.histDelete} onClick={(e) => deleteSession(s.id, e)} title="Excluir"><Trash2 size={10} strokeWidth={1.75}/></button>
                       </div>
                     ));
@@ -1726,6 +1808,10 @@ function BrutoAtendimento() {
               <input style={S.formInput} value={tmpClient.name} onChange={(e) => setTmpClient({ ...tmpClient, name: e.target.value })} placeholder="Ex: João Silva"/>
             </div>
             <div style={S.formGroup}>
+              <label style={S.formLabel}>Telefone</label>
+              <input style={S.formInput} value={tmpClient.phone || ""} onChange={(e) => setTmpClient({ ...tmpClient, phone: e.target.value })} placeholder="Ex: (11) 99999-9999"/>
+            </div>
+            <div style={S.formGroup}>
               <label style={S.formLabel}>Tipo de Cliente</label>
               <select style={S.formInput} value={tmpClient.type} onChange={(e) => setTmpClient({ ...tmpClient, type: e.target.value })}>
                 <option value="">Selecionar...</option>
@@ -1742,6 +1828,48 @@ function BrutoAtendimento() {
               <input style={S.formInput} value={tmpClient.project} onChange={(e) => setTmpClient({ ...tmpClient, project: e.target.value })} placeholder="Ex: Casa moderna em São Paulo"/>
             </div>
             <button style={S.formButton} onClick={saveClient}>Salvar Perfil</button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL EDITAR PERFIL DE UMA CONVERSA DO HISTÓRICO (sem abrir a conversa) */}
+      {editClientModal && (
+        <div style={S.modalOverlay} onClick={() => { setEditClientModal(null); setEditClientFull(null); }}>
+          <div style={S.modalContent} onClick={(e) => e.stopPropagation()}>
+            <button style={S.modalClose} onClick={() => { setEditClientModal(null); setEditClientFull(null); }}><X size={16} strokeWidth={1.75}/></button>
+            <div style={S.modalTitle}>Editar Perfil do Cliente</div>
+            <p style={{ fontSize: 11, color: mid2, marginBottom: 12, lineHeight: 1.6 }}>
+              Ajusta só os dados do lead nessa conversa salva — não abre nem altera as mensagens.
+            </p>
+
+            <div style={S.formGroup}>
+              <label style={S.formLabel}>Nome</label>
+              <input style={S.formInput} value={editClientModal.name} onChange={(e) => setEditClientModal({ ...editClientModal, name: e.target.value })} placeholder="Ex: João Silva"/>
+            </div>
+            <div style={S.formGroup}>
+              <label style={S.formLabel}>Telefone</label>
+              <input style={S.formInput} value={editClientModal.phone || ""} onChange={(e) => setEditClientModal({ ...editClientModal, phone: e.target.value })} placeholder="Ex: (11) 99999-9999"/>
+            </div>
+            <div style={S.formGroup}>
+              <label style={S.formLabel}>Tipo de Cliente</label>
+              <select style={S.formInput} value={editClientModal.type} onChange={(e) => setEditClientModal({ ...editClientModal, type: e.target.value })}>
+                <option value="">Selecionar...</option>
+                <option value="arquiteto">Arquiteto/Designer</option>
+                <option value="construtor">Construtor</option>
+                <option value="revendedor">Revendedor</option>
+                <option value="residencial">Residencial (DIY)</option>
+                <option value="comercial">Comercial</option>
+                <option value="outro">Outro</option>
+              </select>
+            </div>
+            <div style={S.formGroup}>
+              <label style={S.formLabel}>Projeto (opcional)</label>
+              <input style={S.formInput} value={editClientModal.project} onChange={(e) => setEditClientModal({ ...editClientModal, project: e.target.value })} placeholder="Ex: Casa moderna em São Paulo"/>
+            </div>
+            {editClientErr && <div style={{ fontSize: 11, color: "#F09595", marginBottom: 10 }}>{editClientErr}</div>}
+            <button style={{ ...S.formButton, opacity: editClientBusy ? 0.6 : 1 }} onClick={saveEditClient} disabled={editClientBusy}>
+              {editClientBusy ? "Salvando..." : "Salvar Perfil"}
+            </button>
           </div>
         </div>
       )}
