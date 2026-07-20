@@ -44,7 +44,7 @@ import {
   Hammer, RotateCcw, CheckCircle2, Settings, Plug, Send,
   X, MessageCircle, Lightbulb, Copy, Check, History, Plus, Trash2, Download, Upload,
   Image as ImageIcon, Camera,
-  Target, ClipboardList, GraduationCap, Dices, MessageSquareShare,
+  Target, ClipboardList, GraduationCap, Dices, MessageSquareShare, Users,
 } from "lucide-react";
 
 // ── CONFIG DE DEPLOY (fora do Claude.ai) ───────────────────────────
@@ -523,6 +523,15 @@ function BrutoAtendimento() {
   const [adminViewAll, setAdminViewAll] = useState(false);
   const [adminIndex, setAdminIndex] = useState([]);
 
+  // ── GESTÃO DE USUÁRIOS (admin) ──────────────────────────────────────
+  const [userMgmtOpen, setUserMgmtOpen] = useState(false);
+  const [userMgmtList, setUserMgmtList] = useState([]);
+  const [userMgmtBusy, setUserMgmtBusy] = useState(false);
+  const [userMgmtErr, setUserMgmtErr] = useState("");
+  const [newUserUsuario, setNewUserUsuario] = useState("");
+  const [newUserNome, setNewUserNome] = useState("");
+  const [newUserPapel, setNewUserPapel] = useState("atendente");
+
   const msgEndRef = useRef(null);
   const saveTimerRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -581,6 +590,54 @@ function BrutoAtendimento() {
       } catch (_) {
         setAdminIndex([]);
       }
+    }
+  }
+
+  // ── GESTÃO DE USUÁRIOS (admin) ──────────────────────────────────────
+  async function openUserMgmt() {
+    setUserMgmtOpen(true);
+    setUserMgmtErr("");
+    await refreshUserMgmtList();
+  }
+
+  async function refreshUserMgmtList() {
+    try {
+      const data = await apiCall("api/usuarios.php", { acao: "listar" });
+      setUserMgmtList(data.usuarios || []);
+    } catch (e) {
+      setUserMgmtErr(e.message || "Não consegui carregar a lista de usuários.");
+    }
+  }
+
+  async function submitNewUser() {
+    const usuario = newUserUsuario.trim().toLowerCase();
+    const nome = newUserNome.trim();
+    if (!usuario || !nome || userMgmtBusy) return;
+    setUserMgmtBusy(true);
+    setUserMgmtErr("");
+    try {
+      await apiCall("api/usuarios.php", { acao: "criar", usuario, nome, papel: newUserPapel });
+      setNewUserUsuario("");
+      setNewUserNome("");
+      setNewUserPapel("atendente");
+      await refreshUserMgmtList();
+    } catch (e) {
+      setUserMgmtErr(e.message || "Não consegui cadastrar esse usuário.");
+    } finally {
+      setUserMgmtBusy(false);
+    }
+  }
+
+  async function toggleUserActive(id, activate) {
+    setUserMgmtBusy(true);
+    setUserMgmtErr("");
+    try {
+      await apiCall("api/usuarios.php", { acao: activate ? "reativar" : "desativar", id });
+      await refreshUserMgmtList();
+    } catch (e) {
+      setUserMgmtErr(e.message || "Não consegui atualizar esse usuário.");
+    } finally {
+      setUserMgmtBusy(false);
     }
   }
 
@@ -1237,6 +1294,9 @@ function BrutoAtendimento() {
             <button style={S.newChatBtn} onClick={startNewSession} title="Nova Conversa"><Plus size={13} strokeWidth={2}/> Nova</button>
             <button style={S.newChatBtn} onClick={() => setRecommendModalOpen(true)} title="Recomendar linha para um projeto"><Target size={13} strokeWidth={2}/> Recomendar</button>
             <button style={S.newChatBtn} onClick={openHandoffModal} title="Gerar resumo para WhatsApp"><ClipboardList size={13} strokeWidth={2}/> Resumo</button>
+            {currentUser.papel === "admin" && (
+              <button style={S.newChatBtn} onClick={openUserMgmt} title="Gestão de usuários"><Users size={13} strokeWidth={2}/> Usuários</button>
+            )}
             <div style={S.modeToggle(trainingMode)} onClick={() => { setTrainingMode((v) => !v); endTraining(); }} title="Modo Treino"><GraduationCap size={14} strokeWidth={1.75}/></div>
             <div style={S.modeToggle(mode === "consulta")} onClick={() => { setMode("consulta"); setDiagFlow(null); }} title="Modo Consulta"><HelpCircle size={14} strokeWidth={1.75}/></div>
             <div style={S.modeToggle(mode === "diagnostico")} onClick={() => setMode("diagnostico")} title="Modo Diagnóstico"><Stethoscope size={14} strokeWidth={1.75}/></div>
@@ -1746,6 +1806,62 @@ function BrutoAtendimento() {
               style={{ ...S.formInput, fontFamily: "monospace", fontSize: 10.5, height: 220, resize: "none", lineHeight: 1.5 }}
             />
             <ExportCopyBtn text={handoffModal} label="Copiar Resumo"/>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL GESTÃO DE USUÁRIOS (admin) */}
+      {userMgmtOpen && (
+        <div style={S.modalOverlay} onClick={() => setUserMgmtOpen(false)}>
+          <div style={{ ...S.modalContent, maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
+            <button style={S.modalClose} onClick={() => setUserMgmtOpen(false)}><X size={16} strokeWidth={1.75}/></button>
+            <div style={S.modalTitle}>Gestão de Usuários</div>
+            <p style={{ fontSize: 11, color: mid2, marginBottom: 12, lineHeight: 1.6 }}>
+              Isso cadastra a pessoa <strong style={{ color: white }}>dentro da ferramenta</strong> (nome e papel). A senha de acesso é separada — crie/edite primeiro em
+              {" "}<strong style={{ color: white }}>hPanel → Site → Avançado → Diretórios protegidos</strong>, usando o mesmo nome de usuário.
+            </p>
+
+            <div style={{ marginBottom: 16, paddingBottom: 14, borderBottom: `1px solid ${border}` }}>
+              <div style={S.formGroup}>
+                <label style={S.formLabel}>Usuário (igual ao do Basic Auth)</label>
+                <input style={S.formInput} value={newUserUsuario} onChange={(e) => setNewUserUsuario(e.target.value)} placeholder="ex: maria"/>
+              </div>
+              <div style={S.formGroup}>
+                <label style={S.formLabel}>Nome</label>
+                <input style={S.formInput} value={newUserNome} onChange={(e) => setNewUserNome(e.target.value)} placeholder="ex: Maria Souza"/>
+              </div>
+              <div style={S.formGroup}>
+                <label style={S.formLabel}>Papel</label>
+                <select style={S.formInput} value={newUserPapel} onChange={(e) => setNewUserPapel(e.target.value)}>
+                  <option value="atendente">Atendente</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+              {userMgmtErr && <div style={{ fontSize: 11, color: "#F09595", marginBottom: 10 }}>{userMgmtErr}</div>}
+              <button style={{ ...S.formButton, opacity: (userMgmtBusy || !newUserUsuario.trim() || !newUserNome.trim()) ? 0.6 : 1 }} onClick={submitNewUser} disabled={userMgmtBusy || !newUserUsuario.trim() || !newUserNome.trim()}>
+                Cadastrar usuário
+              </button>
+            </div>
+
+            <div style={S.formLabel}>Equipe atual</div>
+            <div style={{ maxHeight: 240, overflowY: "auto", marginTop: 8 }}>
+              {userMgmtList.length === 0 && <div style={{ fontSize: 11, color: mid2 }}>Nenhum usuário cadastrado ainda.</div>}
+              {userMgmtList.map((u) => (
+                <div key={u.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: `1px solid rgba(46,46,46,.5)` }}>
+                  <div>
+                    <div style={{ fontSize: 12, color: white, fontWeight: 600 }}>{u.nome} {u.papel === "admin" ? "★" : ""}</div>
+                    <div style={{ fontSize: 10, color: mid2 }}>{u.usuario} · {u.ativo ? "ativo" : "desativado"}</div>
+                  </div>
+                  <button
+                    style={{ ...S.histActionBtn, opacity: userMgmtBusy ? 0.5 : 1 }}
+                    disabled={userMgmtBusy}
+                    onClick={() => toggleUserActive(u.id, !u.ativo)}
+                  >
+                    {u.ativo ? "Desativar" : "Reativar"}
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
