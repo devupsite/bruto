@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Setup inicial — Bruto Atendimento</title>
+<style>
+  body { font-family: -apple-system, sans-serif; background: #0F0F0F; color: #F2F2F2; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+  .card { background: #1A1A1A; border: 1px solid #2E2E2E; border-radius: 10px; padding: 24px; width: 100%; max-width: 360px; }
+  h1 { font-size: 16px; margin: 0 0 4px; }
+  p { font-size: 12px; color: #888; margin: 0 0 18px; line-height: 1.6; }
+  label { display: block; font-size: 10px; text-transform: uppercase; color: #57999B; margin-bottom: 4px; font-weight: 600; }
+  input { width: 100%; box-sizing: border-box; padding: 8px 10px; margin-bottom: 12px; border-radius: 6px; border: 1px solid #2E2E2E; background: #2A2A2A; color: #fff; font-size: 13px; }
+  button { width: 100%; padding: 10px; border: none; border-radius: 6px; background: #57999B; color: #0F0F0F; font-weight: 600; cursor: pointer; }
+  #msg { font-size: 12px; margin-top: 12px; padding: 8px; border-radius: 6px; display: none; }
+  #msg.ok { display: block; background: rgba(74,222,128,.1); color: #4ADE80; }
+  #msg.err { display: block; background: rgba(226,75,74,.1); color: #F09595; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Setup inicial</h1>
+    <p>
+      Cria o primeiro administrador — a senha já foi conferida pelo navegador (Basic Auth)
+      antes desta página carregar; aqui só cadastramos seu usuário como admin.
+      Só funciona uma vez, enquanto a tabela estiver vazia. Depois disso, use
+      <code>usuarios.php</code> (ação "criar") como admin para cadastrar os demais atendentes.
+    </p>
+    <label>Seu nome (como deve aparecer na ferramenta)</label>
+    <input id="nome" placeholder="ex: Rafael">
+    <button onclick="criar()">Criar administrador</button>
+    <div id="msg"></div>
+  </div>
+  <script>
+    async function criar() {
+      const nome = document.getElementById('nome').value.trim();
+      const msg = document.getElementById('msg');
+      msg.className = ''; msg.style.display = 'none';
+      try {
+        const res = await fetch('api/usuarios.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ acao: 'criar', nome }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Erro desconhecido');
+        msg.textContent = 'Administrador criado! Já pode apagar este arquivo (setup.html) e acessar index.html.';
+        msg.className = 'ok';
+      } catch (e) {
+        msg.textContent = e.message;
+        msg.className = 'err';
+      }
+    }
+  </script>
+</body>
+</html>

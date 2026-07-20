@@ -1,0 +1,25 @@
+# ════════════════════════════════════════════════════════════════
+# .htaccess da RAIZ do subdomínio atendimento.brutoceramica.com.br
+# Pasta confirmada: /home/u764636502/domains/brutoceramica.com.br/public_html/atendimento
+# Segue o mesmo padrão já usado em /interno/ no domínio principal.
+# ════════════════════════════════════════════════════════════════
+
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+</IfModule>
+
+AuthType Basic
+AuthName "Acesso restrito — equipe BRUTO"
+# Caminho absoluto confirmado via hPanel (Subdomínios → coluna Diretório).
+# Alternativa mais segura, se preferir: Site → atendimento.brutoceramica.com.br
+# → Avançado → "Proteger diretórios com senha" — a Hostinger gera esse
+# .htaccess e o .htpasswd sozinha, sem risco de erro de caminho.
+AuthUserFile "/home/u764636502/domains/brutoceramica.com.br/bruto-secrets/atendimento.htpasswd"
+Require valid-user
+
+<Files ".htpasswd">
+  Require all denied
+</Files>
+<Files ".htaccess">
+  Require all denied
+</Files>
