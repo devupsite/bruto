@@ -2016,3 +2016,36 @@ tem nada a ver com sombra, é alinhamento de grid" e depois "compare com
 o brick", isso deveria ter sido o PRIMEIRO passo de qualquer investigação
 de bug visual entre páginas do mesmo template, não o último recurso
 depois de esgotar teorias sobre um componente específico.
+
+---
+
+## 46. ABERTURA DE FRENTE — Google Tags, otimização de páginas e SEO (20/07/2026)
+
+A Jessica definiu esta como a frente de trabalho principal entre sessões
+**a partir de agora até o lançamento do site**, substituindo o foco em
+texturização/paginação (itens 30-45, considerados maduros pra este
+momento — pendências residuais seguem registradas, mas não são mais
+prioridade). Três eixos:
+
+1. **Levantamento de todos os botões que devem receber tag do Google**
+   (Google Tag Manager / gtag — conversão, cliques de CTA). O
+   `GTM-XXXXXXX` no `index.html` é placeholder, ainda não é o container
+   real. Precisa: inventariar todo botão/link de conversão (WhatsApp,
+   "Solicitar amostra", "Falar com consultor", quiz, formulários,
+   precificador) em todas as páginas do site, decidir naming de eventos,
+   e implementar o disparo (data layer / gtag event) de forma consistente
+   — hoje não há nenhum disparo de evento customizado, só o snippet base.
+
+2. **Otimização das páginas** — performance (peso de imagens/CSS/JS,
+   lazy-loading, fetchpriority, cache), não só a texturização já feita.
+
+3. **Padrão de práticas de boa indexação no Google** — auditoria de SEO
+   técnico: meta tags, canonical, sitemap.xml, robots.txt, dados
+   estruturados (schema.org já usado em parte — ver item 27/32),
+   hierarquia de headings, alt de imagem, Core Web Vitals, mobile-first.
+
+**Próximo passo:** inventariar o estado atual dos 3 eixos antes de
+qualquer mudança (o que já existe vs. o que falta), documentar aqui como
+subitens antes de implementar.
+
+---
