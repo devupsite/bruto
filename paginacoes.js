@@ -23,7 +23,7 @@
         { id: 'brick-natura',                 nome: 'Natura',                w: 240, h: 70,
           texturas: ['brick-natura-face1.webp?v=3', 'brick-natura-face2.webp?v=3'] },
         { id: 'brick-rosso-prime',            nome: 'Rosso Prime',           w: 240, h: 65,
-          texturas: ['brick-rosso-prime-face1.webp?v=1', 'brick-rosso-prime-face2.webp?v=1'] },
+          texturas: ['brick-rosso-prime-face1.webp?v=2', 'brick-rosso-prime-face2.webp?v=2'] },
         { id: 'brick-rusticatto-sertao',      nome: 'Rusticatto do Sertão',  w: 255, h: 70,
           texturas: ['brick-rusticatto-sertao-face1.webp?v=4', 'brick-rusticatto-sertao-face2.webp?v=4'] },
         { id: 'brick-rusticatto-fume',        nome: 'Rusticatto Fumê',       w: 240, h: 65,

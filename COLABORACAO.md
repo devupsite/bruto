@@ -2178,3 +2178,21 @@ Usar usuário explícito `x-access-token` (em vez de só o token) e
 interativo se a credencial embutida na URL falhar por algum motivo —
 nesse caso ele erra rápido e claro (ex.: "Invalid username or token")
 em vez de travar com mensagem enganosa.
+
+---
+
+## 48. Correção de cor: Rosso Prime estava sem mescla com a galeria (20/07/2026)
+
+O Rafael reportou o Rosso Prime "mais escuro que o real" no simulador.
+Medição confirmou: ΔL de -64 contra a galeria (padrão esperado é -15 a
+-25, ver item 37) — essa textura (adicionada por outra sessão, não
+rastreada nos itens anteriores) nunca passou pela etapa de mescla de cor.
+Croma (a/b) já estava correto, então era puramente falta do passo E do
+item 38 (mescla com a galeria, força 0,75). R² baixo (0,14-0,18) confirma
+que não havia sombra direcional real a corrigir — só a mescla mesmo.
+Aplicada, ΔL foi para -16 nas duas faces. Junta empilhada 0,00, papel nas
+bordas ~0%. Cache-bust + bump v18.
+
+Lembrete: ao herdar/auditar textura de sessão desconhecida, sempre medir
+ΔL contra a galeria antes de assumir que está tudo certo — nem toda
+textura no repo passou pelo pipeline completo do item 38.
