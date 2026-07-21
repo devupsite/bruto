@@ -15,6 +15,7 @@
   var JSPDF_CDN = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
   var API_SALVAR_ORDEM = 'api/salvar-ordem.php';
   var API_LISTAR_ORDENS = 'api/listar-ordens.php';
+  var API_ATUALIZAR_STATUS = 'api/atualizar-status.php';
   var API_WHATSAPP_FORNECEDOR = 'api/whatsapp-fornecedor.php';
   var API_ENVIAR_EMAIL = 'api/enviar-email.php';
 
@@ -578,6 +579,17 @@
     return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   }
 
+  var STATUS_OPCOES = ['pendente', 'em produção', 'concluído', 'cancelado'];
+
+  function montarSelectStatus(id, statusAtual) {
+    var atual = statusAtual || 'pendente';
+    var opts = STATUS_OPCOES.map(function (s) {
+      var sel = s === atual ? ' selected' : '';
+      return '<option value="' + escapeHtml(s) + '"' + sel + '>' + escapeHtml(s) + '</option>';
+    }).join('');
+    return '<select class="os-hist-status" data-id="' + id + '" data-anterior="' + escapeHtml(atual) + '">' + opts + '</select>';
+  }
+
   function renderHistorico(ordens) {
     var el = document.getElementById('os-hist-conteudo');
     if (!ordens || ordens.length === 0) {
@@ -592,9 +604,9 @@
         '<td>' + escapeHtml(o.cliente_nome) + '</td>' +
         '<td>' + escapeHtml(o.criado_por || '—') + '</td>' +
         '<td>' + fmtDataHora(o.criado_em) + '</td>' +
-        '<td>' + qtdItens + ' item' + (qtdItens === 1 ? '' : 'ns') + '</td>' +
+        '<td>' + qtdItens + ' ' + (qtdItens === 1 ? 'item' : 'itens') + '</td>' +
         '<td>' + fmtMoeda(parseFloat(o.total_geral) || 0) + '</td>' +
-        '<td>' + escapeHtml(o.status || 'pendente') + '</td>' +
+        '<td>' + montarSelectStatus(o.id, o.status) + '</td>' +
         '</tr>'
       );
     }).join('');
@@ -605,6 +617,31 @@
       '</tr></thead>' +
       '<tbody>' + linhas + '</tbody>' +
       '</table>';
+  }
+
+  function atualizarStatus(select) {
+    var id = select.getAttribute('data-id');
+    var anterior = select.getAttribute('data-anterior');
+    var novo = select.value;
+    select.disabled = true;
+    fetch(API_ATUALIZAR_STATUS, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id, status: novo })
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data || !data.sucesso) throw new Error((data && data.erro) || 'Resposta inesperada.');
+        select.setAttribute('data-anterior', novo);
+      })
+      .catch(function () {
+        // Falhou — volta pro valor anterior e avisa.
+        select.value = anterior;
+        alert('Não consegui salvar esse status agora. Tente de novo.');
+      })
+      .then(function () {
+        select.disabled = false;
+      });
   }
 
   function carregarHistorico() {
@@ -638,6 +675,17 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && !overlay.hidden) overlay.hidden = true;
     });
+
+    // Delegado: a tabela é recriada a cada vez que o histórico recarrega,
+    // então o listener fica no container, não em cada <select>.
+    var conteudo = document.getElementById('os-hist-conteudo');
+    if (conteudo) {
+      conteudo.addEventListener('change', function (e) {
+        if (e.target && e.target.classList.contains('os-hist-status')) {
+          atualizarStatus(e.target);
+        }
+      });
+    }
   })();
 
   /* ── Inicialização ─────────────────────────────────────────────── */
