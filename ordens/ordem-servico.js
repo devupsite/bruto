@@ -248,18 +248,39 @@
   })();
 
   /* ── Gera o PDF da Ordem de Serviço ───────────────────────────── */
+  /* ── Logotipo BRUTO — mesmas coordenadas do SVG oficial do site
+     (viewBox "44 22 192 302"), redesenhado com retângulos porque
+     é só isso que o desenho usa: um bloco preto com duas "janelas"
+     brancas recortadas por cima, formando o B. ──────────────────── */
+  function desenharLogo(doc, x, y, largura) {
+    var viewBoxMinX = 44, viewBoxMinY = 22, viewBoxW = 192;
+    var escala = largura / viewBoxW;
+    function px(sx) { return x + (sx - viewBoxMinX) * escala; }
+    function py(sy) { return y + (sy - viewBoxMinY) * escala; }
+
+    doc.setFillColor(10, 10, 10);
+    doc.rect(px(52), py(30), (184 - 52) * escala, (162 - 30) * escala, 'F');
+    doc.rect(px(52), py(162), (228 - 52) * escala, (316 - 162) * escala, 'F');
+
+    doc.setFillColor(255, 255, 255);
+    doc.rect(px(74), py(52), (162 - 74) * escala, (162 - 52) * escala, 'F');
+    doc.rect(px(74), py(184), (206 - 74) * escala, (294 - 184) * escala, 'F');
+  }
+
   function gerarPDF(dados, numeroOS) {
     var jsPDF = window.jspdf.jsPDF;
     var doc = new jsPDF();
     var y = 20;
 
+    desenharLogo(doc, 20, 14, 9);
+
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
-    doc.text('BRUTO', 20, y);
+    doc.text('BRUTO', 33, y);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 100, 100);
-    doc.text('Curadoria de revestimentos artesanais', 20, y + 6);
+    doc.text('Curadoria de revestimentos artesanais', 33, y + 6);
 
     doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'bold');
