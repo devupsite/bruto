@@ -3,13 +3,13 @@
    Carregado nas páginas de produto (botão "Baixar PDF com meus dados").
 
    FORMSPREE_ENDPOINT configurado em 08/07/2026 (formspree.io/f/xbdveedy).
-   WHATSAPP_NUMBER — número real da BRUTO.
+   Número de WhatsApp vem do rodízio de atendentes — ver
+   whatsapp-atendimento.js (precisa carregar antes deste script).
 ════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
   var FORMSPREE_ENDPOINT = 'https://formspree.io/f/xbdveedy';
-  var WHATSAPP_NUMBER    = '5511990049468'; // número real (mesmo do footer e dos botões de produto)
   var JSPDF_CDN = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
   var HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 
@@ -332,11 +332,20 @@
       'Dimensões: ' + dados.largura + 'm × ' + dados.altura + 'm (' + dados.m2 + ')\n' +
       'Padrão: ' + dados.padrao + '\n' +
       'Valor estimado: ' + dados.valor;
-    var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
     if (window.brutoTrack) {
       window.brutoTrack('whatsapp_click', { link_text: 'calculadora-orcamento', produto: dados.linha + ' — ' + dados.produto, valor: dados.valor });
     }
-    window.open(url, '_blank');
+    // Abre a aba já (dentro do clique do usuário, senão o navegador
+    // bloqueia como pop-up) e só troca a URL dela quando o número
+    // do atendente distribuído chegar.
+    var janela = window.open('', '_blank');
+    if (window.brutoWhatsappHref) {
+      window.brutoWhatsappHref(msg).then(function (url) {
+        if (janela) { janela.location.href = url; } else { window.open(url, '_blank'); }
+      });
+    } else if (janela) {
+      janela.close();
+    }
   }
 
   function enviarFormspreeSimples(lead, origem) {
@@ -368,8 +377,17 @@
   function abrirWhatsAppGenerico(lead, nomeConteudo) {
     var msg = 'Olá! Sou ' + lead.nome + ' e acabei de baixar o ' + nomeConteudo +
       ' no site da BRUTO. Gostaria de mais informações.';
-    var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
-    window.open(url, '_blank');
+    // Abre a aba já (dentro do clique do usuário, senão o navegador
+    // bloqueia como pop-up) e só troca a URL dela quando o número
+    // do atendente distribuído chegar.
+    var janela = window.open('', '_blank');
+    if (window.brutoWhatsappHref) {
+      window.brutoWhatsappHref(msg).then(function (url) {
+        if (janela) { janela.location.href = url; } else { window.open(url, '_blank'); }
+      });
+    } else if (janela) {
+      janela.close();
+    }
   }
 
   /* ── Submit do formulário ─────────────────────────────────────── */

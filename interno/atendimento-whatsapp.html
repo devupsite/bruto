@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRUTO — Rodízio de Atendimento WhatsApp</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Barlow+Condensed:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --k:#0F0F0F;--k2:#1A1A1A;--k3:#242424;--k4:#2E2E2E;
+    --t:#57999B;--td:#3D7072;--tl:#8BBCBE;
+    --w:#F2F2F2;--g:#606060;--gl:#8A8A8A;
+    --ok:#5F9E6E;--err:#B9614F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--k)}
+  body{
+    font-family:'DM Sans',system-ui,sans-serif;font-weight:300;color:var(--w);
+    -webkit-font-smoothing:antialiased;min-height:100vh;
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:56px 20px;
+  }
+  .painel{width:100%;max-width:640px}
+  .wm{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:22px;letter-spacing:.24em;text-transform:uppercase;color:var(--w);margin-bottom:6px}
+  .subtitulo{font-family:'Syne',sans-serif;font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gl);margin-bottom:32px}
+  .card{
+    background:var(--k2);border:1px solid rgba(255,255,255,.06);
+    border-radius:4px;padding:22px 24px;margin-bottom:14px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+    transition:opacity .2s;
+  }
+  .card.inativo{opacity:.5}
+  .info h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;margin-bottom:6px;color:var(--w)}
+  .info .numero{font-size:13px;color:var(--gl);letter-spacing:.02em}
+  .info .stat{font-size:12px;color:var(--tl);margin-top:8px;letter-spacing:.02em}
+  .toggle{
+    position:relative;width:52px;height:28px;border-radius:20px;
+    background:var(--k4);border:none;cursor:pointer;flex-shrink:0;
+    transition:background .2s;
+  }
+  .toggle.ativo{background:var(--t)}
+  .toggle::after{
+    content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;
+    border-radius:50%;background:var(--w);transition:transform .2s;
+  }
+  .toggle.ativo::after{transform:translateX(24px)}
+  .toggle:disabled{cursor:wait;opacity:.6}
+  .badge{
+    font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;padding:3px 8px;border-radius:3px;margin-left:10px;
+  }
+  .badge.on{background:rgba(95,158,110,.15);color:var(--ok)}
+  .badge.off{background:rgba(185,97,79,.15);color:var(--err)}
+  .aviso{
+    font-size:13px;color:var(--err);margin-top:18px;padding:12px 14px;
+    background:rgba(185,97,79,.08);border:1px solid rgba(185,97,79,.2);border-radius:4px;
+    display:none;
+  }
+  .aviso.mostrar{display:block}
+  .rodape{margin-top:28px;font-size:12px;color:var(--g);line-height:1.6}
+  .carregando{color:var(--gl);font-size:13px;padding:20px 0}
+</style>
+</head>
+<body>
+
+<div class="painel">
+  <div class="wm">BRUTO</div>
+  <div class="subtitulo">Rodízio de atendimento — WhatsApp</div>
+
+  <div id="lista" class="carregando">Carregando atendentes…</div>
+
+  <div id="aviso" class="aviso"></div>
+
+  <div class="rodape">
+    Desativar um atendente tira ele do rodízio imediatamente — os próximos leads
+    vão só para quem estiver ativo. Precisa ter pelo menos 1 atendente ativo.
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var API_STATUS = 'atendimento-status.php';
+  var API_TOGGLE = 'atendimento-toggle.php';
+
+  var lista = document.getElementById('lista');
+  var aviso = document.getElementById('aviso');
+
+  function mostrarAviso(msg) {
+    aviso.textContent = msg;
+    aviso.classList.add('mostrar');
+  }
+  function esconderAviso() {
+    aviso.classList.remove('mostrar');
+  }
+
+  function renderizar(dados) {
+    lista.innerHTML = '';
+    dados.atendentes.forEach(function (a) {
+      var card = document.createElement('div');
+      card.className = 'card' + (a.ativo ? '' : ' inativo');
+
+      var info = document.createElement('div');
+      info.className = 'info';
+      info.innerHTML =
+        '<h3>' + a.nome +
+          '<span class="badge ' + (a.ativo ? 'on' : 'off') + '">' + (a.ativo ? 'Ativo' : 'Inativo') + '</span>' +
+        '</h3>' +
+        '<div class="numero">' + a.numero + '</div>' +
+        '<div class="stat">' + (a.total || 0) + ' leads recebidos no rodízio</div>';
+
+      var btn = document.createElement('button');
+      btn.className = 'toggle' + (a.ativo ? ' ativo' : '');
+      btn.setAttribute('aria-label', 'Ativar/desativar ' + a.nome);
+      btn.addEventListener('click', function () {
+        alternar(a.id, !a.ativo, btn);
+      });
+
+      card.appendChild(info);
+      card.appendChild(btn);
+      lista.appendChild(card);
+    });
+  }
+
+  function carregar() {
+    fetch(API_STATUS, { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (dados) {
+        renderizar(dados);
+      })
+      .catch(function () {
+        lista.innerHTML = '';
+        mostrarAviso('Não foi possível carregar os atendentes agora. Recarregue a página.');
+      });
+  }
+
+  function alternar(id, novoEstado, btn) {
+    esconderAviso();
+    btn.disabled = true;
+    fetch(API_TOGGLE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id, ativo: novoEstado })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (resposta) {
+        if (!resposta || !resposta.ok) {
+          mostrarAviso(resposta && resposta.erro ? resposta.erro : 'Não foi possível salvar a alteração.');
+        }
+        carregar();
+      })
+      .catch(function () {
+        mostrarAviso('Não foi possível salvar a alteração agora. Tente de novo.');
+        btn.disabled = false;
+      });
+  }
+
+  carregar();
+})();
+</script>
+
+</body>
+</html>

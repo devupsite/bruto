@@ -10,7 +10,6 @@
 (function () {
   'use strict';
 
-  var WHATSAPP_NUMBER = '5511990049468';
   var THRESHOLD = 120; // px de rolagem antes de aparecer
 
   function montarMensagem() {
@@ -32,7 +31,12 @@
     '<span>Falar no WhatsApp</span>';
 
   function montarHref() {
-    bar.href = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(montarMensagem());
+    if (!window.brutoWhatsappHref) {
+      return; // whatsapp-atendimento.js precisa carregar antes deste script
+    }
+    window.brutoWhatsappHref(montarMensagem()).then(function (url) {
+      bar.href = url;
+    });
   }
 
   document.addEventListener('DOMContentLoaded', function () {

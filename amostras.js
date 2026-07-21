@@ -14,7 +14,6 @@
   'use strict';
 
   var FORMSPREE_ENDPOINT = 'https://formspree.io/f/xbdveedy';
-  var WHATSAPP_NUMBER    = '5511990049468';
   var STORAGE_KEY         = 'bruto_amostras_bag';
   var MAX_ITENS           = 3;
 
@@ -339,11 +338,20 @@
         '\n' + sacola.map(function (item) { return '• ' + item.linha + ' — ' + item.nome; }).join('\n') + '\n' +
         '\nCEP: ' + lead.cep +
         '\nEndereço: ' + lead.endereco;
-      var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
       if (window.brutoTrack) {
         window.brutoTrack('whatsapp_click', { link_text: 'sacola-amostras', amostras: nomesProdutos });
       }
-      window.open(url, '_blank');
+      // Abre a aba já (dentro do clique do usuário, senão o navegador
+      // bloqueia como pop-up) e só troca a URL dela quando o número
+      // do atendente distribuído chegar.
+      var janela = window.open('', '_blank');
+      if (window.brutoWhatsappHref) {
+        window.brutoWhatsappHref(msg).then(function (url) {
+          if (janela) { janela.location.href = url; } else { window.open(url, '_blank'); }
+        });
+      } else if (janela) {
+        janela.close();
+      }
 
       // Limpa a sacola após o pedido confirmado
       sacola = [];
