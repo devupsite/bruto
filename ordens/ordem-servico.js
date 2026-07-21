@@ -13,9 +13,9 @@
   'use strict';
 
   var JSPDF_CDN = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
-  var API_SALVAR_ORDEM = 'https://brutoceramica.com.br/api/salvar-ordem.php';
-  var API_WHATSAPP_FORNECEDOR = 'https://brutoceramica.com.br/api/whatsapp-fornecedor.php';
-  var API_ENVIAR_EMAIL = 'https://brutoceramica.com.br/api/enviar-email.php';
+  var API_SALVAR_ORDEM = 'api/salvar-ordem.php';
+  var API_WHATSAPP_FORNECEDOR = 'api/whatsapp-fornecedor.php';
+  var API_ENVIAR_EMAIL = 'api/enviar-email.php';
 
   var CATALOGO = [
     { slug: "brick-eco-palha", categoria: "Brick", nome: "Eco Palha", sku: "57", preco: 153.90, dimensoes: "270mm x 70mm x 15mm" },

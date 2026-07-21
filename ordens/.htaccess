@@ -1,0 +1,23 @@
+# ════════════════════════════════════════════════════════════════
+# .htaccess da RAIZ do subdomínio ordens.brutoceramica.com.br
+# Pasta esperada (confirmar no hPanel ao criar o subdomínio):
+# /home/u764636502/domains/brutoceramica.com.br/public_html/ordens
+# Segue o mesmo padrão já usado em /interno/ e /atendimento/.
+# ════════════════════════════════════════════════════════════════
+
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+</IfModule>
+
+AuthType Basic
+AuthName "Acesso restrito — equipe BRUTO"
+# Caminho confirmado no hPanel (Subdomínios → coluna Diretório).
+AuthUserFile "/home/u764636502/domains/brutoceramica.com.br/bruto-secrets/ordens.htpasswd"
+Require valid-user
+
+<Files ".htpasswd">
+  Require all denied
+</Files>
+<Files ".htaccess">
+  Require all denied
+</Files>
