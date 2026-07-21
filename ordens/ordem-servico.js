@@ -488,7 +488,8 @@
       body: JSON.stringify({
         numero_os: numeroOS,
         corpo_texto: msg,
-        pdf_base64: pdfBase64
+        pdf_base64: pdfBase64,
+        email_cliente: dados.email || ''
       })
     }).catch(function (err) {
       // Falha silenciosa: PDF, WhatsApp e banco já funcionaram normalmente,
