@@ -2094,3 +2094,65 @@ ou adicionar `Disallow: /ordem-servico.html` explícito no `robots.txt`.
 Pendente de decisão antes do lançamento.
 
 ---
+
+---
+
+## 46. Primeira rodada de fotos reais em Cimentício/Rockface (19-20/07/2026)
+
+Trabalho noturno solicitado pelo Rafael — mesmo pipeline do item 38,
+primeira vez aplicado fora da coleção Brick. Peças recebidas com
+etiqueta trocada pelo próprio Rafael (corrigido antes de processar):
+o arquivo "cimentício-brisa.jpg" é na verdade **Cimentício Grigio**, e
+"rockface-urban" é na verdade **Rockface Grigio**. Ficou faltando
+**Rockface Urban** (nenhuma foto recebida ainda).
+
+**Diferença importante deste lote em relação ao Brick, registrada pra
+quem for processar o próximo:** as peças de Cimentício/Rockface são
+CINZA/CLARAS e **menos saturadas que o próprio papel** — o oposto do
+Brick (onde a terracota colorida sempre contrastava mais que o papel
+neutro). Isso quebra a suposição-base do item 38: o teste de "papel nas
+bordas" (V>150 & S<55 em HSV) não discrimina peça clara de papel aqui —
+disparava ~100% mesmo bem no miolo da peça em 2 dos 6 casos. Uma segunda
+métrica (variância local do Laplaciano — papel é liso, peça tem grão)
+ajudou mas também não é infalível para peças muito lisas/foscas.
+
+**Resultado: 4 de 6 processadas com sucesso e publicadas com foto real**
+(validadas por textura, convergência estável em busca adaptativa de
+recorte, ΔL/mescla de cor com a galeria):
+- Cimentício Grigio, Cimentício Urban
+- Rockface Brisa, Rockface Grigio
+
+**2 ficaram DE FORA da textura real por falta de confiança no recorte —
+Cimentício Alpino e Rockface Alpino permanecem na janela reveladora
+(como estavam antes, sem regressão)**: em ambos os casos a foto da peça
+"Alpino" (a cor mais clara de cada linha) tem contraste baixo demais com
+o papel pra qualquer um dos dois testes (cor ou textura) convergir com
+segurança — testado com busca adaptativa até recuo de 47% de cada lado,
+sem nunca zerar a contaminação. Antes de tentar de novo: fotografar essas
+duas com um fundo de MAIOR contraste (papel cinza-médio ou preto, em vez
+de branco — inverte o problema a favor da peça clara) resolveria isso na
+raiz, mais eficiente que insistir em processamento.
+
+**Cada produto veio com 1 peça só** (não 2+ como o padrão do Brick) — o
+giro de 180° do render ainda dá 2 variantes, mas é o mínimo aceitável.
+
+**Medidas**: sem régua nesta rodada — mantidas as dimensões genéricas já
+cadastradas (Cimentício 260×75mm, Rockface 290×95mm exceto Brisa
+260×75mm). A proporção medida nas fotos do Cimentício (~1,4:1, em duas
+peças independentes, convergindo entre si) destoa bastante do 260×75
+(3,47:1) cadastrado — pode ser imprecisão do meu recorte automático (não
+capturou o comprimento total da peça) OU o 260×75 genérico nunca foi
+medido de verdade. Vale conferir com a régua na próxima leva.
+
+**Pendências para o Rafael revisar amanhã:**
+1. Conferir visualmente Cimentício Grigio/Urban e Rockface Brisa/Grigio
+   no site — essas 4 não puderam ser confirmadas visualmente nesta sessão
+   (limitação pontual de visualização de imagem do ambiente).
+2. Decidir sobre Cimentício Alpino e Rockface Alpino — fotografar de novo
+   com fundo mais escuro, ou aceitar que fiquem na janela reveladora por
+   ora.
+3. Rockface Urban ainda sem foto nenhuma.
+4. Medir com régua as peças de Cimentício/Rockface quando possível.
+
+Cache-bust não se aplicou nas texturas em si (arquivos novos, sem versão
+anterior pra invalidar) — só bump do paginacoes.js.
