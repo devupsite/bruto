@@ -280,6 +280,30 @@
       .os-items-table td { border-bottom: none; padding: 6px 0; }
       .os-submit-row .btn { width: 100%; }
     }
+    .os-hist-overlay {
+      position: fixed; inset: 0; background: rgba(20,18,16,.55);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px; z-index: 200;
+    }
+    .os-hist-modal {
+      background: #fff; border-radius: 8px; width: 100%; max-width: 920px;
+      max-height: 82vh; overflow: auto; padding: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    }
+    .os-hist-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .os-hist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .os-hist-table th {
+      text-align: left; font-family: var(--f-body); font-size: 11px;
+      text-transform: uppercase; letter-spacing: .06em; color: var(--titanio);
+      border-bottom: 1px solid var(--line); padding: 8px 10px;
+    }
+    .os-hist-table td {
+      padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top;
+    }
+    .os-hist-empty, .os-hist-loading { padding: 24px; text-align: center; color: var(--titanio); }
   </style>
 </head>
 <body>
@@ -304,6 +328,9 @@
     <div class="os-header-row">
       <h1 class="display-title" style="font-size: clamp(28px, 4vw, 38px);">Nova Ordem de Serviço</h1>
       <span class="os-numero" id="os-numero-atual">OS-0001</span>
+      <button type="button" class="btn btn--outline" id="os-historico-btn" style="margin-left:auto">
+        <i class="ti ti-history" aria-hidden="true"></i> Histórico
+      </button>
     </div>
     <p class="os-sub">
       Digite os dados de um pedido recebido pelo WhatsApp. Ao gerar, a
@@ -437,6 +464,21 @@
     </tr>
   </template>
 
-  <script defer src="ordem-servico.js?v=2"></script>
+  <!-- ── Histórico de Ordens de Serviço ────────────────────── -->
+  <div class="os-hist-overlay" id="os-hist-overlay" hidden>
+    <div class="os-hist-modal">
+      <div class="os-hist-header">
+        <h2 class="os-section__title" style="margin:0">Histórico de Ordens de Serviço</h2>
+        <button type="button" class="btn btn--outline" id="os-hist-fechar">
+          <i class="ti ti-x" aria-hidden="true"></i> Fechar
+        </button>
+      </div>
+      <div id="os-hist-conteudo">
+        <div class="os-hist-loading">Carregando...</div>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="ordem-servico.js?v=3"></script>
 </body>
 </html>

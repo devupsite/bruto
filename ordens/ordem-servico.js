@@ -14,6 +14,7 @@
 
   var JSPDF_CDN = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
   var API_SALVAR_ORDEM = 'api/salvar-ordem.php';
+  var API_LISTAR_ORDENS = 'api/listar-ordens.php';
   var API_WHATSAPP_FORNECEDOR = 'api/whatsapp-fornecedor.php';
   var API_ENVIAR_EMAIL = 'api/enviar-email.php';
 
@@ -560,6 +561,84 @@
         btnGerar.innerHTML = '<i class="ti ti-file-download" aria-hidden="true"></i> Gerar Ordem de Serviço';
       });
   });
+
+  /* ── Histórico de Ordens de Serviço ───────────────────────────── */
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function fmtDataHora(str) {
+    if (!str) return '—';
+    // vem do banco como "YYYY-MM-DD HH:MM:SS" — Safari não faz parse
+    // disso direto, então troca o espaço por "T" antes.
+    var d = new Date(str.replace(' ', 'T'));
+    if (isNaN(d.getTime())) return str;
+    return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderHistorico(ordens) {
+    var el = document.getElementById('os-hist-conteudo');
+    if (!ordens || ordens.length === 0) {
+      el.innerHTML = '<div class="os-hist-empty">Nenhuma ordem de serviço registrada ainda.</div>';
+      return;
+    }
+    var linhas = ordens.map(function (o) {
+      var qtdItens = (o.itens && o.itens.length) || 0;
+      return (
+        '<tr>' +
+        '<td><strong>' + escapeHtml(o.numero_os) + '</strong></td>' +
+        '<td>' + escapeHtml(o.cliente_nome) + '</td>' +
+        '<td>' + escapeHtml(o.criado_por || '—') + '</td>' +
+        '<td>' + fmtDataHora(o.criado_em) + '</td>' +
+        '<td>' + qtdItens + ' item' + (qtdItens === 1 ? '' : 'ns') + '</td>' +
+        '<td>' + fmtMoeda(parseFloat(o.total_geral) || 0) + '</td>' +
+        '<td>' + escapeHtml(o.status || 'pendente') + '</td>' +
+        '</tr>'
+      );
+    }).join('');
+    el.innerHTML =
+      '<table class="os-hist-table">' +
+      '<thead><tr>' +
+      '<th>Nº OS</th><th>Cliente</th><th>Enviado por</th><th>Data/hora</th><th>Itens</th><th>Total</th><th>Status</th>' +
+      '</tr></thead>' +
+      '<tbody>' + linhas + '</tbody>' +
+      '</table>';
+  }
+
+  function carregarHistorico() {
+    var el = document.getElementById('os-hist-conteudo');
+    el.innerHTML = '<div class="os-hist-loading">Carregando...</div>';
+    fetch(API_LISTAR_ORDENS + '?limite=100')
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (!data || !data.sucesso) throw new Error((data && data.erro) || 'Resposta inesperada.');
+        renderHistorico(data.ordens);
+      })
+      .catch(function () {
+        el.innerHTML = '<div class="os-hist-empty">Não consegui carregar o histórico agora. Tente novamente.</div>';
+      });
+  }
+
+  (function initHistorico() {
+    var overlay = document.getElementById('os-hist-overlay');
+    var btnAbrir = document.getElementById('os-historico-btn');
+    var btnFechar = document.getElementById('os-hist-fechar');
+    if (!overlay || !btnAbrir) return;
+
+    btnAbrir.addEventListener('click', function () {
+      overlay.hidden = false;
+      carregarHistorico();
+    });
+    btnFechar.addEventListener('click', function () { overlay.hidden = true; });
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) overlay.hidden = true;
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !overlay.hidden) overlay.hidden = true;
+    });
+  })();
 
   /* ── Inicialização ─────────────────────────────────────────────── */
   document.getElementById('os-numero-atual').textContent = 'Nova OS';
