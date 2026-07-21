@@ -2156,3 +2156,25 @@ medido de verdade. Vale conferir com a régua na próxima leva.
 
 Cache-bust não se aplicou nas texturas em si (arquivos novos, sem versão
 anterior pra invalidar) — só bump do paginacoes.js.
+
+---
+
+## 47. Nota técnica: formato de push que funciona de forma confiável (20/07/2026)
+
+O padrão usado até aqui (`git push https://TOKEN@github.com/...`) falhou
+silenciosamente numa sessão (19/07 à noite) com erros confusos
+("terminal prompts disabled", "No such device or address") mesmo com
+token válido — aparentemente um problema de resolução de credencial do
+git nesse ambiente específico, não do GitHub. `git fetch` com a mesma
+URL funcionava (repo é público, leitura não exige auth de verdade),
+mascarando o problema até a hora do push.
+
+**Formato que resolve de forma confiável:**
+```
+GIT_ASKPASS=/bin/true git push "https://x-access-token:TOKEN@github.com/devupsite/bruto.git" main
+```
+Usar usuário explícito `x-access-token` (em vez de só o token) e
+`GIT_ASKPASS=/bin/true` pra garantir que git nunca tente prompt
+interativo se a credencial embutida na URL falhar por algum motivo —
+nesse caso ele erra rápido e claro (ex.: "Invalid username or token")
+em vez de travar com mensagem enganosa.
