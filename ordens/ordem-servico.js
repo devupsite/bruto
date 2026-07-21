@@ -35,8 +35,7 @@
     { slug: "cimenticio-urban", categoria: "Cimentício", nome: "Urban", sku: "82", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
     { slug: "rockface-alpino", categoria: "Rockface", nome: "Alpino", sku: "91", preco: 252.90, dimensoes: "290mm x 95mm x 20mm" },
     { slug: "rockface-brisa", categoria: "Rockface", nome: "Brisa", sku: "90", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
-    { slug: "rockface-grigio", categoria: "Rockface", nome: "Grigio", sku: "92", preco: 252.90, dimensoes: "290mm x 95mm x 20mm" },
-    { slug: "rockface-urban", categoria: "Rockface", nome: "Urban", sku: "93", preco: 252.90, dimensoes: "290mm x 95mm x 20mm" }
+    { slug: "rockface-grigio", categoria: "Rockface", nome: "Grigio", sku: "92", preco: 252.90, dimensoes: "290mm x 95mm x 20mm" }
   ];
 
   var PADROES = [

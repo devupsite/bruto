@@ -16,7 +16,6 @@
     { "slug": "cimenticio-urban",           "nome": "Urban",                 "linha": "cimenticio", "sku": 82, "preco": 186.90, "dimensoes_mm": [260, 75, 10] },
     { "slug": "rockface-alpino",            "nome": "Alpino",                "linha": "rockface",   "sku": 91, "preco": 252.90, "dimensoes_mm": [290, 95, 20] },
     { "slug": "rockface-brisa",             "nome": "Brisa",                 "linha": "rockface",   "sku": 90, "preco": 186.90, "dimensoes_mm": [260, 75, 10] },
-    { "slug": "rockface-grigio",            "nome": "Grigio",                "linha": "rockface",   "sku": 92, "preco": 252.90, "dimensoes_mm": [290, 95, 20] },
-    { "slug": "rockface-urban",             "nome": "Urban",                 "linha": "rockface",   "sku": 93, "preco": 252.90, "dimensoes_mm": [290, 95, 20] }
+    { "slug": "rockface-grigio",            "nome": "Grigio",                "linha": "rockface",   "sku": 92, "preco": 252.90, "dimensoes_mm": [290, 95, 20] }
   ]
 }

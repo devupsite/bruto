@@ -53,8 +53,7 @@
         { id: 'rockface-brisa',  nome: 'Brisa',  w: 260, h: 75,
           texturas: ['rockface-brisa-face1.webp'] },
         { id: 'rockface-grigio', nome: 'Grigio', w: 290, h: 95,
-          texturas: ['rockface-grigio-face1.webp'] },
-        { id: 'rockface-urban',  nome: 'Urban',  w: 290, h: 95 }
+          texturas: ['rockface-grigio-face1.webp'] }
       ]
     }
   };
