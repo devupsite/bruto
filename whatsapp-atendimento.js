@@ -26,12 +26,25 @@
    FALLBACK_NUMEROS abaixo) — o site nunca fica sem botão de
    WhatsApp funcionando, só perde a garantia de equilíbrio entre
    visitantes diferentes enquanto o servidor estiver fora.
+
+   5) Rastreio de origem (22/07/2026): captura gclid (Google Ads) e
+      utm_source/medium/campaign da URL na primeira página vista,
+      guarda em sessionStorage (first-touch — não sobrescreve se o
+      visitante já entrou por um clique de anúncio nesta sessão).
+      Ao montar o texto de cada botão de WhatsApp, embute um código
+      de referência curto (produto_tipo-cta_origem_hash) na própria
+      mensagem, e dispara um beacon pra api/registrar-lead.php com
+      esses dados + o atendente sorteado, ANTES de abrir o WhatsApp
+      — é isso que permite cruzar depois: clique de anúncio (gclid)
+      -> lead específico -> atendente -> resultado da conversa.
 ════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
   var API_URL = 'api/whatsapp-atendimento.php';
+  var LEAD_URL = 'api/registrar-lead.php';
   var STORAGE_KEY = 'bruto_whatsapp_atendimento';
+  var ADS_STORAGE_KEY = 'bruto_ads_contexto';
 
   // Fallback local caso a API de rodízio caia ou a rede falhe.
   // Hoje o rodízio tem 2 posições: o número Bruto (5511990049468,
@@ -42,6 +55,94 @@
   var FALLBACK_NUMEROS = ['5511990049468'];
 
   var promessaNumero = null;
+
+  // ─── Contexto de anúncio (gclid/UTM) — first-touch por sessão ───
+
+  function lerContextoAds() {
+    try {
+      var raw = sessionStorage.getItem(ADS_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function capturarContextoAds() {
+    var existente = lerContextoAds();
+    if (existente) return existente; // first-touch: já tem, não sobrescreve
+
+    var params;
+    try {
+      params = new URLSearchParams(window.location.search);
+    } catch (e) {
+      return null;
+    }
+
+    var gclid = params.get('gclid');
+    var utmSource = params.get('utm_source');
+    var utmMedium = params.get('utm_medium');
+    var utmCampaign = params.get('utm_campaign');
+
+    if (!gclid && !utmSource) return null; // visita direta, sem rastro de campanha
+
+    var contexto = {
+      gclid: gclid || null,
+      utm_source: utmSource || null,
+      utm_medium: utmMedium || null,
+      utm_campaign: utmCampaign || null,
+      origem: gclid ? 'google-ads' : (utmSource || 'desconhecida'),
+      capturado_em: new Date().toISOString()
+    };
+
+    try {
+      sessionStorage.setItem(ADS_STORAGE_KEY, JSON.stringify(contexto));
+    } catch (e) { /* sessionStorage indisponível — segue sem persistir */ }
+
+    return contexto;
+  }
+
+  // ─── Código de referência por clique (produto_cta_origem_hash) ───
+
+  function slugProduto() {
+    var nome = window.location.pathname
+      .replace(/^\/|\/$/g, '')
+      .replace(/\.html?$/i, '')
+      .replace(/^produto-/, '') || 'home';
+    return nome;
+  }
+
+  function hashCurto() {
+    return Math.random().toString(36).slice(2, 6);
+  }
+
+  function gerarCodigoReferencia(ctaTipo) {
+    var contexto = lerContextoAds();
+    var origem = (contexto && contexto.origem) || 'direto';
+    return [slugProduto(), ctaTipo || 'whatsapp', origem, hashCurto()].join('_');
+  }
+
+  // Beacon fire-and-forget — não bloqueia a abertura do WhatsApp,
+  // não trava a navegação se falhar (best-effort, mesmo padrão de
+  // resiliência do restante deste arquivo).
+  function registrarLead(codigoReferencia, dadosAtendente) {
+    try {
+      var payload = JSON.stringify({
+        codigo_referencia: codigoReferencia,
+        atendente: (dadosAtendente && dadosAtendente.atendente) || null,
+        numero: (dadosAtendente && dadosAtendente.numero) || null,
+        gclid: (lerContextoAds() || {}).gclid || null,
+        pagina: window.location.pathname,
+        criado_em: new Date().toISOString()
+      });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(LEAD_URL, new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch(LEAD_URL, { method: 'POST', body: payload, keepalive: true, headers: { 'Content-Type': 'application/json' } });
+      }
+    } catch (e) {
+      console.warn('bruto: não foi possível registrar o lead (rastreio), WhatsApp segue normalmente:', e);
+    }
+  }
 
   function lerCache() {
     try {
@@ -94,10 +195,15 @@
   }
 
   // Retorna uma Promise que resolve com o link completo já pronto,
-  // ex: window.brutoWhatsappHref('Olá! Gostaria de...')
-  function montarLink(texto) {
+  // ex: window.brutoWhatsappHref('Olá! Gostaria de...', 'consultor')
+  // ctaTipo é opcional (ex.: 'amostra', 'consultor', 'quiz') — usado
+  // só pra compor o código de referência; se omitido, cai em 'whatsapp'.
+  function montarLink(texto, ctaTipo) {
     return buscarNumero().then(function (dados) {
-      return 'https://wa.me/' + dados.numero + '?text=' + encodeURIComponent(texto);
+      var codigo = gerarCodigoReferencia(ctaTipo);
+      registrarLead(codigo, dados);
+      var textoComRef = texto + '\n[ref:' + codigo + ']';
+      return 'https://wa.me/' + dados.numero + '?text=' + encodeURIComponent(textoComRef);
     });
   }
 
@@ -105,6 +211,24 @@
     var links = document.querySelectorAll('a[href*="wa.me/"]');
     links.forEach(function (link) {
       link.href = link.href.replace(/wa\.me\/\d+/, 'wa.me/' + dados.numero);
+
+      // Adiciona o código de referência ao texto já existente no link
+      // (sem sobrescrever a mensagem original) e embute o beacon de
+      // clique, sem travar a navegação se o beacon falhar.
+      try {
+        var url = new URL(link.href);
+        var textoOriginal = url.searchParams.get('text') || '';
+        var ctaTipo = link.dataset.cta || null; // opcional: data-cta="amostra" no HTML
+        var codigo = gerarCodigoReferencia(ctaTipo);
+        url.searchParams.set('text', textoOriginal + '\n[ref:' + codigo + ']');
+        link.href = url.toString();
+        link.addEventListener('click', function () {
+          registrarLead(codigo, dados);
+        }, { once: true });
+      } catch (e) {
+        // Se algo falhar aqui, o link já reescrito com o número certo
+        // continua funcionando normalmente — só perde o rastreio.
+      }
     });
   }
 
@@ -112,6 +236,7 @@
   window.brutoWhatsappHref = montarLink;
 
   document.addEventListener('DOMContentLoaded', function () {
+    capturarContextoAds();
     buscarNumero().then(function (dados) {
       reescreverLinksEstaticos(dados);
       if (window.brutoTrack) {
