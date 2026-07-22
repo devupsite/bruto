@@ -1136,14 +1136,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       function transitionTo(changeFn) {
         resetZoom();
         lbImg.classList.add('is-changing');
-        const swap = () => {
+        let done = false;
+        const fallback = setTimeout(() => swap(), 400); // acima da maior duração de transição (.35s)
+        function swap() {
+          if (done) return; // garante que a troca só acontece 1 vez,
+          done = true;       // não importa qual gatilho (transitionend ou timeout) chegue primeiro
+          clearTimeout(fallback);
+          lbImg.removeEventListener('transitionend', swap);
           changeFn();
           updateLb();
           // próximo frame: solta a classe pra animar a entrada
           requestAnimationFrame(() => lbImg.classList.remove('is-changing'));
-        };
-        lbImg.addEventListener('transitionend', swap, { once: true });
-        setTimeout(() => { if (lbImg.classList.contains('is-changing')) swap(); }, 260);
+        }
+        lbImg.addEventListener('transitionend', swap);
       }
 
       function openLb() {
