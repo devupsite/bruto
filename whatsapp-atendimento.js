@@ -111,14 +111,16 @@
     return nome;
   }
 
-  function hashCurto() {
-    return Math.random().toString(36).slice(2, 6);
-  }
-
   function gerarCodigoReferencia(ctaTipo) {
     var contexto = lerContextoAds();
     var origem = (contexto && contexto.origem) || 'direto';
-    return [slugProduto(), ctaTipo || 'whatsapp', origem, hashCurto()].join('_');
+    // Fixo por produto/botão/origem — sem parte aleatória. Cada lead
+    // continua identificado de forma única no leads.jsonl pela
+    // combinação código + recebido_em (horário do servidor), então
+    // não precisa de hash aqui — e assim o mesmo botão sempre gera o
+    // mesmo código, dá pra agrupar "quantos leads esse botão trouxe"
+    // sem precisar interpretar o código.
+    return [slugProduto(), ctaTipo || 'whatsapp', origem].join('_');
   }
 
   // Beacon fire-and-forget — não bloqueia a abertura do WhatsApp,

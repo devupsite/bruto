@@ -2453,3 +2453,24 @@ provavelmente têm entradas fantasma de `whatsapp_direto` de visitas sem
 clique real — não dá pra distinguir retroativamente sem mais contexto.
 Se o Rafael notar volume de leads muito acima do esperado no histórico
 antigo, essa é a explicação.
+
+---
+
+## 57. Código de referência fixo por botão, sem hash aleatório (22/07/2026)
+
+O Rafael notou que o mesmo botão gerava um código de referência
+diferente a cada clique, e perguntou se não deveria ser fixo por
+botão. Fazia sentido: `gerarCodigoReferencia()` incluía um
+`hashCurto()` (4 caracteres aleatórios) só pra garantir unicidade —
+mas essa unicidade já vem de graça da combinação
+`codigo_referencia + recebido_em` usada em `marcar-lead.php` pra
+identificar cada lead individualmente. O hash não tinha função real e
+só atrapalhava: impedia agrupar "quantos leads esse botão específico já
+trouxe" no painel, já que cada clique virava um código diferente mesmo
+sendo o mesmo botão.
+
+Removido `hashCurto()`; código agora é fixo por
+produto/tipo-de-botão/origem (ex.: `index_amostra-header_direto`
+sempre igual pro mesmo botão). Identificação individual de cada lead no
+`leads.jsonl` continua garantida pelo horário (`recebido_em`), sem
+perda nenhuma. Cache-bust: `whatsapp-atendimento.js` v3→v4.
