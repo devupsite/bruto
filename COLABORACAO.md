@@ -2352,3 +2352,19 @@ número real só chega depois, via rodízio), e a lógica que marca
 href — então o WhatsApp nunca era marcado, mesmo depois do href ser
 trocado pelo `wa.me` de verdade. Corrigido: todo link da parede agora
 sempre abre em nova aba, incondicionalmente.
+
+---
+
+## 54. Reconciliação: painel de atendentes e pontes adicionar/remover trazidos pro Git (22/07/2026)
+
+Descoberto ao retomar o trabalho: `interno/atendimento-whatsapp.html`
+(com a UI de adicionar/remover atendente, item 49) e as pontes
+`interno/atendimento-adicionar.php` / `atendimento-remover.php` nunca
+tinham sido commitadas — só existiam no ar por upload manual, igual ao
+que aconteceu com `/bio/` no item 52. Trazidos pro repositório antes de
+qualquer novo commit, pra não sobrescrever a versão manual no ar com a
+desatualizada do Git.
+
+Lição repetida: todo upload manual "paralelo" ao repositório é uma
+dívida técnica — precisa ser trazido pro Git assim que possível, não só
+quando quebra.

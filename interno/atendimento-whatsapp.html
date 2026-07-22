@@ -62,6 +62,39 @@
   .aviso.mostrar{display:block}
   .rodape{margin-top:28px;font-size:12px;color:var(--g);line-height:1.6}
   .carregando{color:var(--gl);font-size:13px;padding:20px 0}
+
+  .remover{
+    background:none;border:1px solid rgba(185,97,79,.3);color:var(--err);
+    font-family:'Syne',sans-serif;font-size:11px;font-weight:600;letter-spacing:.06em;
+    text-transform:uppercase;padding:6px 10px;border-radius:3px;cursor:pointer;
+    flex-shrink:0;transition:background .15s,color .15s;
+  }
+  .remover:hover{background:var(--err);color:var(--w)}
+  .remover:disabled{cursor:wait;opacity:.5}
+  .card-acoes{display:flex;align-items:center;gap:14px;flex-shrink:0}
+
+  .novo{
+    background:var(--k2);border:1px solid rgba(255,255,255,.06);border-radius:4px;
+    padding:20px 24px;margin-top:22px;
+  }
+  .novo h3{
+    font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--gl);margin-bottom:14px;
+  }
+  .novo-campos{display:flex;gap:10px;flex-wrap:wrap}
+  .novo-campos input{
+    flex:1;min-width:160px;background:var(--k3);border:1px solid rgba(255,255,255,.08);
+    border-radius:3px;padding:11px 12px;font:300 14px 'DM Sans',sans-serif;color:var(--w);
+  }
+  .novo-campos input::placeholder{color:var(--g)}
+  .novo-campos input:focus{outline:1px solid var(--t)}
+  .novo button{
+    background:var(--t);border:none;color:var(--k);font-family:'Syne',sans-serif;
+    font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:0 20px;border-radius:3px;cursor:pointer;white-space:nowrap;
+  }
+  .novo button:hover{background:var(--tl)}
+  .novo button:disabled{cursor:wait;opacity:.6}
 </style>
 </head>
 <body>
@@ -74,9 +107,20 @@
 
   <div id="aviso" class="aviso"></div>
 
+  <div class="novo">
+    <h3>Adicionar atendente</h3>
+    <div class="novo-campos">
+      <input type="text" id="novo-nome" placeholder="Nome" maxlength="60">
+      <input type="tel" id="novo-numero" placeholder="Número — DDD + WhatsApp (com ou sem 55)" maxlength="20">
+      <button id="novo-btn" type="button">Adicionar</button>
+    </div>
+  </div>
+
   <div class="rodape">
     Desativar um atendente tira ele do rodízio imediatamente — os próximos leads
     vão só para quem estiver ativo. Precisa ter pelo menos 1 atendente ativo.
+    Atendente novo entra sempre inativo — ative pelo interruptor quando quiser
+    colocá-lo no rodízio de verdade.
   </div>
 </div>
 
@@ -86,9 +130,14 @@
 
   var API_STATUS = 'atendimento-status.php';
   var API_TOGGLE = 'atendimento-toggle.php';
+  var API_ADICIONAR = 'atendimento-adicionar.php';
+  var API_REMOVER = 'atendimento-remover.php';
 
   var lista = document.getElementById('lista');
   var aviso = document.getElementById('aviso');
+  var novoNome = document.getElementById('novo-nome');
+  var novoNumero = document.getElementById('novo-numero');
+  var novoBtn = document.getElementById('novo-btn');
 
   function mostrarAviso(msg) {
     aviso.textContent = msg;
@@ -120,8 +169,20 @@
         alternar(a.id, !a.ativo, btn);
       });
 
+      var btnRemover = document.createElement('button');
+      btnRemover.className = 'remover';
+      btnRemover.textContent = 'Remover';
+      btnRemover.addEventListener('click', function () {
+        remover(a.id, a.nome, btnRemover);
+      });
+
+      var acoes = document.createElement('div');
+      acoes.className = 'card-acoes';
+      acoes.appendChild(btn);
+      acoes.appendChild(btnRemover);
+
       card.appendChild(info);
-      card.appendChild(btn);
+      card.appendChild(acoes);
       lista.appendChild(card);
     });
   }
@@ -158,6 +219,62 @@
         btn.disabled = false;
       });
   }
+
+  function remover(id, nome, btn) {
+    esconderAviso();
+    if (!confirm('Remover ' + nome + ' do rodízio? Essa ação não tem desfazer pelo painel.')) return;
+    btn.disabled = true;
+    fetch(API_REMOVER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (resposta) {
+        if (!resposta || !resposta.ok) {
+          mostrarAviso(resposta && resposta.erro ? resposta.erro : 'Não foi possível remover agora.');
+        }
+        carregar();
+      })
+      .catch(function () {
+        mostrarAviso('Não foi possível remover agora. Tente de novo.');
+        btn.disabled = false;
+      });
+  }
+
+  function adicionarAtendente() {
+    esconderAviso();
+    var nome = novoNome.value.trim();
+    var numero = novoNumero.value.trim();
+    if (!nome || !numero) {
+      mostrarAviso('Preenche nome e número pra adicionar.');
+      return;
+    }
+    novoBtn.disabled = true;
+    fetch(API_ADICIONAR, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome: nome, numero: numero })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (resposta) {
+        if (!resposta || !resposta.ok) {
+          mostrarAviso(resposta && resposta.erro ? resposta.erro : 'Não foi possível adicionar agora.');
+          return;
+        }
+        novoNome.value = '';
+        novoNumero.value = '';
+        carregar();
+      })
+      .catch(function () {
+        mostrarAviso('Não foi possível adicionar agora. Tente de novo.');
+      })
+      .finally(function () {
+        novoBtn.disabled = false;
+      });
+  }
+
+  novoBtn.addEventListener('click', adicionarAtendente);
 
   carregar();
 })();
