@@ -2414,3 +2414,42 @@ testada isoladamente em Node, confirmando que só o lead com `resultado:
 Também trazido pro Git como parte desta sessão (reconciliação, item 54):
 o painel de atendentes com adicionar/remover, que só existia por upload
 manual desde o item 49.
+
+---
+
+## 56. Lead fantasma: barra fixa mobile registrava lead sem clique real (22/07/2026)
+
+O Rafael reportou 2 leads gerados clicando só 1x no "Solicitar amostra"
+do header. Investigado: não era duplicação de clique — era um lead
+fantasma pré-existente. `mobile-cta-bar.js` pré-computa o `href` do
+botão flutuante assim que a página carrega (`DOMContentLoaded`), pra
+deixar o link pronto antes do clique — só que `montarLink()` (exposta
+como `window.brutoWhatsappHref`) sempre registrava o lead como efeito
+colateral da própria chamada, não do clique em si. Resultado: **toda
+visita a qualquer página do site** gerava um lead `whatsapp_direto`
+fantasma, poluindo `leads.jsonl` desde que o rastreio foi ligado —
+muito antes desta sessão.
+
+Corrigido separando cálculo de registro: `montarLink()` vira um
+wrapper fino sobre `montarLinkInterno()` (calcula `{url, codigo,
+dados}`, sem side-effect) + `registrarLead()`. Nova função exposta
+`window.brutoWhatsappHrefSemRegistro()` faz só o cálculo. `mobile-cta-bar.js`
+passou a usar essa versão na pré-computação e só chama
+`window.brutoRegistrarLead()` (também recém-exposta) dentro do listener
+de clique real da barra. De brinde, a barra ganhou código de referência
+próprio (`barra-fixa-mobile` em vez do genérico `whatsapp`).
+
+Auditados todos os outros callers de `brutoWhatsappHref` (amostras.js,
+lead-pdf.js ×2, exit-intent.js, promo-frete-gratis.js) — todos já
+disparam dentro de clique/submit real, nenhum tinha o mesmo problema.
+
+Cache-bust: `whatsapp-atendimento.js` v2→v3, `mobile-cta-bar.js` v1→v2
+em todas as páginas (lição do item 51, repetida aqui: toda edição de
+`.js` versionado por query string precisa do bump em conjunto, senão
+navegador serve a cópia antiga do cache).
+
+Pendência anotada: os `leads.jsonl` já registrados no servidor
+provavelmente têm entradas fantasma de `whatsapp_direto` de visitas sem
+clique real — não dá pra distinguir retroativamente sem mais contexto.
+Se o Rafael notar volume de leads muito acima do esperado no histórico
+antigo, essa é a explicação.

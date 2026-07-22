@@ -30,12 +30,15 @@
     '<i class="ti ti-brand-whatsapp" aria-hidden="true"></i>' +
     '<span>Falar no WhatsApp</span>';
 
+  var dadosLeadPendente = null; // guardado da pré-computação, registrado só no clique real
+
   function montarHref() {
-    if (!window.brutoWhatsappHref) {
+    if (!window.brutoWhatsappHrefSemRegistro) {
       return; // whatsapp-atendimento.js precisa carregar antes deste script
     }
-    window.brutoWhatsappHref(montarMensagem()).then(function (url) {
-      bar.href = url;
+    window.brutoWhatsappHrefSemRegistro(montarMensagem(), 'barra-fixa-mobile').then(function (r) {
+      bar.href = r.url;
+      dadosLeadPendente = r;
     });
   }
 
@@ -44,6 +47,11 @@
     document.body.appendChild(bar);
 
     bar.addEventListener('click', function () {
+      // Só aqui, no clique de verdade, é que o lead é registrado —
+      // a pré-computação acima não gera lead nenhum sozinha.
+      if (dadosLeadPendente && window.brutoRegistrarLead) {
+        window.brutoRegistrarLead(dadosLeadPendente.codigo, dadosLeadPendente.dados);
+      }
       if (window.brutoTrack) {
         window.brutoTrack('whatsapp_click', { link_text: 'barra-fixa-mobile', page_path: window.location.pathname });
       }

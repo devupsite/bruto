@@ -198,13 +198,34 @@
   // ex: window.brutoWhatsappHref('Olá! Gostaria de...', 'consultor')
   // ctaTipo é opcional (ex.: 'amostra', 'consultor', 'quiz') — usado
   // só pra compor o código de referência; se omitido, cai em 'whatsapp'.
-  function montarLink(texto, ctaTipo) {
+  // IMPORTANTE: registra o lead como efeito colateral — só chame isso
+  // de dentro de um clique real do usuário. Pra pré-calcular um link
+  // (ex.: deixar um botão pronto antes do clique, como a barra fixa
+  // mobile faz), use montarLinkSemRegistro() abaixo e registre o lead
+  // manualmente no clique de verdade com window.brutoRegistrarLead().
+  function montarLinkInterno(texto, ctaTipo) {
     return buscarNumero().then(function (dados) {
       var codigo = gerarCodigoReferencia(ctaTipo);
-      registrarLead(codigo, dados);
       var textoComRef = texto + '\n[ref:' + codigo + ']';
-      return 'https://wa.me/' + dados.numero + '?text=' + encodeURIComponent(textoComRef);
+      return {
+        url: 'https://wa.me/' + dados.numero + '?text=' + encodeURIComponent(textoComRef),
+        codigo: codigo,
+        dados: dados
+      };
     });
+  }
+
+  function montarLink(texto, ctaTipo) {
+    return montarLinkInterno(texto, ctaTipo).then(function (r) {
+      registrarLead(r.codigo, r.dados);
+      return r.url;
+    });
+  }
+
+  // Mesmo cálculo, sem registrar lead — devolve { url, codigo, dados }
+  // pra quem for pré-computar o link e registrar só depois, no clique.
+  function montarLinkSemRegistro(texto, ctaTipo) {
+    return montarLinkInterno(texto, ctaTipo);
   }
 
   function reescreverLinksEstaticos(dados) {
@@ -234,6 +255,8 @@
 
   window.brutoGetWhatsappNumero = buscarNumero;
   window.brutoWhatsappHref = montarLink;
+  window.brutoWhatsappHrefSemRegistro = montarLinkSemRegistro;
+  window.brutoRegistrarLead = registrarLead;
 
   // ── Botão "Solicitar amostra" do header/sidebar (.header__cta) ──
   // Antes levava sempre pra seção #amostra da home, perdendo o
