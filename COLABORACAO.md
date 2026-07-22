@@ -2474,3 +2474,33 @@ produto/tipo-de-botão/origem (ex.: `index_amostra-header_direto`
 sempre igual pro mesmo botão). Identificação individual de cada lead no
 `leads.jsonl` continua garantida pelo horário (`recebido_em`), sem
 perda nenhuma. Cache-bust: `whatsapp-atendimento.js` v3→v4.
+
+---
+
+## 58. Botões de WhatsApp sem data-cta caindo todos no código genérico (22/07/2026)
+
+O Rafael reportou 3 botões diferentes de WhatsApp na home gerando o
+mesmo código de referência (`index_whatsapp_direto`). Causa: nenhum
+dos links estáticos `<a href="wa.me/...">` do site tinha o atributo
+opcional `data-cta`, que é o que `reescreverLinksEstaticos()` usa pra
+diferenciar o tipo de botão — sem ele, todos caem no fallback genérico
+`'whatsapp'`.
+
+Corrigido em massa via regex (identificando cada botão pelo texto da
+mensagem pré-preenchida, que já era único por papel do botão mesmo sem
+o data-cta) em todas as 34 páginas:
+- `produto-orcamento` / `produto-interesse` / `produto-footer` — os 3
+  botões de cada página de produto (19 páginas)
+- `amostra-cta` / `consultor-cta` / `faq-consultor` — os 3 botões da
+  home distintos do header (os dois primeiros distinguidos por classe
+  CSS, já que tinham texto de mensagem idêntico)
+- `footer` — link de WhatsApp do rodapé, compartilhado em 8 páginas
+- `blog-post` — botão de cada post do blog (9 páginas)
+- `404` — botão da página de erro
+
+Validação: todos os 34 HTMLs parseados sem erro (`html.parser`) depois
+das substituições; teste com `jsdom` carregando o `index.html` real
+confirmando os 4 botões da home com `data-cta` distintos entre si.
+
+Não precisou de cache-bust — só HTML mudou (atributo novo), nenhum
+`.js` foi tocado nesta rodada.
