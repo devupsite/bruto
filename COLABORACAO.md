@@ -2251,3 +2251,32 @@ desistir, com erro JSON legível em vez de 500 mudo se nenhum funcionar.
 Também: nova página `/bio/` (link-na-bio do Instagram) com relatório de
 cliques próprio — fora deste repositório de commits porque foi criada
 e testada em sessão separada de chat, não documentada aqui em detalhe.
+
+---
+
+## 50. Base de conhecimento da ferramenta de atendimento técnico ganha bloco de paginações (22/07/2026)
+
+O Rafael perguntou se dava pra inserir o conteúdo do guia PDF de aplicação
+(oferecido no popup de exit-intent) na base de conhecimento da ferramenta
+de atendimento técnico (`atendimento/index.html`, objeto `KB`).
+
+Comparação mostrou que o **Guia de Aplicação** já estava coberto — o bloco
+`KB.instalacao` existente é mais detalhado que o PDF (seções de 60×60cm,
+tempo de trabalho, regra de 3 caixas, escalonamento por irregularidade).
+Nada a adicionar ali.
+
+O **Guia de Paginações** (25 padrões de assentamento do Brick, 10 páginas,
+`guia-paginacoes-bruto.pdf`) era uma lacuna real — nenhum dado sobre
+padrões de assentamento existia na KB antes disso. Extraído texto completo
+via `pdfplumber` e adicionado `KB.paginacoes`, organizado nas mesmas 4
+famílias do PDF (Corrido, Clássico, Geométrico, Especial), com nome,
+dificuldade, ambiente recomendado e tags de cada um dos 25 padrões, mais
+uma regra de atendimento cruzando dificuldade × experiência do instalador
+do cliente e recomendações por caso de uso (fachada externa vs. parede de
+destaque interna).
+
+Validação: como o objeto `KB` inteiro entra automaticamente no contexto
+(`Object.keys(KB).forEach(...)`), bastou adicionar a chave — sem tocar em
+mais nenhum lugar do código. Sintaxe confirmada parseando o objeto `KB`
+isoladamente com `new Function()` antes do commit (o arquivo usa JSX/Babel
+standalone, então `node --check` no arquivo inteiro não seria válido).
