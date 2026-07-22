@@ -2368,3 +2368,49 @@ desatualizada do Git.
 Lição repetida: todo upload manual "paralelo" ao repositório é uma
 dívida técnica — precisa ser trazido pro Git assim que possível, não só
 quando quebra.
+
+---
+
+## 55. Categorização de leads e exportação de conversão pro Google Ads (22/07/2026)
+
+Pendência retomada desde o item 49 (marcada explicitamente pra não
+esquecer): o `registrar-lead.php` já gravava cada clique rastreado em
+`leads.jsonl` (schema definido em sessão anterior: codigo_referencia,
+atendente, numero, gclid, pagina, criado_em, recebido_em, resultado —
+esse último sempre null até agora), mas nada lia nem escrevia o campo
+`resultado`.
+
+Fechado o ciclo: `interno/atendimento-whatsapp.html` ganhou uma seção
+"Leads recentes", abaixo da lista de atendentes — cada lead mostra
+data/hora, atendente designado, página de origem, código de referência,
+selo "Anúncio" quando tem `gclid`, e 5 botões de resultado (quente,
+morno, frio, fechou, perdido) que se comportam como toggle (clicar nele
+de novo limpa a marcação).
+
+Dois endpoints novos: `listar-leads.php` (lê o `.jsonl`, mais recente
+primeiro) e `marcar-lead.php` (localiza a linha por
+codigo_referencia+recebido_em — usado como chave composta porque JSONL
+não tem índice nativo — e reescreve o arquivo inteiro sob lock
+exclusivo). Ambos seguem o padrão ponte-pública + lógica-real de
+sempre.
+
+Fechando o funil completo (clique de anúncio → gclid capturado → lead
+registrado → atendente marca resultado → exportação), botão "Exportar
+conversões (Google Ads)" gera um CSV no formato de importação de
+conversão offline do Google Ads (Google Click ID, Conversion Name,
+Conversion Time, Conversion Value, Conversion Currency) — só entram
+leads marcados "fechou" **e** com `gclid` presente (cliques vindos de
+outros canais não têm o que importar pro Ads). Valor da conversão fica
+em branco por padrão (não há captura de valor de venda no fluxo hoje) —
+pode ser preenchido manualmente na planilha antes de importar, se
+quiser levar valor por venda no futuro.
+
+Testes: os 2 endpoints PHP testados de ponta a ponta num ambiente
+simulado (listar, marcar válido, resultado inválido rejeitado com 400,
+lead inexistente rejeitado com 404); lógica de filtro+formatação do CSV
+testada isoladamente em Node, confirmando que só o lead com `resultado:
+"fechou"` E `gclid` presente entra na exportação.
+
+Também trazido pro Git como parte desta sessão (reconciliação, item 54):
+o painel de atendentes com adicionar/remover, que só existia por upload
+manual desde o item 49.

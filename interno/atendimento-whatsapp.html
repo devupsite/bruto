@@ -95,6 +95,46 @@
   }
   .novo button:hover{background:var(--tl)}
   .novo button:disabled{cursor:wait;opacity:.6}
+
+  .secao-titulo{
+    font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--gl);margin:36px 0 14px;display:flex;
+    align-items:center;justify-content:space-between;gap:12px;
+  }
+  .exportar-btn{
+    background:none;border:1px solid rgba(255,255,255,.12);color:var(--gl);
+    font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;
+    text-transform:uppercase;padding:7px 12px;border-radius:3px;cursor:pointer;white-space:nowrap;
+  }
+  .exportar-btn:hover{border-color:var(--t);color:var(--t)}
+  .exportar-btn:disabled{cursor:wait;opacity:.5}
+
+  .lead{
+    background:var(--k2);border:1px solid rgba(255,255,255,.06);border-radius:4px;
+    padding:16px 18px;margin-bottom:10px;
+  }
+  .lead-topo{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+  .lead-info{font-size:12px;color:var(--gl);line-height:1.7}
+  .lead-info b{color:var(--w);font-weight:500}
+  .lead-anuncio{
+    font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--t);background:rgba(87,153,155,.12);border:1px solid rgba(87,153,155,.25);
+    padding:3px 7px;border-radius:3px;white-space:nowrap;
+  }
+  .lead-codigo{font-family:monospace;font-size:10px;color:var(--g);margin-top:4px;word-break:break-all}
+  .lead-resultados{display:flex;gap:6px;flex-wrap:wrap}
+  .res-btn{
+    background:none;border:1px solid rgba(255,255,255,.12);color:var(--gl);
+    font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    padding:6px 10px;border-radius:3px;cursor:pointer;transition:.15s;
+  }
+  .res-btn:disabled{cursor:wait;opacity:.5}
+  .res-btn[data-r="quente"].ativo{background:rgba(217,90,60,.18);border-color:#D95A3C;color:#D95A3C}
+  .res-btn[data-r="morno"].ativo{background:rgba(230,180,60,.18);border-color:#E6B43C;color:#E6B43C}
+  .res-btn[data-r="frio"].ativo{background:rgba(87,153,155,.18);border-color:var(--t);color:var(--t)}
+  .res-btn[data-r="fechou"].ativo{background:rgba(95,158,110,.18);border-color:var(--ok);color:var(--ok)}
+  .res-btn[data-r="perdido"].ativo{background:rgba(185,97,79,.18);border-color:var(--err);color:var(--err)}
+  .leads-vazio{color:var(--gl);font-size:13px;padding:8px 0}
 </style>
 </head>
 <body>
@@ -116,11 +156,23 @@
     </div>
   </div>
 
+  <div class="secao-titulo">
+    Leads recentes
+    <button class="exportar-btn" id="exportar-btn" type="button">Exportar conversões (Google Ads)</button>
+  </div>
+  <div id="leads-lista" class="carregando">Carregando leads…</div>
+
   <div class="rodape">
     Desativar um atendente tira ele do rodízio imediatamente — os próximos leads
     vão só para quem estiver ativo. Precisa ter pelo menos 1 atendente ativo.
     Atendente novo entra sempre inativo — ative pelo interruptor quando quiser
     colocá-lo no rodízio de verdade.
+    <br><br>
+    Marcar um lead como <b style="color:var(--w)">quente/morno/frio</b> é uma
+    triagem sua, pra organizar prioridade de retorno. Marcar como
+    <b style="color:var(--w)">fechou</b> é o que entra na exportação de
+    conversão pro Google Ads — só sai nela quem tiver vindo de um clique em
+    anúncio (aparece o selo "Anúncio" no card).
   </div>
 </div>
 
@@ -132,12 +184,19 @@
   var API_TOGGLE = 'atendimento-toggle.php';
   var API_ADICIONAR = 'atendimento-adicionar.php';
   var API_REMOVER = 'atendimento-remover.php';
+  var API_LISTAR_LEADS = 'listar-leads.php';
+  var API_MARCAR_LEAD = 'marcar-lead.php';
+
+  var RESULTADOS = ['quente', 'morno', 'frio', 'fechou', 'perdido'];
 
   var lista = document.getElementById('lista');
   var aviso = document.getElementById('aviso');
   var novoNome = document.getElementById('novo-nome');
   var novoNumero = document.getElementById('novo-numero');
   var novoBtn = document.getElementById('novo-btn');
+  var leadsLista = document.getElementById('leads-lista');
+  var exportarBtn = document.getElementById('exportar-btn');
+  var leadsCache = [];
 
   function mostrarAviso(msg) {
     aviso.textContent = msg;
@@ -276,7 +335,162 @@
 
   novoBtn.addEventListener('click', adicionarAtendente);
 
+  // ── Leads ──────────────────────────────────────────────────────
+
+  function formatarDataHora(iso) {
+    if (!iso) return '—';
+    try {
+      var d = new Date(iso);
+      return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    } catch (e) { return iso; }
+  }
+
+  function renderizarLeads(leads) {
+    leadsLista.innerHTML = '';
+    if (!leads.length) {
+      leadsLista.innerHTML = '<div class="leads-vazio">Nenhum lead registrado ainda.</div>';
+      return;
+    }
+
+    leads.forEach(function (lead) {
+      var card = document.createElement('div');
+      card.className = 'lead';
+
+      var topo = document.createElement('div');
+      topo.className = 'lead-topo';
+
+      var info = document.createElement('div');
+      info.className = 'lead-info';
+      info.innerHTML =
+        '<div>' + formatarDataHora(lead.recebido_em) + ' · <b>' + (lead.atendente || 'atendente não identificado') + '</b></div>' +
+        '<div>' + (lead.pagina || 'página não identificada') + '</div>' +
+        '<div class="lead-codigo">' + (lead.codigo_referencia || '') + '</div>';
+
+      topo.appendChild(info);
+      if (lead.gclid) {
+        var selo = document.createElement('span');
+        selo.className = 'lead-anuncio';
+        selo.textContent = 'Anúncio';
+        topo.appendChild(selo);
+      }
+      card.appendChild(topo);
+
+      var resultados = document.createElement('div');
+      resultados.className = 'lead-resultados';
+      RESULTADOS.forEach(function (r) {
+        var btn = document.createElement('button');
+        btn.className = 'res-btn' + (lead.resultado === r ? ' ativo' : '');
+        btn.dataset.r = r;
+        btn.textContent = r.charAt(0).toUpperCase() + r.slice(1);
+        btn.addEventListener('click', function () {
+          marcarResultado(lead, lead.resultado === r ? null : r, btn);
+        });
+        resultados.appendChild(btn);
+      });
+      card.appendChild(resultados);
+
+      leadsLista.appendChild(card);
+    });
+  }
+
+  function carregarLeads() {
+    fetch(API_LISTAR_LEADS + '?limite=200', { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (dados) {
+        leadsCache = dados.leads || [];
+        renderizarLeads(leadsCache);
+      })
+      .catch(function () {
+        leadsLista.innerHTML = '';
+        mostrarAviso('Não foi possível carregar os leads agora. Recarregue a página.');
+      });
+  }
+
+  function marcarResultado(lead, novoResultado, btn) {
+    esconderAviso();
+    var todosBotoes = btn.parentElement.querySelectorAll('.res-btn');
+    todosBotoes.forEach(function (b) { b.disabled = true; });
+
+    fetch(API_MARCAR_LEAD, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        codigo_referencia: lead.codigo_referencia,
+        recebido_em: lead.recebido_em,
+        resultado: novoResultado
+      })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (resposta) {
+        if (!resposta || !resposta.ok) {
+          mostrarAviso(resposta && resposta.erro ? resposta.erro : 'Não foi possível salvar essa marcação.');
+        }
+        carregarLeads();
+      })
+      .catch(function () {
+        mostrarAviso('Não foi possível salvar essa marcação agora. Tente de novo.');
+        todosBotoes.forEach(function (b) { b.disabled = false; });
+      });
+  }
+
+  // ── Exportação de conversão pro Google Ads ───────────────────────
+  // Formato de importação de conversão offline: Google Click ID,
+  // Conversion Name, Conversion Time, Conversion Value, Conversion
+  // Currency. Só entra quem foi marcado "fechou" E tem gclid (ou seja,
+  // veio de um clique em anúncio) — sem os dois, não tem o que importar.
+  function csvEscape(v) {
+    var s = String(v == null ? '' : v);
+    if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function formatarDataConversao(iso) {
+    // Google Ads espera algo como "2026-07-22 14:30:00-03:00".
+    // Reaproveita o timezone do próprio valor ISO em vez de assumir
+    // um fuso fixo, pra não desalinhar se o servidor mudar de fuso.
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var pad = function (n) { return String(n).padStart(2, '0'); };
+    var offsetMin = -d.getTimezoneOffset();
+    var sinal = offsetMin >= 0 ? '+' : '-';
+    var offH = pad(Math.floor(Math.abs(offsetMin) / 60));
+    var offM = pad(Math.abs(offsetMin) % 60);
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
+      pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + sinal + offH + ':' + offM;
+  }
+
+  function exportarConversoes() {
+    var elegiveis = leadsCache.filter(function (l) { return l.resultado === 'fechou' && l.gclid; });
+    if (!elegiveis.length) {
+      alert('Nenhum lead fechado com clique de anúncio (gclid) pra exportar ainda.');
+      return;
+    }
+
+    var linhas = ['Google Click ID,Conversion Name,Conversion Time,Conversion Value,Conversion Currency'];
+    elegiveis.forEach(function (l) {
+      linhas.push([
+        csvEscape(l.gclid),
+        csvEscape('Fechamento BRUTO'),
+        csvEscape(formatarDataConversao(l.resultado_marcado_em || l.recebido_em)),
+        '', // valor: preencha manualmente antes de importar, se quiser levar valor por venda
+        'BRL'
+      ].join(','));
+    });
+
+    var blob = new Blob(['\ufeff' + linhas.join('\n')], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'bruto-conversoes-google-ads.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+  }
+
+  exportarBtn.addEventListener('click', exportarConversoes);
+
   carregar();
+  carregarLeads();
 })();
 </script>
 
