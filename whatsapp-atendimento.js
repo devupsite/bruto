@@ -7,7 +7,7 @@
 
    Como funciona:
    1) No carregamento da página, busca em api/whatsapp-atendimento.php
-      qual atendente (entre os 3 cadastrados) foi designado pro
+      qual atendente (entre os cadastrados e ativos) foi designado pro
       rodízio. O servidor mantém o contador real — é ele quem
       garante equilíbrio entre TODOS os visitantes, não só o
       navegador de cada um.
@@ -33,11 +33,13 @@
   var API_URL = 'api/whatsapp-atendimento.php';
   var STORAGE_KEY = 'bruto_whatsapp_atendimento';
 
-  // TODO(Rafael): idealmente colocar aqui os 3 números reais dos
-  // atendentes (o mesmo trio configurado no servidor), pra que o
-  // fallback local também gire entre os três se a API cair.
-  // Por ora, mantém o número antigo/único como rede de segurança.
-  var FALLBACK_NUMEROS = ['5511922816131'];
+  // Fallback local caso a API de rodízio caia ou a rede falhe.
+  // Hoje o rodízio tem 2 posições: o número Bruto (5511990049468,
+  // desbanido pela Meta) ativo, e uma segunda posição em placeholder
+  // aguardando um número novo. Por ora, mantém só o número Bruto
+  // como rede de segurança; quando a 2ª posição for definida,
+  // idealmente incluir aqui também pra o fallback também alternar.
+  var FALLBACK_NUMEROS = ['5511990049468'];
 
   var promessaNumero = null;
 
