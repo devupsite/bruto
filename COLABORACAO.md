@@ -2534,3 +2534,26 @@ de qualquer link de rodapé do site.
 
 Teste: simulado com jsdom pras 4 origens + o caso sem parâmetro,
 confirmando mensagem e código de referência corretos em cada uma.
+
+---
+
+## 60. Reconciliação: correção do erro 500 em ordens/atendimento nunca tinha sido commitada (22/07/2026)
+
+Auditoria de fim de sessão (pergunta "algo ficou pra trás?") revelou:
+o item que corrigiu o erro 500 de `/ordens/` e `/atendimento/` quando
+acessados pelo domínio principal (as 9 pontes com fallback de dois
+caminhos possíveis até `bruto-secrets/`) foi entregue só como zip pra
+upload manual, no início desta sessão — nunca chegou a ser commitada.
+Mesma classe de problema dos itens 52 e 54 (`/bio/` e painel de
+atendentes): risco real de um deploy subsequente ter revertido
+silenciosamente pra versão antiga (caminho fixo, sem fallback),
+reintroduzindo o 500.
+
+Trazidas pro Git agora as versões corrigidas de:
+`ordens/api/{atualizar-status,enviar-email,listar-ordens,salvar-ordem,whatsapp-fornecedor}.php`
+e `atendimento/api/{chat,historico,me,usuarios}.php`.
+
+Lição consolidada da sessão inteira: toda entrega feita como "zip pra
+upload manual" é dívida técnica até ser trazida pro Git — vale, a
+partir de agora, sempre perguntar/checar se algo antigo ficou só no
+upload manual antes de considerar um fluxo encerrado.
