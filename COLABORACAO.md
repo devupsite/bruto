@@ -2504,3 +2504,33 @@ confirmando os 4 botões da home com `data-cta` distintos entre si.
 
 Não precisou de cache-bust — só HTML mudou (atributo novo), nenhum
 `.js` foi tocado nesta rodada.
+
+---
+
+## 59. Botão "Continuar no WhatsApp" do obrigado.html abria conversa sem relação com a original (22/07/2026)
+
+O Rafael notou: ao terminar a calculadora, uma aba de WhatsApp abre
+automaticamente com os detalhes do orçamento (produto, metragem,
+valor). Ao voltar pro site, cai em `obrigado.html?origem=calculadora`
+— e o botão "Continuar no WhatsApp" dessa página, se clicado, abria uma
+**segunda** conversa com mensagem genérica ("Vim pelo site da Bruto e
+gostaria de continuar a conversa"), sem nenhuma relação com o
+orçamento já enviado. Do ponto de vista do atendente, pareciam duas
+pessoas diferentes.
+
+Causa: a página já lia `?origem=` pra personalizar o **texto exibido**
+na tela (`textos[origem]`), mas o link do botão de WhatsApp era um
+`<a href>` estático, sempre com a mesma mensagem genérica — a
+personalização nunca chegava até ele.
+
+Corrigido: o botão agora monta a mensagem dinamicamente por origem
+(`calculadora` / `paginacoes` / `exit-intent` / genérico), reconhecendo
+explicitamente que a pessoa já mandou algo antes ("já mandei um
+orçamento pela calculadora e queria continuar por aqui"), em vez de
+repetir do zero. Passa a usar `window.brutoWhatsappHref` (rodízio +
+rastreio) com `data-cta="obrigado-" + origem`, então também fica
+diferenciado no painel de leads — antes caía no mesmo `footer` genérico
+de qualquer link de rodapé do site.
+
+Teste: simulado com jsdom pras 4 origens + o caso sem parâmetro,
+confirmando mensagem e código de referência corretos em cada uma.
