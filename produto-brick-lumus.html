@@ -1018,6 +1018,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     // Keyboard navigation
     document.addEventListener('keydown', (e) => {
+      // Se o lightbox estiver aberto, ele já cuida da própria navegação por teclado
+      // (mais abaixo). Sem essa checagem, os dois listeners disparam juntos e a seta
+      // avança 2 imagens de uma vez em vez de 1.
+      const lbEl = document.getElementById('product-lightbox');
+      if (lbEl && lbEl.classList.contains('active')) return;
       if (e.key === 'ArrowLeft') prevSlide();
       if (e.key === 'ArrowRight') nextSlide();
     });
