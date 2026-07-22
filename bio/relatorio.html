@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório de cliques — BRUTO Bio</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ferro: #0A0A0A; --grafite: #1E1E1E; --concreto: #6E6E6E;
+      --titanio: #B2AFAB; --argamassa: #F0EEEC; --surface: #E7E4DF;
+      --line: rgba(10,10,10,.14);
+      --f-display: 'Barlow Condensed', sans-serif;
+      --f-body: 'Barlow', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--f-body); background: var(--argamassa); color: var(--grafite);
+      line-height: 1.5; letter-spacing: .01em; -webkit-font-smoothing: antialiased;
+      min-height: 100svh; display: flex; justify-content: center;
+    }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    a { color: inherit; }
+    button:focus-visible, input:focus-visible { outline: 2px solid var(--ferro); outline-offset: 2px; }
+
+    .pagina { width: 100%; max-width: 640px; padding: clamp(28px, 7vw, 48px) 20px 40px; }
+
+    .topo { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+    .topo svg { width: 26px; height: 41px; fill: var(--ferro); flex: none; }
+    .topo h1 {
+      font-family: var(--f-display); font-weight: 600; font-size: 24px;
+      letter-spacing: .14em; text-transform: uppercase; color: var(--ferro);
+    }
+    .topo p { font-size: 12.5px; color: var(--concreto); font-weight: 300; }
+
+    /* acesso */
+    .acesso { background: #fff; border: 1px solid var(--line); padding: 22px; }
+    .acesso label {
+      display: block; font-family: var(--f-display); font-weight: 600; font-size: 13px;
+      letter-spacing: .18em; text-transform: uppercase; color: var(--concreto); margin-bottom: 8px;
+    }
+    .acesso input {
+      width: 100%; border: 1px solid var(--line); background: var(--argamassa);
+      padding: 12px 14px; font: 400 15px var(--f-body); color: var(--grafite);
+    }
+    .acesso button {
+      margin-top: 12px; width: 100%; background: var(--ferro); color: var(--argamassa);
+      padding: 13px; font-family: var(--f-display); font-weight: 600; font-size: 15px;
+      letter-spacing: .16em; text-transform: uppercase;
+    }
+    .acesso button:hover { background: var(--grafite); }
+    .aviso { margin-top: 10px; font-size: 13px; color: #a03b2e; }
+
+    /* filtros */
+    .filtros { display: flex; gap: 6px; margin: 0 0 18px; }
+    .filtros button {
+      flex: 1; padding: 9px 0; border: 1px solid var(--line); background: #fff;
+      font-family: var(--f-display); font-weight: 600; font-size: 13px;
+      letter-spacing: .14em; text-transform: uppercase; color: var(--concreto);
+    }
+    .filtros button[aria-pressed="true"] { background: var(--ferro); border-color: var(--ferro); color: var(--argamassa); }
+
+    /* cartões-resumo */
+    .resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 22px; }
+    .cartao { background: #fff; border: 1px solid var(--line); padding: 14px 12px; }
+    .cartao b {
+      display: block; font-family: var(--f-display); font-weight: 600;
+      font-size: clamp(22px, 6vw, 30px); color: var(--ferro); line-height: 1.1;
+    }
+    .cartao span {
+      font-family: var(--f-display); font-weight: 500; font-size: 11px;
+      letter-spacing: .16em; text-transform: uppercase; color: var(--concreto);
+    }
+
+    /* ranking */
+    h2 {
+      font-family: var(--f-display); font-weight: 600; font-size: 15px;
+      letter-spacing: .2em; text-transform: uppercase; color: var(--concreto); margin: 26px 0 10px;
+    }
+    .ranking { display: flex; flex-direction: column; gap: 7px; }
+    .linha { background: #fff; border: 1px solid var(--line); padding: 12px 14px; }
+    .linha-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+    .linha-nome {
+      font-family: var(--f-display); font-weight: 600; font-size: 16px;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--ferro);
+    }
+    .linha-num { font-size: 13px; color: var(--concreto); white-space: nowrap; }
+    .linha-num b { color: var(--ferro); font-weight: 500; }
+    .barra { margin-top: 8px; height: 10px; background: var(--argamassa); border: 1px solid var(--line); }
+    .barra i { display: block; height: 100%; background: var(--ferro); width: 0; transition: width .5s ease; }
+
+    /* série diária */
+    .serie {
+      background: #fff; border: 1px solid var(--line); padding: 16px 14px 10px;
+      display: flex; align-items: flex-end; gap: 3px; height: 130px; overflow-x: auto;
+    }
+    .serie .dia { flex: 1 0 14px; display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 14px; }
+    .serie .dia i { display: block; width: 100%; background: var(--titanio); min-height: 2px; }
+    .serie .dia i.tem { background: var(--ferro); }
+    .serie .dia span { font-size: 9px; color: var(--titanio); writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .05em; }
+
+    .acoes { display: flex; gap: 8px; margin-top: 26px; }
+    .acoes button, .acoes a {
+      flex: 1; text-align: center; text-decoration: none; padding: 12px; border: 1px solid var(--line);
+      background: #fff; font-family: var(--f-display); font-weight: 600; font-size: 13px;
+      letter-spacing: .16em; text-transform: uppercase; color: var(--grafite);
+    }
+    .acoes button:hover, .acoes a:hover { background: var(--surface); }
+    .acoes button#zerar { color: #a03b2e; border-color: rgba(160,59,46,.35); }
+    .acoes button#zerar:hover { background: #a03b2e; color: #fff; }
+
+    .rodape-nota { margin-top: 18px; font-size: 12px; color: var(--titanio); text-align: center; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main class="pagina">
+    <header class="topo">
+      <svg viewBox="44 22 192 302" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path fill-rule="evenodd" d="M52,30 L184,30 L184,162 L228,162 L228,316 L52,316 Z M74,52 L162,52 L162,162 L74,162 Z M74,184 L206,184 L206,294 L74,294 Z"/>
+      </svg>
+      <div>
+        <h1>Relatório da Bio</h1>
+        <p>Cliques por canal · brutoceramica.com.br/bio</p>
+      </div>
+    </header>
+
+    <section class="acesso" id="acesso">
+      <label for="chave">Chave de acesso</label>
+      <input type="password" id="chave" autocomplete="current-password" placeholder="Cole a chave do relatório">
+      <button id="entrar">Abrir relatório</button>
+      <p class="aviso" id="aviso" hidden></p>
+    </section>
+
+    <section id="painel" hidden>
+      <div class="filtros" role="group" aria-label="Período">
+        <button data-dias="7" aria-pressed="false">7 dias</button>
+        <button data-dias="30" aria-pressed="true">30 dias</button>
+        <button data-dias="0" aria-pressed="false">Tudo</button>
+      </div>
+
+      <div class="resumo">
+        <div class="cartao"><b id="r-visitas">–</b><span>Visitas</span></div>
+        <div class="cartao"><b id="r-cliques">–</b><span>Cliques</span></div>
+        <div class="cartao"><b id="r-taxa">–</b><span>Taxa de clique</span></div>
+      </div>
+
+      <h2>Cliques por link</h2>
+      <div class="ranking" id="ranking"></div>
+
+      <h2>Visitas por dia</h2>
+      <div class="serie" id="serie"></div>
+
+      <div class="acoes">
+        <button id="exportar">Exportar CSV</button>
+        <button id="atualizar">Atualizar</button>
+        <button id="zerar">Zerar contador</button>
+        <button id="sair">Sair</button>
+      </div>
+      <p class="rodape-nota" id="nota"></p>
+    </section>
+  </main>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var API = '/api/bio-relatorio.php';
+    var GUARDA = 'bruto_bio_chave';
+
+    // Nomes amigáveis por id (ids novos aparecem com o próprio id)
+    var NOMES = {
+      _visita: 'Visitas da página',
+      whatsapp: 'WhatsApp — consultor',
+      texturas: 'Coleções & Texturas',
+      quiz: 'Quiz — revestimento ideal',
+      paginacoes: 'Paginações & Assentamento',
+      blog: 'Blog',
+      site: 'Site oficial',
+      email: 'E-mail'
+    };
+
+    var dados = null;
+    var periodo = 30; // 0 = tudo
+
+    var $ = function (id) { return document.getElementById(id); };
+
+    function chaveSalva() { try { return localStorage.getItem(GUARDA) || ''; } catch (e) { return ''; } }
+
+    function carregar(chave) {
+      $('aviso').hidden = true;
+      return fetch(API + '?chave=' + encodeURIComponent(chave), { cache: 'no-store' })
+        .then(function (r) {
+          if (r.status === 401) throw new Error('Chave inválida.');
+          if (!r.ok) throw new Error('O servidor respondeu com erro (' + r.status + '). Confira se o bio-config.php está no bruto-secrets.');
+          return r.json();
+        })
+        .then(function (json) {
+          dados = json;
+          try { localStorage.setItem(GUARDA, chave); } catch (e) {}
+          $('acesso').hidden = true;
+          $('painel').hidden = false;
+          desenhar();
+        })
+        .catch(function (err) {
+          $('aviso').textContent = err.message || 'Não foi possível carregar.';
+          $('aviso').hidden = false;
+          $('acesso').hidden = false;
+          $('painel').hidden = true;
+        });
+    }
+
+    function diasDoPeriodo() {
+      var todos = Object.keys(dados.dias || {}).sort();
+      if (!periodo) return todos;
+      var corte = new Date();
+      corte.setDate(corte.getDate() - (periodo - 1));
+      var minimo = corte.toISOString().slice(0, 10);
+      return todos.filter(function (d) { return d >= minimo; });
+    }
+
+    function desenhar() {
+      var dias = diasDoPeriodo();
+      var soma = {};
+      dias.forEach(function (d) {
+        var doDia = dados.dias[d] || {};
+        Object.keys(doDia).forEach(function (id) {
+          soma[id] = (soma[id] || 0) + doDia[id];
+        });
+      });
+
+      var visitas = soma._visita || 0;
+      var cliques = 0;
+      var itens = [];
+      Object.keys(soma).forEach(function (id) {
+        if (id === '_visita') return;
+        cliques += soma[id];
+        itens.push({ id: id, n: soma[id] });
+      });
+      itens.sort(function (a, b) { return b.n - a.n; });
+
+      $('r-visitas').textContent = visitas.toLocaleString('pt-BR');
+      $('r-cliques').textContent = cliques.toLocaleString('pt-BR');
+      $('r-taxa').textContent = visitas ? Math.round((cliques / visitas) * 100) + '%' : '–';
+
+      // ranking
+      var maior = itens.length ? itens[0].n : 0;
+      var html = itens.map(function (it) {
+        var pct = visitas ? Math.round((it.n / visitas) * 100) : 0;
+        return '<div class="linha">' +
+          '<div class="linha-cab">' +
+            '<span class="linha-nome">' + (NOMES[it.id] || it.id) + '</span>' +
+            '<span class="linha-num"><b>' + it.n.toLocaleString('pt-BR') + '</b> cliques · ' + pct + '% das visitas</span>' +
+          '</div>' +
+          '<div class="barra"><i style="width:' + (maior ? (it.n / maior) * 100 : 0) + '%"></i></div>' +
+        '</div>';
+      }).join('');
+      $('ranking').innerHTML = html || '<div class="linha"><span class="linha-num">Nenhum clique registrado no período ainda.</span></div>';
+
+      // série diária de visitas
+      var maxV = 0;
+      dias.forEach(function (d) { maxV = Math.max(maxV, (dados.dias[d] || {})._visita || 0); });
+      $('serie').innerHTML = dias.map(function (d) {
+        var v = (dados.dias[d] || {})._visita || 0;
+        var h = maxV ? Math.max(2, Math.round((v / maxV) * 84)) : 2;
+        var rotulo = d.slice(8, 10) + '/' + d.slice(5, 7);
+        return '<div class="dia" title="' + rotulo + ': ' + v + ' visitas">' +
+          '<i class="' + (v ? 'tem' : '') + '" style="height:' + h + 'px"></i><span>' + rotulo + '</span></div>';
+      }).join('') || '<span class="linha-num" style="align-self:center">Sem dados no período.</span>';
+
+      $('nota').textContent = dados.atualizado_em
+        ? 'Último clique registrado em ' + new Date(dados.atualizado_em).toLocaleString('pt-BR')
+        : 'Nenhum registro ainda — o arquivo é criado no primeiro acesso à página bio.';
+    }
+
+    function exportarCSV() {
+      if (!dados) return;
+      var linhas = ['dia;link;cliques'];
+      Object.keys(dados.dias || {}).sort().forEach(function (d) {
+        var doDia = dados.dias[d];
+        Object.keys(doDia).forEach(function (id) {
+          linhas.push(d + ';' + (NOMES[id] || id) + ';' + doDia[id]);
+        });
+      });
+      var blob = new Blob(['\ufeff' + linhas.join('\n')], { type: 'text/csv;charset=utf-8' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'bruto-bio-cliques.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function zerarContador() {
+      var chave = chaveSalva();
+      if (!chave) return;
+      var primeiraConfirmacao = confirm('Isso apaga TODOS os cliques e visitas registrados até agora. Não dá pra desfazer pelo painel (fica um backup no servidor). Quer mesmo zerar?');
+      if (!primeiraConfirmacao) return;
+      var segundaConfirmacao = confirm('Confirmando de novo: zerar o contador agora?');
+      if (!segundaConfirmacao) return;
+
+      $('zerar').disabled = true;
+      fetch('/api/bio-zerar.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chave: chave })
+      })
+        .then(function (r) { if (!r.ok) throw new Error('Não foi possível zerar (erro ' + r.status + ').'); return r.json(); })
+        .then(function () { carregar(chave); })
+        .catch(function (err) { alert(err.message); })
+        .finally(function () { $('zerar').disabled = false; });
+    }
+
+    // eventos
+    $('entrar').addEventListener('click', function () { carregar($('chave').value.trim()); });
+    $('chave').addEventListener('keydown', function (e) { if (e.key === 'Enter') carregar($('chave').value.trim()); });
+    $('atualizar').addEventListener('click', function () { carregar(chaveSalva()); });
+    $('exportar').addEventListener('click', exportarCSV);
+    $('zerar').addEventListener('click', zerarContador);
+    $('sair').addEventListener('click', function () {
+      try { localStorage.removeItem(GUARDA); } catch (e) {}
+      dados = null;
+      $('painel').hidden = true;
+      $('acesso').hidden = false;
+      $('chave').value = '';
+    });
+    document.querySelectorAll('.filtros button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('.filtros button').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+        b.setAttribute('aria-pressed', 'true');
+        periodo = parseInt(b.dataset.dias, 10);
+        if (dados) desenhar();
+      });
+    });
+
+    // auto-entrada se já tem chave salva
+    if (chaveSalva()) carregar(chaveSalva());
+  })();
+  </script>
+</body>
+</html>

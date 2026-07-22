@@ -2309,3 +2309,33 @@ Testes: compilação real do JSX via `@babel/standalone` (arquivo inteiro,
 dados adversariais (nome de cliente com `<script>`/aspas/&) confirmando
 escape correto — sem isso, conteúdo digitado por um cliente no chat
 poderia injetar HTML/JS no export.
+
+---
+
+## 52. Página /bio/ derrubada por deploy do Git — trazida pro repositório (22/07/2026)
+
+A pasta `/bio/` (link-na-bio do Instagram, criada em sessão de chat
+separada) e os endpoints `api/bio-clique.php`, `api/bio-relatorio.php`,
+`api/bio-zerar.php` nunca tinham sido commitados no Git — foram sempre
+upload manual direto no `public_html`, fora de qualquer controle de
+versão.
+
+O Rafael reportou `brutoceramica.com.br/bio/relatorio.html` retornando
+o 404 padrão do site principal (evidenciado pelos assets errados que o
+navegador tentou carregar: `styles.css`/`whatsapp-atendimento.js`
+relativos a `/bio/`, que são do site, não da bio). Hipótese: o deploy
+via Git da Hostinger espelha o `public_html` exatamente pelo conteúdo do
+repositório, apagando qualquer arquivo/pasta que não esteja versionado
+— e a sequência de commits das últimas sessões (itens 49-51) deve ter
+apagado a pasta `/bio/` inteira por não estar rastreada.
+
+Correção: trazidos `bio/index.html`, `bio/relatorio.html`,
+`api/bio-clique.php`, `api/bio-relatorio.php`, `api/bio-zerar.php` pro
+repositório (todos git-safe, sem segredo). O `bio-config.php` (a chave
+do relatório) continua fora do Git, em `bruto-secrets/API/`, e não foi
+afetado por não estar em `public_html`.
+
+Lição: qualquer pasta/arquivo em `public_html` que dependa de
+sobreviver a um próximo deploy precisa estar no Git — upload manual
+"paralelo" ao repositório é uma armadilha que só aparece quando o
+próximo commit acontece.
