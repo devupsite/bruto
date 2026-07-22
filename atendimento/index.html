@@ -46,7 +46,7 @@ import {
   HelpCircle, Stethoscope, Box, Home, Truck, Clock, MapPin,
   Hammer, RotateCcw, CheckCircle2, Settings, Plug, Send,
   X, MessageCircle, Lightbulb, Copy, Check, History, Plus, Trash2, Download, Upload,
-  Image as ImageIcon, Camera,
+  Image as ImageIcon, Camera, FileText,
   Target, ClipboardList, GraduationCap, Dices, MessageSquareShare, Users, Pencil,
 } from "lucide-react";
 
@@ -537,7 +537,7 @@ function BrutoAtendimento() {
   const [sessionIndex, setSessionIndex] = useState([]);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historySearch, setHistorySearch] = useState("");
-  const [exportModal, setExportModal] = useState(null); // null | string (JSON)
+  const [exportModal, setExportModal] = useState(null); // null | { content: string, ext: "json"|"html" }
   const [escalationOpen, setEscalationOpen] = useState(true);
   const [calcOpen, setCalcOpen] = useState(false);
   const [calcArea, setCalcArea] = useState("");
@@ -882,8 +882,180 @@ function BrutoAtendimento() {
       if (sessions.length === 0) { alert("Não consegui carregar nenhuma sessão do servidor ou do cache local para exportar."); return; }
 
       const json = JSON.stringify({ version: 1, exportedAt: Date.now(), sessions }, null, 2);
-      setExportModal(json);
+      setExportModal({ content: json, ext: "json" });
     } catch (e) { alert(`Erro ao exportar: ${e.message}`); }
+  }
+
+  // ── Exportação legível (HTML) ────────────────────────────────────
+  // Mesma fonte de dados do exportHistory (JSON), mas monta um
+  // documento HTML autocontido com a mesma cara do chat da ferramenta
+  // — pra ler/arquivar/imprimir sem precisar interpretar JSON cru.
+  function escapeHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  function formatarData(ms) {
+    return new Date(ms).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+
+  function buildReadableHtml(sessions, exportedAt) {
+    const totalMsgs = sessions.reduce((acc, s) => acc + (s.meta?.msgCount || s.messages.length), 0);
+
+    const sessionsHtml = sessions.map((s) => {
+      const meta = s.meta || {};
+      const client = s.client || {};
+      const tags = (client.tags || []).map((t) => `<span class="tag">${escapeHtml(t)}</span>`).join("");
+      const infoBits = [client.type, client.project ? `Projeto: ${client.project}` : null, client.phone]
+        .filter(Boolean).map(escapeHtml).join(" · ");
+
+      const msgsHtml = s.messages.map((m) => {
+        const isUser = m.role === "user";
+        const label = isUser ? "Cliente" : "Assistente";
+        let imgsHtml = "";
+        if (m.images && m.images.length) {
+          imgsHtml = m.images.map((img) => `<img class="msg-img" src="${img.dataUrl}">`).join("");
+        }
+        let metaHtml = "";
+        if (!isUser && m.metadata) {
+          const md = m.metadata;
+          metaHtml = `<div class="msg-info">
+            <div class="info-title">Detalhes da geração</div>
+            <div class="info-item"><span class="info-label">Modo</span>${escapeHtml(md.mode)}</div>
+            <div class="info-item"><span class="info-label">Base de conhecimento</span>${escapeHtml(md.kb)}</div>
+            <div class="info-item"><span class="info-label">Gerado por</span>${escapeHtml(md.generatedBy)}</div>
+          </div>`;
+        }
+        return `<div class="msg-row ${isUser ? "user" : "assistant"}">
+          <div class="msg-label">${label}</div>
+          <div class="msg-bubble ${isUser ? "user" : "assistant"}">${escapeHtml(m.content)}${imgsHtml}</div>
+          ${metaHtml}
+        </div>`;
+      }).join("");
+
+      return `<section class="session">
+        <div class="session-header">
+          <div class="session-client">
+            <div class="client-name">${escapeHtml(meta.clientName || "Cliente")}</div>
+            <div class="client-info">${infoBits}</div>
+          </div>
+          <div class="session-meta">
+            <div class="session-date">${formatarData(meta.createdAt)}</div>
+            <div class="session-tags">${tags}</div>
+          </div>
+        </div>
+        <div class="messages">${msgsHtml}</div>
+      </section>`;
+    }).join("");
+
+    return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRUTO — Histórico de Atendimento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Barlow+Condensed:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root { --teal:#57999B; --bg:#0F0F0F; --surface:#1A1A1A; --card2:#2A2A2A; --border:#2E2E2E; --white:#F2F2F2; --mid:#606060; --mid2:#888888; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #080808; color: var(--white); font-family: 'DM Sans', sans-serif; font-weight: 300; padding: 32px 16px 80px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: linear-gradient(180deg,#181818 0%, var(--surface) 100%); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; }
+  .logo-mark { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 22px; letter-spacing: .10em; text-transform: uppercase; }
+  .logo-dash { width: 18px; height: 1.5px; background: var(--teal); margin: 0 8px; }
+  .logo-co { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: .20em; text-transform: uppercase; color: var(--teal); }
+  .header-title { margin-left: auto; text-align: right; font-size: 11px; color: var(--mid2); }
+  .summary { font-size: 12px; color: var(--mid2); margin: 0 0 28px 4px; }
+  .session { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 20px; overflow: hidden; }
+  .session-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 16px 20px; background: linear-gradient(180deg,#181818 0%, var(--surface) 100%); border-bottom: 1px solid var(--border); }
+  .client-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 15px; }
+  .client-info { font-size: 11px; color: var(--mid2); margin-top: 4px; }
+  .session-meta { text-align: right; }
+  .session-date { font-size: 11px; color: var(--mid); }
+  .session-tags { margin-top: 6px; }
+  .tag { display: inline-block; font-size: 9px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--teal); background: rgba(87,153,155,.12); border: 1px solid rgba(87,153,155,.25); padding: 3px 8px; border-radius: 4px; margin-left: 4px; }
+  .messages { padding: 18px 20px; display: flex; flex-direction: column; gap: 16px; }
+  .msg-row { display: flex; flex-direction: column; }
+  .msg-row.user { align-items: flex-end; }
+  .msg-row.assistant { align-items: flex-start; }
+  .msg-label { font-size: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 4px; color: var(--mid); }
+  .msg-row.user .msg-label { color: rgba(87,153,155,.6); }
+  .msg-bubble { max-width: 78%; padding: 11px 14px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; color: var(--white); }
+  .msg-bubble.user { background: var(--card2); border: 1px solid var(--border); border-radius: 12px 12px 3px 12px; }
+  .msg-bubble.assistant { background: linear-gradient(135deg, rgba(87,153,155,.08), rgba(87,153,155,.04)); border: 1px solid rgba(87,153,155,.2); border-left: 2px solid var(--teal); border-radius: 12px 12px 12px 3px; }
+  .msg-info { max-width: 78%; padding: 8px 12px; margin-top: 4px; background: rgba(87,153,155,.06); border: 1px solid rgba(87,153,155,.15); border-radius: 6px; font-size: 10px; color: var(--mid2); line-height: 1.5; }
+  .info-title { font-weight: 600; color: var(--teal); margin-bottom: 4px; font-size: 9px; text-transform: uppercase; }
+  .info-item { display: flex; gap: 6px; margin-bottom: 3px; }
+  .info-label { color: var(--mid); min-width: 130px; font-weight: 500; }
+  .msg-img { display: block; max-width: 100%; max-height: 320px; border-radius: 8px; margin-top: 8px; object-fit: cover; }
+  @media print { body { background: #fff; color: #111; } .session { break-inside: avoid; border-color: #ccc; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo-mark">BRUTO</div>
+      <div class="logo-dash"></div>
+      <div class="logo-co">Atendimento</div>
+      <div class="header-title">Exportado em ${formatarData(exportedAt)}</div>
+    </header>
+    <div class="summary">${sessions.length} conversas · ${totalMsgs} mensagens no total</div>
+    ${sessionsHtml}
+  </div>
+</body>
+</html>`;
+  }
+
+  async function exportHistoryReadable() {
+    // Abre a aba já dentro do clique do usuário — evita bloqueio de
+    // pop-up, já que o carregamento das sessões abaixo é assíncrono.
+    const janela = window.open("", "_blank");
+    try {
+      const index = adminViewAll && currentUser.papel === "admin" ? adminIndex : sessionIndex;
+      if (index.length === 0) {
+        if (janela) janela.close();
+        alert("Nenhuma sessão para exportar.");
+        return;
+      }
+
+      const sessions = [];
+      for (const s of index) {
+        let parsed = null;
+        try {
+          const data = await apiCall("api/historico.php", { acao: "obter", id: s.id });
+          if (data?.payload) parsed = JSON.parse(data.payload);
+        } catch (_) {}
+        if (!parsed) {
+          try {
+            const res = await storage.get(`session:${s.id}`);
+            if (res?.value) parsed = JSON.parse(res.value);
+          } catch (_) {}
+        }
+        if (parsed) sessions.push(parsed);
+      }
+
+      if (sessions.length === 0) {
+        if (janela) janela.close();
+        alert("Não consegui carregar nenhuma sessão do servidor ou do cache local para exportar.");
+        return;
+      }
+
+      const htmlDoc = buildReadableHtml(sessions, Date.now());
+
+      if (janela && !janela.closed) {
+        janela.document.open();
+        janela.document.write(htmlDoc);
+        janela.document.close();
+      } else {
+        // pop-up bloqueado — cai no mesmo modal de copiar/colar já
+        // usado pra exportação em JSON, só que com o HTML pronto.
+        setExportModal({ content: htmlDoc, ext: "html" });
+      }
+    } catch (e) {
+      if (janela) janela.close();
+      alert(`Erro ao exportar leitura: ${e.message}`);
+    }
   }
 
   function importHistory() {
@@ -1587,6 +1759,7 @@ function BrutoAtendimento() {
                       onClick={(e) => { e.stopPropagation(); toggleAdminView(); }}
                     >Equipe</button>
                   )}
+                  <button style={S.histActionBtn} title="Exportar leitura (abre em nova aba)" onClick={(e) => { e.stopPropagation(); exportHistoryReadable(); }}><FileText size={10} strokeWidth={2}/></button>
                   <button style={S.histActionBtn} title="Exportar histórico" onClick={(e) => { e.stopPropagation(); exportHistory(); }}><Download size={10} strokeWidth={2}/></button>
                   <button style={S.histActionBtn} title="Importar histórico" onClick={(e) => { e.stopPropagation(); importHistory(); }}><Upload size={10} strokeWidth={2}/></button>
                   <span style={{ fontSize: 9, color: mid, transform: historyOpen ? "rotate(180deg)" : "none", transition: ".2s" }}>▾</span>
@@ -1928,17 +2101,19 @@ function BrutoAtendimento() {
         <div style={S.modalOverlay} onClick={() => setExportModal(null)}>
           <div style={{ ...S.modalContent, maxWidth: 560 }} onClick={(e) => e.stopPropagation()}>
             <button style={S.modalClose} onClick={() => setExportModal(null)}><X size={16} strokeWidth={1.75}/></button>
-            <div style={S.modalTitle}>Exportar Histórico</div>
+            <div style={S.modalTitle}>{exportModal.ext === "html" ? "Exportar Leitura" : "Exportar Histórico"}</div>
             <p style={{ fontSize: 11, color: mid2, marginBottom: 12, lineHeight: 1.6 }}>
-              O download direto não é suportado neste ambiente. <strong style={{ color: white }}>Copie o JSON abaixo</strong>, cole num editor de texto e salve como <code style={{ color: teal }}>.json</code>.
+              {exportModal.ext === "html"
+                ? <>O navegador bloqueou a aba nova. <strong style={{ color: white }}>Copie o HTML abaixo</strong>, cole num editor de texto e salve como <code style={{ color: teal }}>.html</code> — abra o arquivo depois pra ler formatado.</>
+                : <>O download direto não é suportado neste ambiente. <strong style={{ color: white }}>Copie o JSON abaixo</strong>, cole num editor de texto e salve como <code style={{ color: teal }}>.json</code>.</>}
             </p>
             <textarea
               readOnly
-              value={exportModal}
+              value={exportModal.content}
               onClick={(e) => e.target.select()}
               style={{ ...S.formInput, fontFamily: "monospace", fontSize: 10, height: 220, resize: "none", lineHeight: 1.5 }}
             />
-            <ExportCopyBtn text={exportModal} label="Copiar JSON"/>
+            <ExportCopyBtn text={exportModal.content} label={exportModal.ext === "html" ? "Copiar HTML" : "Copiar JSON"}/>
           </div>
         </div>
       )}

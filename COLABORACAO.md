@@ -2280,3 +2280,32 @@ Validação: como o objeto `KB` inteiro entra automaticamente no contexto
 mais nenhum lugar do código. Sintaxe confirmada parseando o objeto `KB`
 isoladamente com `new Function()` antes do commit (o arquivo usa JSX/Babel
 standalone, então `node --check` no arquivo inteiro não seria válido).
+
+---
+
+## 51. Exportação legível (HTML) do histórico de atendimento (22/07/2026)
+
+O Rafael mandou um export JSON de sessões (produzido pelo botão "Exportar
+histórico" já existente) e pediu uma forma de visualizar isso formatado,
+igual à tela da própria ferramenta, sem precisar interpretar JSON cru.
+
+Adicionado botão "Exportar leitura" (ícone FileText) ao lado do de
+exportar JSON. Reaproveita exatamente a mesma coleta de sessões do
+`exportHistory()` já existente (servidor + cache local), mas monta um
+documento HTML autocontido com a mesma paleta/tipografia do app (Syne +
+DM Sans + Barlow Condensed, tokens de cor teal/bg/surface/card idênticos
+aos definidos em `S`) — bolhas de mensagem por cliente/assistente, tags,
+metadados de geração (modo/KB/modelo) e imagens inline via data URL.
+
+Abre em aba nova via `window.open('', '_blank')` + `document.write()`,
+disparado já dentro do clique (antes do `await` da coleta assíncrona) pra
+não ser bloqueado como pop-up. Se mesmo assim for bloqueado, cai no mesmo
+modal de copiar/colar já usado pela exportação JSON — por isso o estado
+`exportModal` mudou de `string` pra `{ content, ext }`, permitindo o
+modal adaptar rótulo e instrução (.json vs .html) conforme o tipo.
+
+Testes: compilação real do JSX via `@babel/standalone` (arquivo inteiro,
+139k+ chars, sem erro) e teste isolado da função de montagem do HTML com
+dados adversariais (nome de cliente com `<script>`/aspas/&) confirmando
+escape correto — sem isso, conteúdo digitado por um cliente no chat
+poderia injetar HTML/JS no export.
