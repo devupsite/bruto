@@ -90,11 +90,31 @@
         '<i class="ti ti-circle-check exit-intent__icon exit-intent__icon--ok" aria-hidden="true"></i>' +
         '<h2 class="exit-intent__title">Guia a caminho!</h2>' +
         '<p class="exit-intent__body">O download começou. Se precisar, nosso time também pode te ajudar direto pelo WhatsApp.</p>' +
-        '<a href="https://wa.me/5511990049468?text=' + encodeURIComponent('Olá! Baixei o guia de aplicação e queria mais informações.') + '" target="_blank" rel="noopener" class="btn btn--outline exit-intent__submit">' +
+        '<button type="button" class="btn btn--outline exit-intent__submit" id="exit-intent-whatsapp">' +
           '<i class="ti ti-brand-whatsapp" aria-hidden="true"></i> Falar no WhatsApp' +
-        '</a>';
+        '</button>';
       redirectTimer = setTimeout(function () { window.location.href = 'obrigado.html?origem=exit-intent'; }, 6000);
       modal.querySelector('.exit-intent__close').addEventListener('click', fechar);
+
+      // Botão de WhatsApp da tela de confirmação: passa pelo mesmo
+      // rodízio de atendentes e rastreio (gclid/UTM/código de
+      // referência) que os outros botões do site, em vez de um
+      // número fixo — abre a aba já no clique (evita bloqueio de
+      // pop-up) e só troca a URL quando o número chega.
+      modal.querySelector('#exit-intent-whatsapp').addEventListener('click', function () {
+        var msg = 'Olá! Baixei o guia de aplicação e queria mais informações.';
+        var janela = window.open('', '_blank');
+        if (window.brutoWhatsappHref) {
+          window.brutoWhatsappHref(msg, 'exit-intent-guia-pdf').then(function (url) {
+            if (janela) { janela.location.href = url; } else { window.open(url, '_blank'); }
+          });
+        } else if (janela) {
+          janela.location.href = 'https://wa.me/5511990049468?text=' + encodeURIComponent(msg);
+        }
+        if (window.brutoTrack) {
+          window.brutoTrack('whatsapp_click', { link_text: 'exit-intent-confirmacao', page_path: window.location.pathname });
+        }
+      });
     });
   }
 

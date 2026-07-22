@@ -42,9 +42,11 @@
   // é lead quente, então vai direto pro WhatsApp com a promo já contextualizada,
   // sem passo extra pela seção #amostra.
   var WHATSAPP_NUMBER = '5511990049468';
+  function popupMensagem() {
+    return 'Olá! Vi a oferta de frete grátis acima de 10m\u00b2 e quero aproveitar.';
+  }
   function popupCtaHref() {
-    var msg = 'Olá! Vi a oferta de frete grátis acima de 10m\u00b2 e quero aproveitar.';
-    return 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
+    return 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(popupMensagem());
   }
 
   // ---------- BANNER ----------
@@ -90,7 +92,7 @@
         '<span class="promo-modal__eyebrow">Oferta por tempo limitado</span>' +
         '<h3 class="promo-modal__title">Frete grátis acima de 10m\u00b2</h3>' +
         '<p class="promo-modal__body">Fale com a gente agora e garanta o benefício antes de fechar seu pedido.</p>' +
-        '<a href="' + popupCtaHref() + '" target="_blank" rel="noopener" class="promo-modal__cta">Quero meu frete grátis</a>' +
+        '<button type="button" class="promo-modal__cta" id="promo-modal-whatsapp">Quero meu frete grátis</button>' +
         '<button type="button" class="promo-modal__dismiss">Agora não</button>' +
       '</div>';
 
@@ -121,7 +123,25 @@
     });
     overlay.querySelector('.promo-modal__close').addEventListener('click', function () { close(true); });
     overlay.querySelector('.promo-modal__dismiss').addEventListener('click', function () { close(true); });
-    overlay.querySelector('.promo-modal__cta').addEventListener('click', function () { markDismissed(STORAGE_KEY_POPUP); });
+    overlay.querySelector('#promo-modal-whatsapp').addEventListener('click', function () {
+      markDismissed(STORAGE_KEY_POPUP);
+      // Passa pelo mesmo rodízio de atendentes e rastreio (gclid/UTM/
+      // código de referência) dos outros botões — abre a aba já no
+      // clique (evita bloqueio de pop-up) e só troca a URL quando o
+      // número do atendente sorteado chega. Fallback pro número fixo
+      // só se o script do rodízio não tiver carregado por algum motivo.
+      var janela = window.open('', '_blank');
+      if (window.brutoWhatsappHref) {
+        window.brutoWhatsappHref(popupMensagem(), 'frete-gratis-popup').then(function (url) {
+          if (janela) { janela.location.href = url; } else { window.open(url, '_blank'); }
+        });
+      } else if (janela) {
+        janela.location.href = popupCtaHref();
+      }
+      if (window.brutoTrack) {
+        window.brutoTrack('whatsapp_click', { link_text: 'promo-frete-gratis-popup', page_path: window.location.pathname });
+      }
+    });
 
     // Trigger 1: exit-intent (desktop) — mouse sai pelo topo da janela
     function onMouseLeave(e) {

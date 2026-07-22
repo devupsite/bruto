@@ -235,8 +235,43 @@
   window.brutoGetWhatsappNumero = buscarNumero;
   window.brutoWhatsappHref = montarLink;
 
+  // ── Botão "Solicitar amostra" do header/sidebar (.header__cta) ──
+  // Antes levava sempre pra seção #amostra da home, perdendo o
+  // contexto quando clicado a partir de uma página de produto. Agora
+  // vai direto pro WhatsApp, já com o produto na mensagem quando a
+  // página tiver um (mesmo data-product-name usado pela calculadora),
+  // passando pelo rodízio e pelo rastreio normalmente.
+  function interceptarHeaderCta() {
+    document.querySelectorAll('a.header__cta').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        var origemInfo = document.getElementById('lead-pdf-open');
+        var produto = origemInfo ? origemInfo.getAttribute('data-product-name') : null;
+        var linha = origemInfo ? origemInfo.getAttribute('data-product-line') : null;
+        var msg = produto
+          ? 'Olá! Gostaria de solicitar uma amostra do ' + (linha ? linha + ' ' : '') + produto + '.'
+          : 'Olá! Gostaria de solicitar uma amostra.';
+
+        var janela = window.open('', '_blank');
+        montarLink(msg, 'amostra-header').then(function (url) {
+          if (janela) { janela.location.href = url; } else { window.open(url, '_blank'); }
+        }).catch(function () {
+          // Se algo falhar, não deixa a pessoa sem saída: cai no
+          // comportamento antigo (seção #amostra da home).
+          if (janela) { janela.location.href = link.href; }
+        });
+
+        if (window.brutoTrack) {
+          window.brutoTrack('whatsapp_click', { link_text: 'header-cta-amostra', page_path: window.location.pathname, produto: produto || null });
+        }
+      });
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     capturarContextoAds();
+    interceptarHeaderCta();
     buscarNumero().then(function (dados) {
       reescreverLinksEstaticos(dados);
       if (window.brutoTrack) {

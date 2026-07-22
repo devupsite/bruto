@@ -2196,3 +2196,58 @@ bordas ~0%. Cache-bust + bump v18.
 Lembrete: ao herdar/auditar textura de sessão desconhecida, sempre medir
 ΔL contra a galeria antes de assumir que está tudo certo — nem toda
 textura no repo passou pelo pipeline completo do item 38.
+
+---
+
+## 49. Rastreio de conversão estendido a popups e sidebar; painel de atendentes ganha adicionar/remover; correção do erro 500 em ordens/atendimento (22/07/2026)
+
+**Rastreio (gclid/UTM/código de referência via `window.brutoWhatsappHref`)
+estava presente em botões diretos, calculadora e guias em PDF, mas
+ausente em dois pontos dinâmicos:**
+- Popup de exit-intent (`exit-intent.js`): o CTA de WhatsApp da tela de
+  confirmação era um `<a href>` estático com número fixo, criado depois
+  do carregamento da página — fora do alcance da reescrita de links
+  estáticos do `whatsapp-atendimento.js`. Trocado por um botão que
+  chama `brutoWhatsappHref` no clique.
+- Popup de frete grátis (`promo-frete-gratis.js`): mesmo problema,
+  mesma correção.
+
+**Botão "Solicitar amostra" do header/sidebar (`.header__cta`)** antes
+sempre levava pra `index.html#amostra`, perdendo o contexto de produto
+quando clicado a partir de uma página de produto. Agora intercepta o
+clique (`interceptarHeaderCta()` em `whatsapp-atendimento.js`) e abre o
+WhatsApp direto, citando o produto da página quando existir
+(`data-product-name`/`data-product-line` do botão da calculadora),
+passando pelo rodízio e pelo rastreio normalmente. Fallback pro
+comportamento antigo se `brutoWhatsappHref` falhar.
+
+**Bug de cache descoberto durante o teste em produção:** os três
+scripts acima já estavam no ar com o conteúdo novo, mas o carimbo de
+versão na tag `<script src="...?v=N">` não tinha mudado — navegadores
+continuaram servindo a cópia antiga do cache. Corrigido com bump de
+versão nas 34 páginas que carregam esses scripts
+(`whatsapp-atendimento.js` v1→v2, `promo-frete-gratis.js` e
+`exit-intent.js` v2→v3). Lição: qualquer edição de conteúdo de `.js`
+carregado com cache-bust por versão precisa vir acompanhada do bump da
+versão em todas as páginas que o referenciam, nunca só do conteúdo.
+
+**Painel de rodízio de atendentes** (`interno/atendimento-whatsapp.html`)
+ganhou adicionar/remover atendente (antes só tinha toggle ativo/inativo).
+Dois pares de ponte pública + lógica real:
+`interno/atendimento-adicionar.php` e `interno/atendimento-remover.php`
+(git-safe) → `bruto-secrets/API/atendimento-adicionar.php` e
+`atendimento-remover.php` (não git-safe, upload manual). Normaliza
+número com ou sem DDI 55, bloqueia duplicado, atendente novo sempre
+entra inativo por segurança, remoção bloqueada se for o único ativo.
+
+**Erro 500 em `/ordens/` e `/atendimento/` quando acessados pelo domínio
+principal** (em vez do subdomínio dedicado): as 9 pontes públicas
+assumiam um número fixo de níveis até `bruto-secrets/` via
+`dirname(dirname($_SERVER['DOCUMENT_ROOT']))`, que só é válido quando
+`DOCUMENT_ROOT` já é a pasta do subdomínio. Reescritas pra tentar os
+dois caminhos possíveis (subdomínio e domínio principal) antes de
+desistir, com erro JSON legível em vez de 500 mudo se nenhum funcionar.
+
+Também: nova página `/bio/` (link-na-bio do Instagram) com relatório de
+cliques próprio — fora deste repositório de commits porque foi criada
+e testada em sessão separada de chat, não documentada aqui em detalhe.
