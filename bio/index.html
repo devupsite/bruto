@@ -271,7 +271,8 @@
       a.className = 'peca' + (link.destaque ? ' peca--destaque' : '');
       a.href = link.href;
       a.dataset.id = link.id;
-      if (link.href.indexOf('http') === 0) { a.target = '_blank'; a.rel = 'noopener'; }
+      a.target = '_blank';
+      a.rel = 'noopener';
       a.innerHTML =
         '<span class="peca-icone">' + (ICONES[link.icone] || '') + '</span>' +
         '<span class="peca-textos">' +

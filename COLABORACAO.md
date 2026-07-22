@@ -2339,3 +2339,16 @@ Lição: qualquer pasta/arquivo em `public_html` que dependa de
 sobreviver a um próximo deploy precisa estar no Git — upload manual
 "paralelo" ao repositório é uma armadilha que só aparece quando o
 próximo commit acontece.
+
+---
+
+## 53. Bio: botão de WhatsApp não abria em nova aba (22/07/2026)
+
+O Rafael notou que clicar em "Falar com um consultor" na `/bio/` fechava
+a própria página em vez de abrir o WhatsApp numa aba nova, persistindo a
+bio. Causa: o link de WhatsApp nasce com `href="#"` (placeholder — o
+número real só chega depois, via rodízio), e a lógica que marca
+`target="_blank"` só rodava pra links que já nascessem com `http` no
+href — então o WhatsApp nunca era marcado, mesmo depois do href ser
+trocado pelo `wa.me` de verdade. Corrigido: todo link da parede agora
+sempre abre em nova aba, incondicionalmente.
