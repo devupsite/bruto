@@ -31,11 +31,11 @@
     { slug: "brick-rusticatto-terra-negra", categoria: "Brick", nome: "Rusticatto Terra Negra", sku: "60", preco: 197.90, dimensoes: "260mm x 65mm x 20mm" },
     { slug: "brick-terra-cerrado", categoria: "Brick", nome: "Terra do Cerrado", sku: "47", preco: 148.90, dimensoes: "260mm x 70mm x 15mm" },
     { slug: "cimenticio-alpino", categoria: "Cimentício", nome: "Alpino", sku: "80", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
-    { slug: "cimenticio-grigio", categoria: "Cimentício", nome: "Grigio", sku: "81", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
+    { slug: "cimenticio-brisa", categoria: "Cimentício", nome: "Brisa", sku: "81", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
     { slug: "cimenticio-urban", categoria: "Cimentício", nome: "Urban", sku: "82", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
     { slug: "rockface-alpino", categoria: "Rockface", nome: "Alpino", sku: "91", preco: 252.90, dimensoes: "290mm x 95mm x 20mm" },
     { slug: "rockface-brisa", categoria: "Rockface", nome: "Brisa", sku: "90", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
-    { slug: "rockface-grigio", categoria: "Rockface", nome: "Grigio", sku: "92", preco: 252.90, dimensoes: "290mm x 95mm x 20mm" }
+    { slug: "rockface-urban", categoria: "Rockface", nome: "Urban", sku: "92", preco: 252.90, dimensoes: "290mm x 95mm x 20mm" }
   ];
 
   var PADROES = [
