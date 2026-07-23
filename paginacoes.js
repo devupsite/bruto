@@ -31,7 +31,7 @@
         { id: 'brick-rusticatto-rosso',       nome: 'Rusticatto Rosso',      w: 270, h: 70,
           texturas: ['brick-rusticatto-rosso-face1.webp?v=3', 'brick-rusticatto-rosso-face2.webp?v=5'] },
         { id: 'brick-rusticatto-terra-negra', nome: 'Rusticatto Terra Negra', w: 260, h: 65,
-          texturas: ['brick-rusticatto-terra-negra-face1.webp?v=3', 'brick-rusticatto-terra-negra-face2.webp?v=3'] },
+          texturas: ['brick-rusticatto-terra-negra-face1.webp?v=3', 'brick-rusticatto-terra-negra-face2.webp?v=4'] },
         { id: 'brick-terra-cerrado',          nome: 'Terra do Cerrado',      w: 260, h: 70,
           texturas: ['brick-terra-cerrado-face1.webp?v=3', 'brick-terra-cerrado-face2.webp?v=3'] }
       ]
@@ -39,7 +39,8 @@
     cimenticio: {
       nome: 'Cimentício',
       itens: [
-        { id: 'cimenticio-alpino', nome: 'Alpino', w: 260, h: 75 },
+        { id: 'cimenticio-alpino', nome: 'Alpino', w: 260, h: 75,
+          texturas: ['cimenticio-alpino-face1.webp?v=1'] },
         { id: 'cimenticio-grigio', nome: 'Grigio', w: 260, h: 75,
           texturas: ['cimenticio-grigio-face1.webp'] },
         { id: 'cimenticio-urban',  nome: 'Urban',  w: 260, h: 75,
@@ -49,7 +50,8 @@
     rockface: {
       nome: 'Rockface',
       itens: [
-        { id: 'rockface-alpino', nome: 'Alpino', w: 290, h: 95 },
+        { id: 'rockface-alpino', nome: 'Alpino', w: 290, h: 95,
+          texturas: ['rockface-alpino-face1.webp?v=1'] },
         { id: 'rockface-brisa',  nome: 'Brisa',  w: 260, h: 75,
           texturas: ['rockface-brisa-face1.webp'] },
         { id: 'rockface-grigio', nome: 'Grigio', w: 290, h: 95,
