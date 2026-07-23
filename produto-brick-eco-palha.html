@@ -702,7 +702,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
           </div>
           <p class="calc__note" id="calc-note" hidden></p>
-          <p class="calc__pix" id="calc-pix" hidden><span class="calc__pix-badge">PIX</span> Economize <strong id="calc-pix-val">—</strong> pagando à vista</p>
           <button type="button" class="btn btn--outline lead-pdf__trigger" id="lead-pdf-open" data-product-name="Eco Palha" data-product-line="Brick" data-product-price="153,90">
             <i class="ti ti-file-download" aria-hidden="true"></i>
             Baixar PDF com meus dados
@@ -1059,7 +1058,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (!larg || !alt) {
           document.getElementById('calc-result').hidden = true;
           document.getElementById('calc-note').hidden = true;
-          document.getElementById('calc-pix').hidden = true;
           return;
         }
         var area = larg * alt;
@@ -1077,10 +1075,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         noteEl.textContent = '≈ ' + pecasPorM2.toFixed(0) + ' peças/m² · considerando junta de 8mm';
         noteEl.hidden = false;
 
-        // Desconto Pix — deve bater com DESCONTO_PIX em parcelamento.js
-        var pixSavings = custo * 0.05;
-        document.getElementById('calc-pix-val').textContent = 'R$ ' + pixSavings.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-        document.getElementById('calc-pix').hidden = false;
       }
 
       ['calc-larg','calc-alt','calc-perda'].forEach(function(id) {

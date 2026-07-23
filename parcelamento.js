@@ -1,12 +1,11 @@
 /* ════════════════════════════════════════════════════════════════
-   PARCELAMENTO — calcula e renderiza Pix + parcelas a partir do
+   PARCELAMENTO — calcula e renderiza as parcelas a partir do
    preço já exibido em .price (mesmo padrão usado pela calculadora
    de quantidade). Tabela é INFORMATIVA — não há gateway de
    pagamento ativo ainda. Ver COLABORACAO.md item "tabela de
    parcelamento" para contexto.
 
    Lógica:
-   - Pix: 10% de desconto sobre o preço /m² exibido
    - 1x a 4x: preço cheio, sem juros
    - 5x a 12x: Tabela Price, juros de 4,5% a.m. (padrão de mercado,
      mesma referência usada pela Cerâmica Faion)
@@ -15,7 +14,6 @@
   'use strict';
 
   var JUROS_MENSAL = 0.045;
-  var DESCONTO_PIX = 0.05;
 
   function formatBRL(v) {
     return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -41,15 +39,10 @@
   }
 
   function render(container, preco) {
-    var pix = preco * (1 - DESCONTO_PIX);
     var rows = buildRows(preco);
 
     var html = '';
     html += '<div class="price-parc">';
-    html += '  <div class="price-parc__pix">';
-    html += '    <span class="price-parc__pix-badge">5% OFF NO PIX</span>';
-    html += '    <span class="price-parc__pix-val">R$ ' + formatBRL(pix) + '<span class="price__unit"> /m²</span></span>';
-    html += '  </div>';
     html += '  <p class="price-parc__main">até <strong>4x de R$ ' + formatBRL(preco / 4) + '</strong> sem juros no cartão</p>';
     html += '  <button type="button" class="price-parc__toggle" aria-expanded="false">';
     html += '    Ver todas as parcelas <i class="ti ti-chevron-down" aria-hidden="true"></i>';
