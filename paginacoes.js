@@ -40,22 +40,22 @@
       nome: 'Cimentício',
       itens: [
         { id: 'cimenticio-alpino', nome: 'Alpino', w: 260, h: 75,
-          texturas: ['cimenticio-alpino-face1.webp?v=1'] },
-        { id: 'cimenticio-grigio', nome: 'Grigio', w: 260, h: 75,
-          texturas: ['cimenticio-grigio-face1.webp'] },
+          texturas: ['cimenticio-alpino-face1.webp?v=1', 'cimenticio-alpino-face2.webp?v=1'] },
+        { id: 'cimenticio-brisa',  nome: 'Brisa',  w: 260, h: 75,
+          texturas: ['cimenticio-brisa-face1.webp?v=1', 'cimenticio-brisa-face2.webp?v=1'] },
         { id: 'cimenticio-urban',  nome: 'Urban',  w: 260, h: 75,
-          texturas: ['cimenticio-urban-face1.webp'] }
+          texturas: ['cimenticio-urban-face1.webp?v=1', 'cimenticio-urban-face2.webp?v=1'] }
       ]
     },
     rockface: {
       nome: 'Rockface',
       itens: [
         { id: 'rockface-alpino', nome: 'Alpino', w: 290, h: 95,
-          texturas: ['rockface-alpino-face1.webp?v=1'] },
+          texturas: ['rockface-alpino-face1.webp?v=1', 'rockface-alpino-face2.webp?v=1'] },
         { id: 'rockface-brisa',  nome: 'Brisa',  w: 260, h: 75,
-          texturas: ['rockface-brisa-face1.webp'] },
-        { id: 'rockface-grigio', nome: 'Grigio', w: 290, h: 95,
-          texturas: ['rockface-grigio-face1.webp'] }
+          texturas: ['rockface-brisa-face1.webp?v=1', 'rockface-brisa-face2.webp?v=1'] },
+        { id: 'rockface-urban',  nome: 'Urban',  w: 290, h: 95,
+          texturas: ['rockface-urban-face1.webp?v=1'] }
       ]
     }
   };

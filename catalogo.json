@@ -12,10 +12,10 @@
     { "slug": "brick-rusticatto-terra-negra","nome": "Rusticatto Terra Negra","linha": "brick",     "sku": 60, "preco": 197.90, "dimensoes_mm": [270, 70, 20] },
     { "slug": "brick-terra-cerrado",        "nome": "Terra do Cerrado",      "linha": "brick",      "sku": 47, "preco": 148.90, "dimensoes_mm": [260, 70, 15] },
     { "slug": "cimenticio-alpino",          "nome": "Alpino",                "linha": "cimenticio", "sku": 80, "preco": 186.90, "dimensoes_mm": [260, 75, 10] },
-    { "slug": "cimenticio-grigio",          "nome": "Grigio",                "linha": "cimenticio", "sku": 81, "preco": 186.90, "dimensoes_mm": [260, 75, 10] },
+    { "slug": "cimenticio-brisa",           "nome": "Brisa",                 "linha": "cimenticio", "sku": 81, "preco": 186.90, "dimensoes_mm": [260, 75, 10] },
     { "slug": "cimenticio-urban",           "nome": "Urban",                 "linha": "cimenticio", "sku": 82, "preco": 186.90, "dimensoes_mm": [260, 75, 10] },
     { "slug": "rockface-alpino",            "nome": "Alpino",                "linha": "rockface",   "sku": 91, "preco": 252.90, "dimensoes_mm": [290, 95, 20] },
     { "slug": "rockface-brisa",             "nome": "Brisa",                 "linha": "rockface",   "sku": 90, "preco": 186.90, "dimensoes_mm": [260, 75, 10] },
-    { "slug": "rockface-grigio",            "nome": "Grigio",                "linha": "rockface",   "sku": 92, "preco": 252.90, "dimensoes_mm": [290, 95, 20] }
+    { "slug": "rockface-urban",             "nome": "Urban",                 "linha": "rockface",   "sku": 92, "preco": 252.90, "dimensoes_mm": [290, 95, 20] }
   ]
 }
