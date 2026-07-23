@@ -269,7 +269,7 @@
     y += 20;
     doc.setFontSize(9);
     doc.setTextColor(150, 150, 150);
-    doc.text('Gerado em ' + new Date().toLocaleDateString('pt-BR') + ' · bruto.com.br', 20, y);
+    doc.text('Gerado em ' + new Date().toLocaleDateString('pt-BR') + ' · brutoceramica.com.br', 20, y);
 
     /* ── Página 2: simulação visual na parede (quando capturada) ── */
     if (wallImage) {
