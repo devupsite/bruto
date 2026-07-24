@@ -44,7 +44,7 @@
         { id: 'cimenticio-alpino', nome: 'Alpino', w: 260, h: 75,
           texturas: ['cimenticio-alpino-face1.webp?v=3', 'cimenticio-alpino-face2.webp?v=3'] },
         { id: 'cimenticio-brisa',  nome: 'Brisa',  w: 260, h: 75,
-          texturas: ['cimenticio-brisa-face1.webp?v=1', 'cimenticio-brisa-face2.webp?v=2'] },
+          texturas: ['cimenticio-brisa-face1.webp?v=2', 'cimenticio-brisa-face2.webp?v=3'] },
         { id: 'cimenticio-urban',  nome: 'Urban',  w: 260, h: 75,
           texturas: ['cimenticio-urban-face1.webp?v=1', 'cimenticio-urban-face2.webp?v=2'] }
       ]
