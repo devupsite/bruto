@@ -46,7 +46,7 @@
         { id: 'cimenticio-brisa',  nome: 'Brisa',  w: 260, h: 75,
           texturas: ['cimenticio-brisa-face1.webp?v=2', 'cimenticio-brisa-face2.webp?v=3'] },
         { id: 'cimenticio-urban',  nome: 'Urban',  w: 260, h: 75,
-          texturas: ['cimenticio-urban-face1.webp?v=1', 'cimenticio-urban-face2.webp?v=2'] }
+          texturas: ['cimenticio-urban-face1.webp?v=2', 'cimenticio-urban-face2.webp?v=3'] }
       ]
     },
     rockface: {
