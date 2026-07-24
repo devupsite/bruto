@@ -3,3 +3,5 @@ package-lock.json
 package.json
 *.backup
 interno/.htpasswd
+__pycache__/
+*.pyc
