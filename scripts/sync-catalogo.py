@@ -85,6 +85,15 @@ def sync_produto_page(produto, check, changed):
         text,
         count=1,
     )
+    # 5) peso: <span>350g</span> (só sincroniza se o produto tiver peso_g E a
+    # página já tiver o spec-item de Peso — não cria o bloco do zero)
+    if "peso_g" in produto:
+        text = re.sub(
+            r"(<span>)\d+g(</span>)",
+            lambda m: m.group(1) + f"{produto['peso_g']}g" + m.group(2),
+            text,
+            count=1,
+        )
 
     if text != original:
         changed.append(path.name)
@@ -128,13 +137,13 @@ def sync_texturas(produtos, check, changed):
 
 
 def sync_ordem_servico(produtos, check, changed):
-    path = ROOT / "ordem-servico.js"
+    path = ROOT / "ordens" / "ordem-servico.js"
     original = path.read_text(encoding="utf-8")
 
     linhas = []
     for p in produtos:
-        linhas.append(
-            "    { slug: \"%s\", categoria: \"%s\", nome: \"%s\", sku: \"%s\", preco: %s, dimensoes: \"%s\" }"
+        linha = (
+            "    { slug: \"%s\", categoria: \"%s\", nome: \"%s\", sku: \"%s\", preco: %s, dimensoes: \"%s\""
             % (
                 p["slug"],
                 LINHA_LABEL[p["linha"]],
@@ -144,6 +153,10 @@ def sync_ordem_servico(produtos, check, changed):
                 dim_str(p["dimensoes_mm"]),
             )
         )
+        if "peso_g" in p:
+            linha += ", peso: \"%dg\"" % p["peso_g"]
+        linha += " }"
+        linhas.append(linha)
     novo_bloco = "  var CATALOGO = [\n" + ",\n".join(linhas) + "\n  ];"
 
     text = re.sub(

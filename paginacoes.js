@@ -16,6 +16,8 @@
       itens: [
         { id: 'brick-eco-palha',              nome: 'Eco Palha',             w: 265, h: 65,
           texturas: ['brick-eco-palha-face1.webp?v=3', 'brick-eco-palha-face2.webp?v=3'] },
+        { id: 'brick-rusticatto-palha',        nome: 'Rusticatto Palha',      w: 270, h: 70,
+          texturas: ['brick-rusticatto-palha-face1.webp?v=1', 'brick-rusticatto-palha-face2.webp?v=1'] },
         { id: 'brick-lumus',                  nome: 'Lumus',                 w: 265, h: 65,
           texturas: ['brick-lumus-face1.webp?v=3', 'brick-lumus-face2.webp?v=3'] },
         { id: 'brick-mescla-prime',           nome: 'Mescla Prime',          w: 250, h: 70,

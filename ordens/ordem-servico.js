@@ -20,22 +20,23 @@
   var API_ENVIAR_EMAIL = 'api/enviar-email.php';
 
   var CATALOGO = [
-    { slug: "brick-eco-palha", categoria: "Brick", nome: "Eco Palha", sku: "57", preco: 153.90, dimensoes: "270mm x 70mm x 15mm" },
-    { slug: "brick-lumus", categoria: "Brick", nome: "Lumus", sku: "73", preco: 164.90, dimensoes: "270mm x 70mm x 15mm" },
-    { slug: "brick-mescla-prime", categoria: "Brick", nome: "Mescla Prime", sku: "54", preco: 153.90, dimensoes: "250mm x 70mm x 15mm" },
-    { slug: "brick-natura", categoria: "Brick", nome: "Natura", sku: "48", preco: 104.90, dimensoes: "240mm x 70mm x 15mm" },
-    { slug: "brick-rosso-prime", categoria: "Brick", nome: "Rosso Prime", sku: "53", preco: 142.90, dimensoes: "270mm x 70mm x 15mm" },
-    { slug: "brick-rusticatto-fume", categoria: "Brick", nome: "Rusticatto Fumê", sku: "72", preco: 186.90, dimensoes: "270mm x 70mm x 20mm" },
-    { slug: "brick-rusticatto-rosso", categoria: "Brick", nome: "Rusticatto Rosso", sku: "77", preco: 159.90, dimensoes: "270mm x 70mm x 20mm" },
-    { slug: "brick-rusticatto-sertao", categoria: "Brick", nome: "Rusticatto do Sertão", sku: "61", preco: 164.90, dimensoes: "255mm x 70mm x 20mm" },
-    { slug: "brick-rusticatto-terra-negra", categoria: "Brick", nome: "Rusticatto Terra Negra", sku: "60", preco: 197.90, dimensoes: "260mm x 65mm x 20mm" },
-    { slug: "brick-terra-cerrado", categoria: "Brick", nome: "Terra do Cerrado", sku: "47", preco: 148.90, dimensoes: "260mm x 70mm x 15mm" },
-    { slug: "cimenticio-alpino", categoria: "Cimentício", nome: "Alpino", sku: "80", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
-    { slug: "cimenticio-brisa", categoria: "Cimentício", nome: "Brisa", sku: "81", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
-    { slug: "cimenticio-urban", categoria: "Cimentício", nome: "Urban", sku: "82", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
-    { slug: "rockface-alpino", categoria: "Rockface", nome: "Alpino", sku: "91", preco: 252.90, dimensoes: "290mm x 95mm x 20mm" },
-    { slug: "rockface-brisa", categoria: "Rockface", nome: "Brisa", sku: "90", preco: 186.90, dimensoes: "260mm x 75mm x 10mm" },
-    { slug: "rockface-urban", categoria: "Rockface", nome: "Urban", sku: "92", preco: 252.90, dimensoes: "290mm x 95mm x 20mm" }
+    { slug: "brick-eco-palha", categoria: "Brick", nome: "Eco Palha", sku: "57", preco: 153.90, dimensoes: "270mm x 70mm x 15mm", peso: "350g" },
+    { slug: "brick-rusticatto-palha", categoria: "Brick", nome: "Rusticatto Palha", sku: "78", preco: 169.90, dimensoes: "270mm x 70mm x 25mm", peso: "650g" },
+    { slug: "brick-lumus", categoria: "Brick", nome: "Lumus", sku: "73", preco: 164.90, dimensoes: "270mm x 70mm x 15mm", peso: "405g" },
+    { slug: "brick-mescla-prime", categoria: "Brick", nome: "Mescla Prime", sku: "54", preco: 153.90, dimensoes: "250mm x 70mm x 15mm", peso: "360g" },
+    { slug: "brick-natura", categoria: "Brick", nome: "Natura", sku: "48", preco: 104.90, dimensoes: "240mm x 70mm x 15mm", peso: "465g" },
+    { slug: "brick-rosso-prime", categoria: "Brick", nome: "Rosso Prime", sku: "53", preco: 142.90, dimensoes: "270mm x 70mm x 15mm", peso: "470g" },
+    { slug: "brick-rusticatto-fume", categoria: "Brick", nome: "Rusticatto Fumê", sku: "72", preco: 186.90, dimensoes: "270mm x 70mm x 20mm", peso: "570g" },
+    { slug: "brick-rusticatto-rosso", categoria: "Brick", nome: "Rusticatto Rosso", sku: "77", preco: 159.90, dimensoes: "270mm x 70mm x 20mm", peso: "590g" },
+    { slug: "brick-rusticatto-sertao", categoria: "Brick", nome: "Rusticatto do Sertão", sku: "61", preco: 164.90, dimensoes: "255mm x 70mm x 22mm", peso: "610g" },
+    { slug: "brick-rusticatto-terra-negra", categoria: "Brick", nome: "Rusticatto Terra Negra", sku: "60", preco: 197.90, dimensoes: "265mm x 65mm x 20mm", peso: "585g" },
+    { slug: "brick-terra-cerrado", categoria: "Brick", nome: "Terra do Cerrado", sku: "47", preco: 148.90, dimensoes: "260mm x 70mm x 15mm", peso: "375g" },
+    { slug: "cimenticio-alpino", categoria: "Cimentício", nome: "Alpino", sku: "80", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "447g" },
+    { slug: "cimenticio-brisa", categoria: "Cimentício", nome: "Brisa", sku: "81", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "432g" },
+    { slug: "cimenticio-urban", categoria: "Cimentício", nome: "Urban", sku: "82", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "438g" },
+    { slug: "rockface-alpino", categoria: "Rockface", nome: "Alpino", sku: "91", preco: 252.90, dimensoes: "290mm x 95mm x 20mm", peso: "1325g" },
+    { slug: "rockface-brisa", categoria: "Rockface", nome: "Brisa", sku: "90", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "764g" },
+    { slug: "rockface-urban", categoria: "Rockface", nome: "Urban", sku: "92", preco: 252.90, dimensoes: "290mm x 95mm x 20mm", peso: "966g" }
   ];
 
   var PADROES = [
