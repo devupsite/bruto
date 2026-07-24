@@ -94,6 +94,19 @@ def sync_produto_page(produto, check, changed):
             text,
             count=1,
         )
+    # 6) SKU: JSON-LD "sku": "57" e texto visivel <p class="sku">SKU 57</p>
+    text = re.sub(
+        r'("sku":\s*")\d+(")',
+        lambda m: m.group(1) + str(produto["sku"]) + m.group(2),
+        text,
+        count=1,
+    )
+    text = re.sub(
+        r'(<p class="sku">SKU )\d+(</p>)',
+        lambda m: m.group(1) + str(produto["sku"]) + m.group(2),
+        text,
+        count=1,
+    )
 
     if text != original:
         changed.append(path.name)

@@ -47,7 +47,7 @@ import {
   Hammer, RotateCcw, CheckCircle2, Settings, Plug, Send,
   X, MessageCircle, Lightbulb, Copy, Check, History, Plus, Trash2, Download, Upload,
   Image as ImageIcon, Camera, FileText,
-  Target, ClipboardList, GraduationCap, Dices, MessageSquareShare, Users, Pencil,
+  Target, ClipboardList, GraduationCap, Dices, MessageSquareShare, Users, Pencil, BarChart3,
 } from "lucide-react";
 
 // ── CONFIG DE DEPLOY (fora do Claude.ai) ───────────────────────────
@@ -572,6 +572,9 @@ function BrutoAtendimento() {
   const [imageAttachments, setImageAttachments] = useState([]); // [{ dataUrl, mediaType, name }, ...]
   const [recommendModalOpen, setRecommendModalOpen] = useState(false);
   const [recommendText, setRecommendText] = useState("");
+  const [temasModalOpen, setTemasModalOpen] = useState(false);
+  const [temasData, setTemasData] = useState(null); // null = ainda não carregado
+  const [temasBusy, setTemasBusy] = useState(false);
   const [handoffModal, setHandoffModal] = useState(null); // null | string
   const [trainingMode, setTrainingMode] = useState(false);
   const [trainingQuestion, setTrainingQuestion] = useState(null); // string | null
@@ -878,6 +881,63 @@ function BrutoAtendimento() {
       setEditClientErr(e.message || "Não consegui salvar as alterações.");
     } finally {
       setEditClientBusy(false);
+    }
+  }
+
+  const NOME_TEMA = {
+    frete: "Frete & Entrega", instalacao: "Instalação", devolucao: "Devolução & Garantia",
+    qualidade: "Qualidade & Variação", comparacao: "Comparação de Produtos", preco: "Preço & Pagamento",
+    produto: "Dúvida sobre Produto", manutencao: "Manutenção & Limpeza", geral: "Geral",
+  };
+
+  async function carregarTemas() {
+    setTemasBusy(true);
+    setTemasModalOpen(true);
+    try {
+      // Mesma fonte usada pelo export: o que já está na tela (servidor + local mesclados)
+      const index = adminViewAll && currentUser.papel === "admin" ? adminIndex : sessionIndex;
+      const contagem = {};
+      let totalRespostas = 0, semTema = 0;
+      let janela30dOk = 0;
+      const agora = Date.now();
+      const trintaDias = 30 * 24 * 60 * 60 * 1000;
+
+      for (const s of index) {
+        let parsed = null;
+        try {
+          const data = await apiCall("api/historico.php", { acao: "obter", id: s.id });
+          if (data?.payload) parsed = JSON.parse(data.payload);
+        } catch (_) {}
+        if (!parsed) {
+          try {
+            const res = await storage.get(`session:${s.id}`);
+            if (res?.value) parsed = JSON.parse(res.value);
+          } catch (_) {}
+        }
+        if (!parsed?.messages) continue;
+        for (const m of parsed.messages) {
+          if (m.role !== "assistant" || !m.metadata) continue;
+          if (m.metadata.mode === "error" || m.metadata.generatedBy?.includes("roteiro fixo") || m.metadata.generatedBy?.includes("sem IA")) continue;
+          totalRespostas++;
+          const dentroJanela = (agora - (s.createdAt || 0)) <= trintaDias;
+          if (dentroJanela) janela30dOk++;
+          if (m.metadata.tema) {
+            contagem[m.metadata.tema] = (contagem[m.metadata.tema] || 0) + 1;
+          } else {
+            semTema++;
+          }
+        }
+      }
+
+      const ranking = Object.entries(contagem)
+        .sort((a, b) => b[1] - a[1])
+        .map(([tema, n]) => ({ tema, nome: NOME_TEMA[tema] || tema, n, pct: totalRespostas > 0 ? (n / totalRespostas) * 100 : 0 }));
+
+      setTemasData({ ranking, totalRespostas, semTema, sessoesAnalisadas: index.length });
+    } catch (e) {
+      setTemasData({ erro: e.message });
+    } finally {
+      setTemasBusy(false);
     }
   }
 
@@ -1242,6 +1302,10 @@ function BrutoAtendimento() {
     staticSys += `\nCite produtos e preços quando relevante. Se a KB não tiver a resposta, seja honesto. Se usar informação do bloco "REGRAS UNIVERSAIS DO SETOR (BENCHMARK)", deixe claro na resposta que é orientação geral do setor — não dado exclusivo/testado da Bruto — e recomende validar com a fábrica parceira em casos de dúvida real ou projeto fora do padrão. Se a situação do cliente se encaixar em algum dos casos de "QUANDO PARAR E CHAMAR O RESPONSÁVEL", diga isso claramente na resposta e recomende que a atendente escale antes de prometer qualquer coisa.`;
     staticSys += `\n\nANÁLISE DE FOTOS: quando o cliente enviar uma ou mais fotos da obra/reforma, observe antes de responder: estado da superfície (limpa, nivelada, com umidade, trincada), estágio da instalação (parede nua, assentamento em andamento, rejuntado, finalizado), produto provável (Brick, Cimentício ou Rockface — lembre que Rockface é só para uso externo) e se algo visível é defeito real ou variação artesanal esperada. Se vierem várias fotos juntas, compare entre elas (ex: ângulos diferentes do mesmo problema, ou antes/depois) antes de concluir. Responda direto à pergunta que vier com a(s) foto(s), no mesmo tom curto de WhatsApp. Se a imagem estiver escura, borrada ou de longe demais para concluir com segurança, diga isso e peça uma foto mais próxima em vez de adivinhar.`;
 
+    staticSys += `\n\nCÓDIGO DE REFERÊNCIA (contexto de origem do lead): se a mensagem colada do cliente terminar com algo como "[ref:pagina_tipo_origem]" (ex: [ref:rosso-prime_produto-orcamento_google-ads]), isso é rastreio interno automático do site — NUNCA repita, mencione ou explique esse código pro cliente, só use pra calibrar sua resposta. Ele tem 3 partes separadas por "_": PAGINA (produto/página que a pessoa visitou — quase sempre o slug do produto, ex: "rosso-prime" = Brick Rosso Prime; já assuma que é esse o produto de interesse, sem precisar perguntar de novo), TIPO (qual botão específico foi clicado) e ORIGEM (de onde veio o tráfego). Ajuste a abordagem pelo TIPO: "produto-orcamento" → vá direto pra preço e condições; "produto-interesse" → seja mais consultivo, faça 1-2 perguntas antes de empurrar preço; "amostra-cta"/"amostra-header" → foque em como pedir/receber a amostra, não em fechar venda ainda; "consultor-cta"/"faq-consultor" → provavelmente tem uma dúvida técnica específica não resolvida pelo FAQ, pergunte qual é; "frete-gratis-popup" → cliente viu a promoção de frete grátis acima de 10m², confirme se a oferta se aplica; "exit-intent-guia-pdf" → já baixou o guia de aplicação, pode ser mais técnico/aprofundado. Se ORIGEM for "google-ads" ou outra origem paga, seja mais direto e objetivo, sem enrolação institucional — quem vem de anúncio já tem intenção mais definida.`;
+
+    staticSys += `\n\nCLASSIFICAÇÃO DE TEMA (uso interno, não é visível pro cliente): ao final da sua resposta, em uma linha totalmente separada, inclua um marcador oculto no formato <!--tema:CATEGORIA--> onde CATEGORIA é exatamente UMA destas palavras: frete, instalacao, devolucao, qualidade, comparacao, preco, produto, manutencao, geral. Escolha a que melhor descreve o assunto CENTRAL da pergunta do cliente (não da resposta toda). "comparacao" é pra quando o cliente está decidindo entre produtos/linhas; "produto" é pra dúvida sobre um produto específico que não é preço nem comparação; "geral" só se nada mais se encaixar. Esse marcador nunca aparece pro cliente — é removido antes de exibir a resposta, existe só pra alimentar um contador interno de temas mais frequentes.`;
+
     // ── BLOCO DINÂMICO (não cacheado) ───────────────────────────────
     // Muda a cada turno/sessão — fica de fora do prefixo cacheado.
     let dynamicSys = `Modo: ${mode === "consulta" ? "CONSULTA TÉCNICA — seja direto e propositivo" : "DIAGNÓSTICO — investigue antes de concluir"}\n`;
@@ -1314,7 +1378,16 @@ function BrutoAtendimento() {
       }
 
       const data = await response.json();
-      const text = data?.content?.find((c) => c.type === "text")?.text || "[Sem resposta da IA]";
+      let text = data?.content?.find((c) => c.type === "text")?.text || "[Sem resposta da IA]";
+
+      // Extrai a tag oculta de classificação de tema (uso interno, nunca exibida)
+      const CATEGORIAS_TEMA = ["frete", "instalacao", "devolucao", "qualidade", "comparacao", "preco", "produto", "manutencao", "geral"];
+      let tema = null;
+      const matchTema = text.match(/<!--\s*tema:\s*([a-z]+)\s*-->/i);
+      if (matchTema && CATEGORIAS_TEMA.includes(matchTema[1].toLowerCase())) {
+        tema = matchTema[1].toLowerCase();
+      }
+      text = text.replace(/<!--\s*tema:\s*[a-z]+\s*-->/gi, "").trim();
 
       const lastUserHadImage = (history[history.length - 1]?.images?.length || 0) > 0;
       setMessages((prev) => [...prev, {
@@ -1324,6 +1397,7 @@ function BrutoAtendimento() {
           mode,
           kb: selectedKB.join(", ") || (lastUserHadImage ? "análise de imagem" : "nenhuma"),
           generatedBy: "Claude (Sonnet 5)",
+          tema,
         },
       }]);
     } catch (err) {
@@ -1620,6 +1694,7 @@ function BrutoAtendimento() {
           <div style={S.headerRight}>
             <button style={S.newChatBtn} onClick={startNewSession} title="Nova Conversa"><Plus size={13} strokeWidth={2}/> Nova</button>
             <button style={S.newChatBtn} onClick={() => setRecommendModalOpen(true)} title="Recomendar linha para um projeto"><Target size={13} strokeWidth={2}/> Recomendar</button>
+            <button style={S.newChatBtn} onClick={carregarTemas} title="Temas mais perguntados"><BarChart3 size={13} strokeWidth={2}/> Temas</button>
             <button style={S.newChatBtn} onClick={openHandoffModal} title="Gerar resumo para WhatsApp"><ClipboardList size={13} strokeWidth={2}/> Resumo</button>
             {currentUser.papel === "admin" && (
               <button style={S.newChatBtn} onClick={openUserMgmt} title="Gestão de usuários"><Users size={13} strokeWidth={2}/> Usuários</button>
@@ -2164,6 +2239,50 @@ function BrutoAtendimento() {
               />
             </div>
             <button style={S.formButton} onClick={submitRecommend} disabled={!recommendText.trim() || busy}>Gerar Recomendação</button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL TEMAS MAIS PERGUNTADOS */}
+      {temasModalOpen && (
+        <div style={S.modalOverlay} onClick={() => setTemasModalOpen(false)}>
+          <div style={{ ...S.modalContent, maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
+            <button style={S.modalClose} onClick={() => setTemasModalOpen(false)}><X size={16} strokeWidth={1.75}/></button>
+            <div style={S.modalTitle}>Temas Mais Perguntados</div>
+            {temasBusy && (
+              <p style={{ fontSize: 12, color: mid2 }}>Lendo o histórico de atendimentos...</p>
+            )}
+            {!temasBusy && temasData?.erro && (
+              <p style={{ fontSize: 12, color: "#E85D5D" }}>Não consegui carregar: {temasData.erro}</p>
+            )}
+            {!temasBusy && temasData && !temasData.erro && (
+              <>
+                <p style={{ fontSize: 11, color: mid2, marginBottom: 14, lineHeight: 1.6 }}>
+                  {temasData.totalRespostas} respostas classificadas, de {temasData.sessoesAnalisadas} atendimento(s) no histórico
+                  {temasData.semTema > 0 ? ` (${temasData.semTema} sem classificação — atendimentos antigos, de antes desse recurso)` : ""}.
+                </p>
+                {temasData.ranking.length === 0 ? (
+                  <p style={{ fontSize: 12, color: mid2 }}>Nenhuma resposta classificada ainda. Esse contador só passa a acumular dados a partir de agora — os atendimentos anteriores não tinham essa marcação.</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {temasData.ranking.map((r, i) => (
+                      <div key={r.tema} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 11, color: mid2, width: 16 }}>{i + 1}</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 3 }}>
+                            <span style={{ color: white, fontWeight: 500 }}>{r.nome}</span>
+                            <span style={{ color: mid2 }}>{r.n} · {r.pct.toFixed(0)}%</span>
+                          </div>
+                          <div style={{ height: 5, borderRadius: 3, background: card2, overflow: "hidden" }}>
+                            <div style={{ height: "100%", width: `${r.pct}%`, background: teal, borderRadius: 3 }}/>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       )}
