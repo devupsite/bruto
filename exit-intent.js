@@ -140,8 +140,17 @@
     if (isTouch) {
       setTimeout(abrir, MOBILE_DELAY_MS);
     } else {
+      // Só arma o gatilho depois que o mouse se mexeu de verdade pelo menos
+      // uma vez — sem isso, um mouseleave "fantasma" pode disparar sozinho
+      // logo após o carregamento (comum em navegador recém-aberto, antes de
+      // qualquer movimento real do cursor).
+      var mouseMoveu = false;
+      document.addEventListener('mousemove', function marcaMovimento() {
+        mouseMoveu = true;
+        document.removeEventListener('mousemove', marcaMovimento);
+      });
       document.addEventListener('mouseleave', function (e) {
-        if (e.clientY <= 0) abrir();
+        if (mouseMoveu && e.clientY <= 0) abrir();
       });
     }
   });

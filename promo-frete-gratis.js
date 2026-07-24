@@ -143,9 +143,17 @@
       }
     });
 
-    // Trigger 1: exit-intent (desktop) — mouse sai pelo topo da janela
+    // Trigger 1: exit-intent (desktop) — mouse sai pelo topo da janela.
+    // Só arma depois que o mouse se mexeu de verdade pelo menos uma vez,
+    // senão um mouseleave "fantasma" pode disparar sozinho logo após o
+    // carregamento (comum em navegador recém-aberto).
+    var mouseMoveu = false;
+    document.addEventListener('mousemove', function marcaMovimento() {
+      mouseMoveu = true;
+      document.removeEventListener('mousemove', marcaMovimento);
+    });
     function onMouseLeave(e) {
-      if (e.clientY <= 0) open();
+      if (mouseMoveu && e.clientY <= 0) open();
     }
     document.addEventListener('mouseleave', onMouseLeave);
 
