@@ -55,9 +55,9 @@
         { id: 'rockface-alpino', nome: 'Alpino', w: 290, h: 95,
           texturas: ['rockface-alpino-face1.webp?v=3', 'rockface-alpino-face2.webp?v=3'] },
         { id: 'rockface-brisa',  nome: 'Brisa',  w: 260, h: 75,
-          texturas: ['rockface-brisa-face1.webp?v=1', 'rockface-brisa-face2.webp?v=2'] },
+          texturas: ['rockface-brisa-face1.webp?v=2', 'rockface-brisa-face2.webp?v=3'] },
         { id: 'rockface-urban',  nome: 'Urban',  w: 290, h: 95,
-          texturas: ['rockface-urban-face1.webp?v=2'] }
+          texturas: ['rockface-urban-face1.webp?v=3', 'rockface-urban-face2.webp?v=1'] }
       ]
     }
   };
