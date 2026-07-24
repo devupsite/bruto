@@ -163,6 +163,9 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
 .rc-name{font-weight:500;font-size:13px;margin-bottom:3px;text-align:center}
 .rc-st{font-size:11px;color:var(--g);margin-bottom:6px;text-align:center;line-height:1.4}
 .rc-fr{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--t);text-align:center}
+.rc-fr-in{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--t);text-align:center;width:100%;border:1px solid rgba(10,10,10,.12);border-radius:6px;padding:3px 4px;background:#fff;margin:2px 0}
+.rc-fr-in::placeholder{color:var(--g);font-weight:400;font-size:13px}
+.rc-fr-in:focus{outline:2px solid var(--acc,#0a0a0a);outline-offset:1px}
 .rc-pr{font-size:10px;color:var(--g);margin-top:2px;text-align:center;letter-spacing:.08em;text-transform:uppercase}
 
 /* SCENARIO */
@@ -383,27 +386,27 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
         </div>
         <select id="p-prod" onchange="selectProd()">
       <optgroup label="🧱 BRICK">
-        <option value="153.9">Brick Eco Palha — R$ 153.90/m²</option>
-        <option value="169.9">Brick Rusticatto Palha — R$ 169.90/m²</option>
-        <option value="164.9">Brick Lumus — R$ 164.90/m²</option>
-        <option value="153.9">Brick Mescla Prime — R$ 153.90/m²</option>
-        <option value="104.9">Brick Natura — R$ 104.90/m²</option>
-        <option value="142.9">Brick Rosso Prime — R$ 142.90/m²</option>
-        <option value="186.9">Brick Rusticatto Fumê — R$ 186.90/m²</option>
-        <option value="159.9">Brick Rusticatto Rosso — R$ 159.90/m²</option>
-        <option value="164.9">Brick Rusticatto do Sertão — R$ 164.90/m²</option>
-        <option value="197.9">Brick Rusticatto Terra Negra — R$ 197.90/m²</option>
-        <option value="148.9">Brick Terra do Cerrado — R$ 148.90/m²</option>
+        <option value="brick-eco-palha">Brick Eco Palha — R$ 153.90/m²</option>
+        <option value="brick-rusticatto-palha">Brick Rusticatto Palha — R$ 169.90/m²</option>
+        <option value="brick-lumus">Brick Lumus — R$ 164.90/m²</option>
+        <option value="brick-mescla-prime">Brick Mescla Prime — R$ 153.90/m²</option>
+        <option value="brick-natura">Brick Natura — R$ 104.90/m²</option>
+        <option value="brick-rosso-prime">Brick Rosso Prime — R$ 142.90/m²</option>
+        <option value="brick-rusticatto-fume">Brick Rusticatto Fumê — R$ 186.90/m²</option>
+        <option value="brick-rusticatto-rosso">Brick Rusticatto Rosso — R$ 159.90/m²</option>
+        <option value="brick-rusticatto-sertao">Brick Rusticatto do Sertão — R$ 164.90/m²</option>
+        <option value="brick-rusticatto-terra-negra">Brick Rusticatto Terra Negra — R$ 197.90/m²</option>
+        <option value="brick-terra-cerrado">Brick Terra do Cerrado — R$ 148.90/m²</option>
       </optgroup>
       <optgroup label="🏭 CIMENTÍCIO">
-        <option value="186.9">Cimentício Alpino — R$ 186.90/m²</option>
-        <option value="186.9">Cimentício Brisa — R$ 186.90/m²</option>
-        <option value="186.9">Cimentício Urban — R$ 186.90/m²</option>
+        <option value="cimenticio-alpino">Cimentício Alpino — R$ 186.90/m²</option>
+        <option value="cimenticio-brisa">Cimentício Brisa — R$ 186.90/m²</option>
+        <option value="cimenticio-urban">Cimentício Urban — R$ 186.90/m²</option>
       </optgroup>
       <optgroup label="🪨 ROCKFACE">
-        <option value="186.9">Rockface Brisa — R$ 186.90/m²</option>
-        <option value="252.9">Rockface Alpino — R$ 252.90/m²</option>
-        <option value="252.9">Rockface Urban — R$ 252.90/m²</option>
+        <option value="rockface-alpino">Rockface Alpino — R$ 252.90/m²</option>
+        <option value="rockface-brisa">Rockface Brisa — R$ 186.90/m²</option>
+        <option value="rockface-urban">Rockface Urban — R$ 252.90/m²</option>
       </optgroup>
         </select>
       </div>
@@ -477,29 +480,37 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
     <div class="pt">Frete & Margem Real</div>
     <div class="pd">Selecione a região de destino e veja o impacto do frete na margem final do pedido.</div>
   </div>
-  <div class="sl">Região de destino</div>
+  <div class="sl">Região de destino — taxa por kg (editável, ajuste com sua transportadora)</div>
   <div class="g5" style="margin-bottom:20px">
-    <div class="rc" id="rc-se" onclick="selR('se')"><div class="rc-name">Sudeste</div><div class="rc-st">SP · RJ · MG · ES</div><div class="rc-fr" id="rf-se">R$ 120</div><div class="rc-pr">3–6 dias úteis</div></div>
-    <div class="rc sel" id="rc-su" onclick="selR('su')"><div class="rc-name">Sul</div><div class="rc-st">PR · SC · RS</div><div class="rc-fr" id="rf-su">R$ 150</div><div class="rc-pr">4–7 dias úteis</div></div>
-    <div class="rc" id="rc-co" onclick="selR('co')"><div class="rc-name">Centro-Oeste</div><div class="rc-st">GO · MT · MS · DF</div><div class="rc-fr" id="rf-co">R$ 200</div><div class="rc-pr">5–8 dias úteis</div></div>
-    <div class="rc" id="rc-ne" onclick="selR('ne')"><div class="rc-name">Nordeste</div><div class="rc-st">BA · CE · PE · etc.</div><div class="rc-fr" id="rf-ne">R$ 280</div><div class="rc-pr">7–11 dias úteis</div></div>
-    <div class="rc" id="rc-no" onclick="selR('no')"><div class="rc-name">Norte</div><div class="rc-st">AM · PA · RO · etc.</div><div class="rc-fr" id="rf-no">R$ 380</div><div class="rc-pr">9–11 dias úteis</div></div>
+    <div class="rc" id="rc-se" onclick="selR('se')"><div class="rc-name">Sudeste</div><div class="rc-st">SP · RJ · MG · ES</div><input class="rc-fr-in" id="rf-se" type="number" min="0" step="0.05" placeholder="R$/kg" value="" onclick="event.stopPropagation()" oninput="setTaxa('se',this.value)"><div class="rc-pr">3–6 dias úteis</div></div>
+    <div class="rc sel" id="rc-su" onclick="selR('su')"><div class="rc-name">Sul</div><div class="rc-st">PR · SC · RS</div><input class="rc-fr-in" id="rf-su" type="number" min="0" step="0.05" placeholder="R$/kg" value="" onclick="event.stopPropagation()" oninput="setTaxa('su',this.value)"><div class="rc-pr">4–7 dias úteis</div></div>
+    <div class="rc" id="rc-co" onclick="selR('co')"><div class="rc-name">Centro-Oeste</div><div class="rc-st">GO · MT · MS · DF</div><input class="rc-fr-in" id="rf-co" type="number" min="0" step="0.05" placeholder="R$/kg" value="" onclick="event.stopPropagation()" oninput="setTaxa('co',this.value)"><div class="rc-pr">5–8 dias úteis</div></div>
+    <div class="rc" id="rc-ne" onclick="selR('ne')"><div class="rc-name">Nordeste</div><div class="rc-st">BA · CE · PE · etc.</div><input class="rc-fr-in" id="rf-ne" type="number" min="0" step="0.05" placeholder="R$/kg" value="" onclick="event.stopPropagation()" oninput="setTaxa('ne',this.value)"><div class="rc-pr">7–11 dias úteis</div></div>
+    <div class="rc" id="rc-no" onclick="selR('no')"><div class="rc-name">Norte</div><div class="rc-st">AM · PA · RO · etc.</div><input class="rc-fr-in" id="rf-no" type="number" min="0" step="0.05" placeholder="R$/kg" value="" onclick="event.stopPropagation()" oninput="setTaxa('no',this.value)"><div class="rc-pr">9–11 dias úteis</div></div>
   </div>
+  <div class="ab" style="margin-bottom:16px"><span class="ai">!</span><span>Taxas por kg são estimativa de referência — carga de 20m²+ pesa 400-1000kg dependendo do produto e vira frete fracionado/paletizado real, cotado com transportadora. Não existe tabela pública confiável pra isso; substitua pelos valores da sua cotação real assim que tiver.</span></div>
   <div class="g2">
     <div>
       <div class="sl">Configuração</div>
       <div class="field">
         <div class="fl">
-          <div class="tt"><span>Custo do frete</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Estimativa por região para pedido de ~9m² (~270 kg). Ajuste conforme sua transportadora real. O valor selecionado na região preenche automaticamente.</div></div>
-          <span class="fh">editável</span>
+          <div class="tt"><span>Peso mínimo faturável</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Transportadoras costumam ter um peso mínimo de cobrança, mesmo que a carga real pese menos. Ajuste conforme sua transportadora.</div></div>
         </div>
-        <div class="ig"><div class="ip">R$</div><input type="number" id="fr-val" value="150" min="0" step="10" oninput="calcFrete()"></div>
+        <div class="ig"><input type="number" id="fr-pmin" value="50" min="0" step="5" oninput="calcFrete()"><div class="is">kg</div></div>
       </div>
       <div class="field">
         <div class="fl">
-          <div class="tt"><span>Peso estimado</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Calculado automaticamente: área do pedido × 30 kg/m² (peso médio de brick cerâmico). Usado para referência junto à transportadora.</div></div>
+          <div class="tt"><span>Peso real do pedido</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Calculado a partir do peso real medido do produto selecionado (não é mais uma média genérica) × área do pedido, incluindo a perda de corte.</div></div>
         </div>
         <div class="ig"><input type="number" id="fr-peso" value="270" min="0" oninput="calcFrete()"><div class="is">kg</div></div>
+        <div class="fh" style="margin-top:4px">peso cubado (fórmula Jadlog, comprimento×largura×altura×300): <span id="fr-cubado">—</span> · peso faturável (o maior entre real, cubado e mínimo): <span id="fr-fat" style="font-weight:700">—</span></div>
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Custo do frete</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Editável — o valor sugerido (peso × taxa da região) preenche automaticamente ao trocar de produto, área ou região, mas você pode sobrescrever com uma cotação real.</div></div>
+          <span class="fh" id="fr-sugerido">sugerido: R$ 150</span>
+        </div>
+        <div class="ig"><div class="ip">R$</div><input type="number" id="fr-val" value="150" min="0" step="10" oninput="fretManual()"></div>
       </div>
       <div class="sl" style="margin-top:4px">Quem absorve o frete?</div>
       <div class="tg-g">
@@ -556,27 +567,27 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
           <div class="fl"><span>Produto</span></div>
           <select id="cb-prod" onchange="calcCen()">
       <optgroup label="🧱 BRICK">
-        <option value="153.9">Brick Eco Palha — R$ 153.90/m²</option>
-        <option value="169.9">Brick Rusticatto Palha — R$ 169.90/m²</option>
-        <option value="164.9">Brick Lumus — R$ 164.90/m²</option>
-        <option value="153.9">Brick Mescla Prime — R$ 153.90/m²</option>
-        <option value="104.9">Brick Natura — R$ 104.90/m²</option>
-        <option value="142.9">Brick Rosso Prime — R$ 142.90/m²</option>
-        <option value="186.9">Brick Rusticatto Fumê — R$ 186.90/m²</option>
-        <option value="159.9">Brick Rusticatto Rosso — R$ 159.90/m²</option>
-        <option value="164.9">Brick Rusticatto do Sertão — R$ 164.90/m²</option>
-        <option value="197.9">Brick Rusticatto Terra Negra — R$ 197.90/m²</option>
-        <option value="148.9">Brick Terra do Cerrado — R$ 148.90/m²</option>
+        <option value="brick-eco-palha">Brick Eco Palha — R$ 153.90/m²</option>
+        <option value="brick-rusticatto-palha">Brick Rusticatto Palha — R$ 169.90/m²</option>
+        <option value="brick-lumus">Brick Lumus — R$ 164.90/m²</option>
+        <option value="brick-mescla-prime">Brick Mescla Prime — R$ 153.90/m²</option>
+        <option value="brick-natura">Brick Natura — R$ 104.90/m²</option>
+        <option value="brick-rosso-prime">Brick Rosso Prime — R$ 142.90/m²</option>
+        <option value="brick-rusticatto-fume">Brick Rusticatto Fumê — R$ 186.90/m²</option>
+        <option value="brick-rusticatto-rosso">Brick Rusticatto Rosso — R$ 159.90/m²</option>
+        <option value="brick-rusticatto-sertao">Brick Rusticatto do Sertão — R$ 164.90/m²</option>
+        <option value="brick-rusticatto-terra-negra">Brick Rusticatto Terra Negra — R$ 197.90/m²</option>
+        <option value="brick-terra-cerrado">Brick Terra do Cerrado — R$ 148.90/m²</option>
       </optgroup>
       <optgroup label="🏭 CIMENTÍCIO">
-        <option value="186.9">Cimentício Alpino — R$ 186.90/m²</option>
-        <option value="186.9">Cimentício Brisa — R$ 186.90/m²</option>
-        <option value="186.9">Cimentício Urban — R$ 186.90/m²</option>
+        <option value="cimenticio-alpino">Cimentício Alpino — R$ 186.90/m²</option>
+        <option value="cimenticio-brisa">Cimentício Brisa — R$ 186.90/m²</option>
+        <option value="cimenticio-urban">Cimentício Urban — R$ 186.90/m²</option>
       </optgroup>
       <optgroup label="🪨 ROCKFACE">
-        <option value="186.9">Rockface Brisa — R$ 186.90/m²</option>
-        <option value="252.9">Rockface Alpino — R$ 252.90/m²</option>
-        <option value="252.9">Rockface Urban — R$ 252.90/m²</option>
+        <option value="rockface-alpino">Rockface Alpino — R$ 252.90/m²</option>
+        <option value="rockface-brisa">Rockface Brisa — R$ 186.90/m²</option>
+        <option value="rockface-urban">Rockface Urban — R$ 252.90/m²</option>
       </optgroup>
           </select>
         </div>
@@ -1534,20 +1545,87 @@ const PERSONAS={
   'pedreiro':{nome:'Pedreiro/Mestre',ticket:700,freq:8,ret:2,desc:'Indica para clientes, compra frequente'},
   'revendedor':{nome:'Revendedor B2B',ticket:8000,freq:4,ret:2,desc:'Volume atacado, margem menor'},
 };
-const PRODS={
-  '153.9':'Brick Eco Palha',
-  '169.9':'Brick Rusticatto Palha',
-  '164.9':'Brick Lumus',
-  '104.9':'Brick Natura',
-  '142.9':'Brick Rosso Prime',
-  '186.9':'Brick Rusticatto Fumê',
-  '159.9':'Brick Rusticatto Rosso',
-  '197.9':'Brick Rusticatto Terra Negra',
-  '148.9':'Brick Terra do Cerrado',
-  '252.9':'Rockface Alpino'
+const PRECOS={
+  'brick-eco-palha': 153.90,
+  'brick-rusticatto-palha': 169.90,
+  'brick-lumus': 164.90,
+  'brick-mescla-prime': 153.90,
+  'brick-natura': 104.90,
+  'brick-rosso-prime': 142.90,
+  'brick-rusticatto-fume': 186.90,
+  'brick-rusticatto-rosso': 159.90,
+  'brick-rusticatto-sertao': 164.90,
+  'brick-rusticatto-terra-negra': 197.90,
+  'brick-terra-cerrado': 148.90,
+  'cimenticio-alpino': 186.90,
+  'cimenticio-brisa': 186.90,
+  'cimenticio-urban': 186.90,
+  'rockface-alpino': 252.90,
+  'rockface-brisa': 186.90,
+  'rockface-urban': 252.90,
+};
+const NOMES={
+  'brick-eco-palha': 'Brick Eco Palha',
+  'brick-rusticatto-palha': 'Brick Rusticatto Palha',
+  'brick-lumus': 'Brick Lumus',
+  'brick-mescla-prime': 'Brick Mescla Prime',
+  'brick-natura': 'Brick Natura',
+  'brick-rosso-prime': 'Brick Rosso Prime',
+  'brick-rusticatto-fume': 'Brick Rusticatto Fumê',
+  'brick-rusticatto-rosso': 'Brick Rusticatto Rosso',
+  'brick-rusticatto-sertao': 'Brick Rusticatto do Sertão',
+  'brick-rusticatto-terra-negra': 'Brick Rusticatto Terra Negra',
+  'brick-terra-cerrado': 'Brick Terra do Cerrado',
+  'cimenticio-alpino': 'Cimentício Alpino',
+  'cimenticio-brisa': 'Cimentício Brisa',
+  'cimenticio-urban': 'Cimentício Urban',
+  'rockface-alpino': 'Rockface Alpino',
+  'rockface-brisa': 'Rockface Brisa',
+  'rockface-urban': 'Rockface Urban',
+};
+// Peso real por m² (kg), calculado a partir do peso medido por peça e da
+// área da peça (catalogo.json). Usado pelo calculo de frete (FEATURE 2).
+const PESO_KG_M2={
+  'brick-eco-palha': 18.5,
+  'brick-rusticatto-palha': 34.4,
+  'brick-lumus': 21.4,
+  'brick-mescla-prime': 20.6,
+  'brick-natura': 27.7,
+  'brick-rosso-prime': 24.9,
+  'brick-rusticatto-fume': 30.2,
+  'brick-rusticatto-rosso': 31.2,
+  'brick-rusticatto-sertao': 34.2,
+  'brick-rusticatto-terra-negra': 34.0,
+  'brick-terra-cerrado': 20.6,
+  'cimenticio-alpino': 22.9,
+  'cimenticio-brisa': 22.2,
+  'cimenticio-urban': 22.5,
+  'rockface-alpino': 48.1,
+  'rockface-brisa': 39.2,
+  'rockface-urban': 35.1,
+};
+// Espessura real (m), usada no cálculo de cubagem (peso volumétrico).
+const ESPESSURA_M={
+  'brick-eco-palha': 0.015,
+  'brick-rusticatto-palha': 0.025,
+  'brick-lumus': 0.015,
+  'brick-mescla-prime': 0.015,
+  'brick-natura': 0.015,
+  'brick-rosso-prime': 0.015,
+  'brick-rusticatto-fume': 0.020,
+  'brick-rusticatto-rosso': 0.020,
+  'brick-rusticatto-sertao': 0.022,
+  'brick-rusticatto-terra-negra': 0.020,
+  'brick-terra-cerrado': 0.015,
+  'cimenticio-alpino': 0.010,
+  'cimenticio-brisa': 0.010,
+  'cimenticio-urban': 0.010,
+  'rockface-alpino': 0.020,
+  'rockface-brisa': 0.010,
+  'rockface-urban': 0.020,
 };
 let FM='incluso',REG='mei',RS='su',TF=40;
-const FB={se:120,su:150,co:200,ne:280,no:380};
+const FB={se:0,su:0,co:0,ne:0,no:0}; // R$/kg por região — preenchido pelo usuário na interface (Feature 2), zero até então
 const brl=v=>'R$ '+Math.round(Math.abs(v)).toLocaleString('pt-BR');
 const num=v=>Math.round(v).toLocaleString('pt-BR');
 const pct=v=>parseFloat(v).toFixed(1)+'%';
@@ -1576,9 +1654,11 @@ function syncMgI(v){$('p-mgr').value=v;$('p-mglbl',v+'%');calcPrec();}
 
 function calcPrec(){
   const prodEl=$('p-prod'),dscEl=$('p-dsci');
-  const prodPrice=prodEl?+prodEl.value:139.90,disc=dscEl?+dscEl.value:35;
+  const prodSlug=prodEl?prodEl.value:'brick-eco-palha',disc=dscEl?+dscEl.value:35;
+  const prodPrice=PRECOS[prodSlug]||153.90;
   const c=prodPrice*(1-disc/100);
-  const prodName=PRODS[String(prodPrice)]||'Produto';
+  const prodName=NOMES[prodSlug]||'Produto';
+  S.prodSlug=prodSlug;
   $('p-cst-net','R$ '+c.toFixed(2)+'/m²');
   const mg=+$('p-mgi').value||0;
   const a=+$('p-area').value||0,tx=+$('p-tax').value||0,pd=+$('p-pda').value||0;
@@ -1604,7 +1684,7 @@ function calcPrec(){
 function selR(id){
   document.querySelectorAll('.rc').forEach(r=>r.classList.remove('sel'));
   $('rc-'+id).classList.add('sel');RS=id;
-  $('fr-val').value=FB[id];calcFrete();
+  calcFrete();
 }
 function setFM(m){
   FM=m;
@@ -1614,10 +1694,32 @@ function setFM(m){
   el.innerHTML='<span class="ai">—</span><span>'+(m==='incluso'?'Frete incluso: você absorve o custo, margem diminui. Preço aparece mais limpo ao cliente.':'Frete cobrado à parte: sua margem fica intacta. O cliente vê o frete no checkout — pode reduzir conversão.')+'</span>';
   calcFrete();
 }
+let FR_MANUAL=false;
+function fretManual(){FR_MANUAL=true;calcFrete();}
+function setTaxa(id,v){FB[id]=+v||0;calcFrete();}
 function calcFrete(){
+  const a=+$('p-area').value||9,pd=+$('p-pda').value||0;
+  const aT=a*(1+pd/100);
+  const pesoM2=PESO_KG_M2[S.prodSlug]||30; // fallback genérico só se produto ainda não foi selecionado
+  const espM=ESPESSURA_M[S.prodSlug]||0.015;
+  const pesoReal=Math.round(aT*pesoM2);
+  // Cubagem real da Jadlog (rodoviário/fracionado): volume(m³) × 300.
+  // Volume = área × espessura da peça — não inclui folga de embalagem (a
+  // caixa real ocupa um pouco mais de espaço que a peça sozinha, então
+  // isto é um piso, não o cubado exato da caixa fechada).
+  const volumeM3=aT*espM;
+  const pesoCubado=Math.round(volumeM3*300);
+  const pesoFaturavelBase=Math.max(pesoReal,pesoCubado);
+  $('fr-peso').value=pesoReal;
+  $('fr-cubado',pesoCubado+'kg');
+  const pesoMin=+$('fr-pmin').value||0;
+  const pesoFat=Math.max(pesoFaturavelBase,pesoMin);
+  $('fr-fat',pesoFat+'kg'+(pesoCubado>pesoReal?' (cubagem venceu o peso real)':''));
+  const taxaKg=FB[RS]||0;
+  const sugerido=taxaKg>0?Math.round(pesoFat*taxaKg/5)*5:0;
+  $('fr-sugerido',taxaKg>0?'sugerido: '+brl(sugerido):'preencha a taxa R$/kg da sua transportadora acima');
+  if(!FR_MANUAL) $('fr-val').value=sugerido;
   const fr=+$('fr-val').value||0,ll=S.ll,vp=S.ticket;
-  const a=+$('p-area').value||9;
-  $('fr-peso').value=Math.round(a*30);
   let lr,tot;
   if(FM==='incluso'){lr=ll-fr;tot=vp;}else{lr=ll;tot=vp+fr;}
   const fp=vp>0?(fr/vp)*100:0,mr=vp>0?(lr/vp)*100:0;
@@ -1627,15 +1729,17 @@ function calcFrete(){
   const mv=$('fr-mr');mv.textContent=brl(lr);
   mv.className='mbv'+(lr<0?' er':lr<ll*0.5?' wn':'');
   const al=$('fr-alerta');
-  if(lr<0)al.innerHTML='<div class="ab ab-er"><span class="ai">!</span><span>Frete inviável: absorver '+brl(fr)+' com lucro de '+brl(ll)+' gera prejuízo. Aumente o ticket mínimo ou cobre o frete à parte.</span></div>';
+  if(taxaKg<=0)al.innerHTML='<div class="ab ab-wn"><span class="ai">!</span><span>Nenhuma taxa de R$/kg preenchida pra esta região ainda — o frete abaixo está zerado, não é um resultado real. Preencha a taxa no cartão da região acima (peça pro seu contato na transportadora, se não souber de cabeça).</span></div>';
+  else if(lr<0)al.innerHTML='<div class="ab ab-er"><span class="ai">!</span><span>Frete inviável: absorver '+brl(fr)+' com lucro de '+brl(ll)+' gera prejuízo. Aumente o ticket mínimo ou cobre o frete à parte.</span></div>';
   else if(fp>25)al.innerHTML='<div class="ab ab-wn"><span class="ai">—</span><span>Frete representa '+pct(fp)+' do pedido. Considere estabelecer pedido mínimo para esta região ou incluí-lo no preço de forma transparente.</span></div>';
   else al.innerHTML='';
   const th=$('fr-th');
   th.innerHTML=['Região','Frete','Lucro real','Margem real','Viável?'].map((h,i)=>`<th style="text-align:${i>0?'right':'left'};padding:6px 8px;color:var(--g);font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid rgba(10,10,10,.06)">${h}</th>`).join('');
   const regs=[{id:'se',n:'Sudeste',st:'SP · RJ · MG'},{id:'su',n:'Sul',st:'PR · SC · RS'},{id:'co',n:'Centro-Oeste',st:'GO · MT · MS'},{id:'ne',n:'Nordeste',st:'BA · CE · PE'},{id:'no',n:'Norte',st:'AM · PA · RO'}];
   $('fr-tb').innerHTML=regs.map(r=>{
-    const fv=FB[r.id],lrr=FM==='incluso'?ll-fv:ll,mrr=vp>0?(lrr/vp)*100:0,ok=lrr>0&&mrr>5;
-    return `<tr style="${r.id===RS?'background:var(--tbg);':''}"><td style="padding:7px 8px">${r.n}<span style="font-size:11px;color:var(--g);display:block">${r.st}</span></td><td style="text-align:right;padding:7px 8px">${brl(fv)}</td><td style="text-align:right;padding:7px 8px;color:${lrr<0?'var(--er)':'var(--ok)'}">${lrr<0?'− '+brl(Math.abs(lrr)):brl(lrr)}</td><td style="text-align:right;padding:7px 8px">${pct(mrr)}</td><td style="text-align:right;padding:7px 8px"><span class="tag ${ok?'t-ok':'t-er'}">${ok?'Sim':'Revisar'}</span></td></tr>`;
+    const semTaxa=!(FB[r.id]>0);
+    const fv=Math.round(pesoFat*FB[r.id]/5)*5,lrr=FM==='incluso'?ll-fv:ll,mrr=vp>0?(lrr/vp)*100:0,ok=lrr>0&&mrr>5;
+    return `<tr style="${r.id===RS?'background:var(--tbg);':''}"><td style="padding:7px 8px">${r.n}<span style="font-size:11px;color:var(--g);display:block">${r.st}</span></td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':brl(fv)}</td><td style="text-align:right;padding:7px 8px;color:${lrr<0?'var(--er)':'var(--ok)'}">${semTaxa?'—':(lrr<0?'− '+brl(Math.abs(lrr)):brl(lrr))}</td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':pct(mrr)}</td><td style="text-align:right;padding:7px 8px"><span class="tag ${semTaxa?'t-wn':ok?'t-ok':'t-er'}">${semTaxa?'sem taxa':ok?'Sim':'Revisar'}</span></td></tr>`;
   }).join('');
 }
 
@@ -1646,7 +1750,8 @@ function calcCen(){
   const aCst=S.custo||0,aMg=+$('p-mgi').value||0,aArea=+$('p-area').value||0;
   $('ca-c',S.prodName+' · '+brl(S.custo)+'/m²');$('ca-mg',aMg+'%');$('ca-a',aArea+' m²');
   $('ca-p',brl(aPm2));$('ca-v',brl(aVp));$('ca-l',brl(aLl));$('ca-m',pct(aMl));
-  const bProdPrice=+$('cb-prod').value||0,bDisc=+$('cb-dsci').value||0;
+  const bProdSlug=$('cb-prod').value||'',bDisc=+$('cb-dsci').value||0;
+  const bProdPrice=PRECOS[bProdSlug]||0;
   const bCst=bProdPrice*(1-bDisc/100);
   const bMg=+$('cb-mgi').value||0,bArea=+$('cb-a').value||0;
   const tx=+$('p-tax').value||0,pd=+$('p-pda').value||0;
