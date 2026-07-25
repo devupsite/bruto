@@ -1593,6 +1593,12 @@ function BrutoAtendimento() {
     setTrainingFeedback(null);
   }
 
+  function extrairCodigoReferencia(texto) {
+    // Mesmo padrão que a KB já ensina a IA a interpretar: [ref:pagina_tipo_origem]
+    const match = texto.match(/\[ref:([a-z0-9-]+_[a-z0-9-]+_[a-z0-9-]+)\]/i);
+    return match ? match[1] : null;
+  }
+
   function send() {
     if (diagFlow && currentDiagQuestion()?.type === "text") {
       const text = input.trim();
@@ -1604,6 +1610,17 @@ function BrutoAtendimento() {
     const hasImages = imageAttachments.length > 0;
     if (!text && !hasImages) return;
     if (busy) return;
+    // Só extrai da PRIMEIRA mensagem da sessão — é onde o código de
+    // referência aparece de verdade (a mensagem pré-preenchida que o
+    // cliente manda ao clicar no WhatsApp do site). Guarda no perfil
+    // do cliente, que já é salvo por completo com a sessão — sem
+    // precisar de coluna nova no banco nem mudança no backend.
+    if (messages.length === 0 && text) {
+      const codigo = extrairCodigoReferencia(text);
+      if (codigo) {
+        setClient((prev) => ({ ...prev, codigoReferencia: codigo }));
+      }
+    }
     const userMsg = {
       role: "user",
       content: text || (hasImages
@@ -1734,6 +1751,7 @@ function BrutoAtendimento() {
                     client.type ? `<strong>Tipo:</strong> ${client.type}` : "",
                     client.project ? `<strong>Projeto:</strong> ${client.project}` : "",
                     client.tags.length ? `<strong>Tags:</strong> ${client.tags.join(", ")}` : "",
+                    client.codigoReferencia ? `<strong>Origem:</strong> ${client.codigoReferencia.split("_").join(" · ")}` : "",
                   ].filter(Boolean).join("<br/>") || "Clique para editar"
                 }} />
                 <button style={S.editBtn} onClick={openClientModal}>Editar Perfil</button>

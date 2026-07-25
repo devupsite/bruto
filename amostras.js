@@ -6,14 +6,15 @@
 
    Fluxo: usuário adiciona até 3 produtos à sacola (persistida em
    localStorage, sobrevive entre páginas) → abre a sacola → preenche
-   endereço → confirma → Formspree + WhatsApp com o pedido completo.
+   endereço → confirma → e-mail (servidor) + WhatsApp com o pedido completo.
 
-   FORMSPREE_ENDPOINT: mesmo endpoint configurado em 08/07/2026.
+   LEAD_ENDPOINT: substituiu o Formspree em 25/07/2026 — mesmo
+   endpoint do lead-pdf.js (bruto-secrets/API/enviar-lead.php).
 ════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  var FORMSPREE_ENDPOINT = 'https://formspree.io/f/xbdveedy';
+  var LEAD_ENDPOINT       = 'api/enviar-lead.php';
   var STORAGE_KEY         = 'bruto_amostras_bag';
   var MAX_ITENS           = 3;
 
@@ -321,13 +322,11 @@
       origem: 'sacola-amostras'
     };
 
-    var enviarPromise = (!FORMSPREE_ENDPOINT || FORMSPREE_ENDPOINT.indexOf('SEU_ID_AQUI') !== -1)
-      ? Promise.resolve()
-      : fetch(FORMSPREE_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify(payload)
-        }).catch(function () { /* não bloqueia o fluxo se o Formspree falhar */ });
+    var enviarPromise = fetch(LEAD_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(function () { /* não bloqueia o fluxo se o envio falhar */ });
 
     enviarPromise.then(function () {
       if (window.brutoTrack) {

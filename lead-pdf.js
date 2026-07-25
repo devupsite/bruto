@@ -2,14 +2,16 @@
    LEAD-PDF — Modal de captura + PDF rico + notificação via WhatsApp
    Carregado nas páginas de produto (botão "Baixar PDF com meus dados").
 
-   FORMSPREE_ENDPOINT configurado em 08/07/2026 (formspree.io/f/xbdveedy).
+   LEAD_ENDPOINT: substituiu o Formspree em 25/07/2026 — agora envia
+   pro próprio servidor da Bruto (bruto-secrets/API/enviar-lead.php),
+   via PHPMailer, sem depender de serviço terceiro.
    Número de WhatsApp vem do rodízio de atendentes — ver
    whatsapp-atendimento.js (precisa carregar antes deste script).
 ════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  var FORMSPREE_ENDPOINT = 'https://formspree.io/f/xbdveedy';
+  var LEAD_ENDPOINT = 'api/enviar-lead.php';
   var JSPDF_CDN = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
   var HTML2CANVAS_CDN = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 
@@ -307,12 +309,12 @@
     doc.save('orcamento-bruto-' + dados.produto.toLowerCase().replace(/\s+/g, '-') + '.pdf');
   }
 
-  function enviarFormspree(dados, lead) {
-    if (!FORMSPREE_ENDPOINT || FORMSPREE_ENDPOINT.indexOf('SEU_ID_AQUI') !== -1) return Promise.resolve();
-    return fetch(FORMSPREE_ENDPOINT, {
+  function enviarLead(dados, lead) {
+    return fetch(LEAD_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        _subject: 'Orçamento via PDF — ' + lead.nome,
         nome: lead.nome, whatsapp: lead.whatsapp, email: lead.email || '',
         produto: dados.linha + ' — ' + dados.produto,
         dimensoes: dados.largura + 'm x ' + dados.altura + 'm',
@@ -323,7 +325,7 @@
         window.brutoTrack('form_submit', { form_type: 'orcamento-completo', produto: dados.linha + ' — ' + dados.produto, valor: dados.valor });
       }
       return res;
-    }).catch(function () { /* não bloqueia o fluxo se o Formspree falhar */ });
+    }).catch(function () { /* não bloqueia o fluxo se o envio falhar */ });
   }
 
   function abrirWhatsApp(dados, lead) {
@@ -348,12 +350,12 @@
     }
   }
 
-  function enviarFormspreeSimples(lead, origem) {
-    if (!FORMSPREE_ENDPOINT || FORMSPREE_ENDPOINT.indexOf('SEU_ID_AQUI') !== -1) return Promise.resolve();
-    return fetch(FORMSPREE_ENDPOINT, {
+  function enviarLeadSimples(lead, origem) {
+    return fetch(LEAD_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        _subject: 'Download de guia — ' + lead.nome,
         nome: lead.nome, whatsapp: lead.whatsapp, email: lead.email || '',
         origem: origem
       })
@@ -362,7 +364,7 @@
         window.brutoTrack('form_submit', { form_type: 'origem-' + origem });
       }
       return res;
-    }).catch(function () { /* não bloqueia o fluxo se o Formspree falhar */ });
+    }).catch(function () { /* não bloqueia o fluxo se o envio falhar */ });
   }
 
   function baixarArquivoEstatico(caminho) {
@@ -414,7 +416,7 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Enviando...';
       var nomeConteudo = currentBtn.getAttribute('data-content-name') || 'guia em PDF';
-      enviarFormspreeSimples(lead, 'pdf-estatico:' + staticPdf).then(function () {
+      enviarLeadSimples(lead, 'pdf-estatico:' + staticPdf).then(function () {
         baixarArquivoEstatico(staticPdf);
         abrirWhatsAppGenerico(lead, nomeConteudo);
         modal.querySelector('[data-step="form"]').hidden = true;
@@ -440,7 +442,7 @@
     loadJsPDF().then(function () {
       return capturarSimulacaoParede().then(function (wallImage) {
         gerarPDF(dados, lead, wallImage);
-        enviarFormspree(dados, lead);
+        enviarLead(dados, lead);
         abrirWhatsApp(dados, lead);
 
         modal.querySelector('[data-step="form"]').hidden = true;
