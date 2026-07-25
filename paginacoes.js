@@ -15,27 +15,27 @@
       nome: 'Brick',
       itens: [
         { id: 'brick-eco-palha',              nome: 'Eco Palha',             w: 265, h: 65,
-          texturas: ['brick-eco-palha-face1.webp?v=3', 'brick-eco-palha-face2.webp?v=3'] },
+          texturas: ['brick-eco-palha-face1.webp?v=4', 'brick-eco-palha-face2.webp?v=4'] },
         { id: 'brick-rusticatto-palha',        nome: 'Rusticatto Palha',      w: 270, h: 70,
-          texturas: ['brick-rusticatto-palha-face1.webp?v=1', 'brick-rusticatto-palha-face2.webp?v=1'] },
+          texturas: ['brick-rusticatto-palha-face1.webp?v=2', 'brick-rusticatto-palha-face2.webp?v=2'] },
         { id: 'brick-lumus',                  nome: 'Lumus',                 w: 265, h: 65,
-          texturas: ['brick-lumus-face1.webp?v=3', 'brick-lumus-face2.webp?v=3'] },
+          texturas: ['brick-lumus-face1.webp?v=4', 'brick-lumus-face2.webp?v=4'] },
         { id: 'brick-mescla-prime',           nome: 'Mescla Prime',          w: 250, h: 70,
-          texturas: ['brick-mescla-prime-face1.webp?v=2', 'brick-mescla-prime-face2.webp?v=2'] },
+          texturas: ['brick-mescla-prime-face1.webp?v=3', 'brick-mescla-prime-face2.webp?v=3'] },
         { id: 'brick-natura',                 nome: 'Natura',                w: 240, h: 70,
-          texturas: ['brick-natura-face1.webp?v=3', 'brick-natura-face2.webp?v=3'] },
+          texturas: ['brick-natura-face1.webp?v=4', 'brick-natura-face2.webp?v=4'] },
         { id: 'brick-rosso-prime',            nome: 'Rosso Prime',           w: 240, h: 65,
-          texturas: ['brick-rosso-prime-face1.webp?v=2', 'brick-rosso-prime-face2.webp?v=2'] },
+          texturas: ['brick-rosso-prime-face1.webp?v=3', 'brick-rosso-prime-face2.webp?v=3'] },
         { id: 'brick-rusticatto-sertao',      nome: 'Rusticatto do Sertão',  w: 255, h: 70,
           texturas: ['brick-rusticatto-sertao-face1.webp?v=4', 'brick-rusticatto-sertao-face2.webp?v=4'] },
         { id: 'brick-rusticatto-fume',        nome: 'Rusticatto Fumê',       w: 240, h: 65,
-          texturas: ['brick-rusticatto-fume-face1.webp?v=2', 'brick-rusticatto-fume-face2.webp?v=2'] },
+          texturas: ['brick-rusticatto-fume-face1.webp?v=3', 'brick-rusticatto-fume-face2.webp?v=3'] },
         { id: 'brick-rusticatto-rosso',       nome: 'Rusticatto Rosso',      w: 270, h: 70,
-          texturas: ['brick-rusticatto-rosso-face1.webp?v=3', 'brick-rusticatto-rosso-face2.webp?v=5'] },
+          texturas: ['brick-rusticatto-rosso-face1.webp?v=4', 'brick-rusticatto-rosso-face2.webp?v=6'] },
         { id: 'brick-rusticatto-terra-negra', nome: 'Rusticatto Terra Negra', w: 260, h: 65,
-          texturas: ['brick-rusticatto-terra-negra-face1.webp?v=3', 'brick-rusticatto-terra-negra-face2.webp?v=4'] },
+          texturas: ['brick-rusticatto-terra-negra-face1.webp?v=4', 'brick-rusticatto-terra-negra-face2.webp?v=5'] },
         { id: 'brick-terra-cerrado',          nome: 'Terra do Cerrado',      w: 260, h: 70,
-          texturas: ['brick-terra-cerrado-face1.webp?v=3', 'brick-terra-cerrado-face2.webp?v=3'] }
+          texturas: ['brick-terra-cerrado-face1.webp?v=4', 'brick-terra-cerrado-face2.webp?v=4'] }
       ]
     },
     cimenticio: {
@@ -68,8 +68,9 @@
     return COLECOES.brick;
   }
 
+  var THUMB_V = 2; // bump sempre que as imagens *-frontal-thumb.webp forem substituídas
   function textureUrl(id)  { return id + '-frontal.webp'; }
-  function thumbUrl(id)    { return id + '-frontal-thumb.webp'; }
+  function thumbUrl(id)    { return id + '-frontal-thumb.webp?v=' + THUMB_V; }
   function findItem(id) {
     var col = colecaoDe(id);
     return col.itens.filter(function (b) { return b.id === id; })[0] || col.itens[0];
