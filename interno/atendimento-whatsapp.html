@@ -25,18 +25,30 @@
     --t:#57999B;--td:#3D7072;--tl:#8BBCBE;
     --w:#F2F2F2;--g:#606060;--gl:#8A8A8A;
     --ok:#5F9E6E;--err:#B9614F;
+    --surface:#1A1A1A;--border:#2E2E2E;--mid2:#888888;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;background:var(--k)}
   body{
     font-family:'DM Sans',system-ui,sans-serif;font-weight:300;color:var(--w);
     -webkit-font-smoothing:antialiased;min-height:100vh;
-    display:flex;align-items:flex-start;justify-content:center;
-    padding:56px 20px;
   }
-  .painel{width:100%;max-width:640px}
-  .wm{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:22px;letter-spacing:.24em;text-transform:uppercase;color:var(--w);margin-bottom:6px}
-  .subtitulo{font-family:'Syne',sans-serif;font-size:13px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gl);margin-bottom:32px}
+  .app{display:flex;flex-direction:column;min-height:100vh;background:var(--k);border-left:1px solid var(--border);border-right:1px solid var(--border);max-width:720px;margin:0 auto}
+  .led{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(87,153,155,.45) 15%,rgba(87,153,155,.85) 50%,rgba(87,153,155,.45) 85%,transparent 100%);flex-shrink:0}
+  .header{display:flex;align-items:center;gap:12px;padding:14px 24px;background:linear-gradient(180deg,#181818 0%,var(--surface) 100%);border-bottom:1px solid var(--border);flex-shrink:0}
+  .logo-lockup{display:flex;align-items:center;gap:7px}
+  .lockup-divider{width:1px;height:20px;background:#2A2A2A;margin-right:2px}
+  .logo-mark{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:22px;letter-spacing:.10em;text-transform:uppercase;color:var(--w)}
+  .logo-dash{width:18px;height:1.5px;background:var(--t)}
+  .logo-co{font-family:'Barlow Condensed',sans-serif;font-weight:400;font-size:11px;letter-spacing:.20em;text-transform:uppercase;color:var(--t)}
+  .stamp-by{font-family:'DM Sans',sans-serif;font-size:8px;font-weight:400;color:var(--mid2);letter-spacing:.04em}
+  .stamp-up{font-family:'Syne',sans-serif;font-weight:800;font-size:12px;color:var(--w);letter-spacing:-.02em}
+  .stamp-dash{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--t);font-weight:600}
+  .stamp-co{font-family:'Syne',sans-serif;font-weight:400;font-size:12px;color:var(--mid2)}
+  .status-badge{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);color:var(--ok);font-size:10px;font-weight:500;margin-left:auto}
+  .status-dot{width:5px;height:5px;border-radius:50%;background:var(--ok)}
+  .painel{width:100%;max-width:640px;margin:0 auto;padding:36px 20px 24px}
+  .footer{padding:8px 16px;background:#080808;border-top:1px solid var(--border);font-size:9px;color:var(--g);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
   .card{
     background:var(--k2);border:1px solid rgba(255,255,255,.06);
     border-radius:4px;padding:22px 24px;margin-bottom:14px;
@@ -44,7 +56,27 @@
     transition:opacity .2s;
   }
   .card.inativo{opacity:.5}
-  .info h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;margin-bottom:6px;color:var(--w)}
+  .info h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:600;margin-bottom:6px;color:var(--w);display:flex;align-items:center;gap:8px}
+  .nome-texto{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .renomear-btn{
+    background:none;border:none;color:var(--g);cursor:pointer;font-size:13px;
+    padding:2px 4px;line-height:1;flex-shrink:0;transition:color .15s;
+  }
+  .renomear-btn:hover{color:var(--t)}
+  .renomear-input{
+    background:var(--k3);border:1px solid var(--t);border-radius:3px;
+    padding:5px 8px;font:600 14px 'Syne',sans-serif;color:var(--w);
+    min-width:0;flex:1;
+  }
+  .renomear-salvar,.renomear-cancelar{
+    font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;padding:5px 9px;border-radius:3px;cursor:pointer;flex-shrink:0;
+  }
+  .renomear-salvar{background:var(--t);border:none;color:var(--k)}
+  .renomear-salvar:hover{background:var(--tl)}
+  .renomear-salvar:disabled,.renomear-cancelar:disabled{cursor:wait;opacity:.6}
+  .renomear-cancelar{background:none;border:1px solid rgba(255,255,255,.12);color:var(--gl)}
+  .renomear-cancelar:hover{border-color:var(--err);color:var(--err)}
   .info .numero{font-size:13px;color:var(--gl);letter-spacing:.02em}
   .info .stat{font-size:12px;color:var(--tl);margin-top:8px;letter-spacing:.02em}
   .toggle{
@@ -146,13 +178,65 @@
   .res-btn[data-r="fechou"].ativo{background:rgba(95,158,110,.18);border-color:var(--ok);color:var(--ok)}
   .res-btn[data-r="perdido"].ativo{background:rgba(185,97,79,.18);border-color:var(--err);color:var(--err)}
   .leads-vazio{color:var(--gl);font-size:13px;padding:8px 0}
+
+  .lead-secao{margin-bottom:22px}
+  .lead-secao-titulo{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;
+    color:var(--t);padding:6px 0;border-bottom:1px solid rgba(87,153,155,.2);margin-bottom:10px;
+  }
+  .lead-secao-contagem{
+    font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;color:var(--gl);
+    background:rgba(87,153,155,.1);border-radius:10px;padding:1px 8px;
+  }
+
+  .filtros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .filtro-grupo{display:flex;flex-direction:column;gap:5px}
+  .filtro-label{font-family:'Syne',sans-serif;font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--g)}
+  .filtro-select{
+    background:var(--k3);border:1px solid rgba(255,255,255,.08);border-radius:3px;
+    padding:8px 10px;font:400 12px 'DM Sans',sans-serif;color:var(--w);cursor:pointer;min-width:140px;
+  }
+  .filtro-select:focus{outline:1px solid var(--t)}
+  .filtro-seg{display:flex;border:1px solid rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+  .filtro-seg button{
+    background:var(--k3);border:none;color:var(--gl);font-family:'Syne',sans-serif;
+    font-size:10px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;
+    padding:8px 12px;cursor:pointer;transition:.15s;border-right:1px solid rgba(255,255,255,.06);
+  }
+  .filtro-seg button:last-child{border-right:none}
+  .filtro-seg button.ativo{background:rgba(87,153,155,.18);color:var(--t)}
+  .filtro-contagem{font-size:11px;color:var(--gl);margin-bottom:14px}
+  .filtro-limpar{
+    background:none;border:none;color:var(--gl);font-family:'Syne',sans-serif;font-size:10px;
+    font-weight:600;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;text-decoration:underline;
+    align-self:flex-end;padding-bottom:8px;
+  }
+  .filtro-limpar:hover{color:var(--t)}
 </style>
 </head>
 <body>
+<div class="app">
+  <div class="led"></div>
+  <header class="header">
+    <div class="logo-lockup">
+      <svg viewBox="0 0 176 286" width="18" height="29" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+        <path fill-rule="evenodd" fill="#F2F2F2" d="M0,0 L132,0 L132,132 L176,132 L176,286 L0,286 Z M22,22 L110,22 L110,132 L22,132 Z M22,154 L154,154 L154,264 L22,264 Z"/>
+      </svg>
+      <div class="lockup-divider"></div>
+      <span class="logo-mark">BRUTO</span>
+      <div class="logo-dash"></div>
+      <span class="logo-co">RODÍZIO</span>
+      <div class="lockup-divider"></div>
+      <span class="stamp-by">by</span>
+      <span class="stamp-up">UP</span>
+      <span class="stamp-dash">—</span>
+      <span class="stamp-co">Co.</span>
+    </div>
+    <div class="status-badge"><span class="status-dot"></span>Sistema ativo</div>
+  </header>
 
 <div class="painel">
-  <div class="wm">BRUTO</div>
-  <div class="subtitulo">Rodízio de atendimento — WhatsApp</div>
 
   <div id="lista" class="carregando">Carregando atendentes…</div>
 
@@ -171,6 +255,35 @@
     Leads recentes
     <button class="exportar-btn" id="exportar-btn" type="button">Exportar conversões (Google Ads)</button>
   </div>
+
+  <div class="filtros">
+    <div class="filtro-grupo">
+      <span class="filtro-label">Período</span>
+      <div class="filtro-seg" id="filtro-periodo">
+        <button data-v="tudo" class="ativo">Tudo</button>
+        <button data-v="hoje">Hoje</button>
+        <button data-v="semana">7 dias</button>
+        <button data-v="mes">30 dias</button>
+      </div>
+    </div>
+    <div class="filtro-grupo">
+      <span class="filtro-label">Origem</span>
+      <div class="filtro-seg" id="filtro-origem">
+        <button data-v="tudo" class="ativo">Tudo</button>
+        <button data-v="anuncio">Anúncio</button>
+        <button data-v="organico">Orgânico</button>
+      </div>
+    </div>
+    <div class="filtro-grupo">
+      <span class="filtro-label">Página</span>
+      <select class="filtro-select" id="filtro-pagina">
+        <option value="tudo">Todas as páginas</option>
+      </select>
+    </div>
+    <button class="filtro-limpar" id="filtro-limpar" type="button">Limpar filtros</button>
+  </div>
+  <div class="filtro-contagem" id="filtro-contagem"></div>
+
   <div id="leads-lista" class="carregando">Carregando leads…</div>
 
   <div class="rodape">
@@ -187,6 +300,13 @@
   </div>
 </div>
 
+  <div class="led"></div>
+  <footer class="footer">
+    <span>BRUTO — Rodízio de Atendimento WhatsApp</span>
+    <span>✓ Painel interno</span>
+  </footer>
+</div>
+
 <script>
 (function () {
   'use strict';
@@ -195,6 +315,7 @@
   var API_TOGGLE = 'atendimento-toggle.php';
   var API_ADICIONAR = 'atendimento-adicionar.php';
   var API_REMOVER = 'atendimento-remover.php';
+  var API_RENOMEAR = 'atendimento-renomear.php';
   var API_LISTAR_LEADS = 'listar-leads.php';
   var API_MARCAR_LEAD = 'marcar-lead.php';
 
@@ -208,6 +329,20 @@
   var leadsLista = document.getElementById('leads-lista');
   var exportarBtn = document.getElementById('exportar-btn');
   var leadsCache = [];
+
+  var filtroPeriodoEl = document.getElementById('filtro-periodo');
+  var filtroOrigemEl = document.getElementById('filtro-origem');
+  var filtroPaginaEl = document.getElementById('filtro-pagina');
+  var filtroLimparEl = document.getElementById('filtro-limpar');
+  var filtroContagemEl = document.getElementById('filtro-contagem');
+  var filtros = { periodo: 'tudo', origem: 'tudo', pagina: 'tudo' };
+  var atendentesCache = [];
+
+  function nomeAtendente(id) {
+    if (!id) return 'não identificado';
+    var a = atendentesCache.filter(function (x) { return x.id === id; })[0];
+    return a ? a.nome : id; // fallback: id bruto se o atendente não existe mais
+  }
 
   function mostrarAviso(msg) {
     aviso.textContent = msg;
@@ -225,12 +360,38 @@
 
       var info = document.createElement('div');
       info.className = 'info';
-      info.innerHTML =
-        '<h3>' + a.nome +
-          '<span class="badge ' + (a.ativo ? 'on' : 'off') + '">' + (a.ativo ? 'Ativo' : 'Inativo') + '</span>' +
-        '</h3>' +
+
+      var nomeLinha = document.createElement('h3');
+
+      var nomeSpan = document.createElement('span');
+      nomeSpan.className = 'nome-texto';
+      nomeSpan.textContent = a.nome;
+
+      var badge = document.createElement('span');
+      badge.className = 'badge ' + (a.ativo ? 'on' : 'off');
+      badge.textContent = a.ativo ? 'Ativo' : 'Inativo';
+
+      var btnRenomear = document.createElement('button');
+      btnRenomear.className = 'renomear-btn';
+      btnRenomear.type = 'button';
+      btnRenomear.setAttribute('aria-label', 'Renomear ' + a.nome);
+      btnRenomear.textContent = '✎';
+
+      nomeLinha.appendChild(nomeSpan);
+      nomeLinha.appendChild(badge);
+      nomeLinha.appendChild(btnRenomear);
+
+      var detalhes = document.createElement('div');
+      detalhes.innerHTML =
         '<div class="numero">' + a.numero + '</div>' +
         '<div class="stat">' + (a.total || 0) + ' leads recebidos no rodízio</div>';
+
+      info.appendChild(nomeLinha);
+      info.appendChild(detalhes);
+
+      btnRenomear.addEventListener('click', function () {
+        iniciarRenomear(nomeLinha, badge, btnRenomear, a);
+      });
 
       var btn = document.createElement('button');
       btn.className = 'toggle' + (a.ativo ? ' ativo' : '');
@@ -257,11 +418,72 @@
     });
   }
 
+  function iniciarRenomear(nomeLinha, badge, btnRenomear, atendente) {
+    var nomeSpanAtual = nomeLinha.querySelector('.nome-texto');
+    nomeLinha.innerHTML = '';
+
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'renomear-input';
+    input.value = atendente.nome;
+    input.maxLength = 60;
+
+    var btnSalvar = document.createElement('button');
+    btnSalvar.className = 'renomear-salvar';
+    btnSalvar.type = 'button';
+    btnSalvar.textContent = 'Salvar';
+
+    var btnCancelar = document.createElement('button');
+    btnCancelar.className = 'renomear-cancelar';
+    btnCancelar.type = 'button';
+    btnCancelar.textContent = 'Cancelar';
+
+    nomeLinha.appendChild(input);
+    nomeLinha.appendChild(btnSalvar);
+    nomeLinha.appendChild(btnCancelar);
+    input.focus();
+    input.setSelectionRange(0, input.value.length);
+
+    function confirmar() {
+      var novoNome = input.value.trim();
+      if (!novoNome || novoNome === atendente.nome) { carregar(); return; }
+      btnSalvar.disabled = true;
+      btnCancelar.disabled = true;
+      fetch(API_RENOMEAR, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: atendente.id, nome: novoNome })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (resposta) {
+          if (!resposta || !resposta.ok) {
+            mostrarAviso(resposta && resposta.erro ? resposta.erro : 'Não foi possível renomear agora.');
+          }
+          carregar();
+        })
+        .catch(function () {
+          mostrarAviso('Não foi possível renomear agora. Tente de novo.');
+          carregar();
+        });
+    }
+
+    btnSalvar.addEventListener('click', confirmar);
+    btnCancelar.addEventListener('click', function () { carregar(); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') confirmar();
+      if (e.key === 'Escape') carregar();
+    });
+  }
+
   function carregar() {
     fetch(API_STATUS, { cache: 'no-store' })
       .then(function (r) { return r.json(); })
       .then(function (dados) {
+        atendentesCache = dados.atendentes || [];
         renderizar(dados);
+        // Reaplica os leads pra atualizar nomes/agrupamento caso alguém
+        // tenha sido renomeado, adicionado ou removido nesse meio-tempo.
+        if (leadsCache.length) aplicarFiltros();
       })
       .catch(function () {
         lista.innerHTML = '';
@@ -363,53 +585,158 @@
       return;
     }
 
+    // Agrupa por atendente, mantendo a mesma ordem dos cartões acima
+    // (atendentesCache) — quem não bate com nenhum id conhecido (removido,
+    // ou nunca existiu) cai num grupo "Não identificado" no final.
+    var grupos = {};
     leads.forEach(function (lead) {
-      var card = document.createElement('div');
-      card.className = 'lead';
+      var chave = lead.atendente || '__sem_id__';
+      if (!grupos[chave]) grupos[chave] = [];
+      grupos[chave].push(lead);
+    });
 
-      var topo = document.createElement('div');
-      topo.className = 'lead-topo';
+    var ordemIds = atendentesCache.map(function (a) { return a.id; });
+    Object.keys(grupos).forEach(function (id) {
+      if (ordemIds.indexOf(id) === -1) ordemIds.push(id);
+    });
 
-      var info = document.createElement('div');
-      info.className = 'lead-info';
-      info.innerHTML =
-        '<div>' + formatarDataHora(lead.recebido_em) + ' · <b>' + (lead.atendente || 'atendente não identificado') + '</b></div>' +
-        '<div>' + (lead.pagina || 'página não identificada') + '</div>' +
-        '<div class="lead-codigo">' + (lead.codigo_referencia || '') + '</div>';
+    ordemIds.forEach(function (id) {
+      var leadsDoGrupo = grupos[id];
+      if (!leadsDoGrupo || !leadsDoGrupo.length) return;
 
-      topo.appendChild(info);
-      if (lead.gclid) {
-        var selo = document.createElement('span');
-        selo.className = 'lead-anuncio';
-        selo.textContent = 'Anúncio';
-        topo.appendChild(selo);
-      }
-      card.appendChild(topo);
+      var secao = document.createElement('div');
+      secao.className = 'lead-secao';
 
-      var resultados = document.createElement('div');
-      resultados.className = 'lead-resultados';
-      RESULTADOS.forEach(function (r) {
-        var btn = document.createElement('button');
-        btn.className = 'res-btn' + (lead.resultado === r ? ' ativo' : '');
-        btn.dataset.r = r;
-        btn.textContent = r.charAt(0).toUpperCase() + r.slice(1);
-        btn.addEventListener('click', function () {
-          marcarResultado(lead, lead.resultado === r ? null : r, btn);
+      var cabecalho = document.createElement('div');
+      cabecalho.className = 'lead-secao-titulo';
+      cabecalho.innerHTML =
+        '<span>' + nomeAtendente(id === '__sem_id__' ? null : id) + '</span>' +
+        '<span class="lead-secao-contagem">' + leadsDoGrupo.length + '</span>';
+      secao.appendChild(cabecalho);
+
+      leadsDoGrupo.forEach(function (lead) {
+        var card = document.createElement('div');
+        card.className = 'lead';
+
+        var topo = document.createElement('div');
+        topo.className = 'lead-topo';
+
+        var info = document.createElement('div');
+        info.className = 'lead-info';
+        info.innerHTML =
+          '<div>' + formatarDataHora(lead.recebido_em) + '</div>' +
+          '<div>' + (lead.pagina || 'página não identificada') + '</div>' +
+          '<div class="lead-codigo">' + (lead.codigo_referencia || '') + '</div>';
+
+        topo.appendChild(info);
+        if (lead.gclid) {
+          var selo = document.createElement('span');
+          selo.className = 'lead-anuncio';
+          selo.textContent = 'Anúncio';
+          topo.appendChild(selo);
+        }
+        card.appendChild(topo);
+
+        var resultados = document.createElement('div');
+        resultados.className = 'lead-resultados';
+        RESULTADOS.forEach(function (r) {
+          var btn = document.createElement('button');
+          btn.className = 'res-btn' + (lead.resultado === r ? ' ativo' : '');
+          btn.dataset.r = r;
+          btn.textContent = r.charAt(0).toUpperCase() + r.slice(1);
+          btn.addEventListener('click', function () {
+            marcarResultado(lead, lead.resultado === r ? null : r, btn);
+          });
+          resultados.appendChild(btn);
         });
-        resultados.appendChild(btn);
-      });
-      card.appendChild(resultados);
+        card.appendChild(resultados);
 
-      leadsLista.appendChild(card);
+        secao.appendChild(card);
+      });
+
+      leadsLista.appendChild(secao);
     });
   }
+
+  // ── Filtros ──────────────────────────────────────────────────────
+
+  function popularFiltroPagina() {
+    var paginas = {};
+    leadsCache.forEach(function (l) {
+      var p = l.pagina || 'não identificada';
+      paginas[p] = true;
+    });
+    var valorAtual = filtroPaginaEl.value;
+    var opcoes = ['<option value="tudo">Todas as páginas</option>'];
+    Object.keys(paginas).sort().forEach(function (p) {
+      opcoes.push('<option value="' + p.replace(/"/g, '&quot;') + '">' + p + '</option>');
+    });
+    filtroPaginaEl.innerHTML = opcoes.join('');
+    // preserva a seleção anterior se ainda existir na nova lista de páginas
+    if (Array.prototype.some.call(filtroPaginaEl.options, function (o) { return o.value === valorAtual; })) {
+      filtroPaginaEl.value = valorAtual;
+    }
+  }
+
+  function dentroDoPeriodo(lead) {
+    if (filtros.periodo === 'tudo') return true;
+    var recebido = new Date(lead.recebido_em).getTime();
+    if (isNaN(recebido)) return true; // não filtra o que não conseguir interpretar
+    var agora = Date.now();
+    var limites = { hoje: 24, semana: 24 * 7, mes: 24 * 30 };
+    var horas = limites[filtros.periodo];
+    return (agora - recebido) <= horas * 60 * 60 * 1000;
+  }
+
+  function aplicarFiltros() {
+    var filtrados = leadsCache.filter(function (l) {
+      if (!dentroDoPeriodo(l)) return false;
+      if (filtros.origem === 'anuncio' && !l.gclid) return false;
+      if (filtros.origem === 'organico' && l.gclid) return false;
+      if (filtros.pagina !== 'tudo' && (l.pagina || 'não identificada') !== filtros.pagina) return false;
+      return true;
+    });
+    renderizarLeads(filtrados);
+    var algumFiltroAtivo = filtros.periodo !== 'tudo' || filtros.origem !== 'tudo' || filtros.pagina !== 'tudo';
+    filtroContagemEl.textContent = algumFiltroAtivo
+      ? filtrados.length + ' de ' + leadsCache.length + ' leads (com filtro aplicado)'
+      : leadsCache.length + ' leads no total';
+  }
+
+  function configurarFiltroSegmentado(container, chave) {
+    container.querySelectorAll('button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        container.querySelectorAll('button').forEach(function (b) { b.classList.remove('ativo'); });
+        btn.classList.add('ativo');
+        filtros[chave] = btn.dataset.v;
+        aplicarFiltros();
+      });
+    });
+  }
+  configurarFiltroSegmentado(filtroPeriodoEl, 'periodo');
+  configurarFiltroSegmentado(filtroOrigemEl, 'origem');
+
+  filtroPaginaEl.addEventListener('change', function () {
+    filtros.pagina = filtroPaginaEl.value;
+    aplicarFiltros();
+  });
+
+  filtroLimparEl.addEventListener('click', function () {
+    filtros = { periodo: 'tudo', origem: 'tudo', pagina: 'tudo' };
+    [filtroPeriodoEl, filtroOrigemEl].forEach(function (container) {
+      container.querySelectorAll('button').forEach(function (b, i) { b.classList.toggle('ativo', i === 0); });
+    });
+    filtroPaginaEl.value = 'tudo';
+    aplicarFiltros();
+  });
 
   function carregarLeads() {
     fetch(API_LISTAR_LEADS + '?limite=200', { cache: 'no-store' })
       .then(function (r) { return r.json(); })
       .then(function (dados) {
         leadsCache = dados.leads || [];
-        renderizarLeads(leadsCache);
+        popularFiltroPagina();
+        aplicarFiltros();
       })
       .catch(function () {
         leadsLista.innerHTML = '';
