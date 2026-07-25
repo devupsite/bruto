@@ -69,8 +69,25 @@
   }
 
   var THUMB_V = 2; // bump sempre que as imagens *-frontal-thumb.webp forem substituídas
+
+  // Miniaturas dedicadas pra alguns produtos (foto de textura própria, recortada
+  // pro seletor de padrão de assentamento) - usadas SÓ aqui, não mexe no
+  // *-frontal-thumb.webp compartilhado com home/quiz/galeria do produto.
+  var SWATCH_V = 1; // bump sempre que os arquivos *-swatch.webp forem substituídos
+  var SWATCH_OVERRIDES = {
+    'rockface-alpino':   'rockface-alpino-swatch.webp',
+    'rockface-brisa':    'rockface-brisa-swatch.webp',
+    'rockface-urban':    'rockface-urban-swatch.webp',
+    'cimenticio-alpino': 'cimenticio-alpino-swatch.webp',
+    'cimenticio-brisa':  'cimenticio-brisa-swatch.webp',
+    'cimenticio-urban':  'cimenticio-urban-swatch.webp'
+  };
+
   function textureUrl(id)  { return id + '-frontal.webp'; }
-  function thumbUrl(id)    { return id + '-frontal-thumb.webp?v=' + THUMB_V; }
+  function thumbUrl(id) {
+    if (SWATCH_OVERRIDES[id]) return SWATCH_OVERRIDES[id] + '?v=' + SWATCH_V;
+    return id + '-frontal-thumb.webp?v=' + THUMB_V;
+  }
   function findItem(id) {
     var col = colecaoDe(id);
     return col.itens.filter(function (b) { return b.id === id; })[0] || col.itens[0];
