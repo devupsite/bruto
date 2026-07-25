@@ -128,11 +128,15 @@
   // resiliência do restante deste arquivo).
   function registrarLead(codigoReferencia, dadosAtendente) {
     try {
+      var contextoAds = lerContextoAds() || {};
       var payload = JSON.stringify({
         codigo_referencia: codigoReferencia,
         atendente: (dadosAtendente && dadosAtendente.atendente) || null,
         numero: (dadosAtendente && dadosAtendente.numero) || null,
-        gclid: (lerContextoAds() || {}).gclid || null,
+        gclid: contextoAds.gclid || null,
+        utm_campaign: contextoAds.utm_campaign || null,
+        utm_source: contextoAds.utm_source || null,
+        utm_medium: contextoAds.utm_medium || null,
         pagina: window.location.pathname,
         criado_em: new Date().toISOString()
       });

@@ -164,6 +164,11 @@
     color:var(--t);background:rgba(87,153,155,.12);border:1px solid rgba(87,153,155,.25);
     padding:3px 7px;border-radius:3px;white-space:nowrap;
   }
+  .lead-campanha{
+    font-family:'DM Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:.02em;
+    color:var(--gl);background:var(--k3);border:1px solid rgba(255,255,255,.08);
+    padding:3px 7px;border-radius:3px;white-space:nowrap;
+  }
   .lead-codigo{font-family:monospace;font-size:10px;color:var(--g);margin-top:4px;word-break:break-all}
   .lead-resultados{display:flex;gap:6px;flex-wrap:wrap}
   .res-btn{
@@ -625,7 +630,7 @@
         info.className = 'lead-info';
         info.innerHTML =
           '<div>' + formatarDataHora(lead.recebido_em) + '</div>' +
-          '<div>' + (lead.pagina || 'página não identificada') + '</div>' +
+          '<div>' + normalizarPagina(lead.pagina) + '</div>' +
           '<div class="lead-codigo">' + (lead.codigo_referencia || '') + '</div>';
 
         topo.appendChild(info);
@@ -634,6 +639,12 @@
           selo.className = 'lead-anuncio';
           selo.textContent = 'Anúncio';
           topo.appendChild(selo);
+          if (lead.utm_campaign) {
+            var selCampanha = document.createElement('span');
+            selCampanha.className = 'lead-campanha';
+            selCampanha.textContent = lead.utm_campaign;
+            topo.appendChild(selCampanha);
+          }
         }
         card.appendChild(topo);
 
@@ -660,11 +671,19 @@
 
   // ── Filtros ──────────────────────────────────────────────────────
 
+  function normalizarPagina(pagina) {
+    // "/" e "/index.html" são a mesma página (a home, acessada de duas
+    // formas diferentes de URL) — sem isso, o filtro contava como se
+    // fossem páginas diferentes.
+    if (!pagina) return 'não identificada';
+    if (pagina === '/' || pagina === '/index.html') return '/index.html';
+    return pagina;
+  }
+
   function popularFiltroPagina() {
     var paginas = {};
     leadsCache.forEach(function (l) {
-      var p = l.pagina || 'não identificada';
-      paginas[p] = true;
+      paginas[normalizarPagina(l.pagina)] = true;
     });
     var valorAtual = filtroPaginaEl.value;
     var opcoes = ['<option value="tudo">Todas as páginas</option>'];
@@ -693,7 +712,7 @@
       if (!dentroDoPeriodo(l)) return false;
       if (filtros.origem === 'anuncio' && !l.gclid) return false;
       if (filtros.origem === 'organico' && l.gclid) return false;
-      if (filtros.pagina !== 'tudo' && (l.pagina || 'não identificada') !== filtros.pagina) return false;
+      if (filtros.pagina !== 'tudo' && normalizarPagina(l.pagina) !== filtros.pagina) return false;
       return true;
     });
     renderizarLeads(filtrados);
