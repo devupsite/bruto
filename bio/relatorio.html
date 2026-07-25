@@ -26,6 +26,7 @@
     button { font-family: inherit; cursor: pointer; border: none; background: none; }
     a { color: inherit; }
     button:focus-visible, input:focus-visible { outline: 2px solid var(--ferro); outline-offset: 2px; }
+    button:disabled { opacity: .5; cursor: default; }
 
     .pagina { width: 100%; max-width: 640px; padding: clamp(28px, 7vw, 48px) 20px 40px; }
 
@@ -75,6 +76,7 @@
       font-family: var(--f-display); font-weight: 500; font-size: 11px;
       letter-spacing: .16em; text-transform: uppercase; color: var(--concreto);
     }
+    .resumo-nota { font-size: 12px; color: var(--titanio); margin: -14px 0 22px; line-height: 1.4; }
 
     /* ranking */
     h2 {
@@ -103,11 +105,11 @@
     .serie .dia i.tem { background: var(--ferro); }
     .serie .dia span { font-size: 9px; color: var(--titanio); writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .05em; }
 
-    .acoes { display: flex; gap: 8px; margin-top: 26px; }
+    .acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 26px; }
     .acoes button, .acoes a {
-      flex: 1; text-align: center; text-decoration: none; padding: 12px; border: 1px solid var(--line);
+      text-align: center; text-decoration: none; padding: 13px 8px; border: 1px solid var(--line);
       background: #fff; font-family: var(--f-display); font-weight: 600; font-size: 13px;
-      letter-spacing: .16em; text-transform: uppercase; color: var(--grafite);
+      letter-spacing: .12em; text-transform: uppercase; color: var(--grafite);
     }
     .acoes button:hover, .acoes a:hover { background: var(--surface); }
     .acoes button#zerar { color: #a03b2e; border-color: rgba(160,59,46,.35); }
@@ -146,8 +148,9 @@
       <div class="resumo">
         <div class="cartao"><b id="r-visitas">–</b><span>Visitas</span></div>
         <div class="cartao"><b id="r-cliques">–</b><span>Cliques</span></div>
-        <div class="cartao"><b id="r-taxa">–</b><span>Taxa de clique</span></div>
+        <div class="cartao" title="Média de cliques por visita — uma pessoa pode clicar em mais de um link, então esse número pode passar de 1"><b id="r-taxa">–</b><span>Cliques / visita</span></div>
       </div>
+      <p class="resumo-nota">"Cliques / visita" é uma média — passa de 1 quando visitantes clicam em mais de um link.</p>
 
       <h2>Cliques por link</h2>
       <div class="ranking" id="ranking"></div>
@@ -193,6 +196,9 @@
 
     function carregar(chave) {
       $('aviso').hidden = true;
+      $('entrar').disabled = true;
+      $('entrar').textContent = 'Abrindo…';
+      $('atualizar').disabled = true;
       return fetch(API + '?chave=' + encodeURIComponent(chave), { cache: 'no-store' })
         .then(function (r) {
           if (r.status === 401) throw new Error('Chave inválida.');
@@ -211,6 +217,11 @@
           $('aviso').hidden = false;
           $('acesso').hidden = false;
           $('painel').hidden = true;
+        })
+        .finally(function () {
+          $('entrar').disabled = false;
+          $('entrar').textContent = 'Abrir relatório';
+          $('atualizar').disabled = false;
         });
     }
 
@@ -245,7 +256,7 @@
 
       $('r-visitas').textContent = visitas.toLocaleString('pt-BR');
       $('r-cliques').textContent = cliques.toLocaleString('pt-BR');
-      $('r-taxa').textContent = visitas ? Math.round((cliques / visitas) * 100) + '%' : '–';
+      $('r-taxa').textContent = visitas ? (cliques / visitas).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '–';
 
       // ranking
       var maior = itens.length ? itens[0].n : 0;
@@ -254,7 +265,7 @@
         return '<div class="linha">' +
           '<div class="linha-cab">' +
             '<span class="linha-nome">' + (NOMES[it.id] || it.id) + '</span>' +
-            '<span class="linha-num"><b>' + it.n.toLocaleString('pt-BR') + '</b> cliques · ' + pct + '% das visitas</span>' +
+            '<span class="linha-num"><b>' + it.n.toLocaleString('pt-BR') + '</b> cliques · ' + pct + '% das visitas clicaram aqui</span>' +
           '</div>' +
           '<div class="barra"><i style="width:' + (maior ? (it.n / maior) * 100 : 0) + '%"></i></div>' +
         '</div>';
@@ -264,12 +275,14 @@
       // série diária de visitas
       var maxV = 0;
       dias.forEach(function (d) { maxV = Math.max(maxV, (dados.dias[d] || {})._visita || 0); });
-      $('serie').innerHTML = dias.map(function (d) {
+      var passoRotulo = Math.max(1, Math.ceil(dias.length / 8));
+      $('serie').innerHTML = dias.map(function (d, i) {
         var v = (dados.dias[d] || {})._visita || 0;
         var h = maxV ? Math.max(2, Math.round((v / maxV) * 84)) : 2;
         var rotulo = d.slice(8, 10) + '/' + d.slice(5, 7);
+        var mostraRotulo = (i % passoRotulo === 0) || i === dias.length - 1;
         return '<div class="dia" title="' + rotulo + ': ' + v + ' visitas">' +
-          '<i class="' + (v ? 'tem' : '') + '" style="height:' + h + 'px"></i><span>' + rotulo + '</span></div>';
+          '<i class="' + (v ? 'tem' : '') + '" style="height:' + h + 'px"></i><span>' + (mostraRotulo ? rotulo : '') + '</span></div>';
       }).join('') || '<span class="linha-num" style="align-self:center">Sem dados no período.</span>';
 
       $('nota').textContent = dados.atualizado_em
