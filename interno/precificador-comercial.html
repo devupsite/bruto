@@ -425,10 +425,10 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
       <div class="field">
         <div class="fl">
           <div class="tt"><span>Desconto atacado</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Percentual de desconto negociado com o fornecedor para compras no atacado. Meta ideal: 30–40%.</div></div>
-          <span class="fh" id="p-dsclbl">35%</span>
+          <span class="fh" id="p-dsclbl">0%</span>
         </div>
-        <input type="range" id="p-dscr" min="0" max="50" value="35" oninput="syncDisc(this.value)">
-        <div class="ig" style="margin-top:8px"><input type="number" id="p-dsci" value="35" min="0" max="50" oninput="syncDiscI(this.value)"><div class="is">%</div></div>
+        <input type="range" id="p-dscr" min="0" max="50" value="0" oninput="syncDisc(this.value)">
+        <div class="ig" style="margin-top:8px"><input type="number" id="p-dsci" value="0" min="0" max="50" oninput="syncDiscI(this.value)"><div class="is">%</div></div>
       </div>
       <div class="cost-net">
         <span class="cost-net-lbl">Custo líquido ao fornecedor</span>
@@ -436,11 +436,11 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
       </div>
       <div class="field">
         <div class="fl">
-          <div class="tt"><span>Margem desejada</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Percentual de lucro sobre o custo. Margem de 25% sobre custo de R$ 100 resulta em preço de venda de R$ 133 — não R$ 125.</div></div>
-          <span class="fh" id="p-mglbl">25%</span>
+          <div class="tt"><span>Margem desejada</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Percentual de lucro sobre o custo. Margem de 20% sobre custo de R$ 100 resulta em preço de venda de R$ 125 — não R$ 120. 20% é o padrão da Bruto hoje (já embutido no preço do site).</div></div>
+          <span class="fh" id="p-mglbl">20%</span>
         </div>
-        <input type="range" id="p-mgr" min="5" max="65" value="25" oninput="syncMg(this.value)">
-        <div class="ig" style="margin-top:8px"><input type="number" id="p-mgi" value="25" min="5" max="65" oninput="syncMgI(this.value)"><div class="is">%</div></div>
+        <input type="range" id="p-mgr" min="5" max="65" value="20" oninput="syncMg(this.value)">
+        <div class="ig" style="margin-top:8px"><input type="number" id="p-mgi" value="20" min="5" max="65" oninput="syncMgI(this.value)"><div class="is">%</div></div>
       </div>
       <div class="field">
         <div class="fl">
@@ -462,6 +462,12 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
           <div class="ig"><input type="number" id="p-pda" value="10" min="0" max="25" oninput="calcPrec()"><div class="is">%</div></div>
         </div>
       </div>
+      <div class="sl" style="margin-top:4px">Quem absorve a perda de corte?</div>
+      <div class="tg-g">
+        <div class="tgb on" id="pd-ab" onclick="setPD('absorver')">Bruto absorve</div>
+        <div class="tgb" id="pd-rp" onclick="setPD('repassar')">Repassa ao cliente</div>
+      </div>
+      <div class="ab" id="pd-md"><span class="ai">—</span><span>Bruto absorve: você paga o material extra da perda, sua margem diminui um pouco. O cliente só vê o preço da área que pediu.</span></div>
     </div>
     <div>
       <div class="sl">Resultado do pedido</div>
@@ -475,6 +481,7 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
         <div class="or"><span class="orl">Margem bruta</span><span class="orv pos" id="r-mb">R$ 220</span></div>
         <div class="or"><span class="orl">Taxa de pagamento</span><span class="orv neg" id="r-tx">− R$ 38</span></div>
         <div class="or"><span class="orl">Lucro líquido por pedido</span><span class="orv pos" id="r-ll">R$ 182</span></div>
+        <!-- r-mb e r-ll: classe pos/neg e sinal (−) agora setados dinamicamente em calcPrec(), conforme o valor real seja positivo ou negativo -->
         <div class="or"><span class="orl">Margem líquida real</span><span class="orv acc" id="r-ml">14,4%</span></div>
       </div>
       <div style="margin-top:10px">
@@ -1569,24 +1576,29 @@ const PERSONAS={
   'pedreiro':{nome:'Pedreiro/Mestre',ticket:700,freq:8,ret:2,desc:'Indica para clientes, compra frequente'},
   'revendedor':{nome:'Revendedor B2B',ticket:8000,freq:4,ret:2,desc:'Volume atacado, margem menor'},
 };
-const PRECOS={
-  'brick-eco-palha': 153.90,
-  'brick-rusticatto-palha': 169.90,
-  'brick-lumus': 164.90,
-  'brick-mescla-prime': 153.90,
-  'brick-natura': 104.90,
-  'brick-rosso-prime': 142.90,
-  'brick-rusticatto-fume': 186.90,
-  'brick-rusticatto-rosso': 159.90,
-  'brick-rusticatto-sertao': 164.90,
-  'brick-rusticatto-terra-negra': 197.90,
-  'brick-terra-cerrado': 148.90,
-  'cimenticio-alpino': 186.90,
-  'cimenticio-brisa': 186.90,
-  'cimenticio-urban': 186.90,
-  'rockface-alpino': 252.90,
-  'rockface-brisa': 186.90,
-  'rockface-urban': 252.90,
+// Custo real de aquisição da Bruto (preço Faion). Definido em 25/07/2026 como
+// "preço do site menos 20%" — os 20% são a margem bruta que a Bruto já aplica
+// hoje (10% de desconto negociado com o fornecedor + 10% de markup próprio).
+// Ver COLABORACAO.md / conversa com Rafael. NÃO confundir com o preço de venda
+// (esse fica em catalogo.json / produto-*.html).
+const CUSTO_FAION={
+  'brick-eco-palha': 123.12,
+  'brick-rusticatto-palha': 135.92,
+  'brick-lumus': 131.92,
+  'brick-mescla-prime': 123.12,
+  'brick-natura': 83.92,
+  'brick-rosso-prime': 114.32,
+  'brick-rusticatto-fume': 149.52,
+  'brick-rusticatto-rosso': 127.92,
+  'brick-rusticatto-sertao': 131.92,
+  'brick-rusticatto-terra-negra': 158.32,
+  'brick-terra-cerrado': 119.12,
+  'cimenticio-alpino': 149.52,
+  'cimenticio-brisa': 149.52,
+  'cimenticio-urban': 149.52,
+  'rockface-alpino': 202.32,
+  'rockface-brisa': 149.52,
+  'rockface-urban': 202.32,
 };
 const NOMES={
   'brick-eco-palha': 'Brick Eco Palha',
@@ -1649,6 +1661,7 @@ const ESPESSURA_M={
   'rockface-urban': 0.020,
 };
 let FM='incluso',REG='mei',RS='su',TF=40;
+let PDMODE='absorver'; // quem paga o material extra da perda de corte: 'absorver' (Bruto) ou 'repassar' (cliente)
 const FB={se:0,su:0,co:0,ne:0,no:0}; // R$/kg por região — preenchido pelo usuário na interface (Feature 2), zero até então
 const brl=v=>'R$ '+Math.round(Math.abs(v)).toLocaleString('pt-BR');
 const num=v=>Math.round(v).toLocaleString('pt-BR');
@@ -1670,6 +1683,16 @@ function tab(id,el){
 }
 
 function selectProd(){ calcPrec(); }
+function setPD(m){
+  PDMODE=m;
+  $('pd-ab').classList.toggle('on',m==='absorver');
+  $('pd-rp').classList.toggle('on',m==='repassar');
+  const el=$('pd-md');
+  el.innerHTML='<span class="ai">—</span><span>'+(m==='absorver'
+    ?'Bruto absorve: você paga o material extra da perda, sua margem diminui um pouco. O cliente só vê o preço da área que pediu.'
+    :'Repassa ao cliente: a área com perda entra na conta do pedido, sua margem fica intacta. O cliente paga pelo material extra necessário.')+'</span>';
+  calcPrec();
+}
 function syncDisc(v){ $('p-dsclbl',v+'%'); $('p-dsci').value=v; calcPrec(); }
 function syncDiscI(v){ $('p-dscr').value=v; $('p-dsclbl',v+'%'); calcPrec(); }
 function syncCbDisc(v){ $('cb-dsclbl',v+'%'); calcCen(); }
@@ -1678,8 +1701,8 @@ function syncMgI(v){$('p-mgr').value=v;$('p-mglbl',v+'%');calcPrec();}
 
 function calcPrec(){
   const prodEl=$('p-prod'),dscEl=$('p-dsci');
-  const prodSlug=prodEl?prodEl.value:'brick-eco-palha',disc=dscEl?+dscEl.value:35;
-  const prodPrice=PRECOS[prodSlug]||153.90;
+  const prodSlug=prodEl?prodEl.value:'brick-eco-palha',disc=dscEl?+dscEl.value:0;
+  const prodPrice=CUSTO_FAION[prodSlug]||123.12;
   const c=prodPrice*(1-disc/100);
   const prodName=NOMES[prodSlug]||'Produto';
   S.prodSlug=prodSlug;
@@ -1687,12 +1710,21 @@ function calcPrec(){
   const mg=+$('p-mgi').value||0;
   const a=+$('p-area').value||0,tx=+$('p-tax').value||0,pd=+$('p-pda').value||0;
   const pm2=mg>=100?c*2:c/(1-mg/100);
-  const aT=a*(1+pd/100),vp=pm2*a,cp=c*aT;
+  // aT = área real comprada (com perda de corte). O custo do produto (cp) sempre
+  // usa aT, porque é o material que a Bruto de fato precisa comprar. O valor
+  // cobrado do cliente (vp) depende de quem absorve essa perda (toggle PD):
+  // 'absorver' = cliente paga só pela área que pediu (a); 'repassar' = cliente
+  // paga pela área real com perda (aT), igual ao custo.
+  const aT=a*(1+pd/100),cp=c*aT;
+  const vp=PDMODE==='repassar'?pm2*aT:pm2*a;
   const mb=vp-cp,txv=vp*(tx/100),ll=mb-txv;
   const ml=vp>0?(ll/vp)*100:0;
   $('r-pm2',brl(pm2));$('r-at',aT.toFixed(1)+' m²');$('r-vp',brl(vp));
-  $('r-cp','− '+brl(cp));$('r-mb',brl(mb));$('r-tx','− '+brl(txv));
-  $('r-ll',brl(ll));$('r-ml',pct(ml));$('r-bl',pct(ml));
+  $('r-cp','− '+brl(cp));
+  $('r-mb',(mb<0?'− ':'')+brl(mb));$('r-mb').classList.toggle('pos',mb>=0);$('r-mb').classList.toggle('neg',mb<0);
+  $('r-tx','− '+brl(txv));
+  $('r-ll',(ll<0?'− ':'')+brl(ll));$('r-ll').classList.toggle('pos',ll>=0);$('r-ll').classList.toggle('neg',ll<0);
+  $('r-ml',pct(ml));$('r-bl',pct(ml));
   const bar=$('r-bar');
   bar.style.width=Math.min(Math.max(ml*1.8,0),100)+'%';
   bar.style.background=ml<10?'var(--er)':ml<18?'var(--wn)':'var(--t)';
@@ -1794,7 +1826,7 @@ function calcCen(){
   $('ca-c',S.prodName+' · '+brl(S.custo)+'/m²');$('ca-mg',aMg+'%');$('ca-a',aArea+' m²');
   $('ca-p',brl(aPm2));$('ca-v',brl(aVp));$('ca-l',brl(aLl));$('ca-m',pct(aMl));
   const bProdSlug=$('cb-prod').value||'',bDisc=+$('cb-dsci').value||0;
-  const bProdPrice=PRECOS[bProdSlug]||0;
+  const bProdPrice=CUSTO_FAION[bProdSlug]||0;
   const bCst=bProdPrice*(1-bDisc/100);
   const bMg=+$('cb-mgi').value||0,bArea=+$('cb-a').value||0;
   const tx=+$('p-tax').value||0,pd=+$('p-pda').value||0;
