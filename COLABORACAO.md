@@ -2557,3 +2557,32 @@ Lição consolidada da sessão inteira: toda entrega feita como "zip pra
 upload manual" é dívida técnica até ser trazida pro Git — vale, a
 partir de agora, sempre perguntar/checar se algo antigo ficou só no
 upload manual antes de considerar um fluxo encerrado.
+
+---
+
+## Decisão: /interno/, /atendimento/ e /ordens/ ficam de fora do GTM (24/07/2026)
+
+O diagnóstico de qualidade do GTM (container GTM-5K4F8T9P) apontava
+"páginas sem tag" como problema — essas 3 áreas nunca receberam o
+snippet, diferente das 34 páginas do site principal + `/bio/`.
+
+**Decisão consciente, não pendência esquecida:** não adicionar o GTM
+nelas. Motivo principal não é "são ferramentas internas, sem valor de
+conversão" (isso sozinho seria fraco) — é que `ordens/index.html` tem
+formulário real com dado pessoal do cliente (nome, WhatsApp, e-mail,
+CEP, endereço completo), e `atendimento/index.html` é um chat com IA
+onde a equipe discute casos reais de cliente, podendo conter os
+mesmos dados em texto livre. O Meta Pixel tem Correspondência
+Avançada Automática, que varre campos de formulário da página e envia
+dado (hasheado) pra Meta — nessas duas ferramentas isso vazaria dado
+de cliente pra um terceiro sem propósito de marketing, risco real de
+LGPD. `interno/atendimento-whatsapp.html` (painel de rodízio) e
+`interno/precificador-comercial.html` entram na mesma decisão por
+consistência de política, mesmo com exposição de PII menor.
+
+Comentário de decisão adicionado no `<head>` dos 4 arquivos, pra
+qualquer sessão futura não tratar isso como oversight a corrigir.
+
+**Se algum dia isso for revisitado:** qualquer rastreio nessas páginas
+deveria vir de uma tag customizada que NÃO usa Correspondência
+Avançada Automática, e nunca do Meta Pixel padrão.
