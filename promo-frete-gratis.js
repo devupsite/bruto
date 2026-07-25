@@ -60,7 +60,7 @@
     bar.innerHTML =
       '<div class="promo-bar__inner">' +
         '<i class="ti ti-truck promo-bar__icon" aria-hidden="true"></i>' +
-        '<span class="promo-bar__text"><strong>Enviamos para todo o Brasil</strong> — Direto da Fábrica.</span>' +
+        '<span class="promo-bar__text"><strong>Grande São Paulo é nossa casa</strong> — mas grandes projetos, a gente leva a qualquer lugar do Brasil.</span>' +
         '<a href="texturas.html" class="promo-bar__cta">Ver coleções</a>' +
         '<button type="button" class="promo-bar__close" aria-label="Fechar aviso"><i class="ti ti-x" aria-hidden="true"></i></button>' +
       '</div>';
