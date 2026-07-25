@@ -163,6 +163,7 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
 /* ALERT */
 .ab{background:var(--tbg);border:1px solid var(--tbd);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--w);display:flex;gap:8px;line-height:1.6;margin-top:10px}
 .ai{color:var(--t);flex-shrink:0}
+.ab-ok{background:var(--okbg)!important;border-color:rgba(92,122,82,.2)!important;color:var(--ok)!important}
 .ab-wn{background:var(--wnbg)!important;border-color:rgba(224,154,58,.2)!important;color:var(--wn)!important}
 .ab-er{background:var(--erbg)!important;border-color:rgba(224,85,85,.2)!important;color:var(--er)!important}
 
@@ -508,6 +509,18 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
           <div class="tt"><span>Peso mínimo faturável</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Transportadoras costumam ter um peso mínimo de cobrança, mesmo que a carga real pese menos. Ajuste conforme sua transportadora.</div></div>
         </div>
         <div class="ig"><input type="number" id="fr-pmin" value="50" min="0" step="5" oninput="calcFrete()"><div class="is">kg</div></div>
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Margem sobre o frete</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Percentual aplicado por cima do custo real do frete (cobre manuseio/embalagem). Não se aplica quando o pedido se qualifica pra frete grátis — nesse caso a Bruto absorve o custo real, sem margem.</div></div>
+        </div>
+        <div class="ig"><input type="number" id="fr-margem" value="10" min="0" step="1" oninput="calcFrete()"><div class="is">%</div></div>
+      </div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Isenção de frete a partir de</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Precisa bater exatamente com a promessa ativa no Google Ads ("Frete grátis acima de 10m²"). Não altere sem atualizar a campanha junto.</div></div>
+        </div>
+        <div class="ig"><input type="number" id="fr-isencao" value="10" min="0" step="1" oninput="calcFrete()"><div class="is">m²</div></div>
       </div>
       <div class="field">
         <div class="fl">
@@ -1727,20 +1740,34 @@ function calcFrete(){
   const pesoFat=Math.max(pesoFaturavelBase,pesoMin);
   $('fr-fat',pesoFat+'kg'+(pesoCubado>pesoReal?' (cubagem venceu o peso real)':''));
   const taxaKg=FB[RS]||0;
-  const sugerido=taxaKg>0?Math.round(pesoFat*taxaKg/5)*5:0;
-  $('fr-sugerido',taxaKg>0?'sugerido: '+brl(sugerido):'preencha a taxa R$/kg da sua transportadora acima');
+  const custoRealFrete=Math.round(pesoFat*taxaKg);
+  const margemFrete=+$('fr-margem').value||0;
+  const freteComMargem=Math.round(custoRealFrete*(1+margemFrete/100)/5)*5;
+  const limiteIsencao=+$('fr-isencao').value||0;
+  const freteGratis=limiteIsencao>0 && a>=limiteIsencao;
+
+  const sugerido=freteGratis ? 0 : (taxaKg>0?freteComMargem:0);
+  $('fr-sugerido',
+    freteGratis ? `frete grátis — pedido de ${a}m² atinge a isenção de ${limiteIsencao}m²`
+    : taxaKg>0 ? `sugerido: ${brl(freteComMargem)} (custo real ${brl(custoRealFrete)} + ${margemFrete}% de margem)`
+    : 'preencha a taxa R$/kg da sua transportadora acima'
+  );
   if(!FR_MANUAL) $('fr-val').value=sugerido;
-  const fr=+$('fr-val').value||0,ll=S.ll,vp=S.ticket;
+  const fr=freteGratis ? 0 : (+$('fr-val').value||0);
+  const custoAbsorvidoGratis=freteGratis ? custoRealFrete : 0; // Bruto paga o custo real, sem margem, quando é isenção
+  const ll=S.ll,vp=S.ticket;
   let lr,tot;
-  if(FM==='incluso'){lr=ll-fr;tot=vp;}else{lr=ll;tot=vp+fr;}
+  if(freteGratis){ lr=ll-custoAbsorvidoGratis; tot=vp; }
+  else if(FM==='incluso'){lr=ll-fr;tot=vp;}else{lr=ll;tot=vp+fr;}
   const fp=vp>0?(fr/vp)*100:0,mr=vp>0?(lr/vp)*100:0;
-  $('fr-ll0',brl(ll));$('fr-fc','− '+brl(fr));$('fr-lr',brl(lr));
+  $('fr-ll0',brl(ll));$('fr-fc',freteGratis?'GRÁTIS':'− '+brl(fr));$('fr-lr',brl(lr));
   $('fr-fp',pct(fp));$('fr-mre',pct(mr));
-  $('fr-tot',FM==='incluso'?brl(tot):brl(tot)+' (cliente)');
+  $('fr-tot',FM==='incluso'||freteGratis?brl(tot):brl(tot)+' (cliente)');
   const mv=$('fr-mr');mv.textContent=brl(lr);
   mv.className='mbv'+(lr<0?' er':lr<ll*0.5?' wn':'');
   const al=$('fr-alerta');
-  if(taxaKg<=0)al.innerHTML='<div class="ab ab-wn"><span class="ai">!</span><span>Nenhuma taxa de R$/kg preenchida pra esta região ainda — o frete abaixo está zerado, não é um resultado real. Preencha a taxa no cartão da região acima (peça pro seu contato na transportadora, se não souber de cabeça).</span></div>';
+  if(freteGratis)al.innerHTML='<div class="ab ab-ok"><span class="ai">✓</span><span>Frete grátis aplicado (pedido de '+a+'m², isenção a partir de '+limiteIsencao+'m²) — precisa bater com a promessa ativa no Google Ads. A Bruto absorve o custo real do frete ('+brl(custoRealFrete)+'), sem margem sobre ele.</span></div>';
+  else if(taxaKg<=0)al.innerHTML='<div class="ab ab-wn"><span class="ai">!</span><span>Nenhuma taxa de R$/kg preenchida pra esta região ainda — o frete abaixo está zerado, não é um resultado real. Preencha a taxa no cartão da região acima (peça pro seu contato na transportadora, se não souber de cabeça).</span></div>';
   else if(lr<0)al.innerHTML='<div class="ab ab-er"><span class="ai">!</span><span>Frete inviável: absorver '+brl(fr)+' com lucro de '+brl(ll)+' gera prejuízo. Aumente o ticket mínimo ou cobre o frete à parte.</span></div>';
   else if(fp>25)al.innerHTML='<div class="ab ab-wn"><span class="ai">—</span><span>Frete representa '+pct(fp)+' do pedido. Considere estabelecer pedido mínimo para esta região ou incluí-lo no preço de forma transparente.</span></div>';
   else al.innerHTML='';
@@ -1749,8 +1776,13 @@ function calcFrete(){
   const regs=[{id:'se',n:'Sudeste',st:'SP · RJ · MG'},{id:'su',n:'Sul',st:'PR · SC · RS'},{id:'co',n:'Centro-Oeste',st:'GO · MT · MS'},{id:'ne',n:'Nordeste',st:'BA · CE · PE'},{id:'no',n:'Norte',st:'AM · PA · RO'}];
   $('fr-tb').innerHTML=regs.map(r=>{
     const semTaxa=!(FB[r.id]>0);
-    const fv=Math.round(pesoFat*FB[r.id]/5)*5,lrr=FM==='incluso'?ll-fv:ll,mrr=vp>0?(lrr/vp)*100:0,ok=lrr>0&&mrr>5;
-    return `<tr style="${r.id===RS?'background:var(--tbg);':''}"><td style="padding:7px 8px">${r.n}<span style="font-size:11px;color:var(--g);display:block">${r.st}</span></td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':brl(fv)}</td><td style="text-align:right;padding:7px 8px;color:${lrr<0?'var(--er)':'var(--ok)'}">${semTaxa?'—':(lrr<0?'− '+brl(Math.abs(lrr)):brl(lrr))}</td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':pct(mrr)}</td><td style="text-align:right;padding:7px 8px"><span class="tag ${semTaxa?'t-wn':ok?'t-ok':'t-er'}">${semTaxa?'sem taxa':ok?'Sim':'Revisar'}</span></td></tr>`;
+    const custoRealR=Math.round(pesoFat*FB[r.id]);
+    const fvNormal=Math.round(custoRealR*(1+margemFrete/100)/5)*5;
+    const fv=freteGratis?0:fvNormal;
+    const custoAbsorvidoR=freteGratis?custoRealR:0;
+    const lrr=freteGratis?ll-custoAbsorvidoR:(FM==='incluso'?ll-fv:ll);
+    const mrr=vp>0?(lrr/vp)*100:0,ok=lrr>0&&mrr>5;
+    return `<tr style="${r.id===RS?'background:var(--tbg);':''}"><td style="padding:7px 8px">${r.n}<span style="font-size:11px;color:var(--g);display:block">${r.st}</span></td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':freteGratis?'GRÁTIS':brl(fv)}</td><td style="text-align:right;padding:7px 8px;color:${lrr<0?'var(--er)':'var(--ok)'}">${semTaxa?'—':(lrr<0?'− '+brl(Math.abs(lrr)):brl(lrr))}</td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':pct(mrr)}</td><td style="text-align:right;padding:7px 8px"><span class="tag ${semTaxa?'t-wn':ok?'t-ok':'t-er'}">${semTaxa?'sem taxa':ok?'Sim':'Revisar'}</span></td></tr>`;
   }).join('');
 }
 
