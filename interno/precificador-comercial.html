@@ -1777,7 +1777,7 @@ function buscarCep(cep) {
     })
     .catch(function () { erro.style.display = 'block'; });
 }
-const brl=v=>'R$ '+Math.round(Math.abs(v)).toLocaleString('pt-BR');
+const brl=v=>{const r=Math.round(Math.abs(v));return (v<0&&r>0?'− ':'')+'R$ '+r.toLocaleString('pt-BR');};
 const num=v=>Math.round(v).toLocaleString('pt-BR');
 const pct=v=>parseFloat(v).toFixed(1)+'%';
 const $=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined)e.textContent=v;return e;};
@@ -1835,9 +1835,9 @@ function calcPrec(){
   const ml=vp>0?(ll/vp)*100:0;
   $('r-pm2',brl(pm2));$('r-at',aT.toFixed(1)+' m²');$('r-vp',brl(vp));
   $('r-cp','− '+brl(cp));
-  $('r-mb',(mb<0?'− ':'')+brl(mb));$('r-mb').classList.toggle('pos',mb>=0);$('r-mb').classList.toggle('neg',mb<0);
+  $('r-mb',brl(mb));$('r-mb').classList.toggle('pos',mb>=0);$('r-mb').classList.toggle('neg',mb<0);
   $('r-tx','− '+brl(txv));
-  $('r-ll',(ll<0?'− ':'')+brl(ll));$('r-ll').classList.toggle('pos',ll>=0);$('r-ll').classList.toggle('neg',ll<0);
+  $('r-ll',brl(ll));$('r-ll').classList.toggle('pos',ll>=0);$('r-ll').classList.toggle('neg',ll<0);
   $('r-ml',pct(ml));$('r-bl',pct(ml));
   const bar=$('r-bar');
   bar.style.width=Math.min(Math.max(ml*1.8,0),100)+'%';
@@ -1959,7 +1959,7 @@ function calcFrete(){
       // real > 5%), podendo discordar do indicador pra mesma situação.
       const estado = lrr<0 ? 'er' : lrr<ll*0.5 ? 'wn' : 'ok';
       const rotulo = { er:'Revisar', wn:'Atenção', ok:'Viável' }[estado];
-      return `<tr style="${r.id===RS?'background:var(--tbg);':''}"><td style="padding:7px 8px">${r.n}<span style="font-size:11px;color:var(--g);display:block">${r.st}</span></td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':freteGratis?'GRÁTIS':brl(fv)}</td><td style="text-align:right;padding:7px 8px;color:${lrr<0?'var(--er)':'var(--ok)'}">${semTaxa?'—':(lrr<0?'− '+brl(Math.abs(lrr)):brl(lrr))}</td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':pct(mrr)}</td><td style="text-align:right;padding:7px 8px"><span class="tag ${semTaxa?'t-wn':'t-'+estado}">${semTaxa?'sem taxa':rotulo}</span></td></tr>`;
+      return `<tr style="${r.id===RS?'background:var(--tbg);':''}"><td style="padding:7px 8px">${r.n}<span style="font-size:11px;color:var(--g);display:block">${r.st}</span></td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':freteGratis?'GRÁTIS':brl(fv)}</td><td style="text-align:right;padding:7px 8px;color:${lrr<0?'var(--er)':'var(--ok)'}">${semTaxa?'—':brl(lrr)}</td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':pct(mrr)}</td><td style="text-align:right;padding:7px 8px"><span class="tag ${semTaxa?'t-wn':'t-'+estado}">${semTaxa?'sem taxa':rotulo}</span></td></tr>`;
     }).join('');
   }
 }
@@ -2041,7 +2041,7 @@ function calcV(){
   const igAl=Math.round(ig*13),igLd=Math.round(igAl*0.012),goCl=Math.round(go*0.8),goLd=Math.round(goCl*0.1);
   $('v-ial','~'+num(igAl));$('v-ild','~'+igLd);$('v-gcl','~'+num(goCl));$('v-gld','~'+goLd);
   $('v-al',brl(al));
-  const sdEl=$('v-sd');sdEl.textContent=(sd>=0?'+ ':'')+brl(Math.abs(sd));sdEl.className='orv '+(sd>=0?'pos':'neg');
+  const sdEl=$('v-sd');sdEl.textContent=(sd>=0?'+ ':'')+brl(sd);sdEl.className='orv '+(sd>=0?'pos':'neg');
   const tf=TF/100,ll=S.ll||0;
   const igP=Math.round(igLd*tf),goP=Math.round(goLd*tf);
   const igC=igP>0?ig/igP:0,goC=goP>0?go/goP:0;
@@ -2144,7 +2144,7 @@ function calcOpex(){
   const copedido=ctotal/pedmês;
   const lreal=lubruto-copedido;
   $('op-lpb','= '+brl(lubruto));$('op-cop','− '+brl(copedido));
-  const lrEl=$('op-lr-fim');lrEl.textContent=(lreal>=0?brl(lreal):brl(Math.abs(lreal))+' PREJUÍZO');
+  const lrEl=$('op-lr-fim');lrEl.textContent=brl(lreal)+(lreal<0?' PREJUÍZO':'');
   lrEl.className='orv '+(lreal<0?'neg':'pos');
   $('op-ped-m','÷ '+pedmês);
   const lucroEl=$('op-lucro-real');lucroEl.textContent=brl(lreal);lucroEl.className='mbv'+(lreal<0?' er':'');
