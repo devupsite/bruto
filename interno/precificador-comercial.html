@@ -130,6 +130,11 @@ input[type=text]:focus,input[type=number]:focus{border-color:var(--t)}
 .cep-endereco b{color:var(--t)}
 .cep-erro{margin-top:8px;font-size:12px;color:var(--er)}
 .cep-dist{color:var(--gl);font-size:12px;font-weight:400}
+.fr-reset-btn{
+  margin-top:6px;background:none;border:none;color:var(--t);font-size:11px;
+  font-weight:500;cursor:pointer;text-decoration:underline;padding:0;
+}
+.fr-reset-btn:hover{color:var(--td)}
 .ig input{border-radius:0}
 input:focus{border-color:var(--t)}
 input::-webkit-inner-spin-button{-webkit-appearance:none}
@@ -569,10 +574,11 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
       </div>
       <div class="field">
         <div class="fl">
-          <div class="tt"><span>Custo do frete</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Editável — o valor sugerido (peso × taxa da região) preenche automaticamente ao trocar de produto, área ou região, mas você pode sobrescrever com uma cotação real.</div></div>
+          <div class="tt"><span>Custo do frete</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Editável — o valor sugerido (por distância, ou peso × região como reserva) preenche automaticamente ao trocar produto/área/CEP/taxa, até você digitar algo aqui direto. Depois disso, use "recalcular automaticamente" pra destravar.</div></div>
           <span class="fh" id="fr-sugerido">sugerido: R$ 150</span>
         </div>
         <div class="ig"><div class="ip">R$</div><input type="number" id="fr-val" value="150" min="0" step="10" oninput="fretManual()"></div>
+        <button type="button" id="fr-reset" class="fr-reset-btn" style="display:none" onclick="fretAuto()">↺ recalcular automaticamente</button>
       </div>
       <div class="sl" style="margin-top:4px">Quem absorve o frete?</div>
       <div class="tg-g">
@@ -1858,7 +1864,8 @@ function setFM(m){
   calcFrete();
 }
 let FR_MANUAL=false;
-function fretManual(){FR_MANUAL=true;calcFrete();}
+function fretManual(){FR_MANUAL=true;$('fr-reset').style.display='inline-block';calcFrete();}
+function fretAuto(){FR_MANUAL=false;$('fr-reset').style.display='none';calcFrete();}
 function setTaxa(id,v){FB[id]=+v||0;calcFrete();}
 function calcFrete(){
   const a=+$('p-area').value||9,pd=+$('p-pda').value||0;
