@@ -122,6 +122,13 @@ body{background:var(--k);color:var(--w);font-family:'Barlow',system-ui,sans-seri
 .ip,.is{background:var(--k3);border:1px solid rgba(10,10,10,.08);padding:8px 10px;font-size:12px;color:var(--g);height:38px;display:flex;align-items:center;flex-shrink:0}
 .ip{border-right:none;border-radius:8px 0 0 8px}.is{border-left:none;border-radius:0 8px 8px 0}
 input[type=number]{background:var(--k3);border:1px solid rgba(10,10,10,.08);color:var(--w);font-family:'Barlow',sans-serif;font-size:13px;font-weight:400;padding:8px 11px;height:38px;width:100%;outline:none;transition:border-color .15s;border-radius:8px}
+input[type=text]{background:var(--k3);border:1px solid rgba(10,10,10,.08);color:var(--w);font-family:'Barlow',sans-serif;font-size:13px;font-weight:400;padding:8px 11px;height:38px;width:100%;outline:none;transition:border-color .15s;border-radius:8px}
+input[type=text]:focus,input[type=number]:focus{border-color:var(--t)}
+.cep-box{margin-bottom:12px}
+.cep-resultado{margin-top:10px;padding:10px 12px;background:rgba(87,153,155,.06);border:1px solid rgba(87,153,155,.15);border-radius:8px}
+.cep-endereco{font-size:13px;color:var(--w);line-height:1.5}
+.cep-endereco b{color:var(--t)}
+.cep-erro{margin-top:8px;font-size:12px;color:var(--er)}
 .ig input{border-radius:0}
 input:focus{border-color:var(--t)}
 input::-webkit-inner-spin-button{-webkit-appearance:none}
@@ -499,6 +506,24 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
     <div class="pt">Frete & Margem Real</div>
     <div class="pd">Selecione a região de destino e veja o impacto do frete na margem final do pedido.</div>
   </div>
+
+  <div class="sl">Endereço do cliente</div>
+  <div class="cep-box">
+    <div class="field" style="max-width:200px">
+      <div class="fl"><div class="tt"><span>CEP</span></div></div>
+      <input type="text" id="cep-input" placeholder="00000-000" maxlength="9" inputmode="numeric" oninput="mascaraCep(this)">
+    </div>
+    <div id="cep-resultado" class="cep-resultado" style="display:none">
+      <div class="cep-endereco" id="cep-endereco"></div>
+      <div class="field" style="margin-top:8px">
+        <div class="fl"><div class="tt"><span>Número / quadra / lote / complemento</span></div></div>
+        <input type="text" id="cep-numero" placeholder="Ex: 245, apto 12" oninput="calcFrete()">
+      </div>
+    </div>
+    <div id="cep-erro" class="cep-erro" style="display:none">CEP não encontrado — confira e tente de novo, ou selecione a região manualmente abaixo.</div>
+  </div>
+  <div class="ab" style="margin-bottom:16px"><span class="ai">—</span><span>O cálculo de frete sempre parte de Tambaú-SP (endereço do fornecedor Faion, de onde a Bruto despacha) até o CEP do cliente. O CEP só define automaticamente a região abaixo — a taxa de R$/kg de cada uma continua sendo a sua cotação real com a transportadora.</span></div>
+
   <div class="sl">Região de destino — taxa por kg (editável, ajuste com sua transportadora)</div>
   <div class="g5" style="margin-bottom:20px">
     <div class="rc" id="rc-se" onclick="selR('se')"><div class="rc-name">Sudeste</div><div class="rc-st">SP · RJ · MG · ES</div><input class="rc-fr-in" id="rf-se" type="number" min="0" step="0.05" placeholder="R$/kg" value="" onclick="event.stopPropagation()" oninput="setTaxa('se',this.value)"><div class="rc-pr">3–6 dias úteis</div></div>
@@ -1663,6 +1688,51 @@ const ESPESSURA_M={
 let FM='incluso',REG='mei',RS='su',TF=40;
 let PDMODE='absorver'; // quem paga o material extra da perda de corte: 'absorver' (Bruto) ou 'repassar' (cliente)
 const FB={se:0,su:0,co:0,ne:0,no:0}; // R$/kg por região — preenchido pelo usuário na interface (Feature 2), zero até então
+
+// Mapa de UF -> região macro, mesma divisão das 5 taxas do frete (Feature 2).
+// O cálculo sempre parte de Tambaú-SP (endereço do fornecedor Faion) até o
+// CEP do cliente — o CEP só resolve automaticamente QUAL região se aplica.
+const UF_REGIAO = {
+  SP:'se', RJ:'se', MG:'se', ES:'se',
+  PR:'su', SC:'su', RS:'su',
+  GO:'co', MT:'co', MS:'co', DF:'co',
+  BA:'ne', CE:'ne', PE:'ne', MA:'ne', PB:'ne', RN:'ne', AL:'ne', SE:'ne', PI:'ne',
+  AM:'no', PA:'no', RO:'no', AC:'no', RR:'no', AP:'no', TO:'no',
+};
+
+function mascaraCep(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 8);
+  if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+  input.value = v;
+  const digitos = v.replace(/\D/g, '');
+  if (digitos.length === 8) buscarCep(digitos);
+  else {
+    document.getElementById('cep-resultado').style.display = 'none';
+    document.getElementById('cep-erro').style.display = 'none';
+  }
+}
+
+function buscarCep(cep) {
+  const resultado = document.getElementById('cep-resultado');
+  const erro = document.getElementById('cep-erro');
+  resultado.style.display = 'none';
+  erro.style.display = 'none';
+
+  fetch('https://viacep.com.br/ws/' + cep + '/json/')
+    .then(function (r) { return r.json(); })
+    .then(function (dados) {
+      if (dados.erro) { erro.style.display = 'block'; return; }
+      document.getElementById('cep-endereco').innerHTML =
+        (dados.logradouro ? dados.logradouro + ', ' : '') +
+        (dados.bairro ? dados.bairro + ' — ' : '') +
+        '<b>' + dados.localidade + '/' + dados.uf + '</b>';
+      resultado.style.display = 'block';
+
+      const regiao = UF_REGIAO[dados.uf];
+      if (regiao) selR(regiao);
+    })
+    .catch(function () { erro.style.display = 'block'; });
+}
 const brl=v=>'R$ '+Math.round(Math.abs(v)).toLocaleString('pt-BR');
 const num=v=>Math.round(v).toLocaleString('pt-BR');
 const pct=v=>parseFloat(v).toFixed(1)+'%';
