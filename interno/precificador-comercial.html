@@ -521,7 +521,7 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
         <input type="text" id="cep-numero" placeholder="Ex: 245, apto 12" oninput="calcFrete()">
       </div>
       <div class="field" style="margin-top:8px">
-        <div class="fl"><div class="tt"><span>Taxa por km (distância Tambaú → cliente)</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Opcional — some ao custo do frete calculado por peso/região. Deixe em R$0 se sua transportadora já cobra só por peso/faixa e a distância não entra separada na conta.</div></div>
+        <div class="fl"><div class="tt"><span>Taxa por km (distância Tambaú → cliente)</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Método principal: frete = distância × essa taxa, sem o peso entrar na conta. Peça sua transportadora o valor real por km. Se o CEP não retornar distância (raro), a ferramenta cai de volta pro cálculo por peso/região como reserva.</div></div>
         </div>
         <div class="ig"><div class="ip">R$</div><input type="number" id="taxa-km" value="0" min="0" step="0.05" oninput="calcFrete()"></div>
       </div>
@@ -1880,18 +1880,28 @@ function calcFrete(){
   $('fr-fat',pesoFat+'kg'+(pesoCubado>pesoReal?' (cubagem venceu o peso real)':''));
   const taxaKg=FB[RS]||0;
   const taxaKm=+$('taxa-km').value||0;
-  const custoDistancia=(distanciaKm && taxaKm>0) ? Math.round(distanciaKm*taxaKm) : 0;
-  const custoRealFrete=Math.round(pesoFat*taxaKg)+custoDistancia;
+  const usaDistancia = distanciaKm !== null && taxaKm > 0;
+  // Método principal (pedido do Rafael): distância × taxa fixa por km,
+  // sem o peso entrar na conta — só funciona quando o CEP foi buscado
+  // com sucesso e retornou coordenada. Se não tiver distância disponível
+  // (CEP ainda não buscado, CEP raro sem coordenada, API fora do ar),
+  // cai de volta pro método antigo (peso faturável × taxa da região),
+  // pra nunca deixar a ferramenta sem conseguir sugerir um valor.
+  const custoRealFrete = usaDistancia
+    ? Math.round(distanciaKm*taxaKm)
+    : Math.round(pesoFat*taxaKg);
   const margemFrete=+$('fr-margem').value||0;
   const freteComMargem=Math.round(custoRealFrete*(1+margemFrete/100)/5)*5;
   const limiteIsencao=+$('fr-isencao').value||0;
   const freteGratis=limiteIsencao>0 && a>=limiteIsencao;
 
-  const sugerido=freteGratis ? 0 : (taxaKg>0?freteComMargem:0);
+  const temBase = usaDistancia || taxaKg>0;
+  const sugerido=freteGratis ? 0 : (temBase?freteComMargem:0);
   $('fr-sugerido',
     freteGratis ? `frete grátis — pedido de ${a}m² atinge a isenção de ${limiteIsencao}m²`
-    : taxaKg>0 ? `sugerido: ${brl(freteComMargem)} (custo real ${brl(custoRealFrete)}${custoDistancia>0 ? ' — inclui '+brl(custoDistancia)+' de '+distanciaKm+'km' : ''} + ${margemFrete}% de margem)`
-    : 'preencha a taxa R$/kg da sua transportadora acima'
+    : usaDistancia ? `sugerido: ${brl(freteComMargem)} (${distanciaKm}km × ${brl(taxaKm)}/km = ${brl(custoRealFrete)} + ${margemFrete}% de margem)`
+    : taxaKg>0 ? `sugerido: ${brl(freteComMargem)} (sem distância disponível — usando peso × região: ${brl(custoRealFrete)} + ${margemFrete}% de margem)`
+    : 'busque o CEP do cliente acima, ou preencha a taxa R$/kg da região como reserva'
   );
   if(!FR_MANUAL) $('fr-val').value=sugerido;
   const fr=freteGratis ? 0 : (+$('fr-val').value||0);
@@ -1908,7 +1918,7 @@ function calcFrete(){
   mv.className='mbv'+(lr<0?' er':lr<ll*0.5?' wn':'');
   const al=$('fr-alerta');
   if(freteGratis)al.innerHTML='<div class="ab ab-ok"><span class="ai">✓</span><span>Frete grátis aplicado (pedido de '+a+'m², isenção a partir de '+limiteIsencao+'m²) — precisa bater com a promessa ativa no Google Ads. A Bruto absorve o custo real do frete ('+brl(custoRealFrete)+'), sem margem sobre ele.</span></div>';
-  else if(taxaKg<=0)al.innerHTML='<div class="ab ab-wn"><span class="ai">!</span><span>Nenhuma taxa de R$/kg preenchida pra esta região ainda — o frete abaixo está zerado, não é um resultado real. Preencha a taxa no cartão da região acima (peça pro seu contato na transportadora, se não souber de cabeça).</span></div>';
+  else if(!temBase)al.innerHTML='<div class="ab ab-wn"><span class="ai">!</span><span>Sem base pra calcular ainda — busque o CEP do cliente (calcula por distância) ou preencha a taxa de R$/kg de uma região como reserva. O frete abaixo está zerado, não é um resultado real.</span></div>';
   else if(lr<0)al.innerHTML='<div class="ab ab-er"><span class="ai">!</span><span>Frete inviável: absorver '+brl(fr)+' com lucro de '+brl(ll)+' gera prejuízo. Aumente o ticket mínimo ou cobre o frete à parte.</span></div>';
   else if(fp>25)al.innerHTML='<div class="ab ab-wn"><span class="ai">—</span><span>Frete representa '+pct(fp)+' do pedido. Considere estabelecer pedido mínimo para esta região ou incluí-lo no preço de forma transparente.</span></div>';
   else al.innerHTML='';
