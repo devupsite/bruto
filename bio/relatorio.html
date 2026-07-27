@@ -64,6 +64,7 @@
       letter-spacing: .14em; text-transform: uppercase; color: var(--concreto);
     }
     .filtros button[aria-pressed="true"] { background: var(--ferro); border-color: var(--ferro); color: var(--argamassa); }
+    .periodo-label { font-size: 12px; color: var(--concreto); margin: 0 0 18px; letter-spacing: .02em; }
 
     /* cartões-resumo */
     .resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 22px; }
@@ -104,6 +105,11 @@
     .serie .dia i { display: block; width: 100%; background: var(--titanio); min-height: 2px; }
     .serie .dia i.tem { background: var(--ferro); }
     .serie .dia span { font-size: 9px; color: var(--titanio); writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: .05em; }
+    .serie-legenda { display: flex; gap: 16px; margin: 8px 0 20px; }
+    .serie-legenda span { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--concreto); }
+    .serie-legenda i { display: block; width: 10px; height: 10px; flex: none; }
+    .serie-legenda i.tem { background: var(--ferro); }
+    .serie-legenda i.sem { background: var(--titanio); }
 
     .acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 26px; }
     .acoes button, .acoes a {
@@ -116,6 +122,28 @@
     .acoes button#zerar:hover { background: #a03b2e; color: #fff; }
 
     .rodape-nota { margin-top: 18px; font-size: 12px; color: var(--titanio); text-align: center; }
+
+    /* modal de confirmação */
+    .modal-fundo {
+      position: fixed; inset: 0; background: rgba(10,10,10,.6);
+      display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 10;
+    }
+    .modal-caixa { background: #fff; max-width: 400px; width: 100%; padding: 24px; border: 1px solid var(--line); }
+    .modal-caixa h3 {
+      font-family: var(--f-display); font-weight: 600; font-size: 17px;
+      letter-spacing: .06em; text-transform: uppercase; color: var(--ferro); margin-bottom: 12px;
+    }
+    .modal-caixa p { font-size: 13.5px; color: var(--concreto); line-height: 1.6; margin-bottom: 20px; }
+    .modal-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .modal-acoes button {
+      padding: 12px 8px; border: 1px solid var(--line); font-family: var(--f-display);
+      font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase;
+    }
+    .modal-acoes #modal-cancelar { background: #fff; color: var(--grafite); }
+    .modal-acoes #modal-cancelar:hover { background: var(--surface); }
+    .modal-acoes #modal-confirmar { background: #a03b2e; color: #fff; border-color: #a03b2e; }
+    .modal-acoes #modal-confirmar:hover { background: #7f2e24; }
+
     [hidden] { display: none !important; }
   </style>
 </head>
@@ -145,11 +173,12 @@
         <button data-dias="30" aria-pressed="true">30 dias</button>
         <button data-dias="0" aria-pressed="false">Tudo</button>
       </div>
+      <p class="periodo-label" id="periodo-label"></p>
 
       <div class="resumo">
         <div class="cartao"><b id="r-visitas">–</b><span>Visitas</span></div>
         <div class="cartao"><b id="r-cliques">–</b><span>Cliques</span></div>
-        <div class="cartao" title="Média de cliques por visita — uma pessoa pode clicar em mais de um link, então esse número pode passar de 1"><b id="r-taxa">–</b><span>Cliques / visita</span></div>
+        <div class="cartao"><b id="r-taxa">–</b><span>Cliques / visita</span></div>
       </div>
       <p class="resumo-nota">"Cliques / visita" é uma média — passa de 1 quando visitantes clicam em mais de um link.</p>
 
@@ -158,6 +187,10 @@
 
       <h2>Visitas por dia</h2>
       <div class="serie" id="serie"></div>
+      <div class="serie-legenda">
+        <span><i class="tem"></i> Dia com visitas</span>
+        <span><i class="sem"></i> Dia sem visitas</span>
+      </div>
 
       <div class="acoes">
         <button id="exportar">Exportar CSV</button>
@@ -167,6 +200,17 @@
       </div>
       <p class="rodape-nota" id="nota"></p>
     </section>
+
+    <div class="modal-fundo" id="modal-zerar" hidden>
+      <div class="modal-caixa">
+        <h3>Zerar contador?</h3>
+        <p>Isso apaga TODOS os cliques e visitas registrados até agora. Não dá pra desfazer pelo painel — fica um backup no servidor, mas a restauração não é automática.</p>
+        <div class="modal-acoes">
+          <button id="modal-cancelar">Cancelar</button>
+          <button id="modal-confirmar">Zerar tudo</button>
+        </div>
+      </div>
+    </div>
   </main>
 
   <script>
@@ -195,11 +239,15 @@
 
     function chaveSalva() { try { return localStorage.getItem(GUARDA) || ''; } catch (e) { return ''; } }
 
-    function carregar(chave) {
+    function carregar(chave, viaAtualizar) {
       $('aviso').hidden = true;
       $('entrar').disabled = true;
-      $('entrar').textContent = 'Abrindo…';
       $('atualizar').disabled = true;
+      if (viaAtualizar) {
+        $('atualizar').textContent = 'Atualizando…';
+      } else {
+        $('entrar').textContent = 'Abrindo…';
+      }
       return fetch(API + '?chave=' + encodeURIComponent(chave), { cache: 'no-store' })
         .then(function (r) {
           if (r.status === 401) throw new Error('Chave inválida.');
@@ -223,6 +271,7 @@
           $('entrar').disabled = false;
           $('entrar').textContent = 'Abrir relatório';
           $('atualizar').disabled = false;
+          $('atualizar').textContent = 'Atualizar';
         });
     }
 
@@ -235,8 +284,19 @@
       return todos.filter(function (d) { return d >= minimo; });
     }
 
+    function formatarData(iso) { return iso.slice(8, 10) + '/' + iso.slice(5, 7); }
+
     function desenhar() {
       var dias = diasDoPeriodo();
+
+      if (!dias.length) {
+        $('periodo-label').textContent = 'Sem dados registrados neste período.';
+      } else if (dias.length === 1) {
+        $('periodo-label').textContent = 'Dados de ' + formatarData(dias[0]) + '.';
+      } else {
+        $('periodo-label').textContent = 'Dados de ' + formatarData(dias[0]) + ' a ' + formatarData(dias[dias.length - 1]) + '.';
+      }
+
       var soma = {};
       dias.forEach(function (d) {
         var doDia = dados.dias[d] || {};
@@ -308,32 +368,45 @@
       URL.revokeObjectURL(a.href);
     }
 
-    function zerarContador() {
+    function abrirModalZerar() {
+      if (!chaveSalva()) return;
+      $('modal-zerar').hidden = false;
+    }
+
+    function fecharModalZerar() {
+      $('modal-zerar').hidden = true;
+    }
+
+    function confirmarZerar() {
       var chave = chaveSalva();
       if (!chave) return;
-      var primeiraConfirmacao = confirm('Isso apaga TODOS os cliques e visitas registrados até agora. Não dá pra desfazer pelo painel (fica um backup no servidor). Quer mesmo zerar?');
-      if (!primeiraConfirmacao) return;
-      var segundaConfirmacao = confirm('Confirmando de novo: zerar o contador agora?');
-      if (!segundaConfirmacao) return;
 
-      $('zerar').disabled = true;
+      $('modal-confirmar').disabled = true;
+      $('modal-confirmar').textContent = 'Zerando…';
       fetch('/api/bio-zerar.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chave: chave })
       })
         .then(function (r) { if (!r.ok) throw new Error('Não foi possível zerar (erro ' + r.status + ').'); return r.json(); })
-        .then(function () { carregar(chave); })
+        .then(function () { fecharModalZerar(); carregar(chave); })
         .catch(function (err) { alert(err.message); })
-        .finally(function () { $('zerar').disabled = false; });
+        .finally(function () {
+          $('modal-confirmar').disabled = false;
+          $('modal-confirmar').textContent = 'Zerar tudo';
+        });
     }
 
     // eventos
     $('entrar').addEventListener('click', function () { carregar($('chave').value.trim()); });
     $('chave').addEventListener('keydown', function (e) { if (e.key === 'Enter') carregar($('chave').value.trim()); });
-    $('atualizar').addEventListener('click', function () { carregar(chaveSalva()); });
+    $('atualizar').addEventListener('click', function () { carregar(chaveSalva(), true); });
     $('exportar').addEventListener('click', exportarCSV);
-    $('zerar').addEventListener('click', zerarContador);
+    $('zerar').addEventListener('click', abrirModalZerar);
+    $('modal-cancelar').addEventListener('click', fecharModalZerar);
+    $('modal-confirmar').addEventListener('click', confirmarZerar);
+    $('modal-zerar').addEventListener('click', function (e) { if (e.target === $('modal-zerar')) fecharModalZerar(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('modal-zerar').hidden) fecharModalZerar(); });
     $('sair').addEventListener('click', function () {
       try { localStorage.removeItem(GUARDA); } catch (e) {}
       dados = null;
