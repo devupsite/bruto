@@ -605,6 +605,7 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
   </div>
   <hr class="tl">
   <div class="sl">Comparativo por região — pedido atual</div>
+  <div id="fr-tb-nota" class="ab" style="display:none"><span class="ai">—</span><span>Comparação por região não se aplica agora — o frete já foi calculado pela distância real até o CEP buscado, não por região hipotética.</span></div>
   <div class="card"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr id="fr-th"></tr></thead><tbody id="fr-tb"></tbody></table></div>
 </div>
 
@@ -1930,18 +1931,37 @@ function calcFrete(){
   else if(fp>25)al.innerHTML='<div class="ab ab-wn"><span class="ai">—</span><span>Frete representa '+pct(fp)+' do pedido. Considere estabelecer pedido mínimo para esta região ou incluí-lo no preço de forma transparente.</span></div>';
   else al.innerHTML='';
   const th=$('fr-th');
-  th.innerHTML=['Região','Frete','Lucro real','Margem real','Viável?'].map((h,i)=>`<th style="text-align:${i>0?'right':'left'};padding:6px 8px;color:var(--g);font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid rgba(10,10,10,.06)">${h}</th>`).join('');
-  const regs=[{id:'se',n:'Sudeste',st:'SP · RJ · MG'},{id:'su',n:'Sul',st:'PR · SC · RS'},{id:'co',n:'Centro-Oeste',st:'GO · MT · MS'},{id:'ne',n:'Nordeste',st:'BA · CE · PE'},{id:'no',n:'Norte',st:'AM · PA · RO'}];
-  $('fr-tb').innerHTML=regs.map(r=>{
-    const semTaxa=!(FB[r.id]>0);
-    const custoRealR=Math.round(pesoFat*FB[r.id]);
-    const fvNormal=Math.round(custoRealR*(1+margemFrete/100)/5)*5;
-    const fv=freteGratis?0:fvNormal;
-    const custoAbsorvidoR=freteGratis?custoRealR:0;
-    const lrr=freteGratis?ll-custoAbsorvidoR:(FM==='incluso'?ll-fv:ll);
-    const mrr=vp>0?(lrr/vp)*100:0,ok=lrr>0&&mrr>5;
-    return `<tr style="${r.id===RS?'background:var(--tbg);':''}"><td style="padding:7px 8px">${r.n}<span style="font-size:11px;color:var(--g);display:block">${r.st}</span></td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':freteGratis?'GRÁTIS':brl(fv)}</td><td style="text-align:right;padding:7px 8px;color:${lrr<0?'var(--er)':'var(--ok)'}">${semTaxa?'—':(lrr<0?'− '+brl(Math.abs(lrr)):brl(lrr))}</td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':pct(mrr)}</td><td style="text-align:right;padding:7px 8px"><span class="tag ${semTaxa?'t-wn':ok?'t-ok':'t-er'}">${semTaxa?'sem taxa':ok?'Sim':'Revisar'}</span></td></tr>`;
-  }).join('');
+  const tbEl=$('fr-tb');
+  const notaTabela=document.getElementById('fr-tb-nota');
+  if(usaDistancia){
+    // No modo distância, o frete já foi calculado pro CEP real do
+    // cliente — "comparar por região" deixa de fazer sentido conceitual
+    // (a distância não muda por região hipotética, é fixa pro destino
+    // já buscado). Mostrar a tabela antiga aqui geraria números
+    // desatualizados e desconectados do cálculo principal acima.
+    th.innerHTML='';
+    tbEl.innerHTML='';
+    if(notaTabela) notaTabela.style.display='block';
+  } else {
+    if(notaTabela) notaTabela.style.display='none';
+    th.innerHTML=['Região','Frete','Lucro real','Margem real','Viável?'].map((h,i)=>`<th style="text-align:${i>0?'right':'left'};padding:6px 8px;color:var(--g);font-weight:400;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid rgba(10,10,10,.06)">${h}</th>`).join('');
+    const regs=[{id:'se',n:'Sudeste',st:'SP · RJ · MG'},{id:'su',n:'Sul',st:'PR · SC · RS'},{id:'co',n:'Centro-Oeste',st:'GO · MT · MS'},{id:'ne',n:'Nordeste',st:'BA · CE · PE'},{id:'no',n:'Norte',st:'AM · PA · RO'}];
+    tbEl.innerHTML=regs.map(r=>{
+      const semTaxa=!(FB[r.id]>0);
+      const custoRealR=Math.round(pesoFat*FB[r.id]);
+      const fvNormal=Math.round(custoRealR*(1+margemFrete/100)/5)*5;
+      const fv=freteGratis?0:fvNormal;
+      const custoAbsorvidoR=freteGratis?custoRealR:0;
+      const lrr=freteGratis?ll-custoAbsorvidoR:(FM==='incluso'?ll-fv:ll);
+      const mrr=vp>0?(lrr/vp)*100:0;
+      // Mesmo critério de 3 estados do indicador principal (.mbv) logo
+      // acima — antes a tabela usava um critério diferente (margem
+      // real > 5%), podendo discordar do indicador pra mesma situação.
+      const estado = lrr<0 ? 'er' : lrr<ll*0.5 ? 'wn' : 'ok';
+      const rotulo = { er:'Revisar', wn:'Atenção', ok:'Viável' }[estado];
+      return `<tr style="${r.id===RS?'background:var(--tbg);':''}"><td style="padding:7px 8px">${r.n}<span style="font-size:11px;color:var(--g);display:block">${r.st}</span></td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':freteGratis?'GRÁTIS':brl(fv)}</td><td style="text-align:right;padding:7px 8px;color:${lrr<0?'var(--er)':'var(--ok)'}">${semTaxa?'—':(lrr<0?'− '+brl(Math.abs(lrr)):brl(lrr))}</td><td style="text-align:right;padding:7px 8px">${semTaxa?'—':pct(mrr)}</td><td style="text-align:right;padding:7px 8px"><span class="tag ${semTaxa?'t-wn':'t-'+estado}">${semTaxa?'sem taxa':rotulo}</span></td></tr>`;
+    }).join('');
+  }
 }
 
 function sCbMg(v){$('cb-mglbl',v+'%');$('cb-mgi').value=v;calcCen();}
