@@ -129,6 +129,7 @@ input[type=text]:focus,input[type=number]:focus{border-color:var(--t)}
 .cep-endereco{font-size:13px;color:var(--w);line-height:1.5}
 .cep-endereco b{color:var(--t)}
 .cep-erro{margin-top:8px;font-size:12px;color:var(--er)}
+.cep-dist{color:var(--gl);font-size:12px;font-weight:400}
 .ig input{border-radius:0}
 input:focus{border-color:var(--t)}
 input::-webkit-inner-spin-button{-webkit-appearance:none}
@@ -518,6 +519,11 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
       <div class="field" style="margin-top:8px">
         <div class="fl"><div class="tt"><span>Número / quadra / lote / complemento</span></div></div>
         <input type="text" id="cep-numero" placeholder="Ex: 245, apto 12" oninput="calcFrete()">
+      </div>
+      <div class="field" style="margin-top:8px">
+        <div class="fl"><div class="tt"><span>Taxa por km (distância Tambaú → cliente)</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Opcional — some ao custo do frete calculado por peso/região. Deixe em R$0 se sua transportadora já cobra só por peso/faixa e a distância não entra separada na conta.</div></div>
+        </div>
+        <div class="ig"><div class="ip">R$</div><input type="number" id="taxa-km" value="0" min="0" step="0.05" oninput="calcFrete()"></div>
       </div>
     </div>
     <div id="cep-erro" class="cep-erro" style="display:none">CEP não encontrado — confira e tente de novo, ou selecione a região manualmente abaixo.</div>
@@ -1712,11 +1718,26 @@ function mascaraCep(input) {
   }
 }
 
+// Origem fixa: endereço real do fornecedor Faion em Tambaú-SP (confirmado
+// pelo Rafael: Rod. Padre Donizetti, km1, Zona Rural, Tambaú-SP, 13710-000).
+// É de lá que a Bruto despacha, então é de lá que a distância é calculada.
+const TAMBAU_LAT = -21.705, TAMBAU_LNG = -47.274;
+let distanciaKm = null; // null = não calculada ainda ou indisponível (fallback pra região)
+
+function haversineKm(lat1, lng1, lat2, lng2) {
+  const R = 6371; // raio da Terra em km
+  const toRad = g => g * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
 function buscarCep(cep) {
   const resultado = document.getElementById('cep-resultado');
   const erro = document.getElementById('cep-erro');
   resultado.style.display = 'none';
   erro.style.display = 'none';
+  distanciaKm = null;
 
   fetch('https://viacep.com.br/ws/' + cep + '/json/')
     .then(function (r) { return r.json(); })
@@ -1730,6 +1751,22 @@ function buscarCep(cep) {
 
       const regiao = UF_REGIAO[dados.uf];
       if (regiao) selR(regiao);
+
+      // Distância em linha reta (Tambaú-SP -> CEP do cliente) via
+      // coordenadas de um segundo serviço gratuito (ViaCEP não devolve
+      // lat/long). Best-effort: se falhar (rede, CORS, CEP raro sem
+      // coordenada), a ferramenta simplesmente continua funcionando só
+      // pela região, como já funcionava antes.
+      fetch('https://cep.awesomeapi.com.br/json/' + cep)
+        .then(function (r) { return r.json(); })
+        .then(function (geo) {
+          const lat = parseFloat(geo.lat), lng = parseFloat(geo.lng);
+          if (isNaN(lat) || isNaN(lng)) { calcFrete(); return; }
+          distanciaKm = Math.round(haversineKm(TAMBAU_LAT, TAMBAU_LNG, lat, lng));
+          document.getElementById('cep-endereco').innerHTML += ' <span class="cep-dist">— ' + distanciaKm + 'km em linha reta de Tambaú-SP</span>';
+          calcFrete();
+        })
+        .catch(function () { calcFrete(); });
     })
     .catch(function () { erro.style.display = 'block'; });
 }
@@ -1842,7 +1879,9 @@ function calcFrete(){
   const pesoFat=Math.max(pesoFaturavelBase,pesoMin);
   $('fr-fat',pesoFat+'kg'+(pesoCubado>pesoReal?' (cubagem venceu o peso real)':''));
   const taxaKg=FB[RS]||0;
-  const custoRealFrete=Math.round(pesoFat*taxaKg);
+  const taxaKm=+$('taxa-km').value||0;
+  const custoDistancia=(distanciaKm && taxaKm>0) ? Math.round(distanciaKm*taxaKm) : 0;
+  const custoRealFrete=Math.round(pesoFat*taxaKg)+custoDistancia;
   const margemFrete=+$('fr-margem').value||0;
   const freteComMargem=Math.round(custoRealFrete*(1+margemFrete/100)/5)*5;
   const limiteIsencao=+$('fr-isencao').value||0;
@@ -1851,7 +1890,7 @@ function calcFrete(){
   const sugerido=freteGratis ? 0 : (taxaKg>0?freteComMargem:0);
   $('fr-sugerido',
     freteGratis ? `frete grátis — pedido de ${a}m² atinge a isenção de ${limiteIsencao}m²`
-    : taxaKg>0 ? `sugerido: ${brl(freteComMargem)} (custo real ${brl(custoRealFrete)} + ${margemFrete}% de margem)`
+    : taxaKg>0 ? `sugerido: ${brl(freteComMargem)} (custo real ${brl(custoRealFrete)}${custoDistancia>0 ? ' — inclui '+brl(custoDistancia)+' de '+distanciaKm+'km' : ''} + ${margemFrete}% de margem)`
     : 'preencha a taxa R$/kg da sua transportadora acima'
   );
   if(!FR_MANUAL) $('fr-val').value=sugerido;
