@@ -16,6 +16,11 @@
 $candidatos = [
     dirname($_SERVER['DOCUMENT_ROOT']) . '/bruto-secrets/API/salvar-ordem.php',
     dirname(dirname($_SERVER['DOCUMENT_ROOT'])) . '/bruto-secrets/API/salvar-ordem.php',
+    // Caminho absoluto fixo — cobre o caso do subdominio ordens.brutoceramica.com.br
+    // ter sua propria arvore de pastas independente no Hostinger (nao apenas N
+    // niveis aninhados dentro da mesma arvore do dominio principal), cenario em
+    // que os dois candidatos acima nunca acham bruto-secrets/.
+    '/home/u764636502/domains/brutoceramica.com.br/bruto-secrets/API/salvar-ordem.php',
 ];
 
 foreach ($candidatos as $caminho) {
