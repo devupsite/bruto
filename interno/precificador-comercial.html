@@ -407,7 +407,7 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
       <div class="sl">Parâmetros de entrada</div>
       <div class="field">
         <div class="fl">
-          <div class="tt"><span>Produto</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Selecione o produto da linha Bruto. O preço Faion é usado como custo base automaticamente.</div></div>
+          <div class="tt"><span>Produto</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Selecione o produto da linha Bruto. O preço de custo do fornecedor é usado como base automaticamente.</div></div>
         </div>
         <select id="p-prod" onchange="selectProd()">
       <optgroup label="🧱 BRICK">
@@ -533,7 +533,7 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
     </div>
     <div id="cep-erro" class="cep-erro" style="display:none">CEP não encontrado — confira e tente de novo, ou selecione a região manualmente abaixo.</div>
   </div>
-  <div class="ab" style="margin-bottom:16px"><span class="ai">—</span><span>O cálculo de frete sempre parte de Tambaú-SP (endereço do fornecedor Faion, de onde a Bruto despacha) até o CEP do cliente. O CEP só define automaticamente a região abaixo — a taxa de R$/kg de cada uma continua sendo a sua cotação real com a transportadora.</span></div>
+  <div class="ab" style="margin-bottom:16px"><span class="ai">—</span><span>O cálculo de frete sempre parte do endereço do fornecedor (Tambaú-SP, de onde a Bruto despacha) até o CEP do cliente. O CEP só define automaticamente a região abaixo — a taxa de R$/kg de cada uma continua sendo a sua cotação real com a transportadora.</span></div>
 
   <div class="sl">Região de destino — taxa por kg (editável, ajuste com sua transportadora)</div>
   <div class="g5" style="margin-bottom:20px">
@@ -1206,7 +1206,7 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
       <div class="sl">Análise do produto selecionado</div>
       <div class="card" style="margin-bottom:14px">
         <div class="or"><span class="orl">Nome</span><span class="orv" id="mix-sel-nome">—</span></div>
-        <div class="or"><span class="orl">Preço Faion</span><span class="orv" id="mix-sel-preco">—</span></div>
+        <div class="or"><span class="orl">Preço fornecedor</span><span class="orv" id="mix-sel-preco">—</span></div>
         <div class="or"><span class="orl">% do volume de vendas</span><span class="orv" id="mix-sel-share">—</span></div>
       </div>
       <div class="card">
@@ -1614,12 +1614,12 @@ const PERSONAS={
   'pedreiro':{nome:'Pedreiro/Mestre',ticket:700,freq:8,ret:2,desc:'Indica para clientes, compra frequente'},
   'revendedor':{nome:'Revendedor B2B',ticket:8000,freq:4,ret:2,desc:'Volume atacado, margem menor'},
 };
-// Custo real de aquisição da Bruto (preço Faion). Definido em 25/07/2026 como
+// Custo real de aquisição da Bruto (preço do fornecedor). Definido em 25/07/2026 como
 // "preço do site menos 20%" — os 20% são a margem bruta que a Bruto já aplica
 // hoje (10% de desconto negociado com o fornecedor + 10% de markup próprio).
 // Ver COLABORACAO.md / conversa com Rafael. NÃO confundir com o preço de venda
 // (esse fica em catalogo.json / produto-*.html).
-const CUSTO_FAION={
+const CUSTO_FORNECEDOR={
   'brick-eco-palha': 123.12,
   'brick-rusticatto-palha': 135.92,
   'brick-lumus': 131.92,
@@ -1703,7 +1703,7 @@ let PDMODE='absorver'; // quem paga o material extra da perda de corte: 'absorve
 const FB={se:0,su:0,co:0,ne:0,no:0}; // R$/kg por região — preenchido pelo usuário na interface (Feature 2), zero até então
 
 // Mapa de UF -> região macro, mesma divisão das 5 taxas do frete (Feature 2).
-// O cálculo sempre parte de Tambaú-SP (endereço do fornecedor Faion) até o
+// O cálculo sempre parte de Tambaú-SP (endereço do fornecedor) até o
 // CEP do cliente — o CEP só resolve automaticamente QUAL região se aplica.
 const UF_REGIAO = {
   SP:'se', RJ:'se', MG:'se', ES:'se',
@@ -1725,7 +1725,7 @@ function mascaraCep(input) {
   }
 }
 
-// Origem fixa: endereço real do fornecedor Faion em Tambaú-SP (confirmado
+// Origem fixa: endereço real do fornecedor em Tambaú-SP (confirmado
 // pelo Rafael: Rod. Padre Donizetti, km1, Zona Rural, Tambaú-SP, 13710-000).
 // É de lá que a Bruto despacha, então é de lá que a distância é calculada.
 const TAMBAU_LAT = -21.705, TAMBAU_LNG = -47.274;
@@ -1816,7 +1816,7 @@ function syncMgI(v){$('p-mgr').value=v;$('p-mglbl',v+'%');calcPrec();}
 function calcPrec(){
   const prodEl=$('p-prod'),dscEl=$('p-dsci');
   const prodSlug=prodEl?prodEl.value:'brick-eco-palha',disc=dscEl?+dscEl.value:0;
-  const prodPrice=CUSTO_FAION[prodSlug]||123.12;
+  const prodPrice=CUSTO_FORNECEDOR[prodSlug]||123.12;
   const c=prodPrice*(1-disc/100);
   const prodName=NOMES[prodSlug]||'Produto';
   S.prodSlug=prodSlug;
@@ -1972,7 +1972,7 @@ function calcCen(){
   $('ca-c',S.prodName+' · '+brl(S.custo)+'/m²');$('ca-mg',aMg+'%');$('ca-a',aArea+' m²');
   $('ca-p',brl(aPm2));$('ca-v',brl(aVp));$('ca-l',brl(aLl));$('ca-m',pct(aMl));
   const bProdSlug=$('cb-prod').value||'',bDisc=+$('cb-dsci').value||0;
-  const bProdPrice=CUSTO_FAION[bProdSlug]||0;
+  const bProdPrice=CUSTO_FORNECEDOR[bProdSlug]||0;
   const bCst=bProdPrice*(1-bDisc/100);
   const bMg=+$('cb-mgi').value||0,bArea=+$('cb-a').value||0;
   const tx=+$('p-tax').value||0,pd=+$('p-pda').value||0;

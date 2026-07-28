@@ -301,12 +301,6 @@
     doc.setFontSize(15);
     doc.text('Ordem de Serviço', 20, y);
 
-    y += 6;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text('Destinatário: Cerâmica Faion', 20, y + 6);
-
     y += 16;
     doc.setDrawColor(230, 230, 230);
     doc.setFillColor(245, 244, 242);
