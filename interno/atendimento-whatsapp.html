@@ -201,6 +201,7 @@
     font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.04em;
     color:var(--t);padding:6px 0;border-bottom:1px solid rgba(87,153,155,.2);margin-bottom:10px;
   }
+  .lead-secao-titulo--clicavel{cursor:pointer;user-select:none}
   .lead-secao-contagem{
     font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;color:var(--gl);
     background:rgba(87,153,155,.1);border-radius:10px;padding:1px 8px;
@@ -663,11 +664,22 @@
       secao.className = 'lead-secao';
 
       var cabecalho = document.createElement('div');
-      cabecalho.className = 'lead-secao-titulo';
+      cabecalho.className = 'lead-secao-titulo lead-secao-titulo--clicavel';
       cabecalho.innerHTML =
-        '<span>' + nomeAtendente(id === '__sem_id__' ? null : id) + '</span>' +
+        '<span>' + nomeAtendente(id === '__sem_id__' ? null : id) + ' <span class="secao-chevron aberto">▾</span></span>' +
         '<span class="lead-secao-contagem">' + leadsDoGrupo.length + '</span>';
       secao.appendChild(cabecalho);
+
+      var corpo = document.createElement('div');
+      corpo.className = 'lead-secao-corpo';
+      secao.appendChild(corpo);
+
+      cabecalho.addEventListener('click', function () {
+        var chevron = cabecalho.querySelector('.secao-chevron');
+        var abrindo = corpo.style.display === 'none';
+        corpo.style.display = abrindo ? '' : 'none';
+        chevron.classList.toggle('aberto', abrindo);
+      });
 
       leadsDoGrupo.forEach(function (lead) {
         var card = document.createElement('div');
@@ -712,7 +724,7 @@
         });
         card.appendChild(resultados);
 
-        secao.appendChild(card);
+        corpo.appendChild(card);
       });
 
       leadsLista.appendChild(secao);
