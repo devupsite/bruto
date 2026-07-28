@@ -776,13 +776,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <p class="calc__label"><i class="ti ti-ruler-2" aria-hidden="true"></i> Calculadora de quantidade</p>
           <div class="calc__inputs">
             <div class="calc__field">
-              <label for="calc-larg">Largura (m)</label>
-              <input type="number" id="calc-larg" min="0" step="0.01" placeholder="ex: 3.5">
-            </div>
-            <span class="calc__x">×</span>
-            <div class="calc__field">
-              <label for="calc-alt">Altura (m)</label>
-              <input type="number" id="calc-alt" min="0" step="0.01" placeholder="ex: 2.8">
+              <label for="calc-area-input">Área a revestir (m²)</label>
+              <input type="number" id="calc-area-input" min="0" step="0.01" placeholder="ex: 12.5">
             </div>
           </div>
           <label class="calc__perda">
@@ -1279,14 +1274,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       var pecasPorM2 = areaPecaComJunta > 0 ? (1 / areaPecaComJunta) : 0;
 
       function recalc() {
-        var larg = parseFloat(document.getElementById('calc-larg').value) || 0;
-        var alt  = parseFloat(document.getElementById('calc-alt').value)  || 0;
-        if (!larg || !alt) {
+        var area = parseFloat(document.getElementById('calc-area-input').value) || 0;
+        if (!area) {
           document.getElementById('calc-result').hidden = true;
           document.getElementById('calc-note').hidden = true;
           return;
         }
-        var area = larg * alt;
         var perda = document.getElementById('calc-perda').checked ? 1.10 : 1.00;
         var total = area * perda;
         var custo = total * pricePerM2;
@@ -1303,7 +1296,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
       }
 
-      ['calc-larg','calc-alt','calc-perda'].forEach(function(id) {
+      ['calc-area-input','calc-perda'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) el.addEventListener('input', recalc);
       });
@@ -1318,7 +1311,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <script defer src="back-to-top.min.js?v=1"></script>
   <script defer src="mobile-cta-bar.min.js?v=2"></script>
   <script defer src="cookie-consent.min.js?v=1"></script>
-  <script defer src="lead-pdf.min.js?v=11"></script>
+  <script defer src="lead-pdf.min.js?v=12"></script>
   <script defer src="parcelamento.min.js?v=2"></script>
   <script src="analytics.min.js"></script>
   <script>

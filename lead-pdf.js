@@ -167,8 +167,7 @@
       linha:        currentBtn ? currentBtn.getAttribute('data-product-line') : '—',
       precoM2:      currentBtn ? currentBtn.getAttribute('data-product-price') : '—',
       dimensaoPeca: getSpec('Dimens'),
-      largura:      (document.getElementById('calc-larg') || {}).value || '—',
-      altura:       (document.getElementById('calc-alt')  || {}).value || '—',
+      areaInformada: (document.getElementById('calc-area-input') || {}).value || '—',
       m2:        txt('calc-m2'),
       pecas:     txt('calc-pecas'),
       valor:     txt('calc-total'),
@@ -215,9 +214,9 @@
 
     y += 10;
     doc.setFont('helvetica', 'bold');
-    doc.text('Dimensões informadas', 20, y);
+    doc.text('Área informada', 20, y);
     doc.setFont('helvetica', 'normal');
-    doc.text(dados.largura + ' m × ' + dados.altura + ' m', 70, y);
+    doc.text(dados.areaInformada + ' m²', 70, y);
 
     y += 10;
     doc.setFont('helvetica', 'bold');
@@ -317,7 +316,7 @@
         _subject: 'Orçamento via PDF — ' + lead.nome,
         nome: lead.nome, whatsapp: lead.whatsapp, email: lead.email || '',
         produto: dados.linha + ' — ' + dados.produto,
-        dimensoes: dados.largura + 'm x ' + dados.altura + 'm',
+        area: dados.areaInformada + 'm²',
         m2: dados.m2, pecas: dados.pecas, valor: dados.valor, padrao: dados.padrao
       })
     }).then(function (res) {
@@ -331,7 +330,7 @@
   function abrirWhatsApp(dados, lead) {
     var msg = 'Olá! Sou ' + lead.nome + ' e gostaria de um orçamento.\n' +
       'Produto: ' + dados.linha + ' — ' + dados.produto + '\n' +
-      'Dimensões: ' + dados.largura + 'm × ' + dados.altura + 'm (' + dados.m2 + ')\n' +
+      'Área informada: ' + dados.areaInformada + 'm² (' + dados.m2 + ' com perda)\n' +
       'Padrão: ' + dados.padrao + '\n' +
       'Valor estimado: ' + dados.valor;
     if (window.brutoTrack) {
