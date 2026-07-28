@@ -63,6 +63,12 @@
     padding:2px 4px;line-height:1;flex-shrink:0;transition:color .15s;
   }
   .renomear-btn:hover{color:var(--t)}
+  .resetar-btn{
+    background:none;border:none;color:var(--g);cursor:pointer;font-size:10px;
+    padding:2px 0;margin-top:3px;text-decoration:underline;display:block;
+  }
+  .resetar-btn:hover{color:var(--t)}
+  .resetar-btn:disabled{cursor:wait;opacity:.6}
   .renomear-input{
     background:var(--k3);border:1px solid var(--t);border-radius:3px;
     padding:5px 8px;font:600 14px 'Syne',sans-serif;color:var(--w);
@@ -144,6 +150,11 @@
     text-transform:uppercase;color:var(--gl);margin:36px 0 14px;display:flex;
     align-items:center;justify-content:space-between;gap:12px;
   }
+  .secao-titulo--clicavel{cursor:pointer;user-select:none}
+  .secao-chevron{display:inline-block;transition:transform .2s;font-size:11px;margin-left:4px}
+  .secao-chevron.aberto{transform:rotate(180deg)}
+  .leads-conteudo{animation:leadsFade .15s ease}
+  @keyframes leadsFade{from{opacity:0}to{opacity:1}}
   .exportar-btn{
     background:none;border:1px solid rgba(255,255,255,.12);color:var(--gl);
     font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;
@@ -256,11 +267,12 @@
     </div>
   </div>
 
-  <div class="secao-titulo">
-    Leads recentes
-    <button class="exportar-btn" id="exportar-btn" type="button">Exportar conversões (Google Ads)</button>
+  <div class="secao-titulo secao-titulo--clicavel" id="leads-toggle">
+    <span>Leads recentes <span class="secao-chevron" id="leads-chevron">▾</span></span>
+    <button class="exportar-btn" id="exportar-btn" type="button" onclick="event.stopPropagation()">Exportar conversões (Google Ads)</button>
   </div>
 
+  <div id="leads-conteudo" class="leads-conteudo" style="display:none">
   <div class="filtros">
     <div class="filtro-grupo">
       <span class="filtro-label">Período</span>
@@ -290,6 +302,7 @@
   <div class="filtro-contagem" id="filtro-contagem"></div>
 
   <div id="leads-lista" class="carregando">Carregando leads…</div>
+  </div>
 
   <div class="rodape">
     Desativar um atendente tira ele do rodízio imediatamente — os próximos leads
@@ -321,6 +334,7 @@
   var API_ADICIONAR = 'atendimento-adicionar.php';
   var API_REMOVER = 'atendimento-remover.php';
   var API_RENOMEAR = 'atendimento-renomear.php';
+  var API_RESETAR_CONTAGEM = 'atendimento-resetar-contagem.php';
   var API_LISTAR_LEADS = 'listar-leads.php';
   var API_MARCAR_LEAD = 'marcar-lead.php';
 
@@ -387,15 +401,29 @@
       nomeLinha.appendChild(btnRenomear);
 
       var detalhes = document.createElement('div');
+      var statTexto = a.contagemResetadaEm
+        ? (a.total || 0) + ' leads desde ' + formatarDataHora(a.contagemResetadaEm)
+        : (a.total || 0) + ' leads recebidos no rodízio';
       detalhes.innerHTML =
         '<div class="numero">' + a.numero + '</div>' +
-        '<div class="stat">' + (a.total || 0) + ' leads recebidos no rodízio</div>';
+        '<div class="stat">' + statTexto + '</div>';
+
+      var btnResetar = document.createElement('button');
+      btnResetar.className = 'resetar-btn';
+      btnResetar.type = 'button';
+      btnResetar.textContent = '↺ resetar contagem';
+      btnResetar.title = 'Zera o número exibido, sem apagar o histórico de leads';
+      detalhes.appendChild(btnResetar);
 
       info.appendChild(nomeLinha);
       info.appendChild(detalhes);
 
       btnRenomear.addEventListener('click', function () {
         iniciarRenomear(nomeLinha, badge, btnRenomear, a);
+      });
+
+      btnResetar.addEventListener('click', function () {
+        resetarContagem(a.id, a.nome, btnResetar);
       });
 
       var btn = document.createElement('button');
@@ -535,6 +563,28 @@
       })
       .catch(function () {
         mostrarAviso('Não foi possível remover agora. Tente de novo.');
+        btn.disabled = false;
+      });
+  }
+
+  function resetarContagem(id, nome, btn) {
+    esconderAviso();
+    if (!confirm('Zerar o contador de leads de ' + nome + '? O histórico completo de leads continua intacto — isso só reseta o número exibido ao lado do nome.')) return;
+    btn.disabled = true;
+    fetch(API_RESETAR_CONTAGEM, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (resposta) {
+        if (!resposta || !resposta.ok) {
+          mostrarAviso(resposta && resposta.erro ? resposta.erro : 'Não foi possível resetar agora.');
+        }
+        carregar();
+      })
+      .catch(function () {
+        mostrarAviso('Não foi possível resetar agora. Tente de novo.');
         btn.disabled = false;
       });
   }
@@ -747,6 +797,16 @@
     });
     filtroPaginaEl.value = 'tudo';
     aplicarFiltros();
+  });
+
+  // Recolhe/expande a seção de leads recentes — recolhida por padrão, pra não
+  // precisar rolar a página inteira todo dia só pra ver os cartões de atendente.
+  document.getElementById('leads-toggle').addEventListener('click', function () {
+    var conteudo = document.getElementById('leads-conteudo');
+    var chevron = document.getElementById('leads-chevron');
+    var abrindo = conteudo.style.display === 'none';
+    conteudo.style.display = abrindo ? '' : 'none';
+    chevron.classList.toggle('aberto', abrindo);
   });
 
   function carregarLeads() {
