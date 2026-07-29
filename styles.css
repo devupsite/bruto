@@ -1610,6 +1610,10 @@
       text-align: center;
     }
 
+    .calc .btn { width: 100%; justify-content: center; }
+    #lead-pdf-open { margin-top: 16px; }
+    #calc-compartilhar { margin-top: 10px; }
+
     .calc__pix {
       display: flex;
       align-items: center;
