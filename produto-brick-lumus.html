@@ -823,6 +823,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <i class="ti ti-file-download" aria-hidden="true"></i>
             Baixar PDF com meus dados
           </button>
+          <button type="button" class="btn btn--outline" id="calc-compartilhar">
+            <i class="ti ti-share-2" aria-hidden="true"></i>
+            Compartilhar
+          </button>
         </div>
 
         <div class="ambiente-icons">
@@ -1320,6 +1324,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         var el = document.getElementById(id);
         if (el) el.addEventListener('input', recalc);
       });
+
+      var btnCompartilhar = document.getElementById('calc-compartilhar');
+      if (btnCompartilhar) {
+        btnCompartilhar.addEventListener('click', function () {
+          var nomeBtn = document.getElementById('lead-pdf-open');
+          var nomeProduto = nomeBtn ? nomeBtn.getAttribute('data-product-name') : document.title;
+          var area = parseFloat(document.getElementById('calc-area-input').value) || 0;
+          var resultadoVisivel = !document.getElementById('calc-result').hidden;
+
+          var texto = 'Confira o ' + nomeProduto + ' da Bruto.';
+          if (resultadoVisivel && area) {
+            var m2 = document.getElementById('calc-m2').textContent;
+            var pecas = document.getElementById('calc-pecas').textContent;
+            var total = document.getElementById('calc-total').textContent;
+            texto = 'Confira o ' + nomeProduto + ' da Bruto — pra ' + area.toString().replace('.', ',') + 'm²: ' +
+              m2 + ' com perda, ' + pecas + ', ' + total + ' estimado.';
+          }
+
+          if (navigator.share) {
+            // O Web Share API já trata "text" e "url" como campos separados —
+            // não inclui a URL dentro de "texto" aqui pra não duplicar o link.
+            navigator.share({ title: nomeProduto + ' — Bruto', text: texto, url: window.location.href }).catch(function () {});
+          } else {
+            navigator.clipboard.writeText(texto + '\n' + window.location.href).then(function () {
+              var labelOriginal = btnCompartilhar.innerHTML;
+              btnCompartilhar.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Copiado!';
+              setTimeout(function () { btnCompartilhar.innerHTML = labelOriginal; }, 2000);
+            }).catch(function () {});
+          }
+        });
+      }
     })();
   </script>
 
