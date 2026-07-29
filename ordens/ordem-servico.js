@@ -24,7 +24,7 @@
     { slug: "brick-rusticatto-palha", categoria: "Brick", nome: "Rusticatto Palha", sku: "78", preco: 169.90, dimensoes: "270mm x 70mm x 25mm", peso: "650g" },
     { slug: "brick-lumus", categoria: "Brick", nome: "Lumus", sku: "73", preco: 164.90, dimensoes: "270mm x 70mm x 15mm", peso: "405g" },
     { slug: "brick-mescla-prime", categoria: "Brick", nome: "Mescla Prime", sku: "54", preco: 153.90, dimensoes: "250mm x 70mm x 15mm", peso: "360g" },
-    { slug: "brick-natura", categoria: "Brick", nome: "Natura", sku: "48", preco: 104.90, dimensoes: "240mm x 70mm x 15mm", peso: "465g" },
+    { slug: "brick-natura", categoria: "Brick", nome: "Natura", sku: "48", preco: 104.90, dimensoes: "240mm x 70mm x 10mm", peso: "465g" },
     { slug: "brick-rosso-prime", categoria: "Brick", nome: "Rosso Prime", sku: "53", preco: 142.90, dimensoes: "270mm x 70mm x 15mm", peso: "470g" },
     { slug: "brick-rusticatto-fume", categoria: "Brick", nome: "Rusticatto Fumê", sku: "72", preco: 186.90, dimensoes: "270mm x 70mm x 20mm", peso: "570g" },
     { slug: "brick-rusticatto-rosso", categoria: "Brick", nome: "Rusticatto Rosso", sku: "77", preco: 159.90, dimensoes: "270mm x 70mm x 20mm", peso: "590g" },

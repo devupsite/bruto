@@ -85,6 +85,13 @@ def sync_produto_page(produto, check, changed):
         text,
         count=1,
     )
+    # 4b) dimensao no JSON-LD: { "@type": "PropertyValue", "name": "Dimensões", "value": "270mm x 70mm x 15mm" }
+    text = re.sub(
+        r'("name":\s*"Dimensões",\s*"value":\s*")\d+mm x \d+mm x \d+mm(")',
+        lambda m: m.group(1) + dim + m.group(2),
+        text,
+        count=1,
+    )
     # 5) peso: <span>350g</span> (só sincroniza se o produto tiver peso_g E a
     # página já tiver o spec-item de Peso — não cria o bloco do zero)
     if "peso_g" in produto:
