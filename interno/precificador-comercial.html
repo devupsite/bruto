@@ -447,6 +447,18 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
         <span class="cost-net-lbl">Custo líquido ao fornecedor</span>
         <span class="cost-net-val" id="p-cst-net">R$ 90,94/m²</span>
       </div>
+      <div class="sl" style="margin-top:4px">Pagamento ao fornecedor</div>
+      <div class="tg-g">
+        <div class="tgb on" id="pf-pad" onclick="setPF('padrao')">Padrão</div>
+        <div class="tgb" id="pf-av" onclick="setPF('avista')">À vista (desconto extra)</div>
+      </div>
+      <div class="ab" id="pf-md"><span class="ai">—</span><span>Padrão: você paga o fornecedor no prazo normal combinado, sem desconto adicional além do desconto atacado.</span></div>
+      <div class="field" id="pf-pctwrap" style="display:none;margin-top:8px">
+        <div class="fl">
+          <div class="tt"><span>Desconto extra à vista</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Desconto adicional que o fornecedor concede quando você paga à vista, além do desconto atacado já negociado. Esse ganho vira margem extra para a Bruto.</div></div>
+        </div>
+        <div class="ig"><input type="number" id="pf-pct" value="5" min="0" max="20" step="0.5" oninput="calcPrec()"><div class="is">%</div></div>
+      </div>
       <div class="field">
         <div class="fl">
           <div class="tt"><span>Margem desejada</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Percentual de lucro sobre o custo. Margem de 20% sobre custo de R$ 100 resulta em preço de venda de R$ 125 — não R$ 120. 20% é o padrão da Bruto hoje (já embutido no preço do site).</div></div>
@@ -461,19 +473,11 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
         </div>
         <div class="ig"><input type="number" id="p-area" value="9" min="1" step="0.5" oninput="calcPrec()"><div class="is">m²</div></div>
       </div>
-      <div class="g2" style="gap:10px">
-        <div class="field">
-          <div class="fl">
-            <div class="tt"><span>Taxa pagamento</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Desconto cobrado pela operadora. Pix à vista: 0–1%. Cartão de crédito: 2,5–3,5%. Parcelado pode chegar a 5%.</div></div>
-          </div>
-          <div class="ig"><input type="number" id="p-tax" value="3" min="0" max="12" step="0.1" oninput="calcPrec()"><div class="is">%</div></div>
+      <div class="field">
+        <div class="fl">
+          <div class="tt"><span>Perda / corte</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Material perdido no corte e encaixe. O padrão do setor para brick cerâmico é 10%. A ferramenta acrescenta esse percentual à quantidade de produto comprada.</div></div>
         </div>
-        <div class="field">
-          <div class="fl">
-            <div class="tt"><span>Perda / corte</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Material perdido no corte e encaixe. O padrão do setor para brick cerâmico é 10%. A ferramenta acrescenta esse percentual à quantidade de produto comprada.</div></div>
-          </div>
-          <div class="ig"><input type="number" id="p-pda" value="10" min="0" max="25" oninput="calcPrec()"><div class="is">%</div></div>
-        </div>
+        <div class="ig"><input type="number" id="p-pda" value="10" min="0" max="25" oninput="calcPrec()"><div class="is">%</div></div>
       </div>
       <div class="sl" style="margin-top:4px">Quem absorve a perda de corte?</div>
       <div class="tg-g">
@@ -481,6 +485,28 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
         <div class="tgb" id="pd-rp" onclick="setPD('repassar')">Repassa ao cliente</div>
       </div>
       <div class="ab" id="pd-md"><span class="ai">—</span><span>Bruto absorve: você paga o material extra da perda, sua margem diminui um pouco. O cliente só vê o preço da área que pediu.</span></div>
+
+      <div class="sl" style="margin-top:16px">Forma de recebimento do cliente</div>
+      <div class="tg-g">
+        <div class="tgb on" id="pg-pix" onclick="setPG('pix')">Pix à vista</div>
+        <div class="tgb" id="pg-cartao" onclick="setPG('cartao')">Cartão parcelado</div>
+      </div>
+      <div class="ab" id="pg-md"><span class="ai">—</span><span>Pix à vista: você dá um desconto direto ao cliente, mas recebe na hora, sem taxa de operadora e sem risco de inadimplência.</span></div>
+      <div class="field" id="pg-pixwrap" style="margin-top:8px">
+        <div class="fl">
+          <div class="tt"><span>Desconto Pix</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Desconto oferecido ao cliente para pagamento à vista via Pix. 5% costuma ser o ponto de equilíbrio entre atrair o cliente e preservar sua margem.</div></div>
+        </div>
+        <div class="ig"><input type="number" id="pg-pixpct" value="5" min="0" max="20" step="0.5" oninput="calcPrec()"><div class="is">%</div></div>
+      </div>
+      <div class="field" id="pg-cardwrap" style="display:none;margin-top:8px">
+        <div class="fl">
+          <div class="tt"><span>Taxa da maquininha (assumida pela Bruto)</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Taxa cobrada pela operadora no parcelamento sem juros. O cliente não paga nada a mais — o custo é 100% seu.</div></div>
+        </div>
+        <div class="ig"><input type="number" id="pg-cardpct" value="8" min="0" max="15" step="0.5" oninput="calcPrec()"><div class="is">%</div></div>
+      </div>
+      <div class="ab" style="margin-top:8px"><span class="ai">—</span><span>Ambas as condições têm o pagamento vinculado à entrega: a mercadoria só é liberada após confirmação do Pix ou aprovação da transação do cartão.</span></div>
+
+      <input type="hidden" id="p-tax" value="5">
     </div>
     <div>
       <div class="sl">Resultado do pedido</div>
@@ -1700,6 +1726,8 @@ const ESPESSURA_M={
 };
 let FM='incluso',REG='mei',RS='su',TF=40;
 let PDMODE='absorver'; // quem paga o material extra da perda de corte: 'absorver' (Bruto) ou 'repassar' (cliente)
+let PFMODE='padrao';   // condição de pagamento ao fornecedor: 'padrao' ou 'avista' (desconto extra)
+let PGMODE='pix';       // forma de recebimento do cliente: 'pix' (desconto) ou 'cartao' (taxa assumida pela Bruto)
 const FB={se:0,su:0,co:0,ne:0,no:0}; // R$/kg por região — preenchido pelo usuário na interface (Feature 2), zero até então
 
 // Mapa de UF -> região macro, mesma divisão das 5 taxas do frete (Feature 2).
@@ -1807,6 +1835,29 @@ function setPD(m){
     :'Repassa ao cliente: a área com perda entra na conta do pedido, sua margem fica intacta. O cliente paga pelo material extra necessário.')+'</span>';
   calcPrec();
 }
+function setPF(m){
+  PFMODE=m;
+  $('pf-pad').classList.toggle('on',m==='padrao');
+  $('pf-av').classList.toggle('on',m==='avista');
+  $('pf-pctwrap').style.display=m==='avista'?'block':'none';
+  const el=$('pf-md');
+  el.innerHTML='<span class="ai">—</span><span>'+(m==='padrao'
+    ?'Padrão: você paga o fornecedor no prazo normal combinado, sem desconto adicional além do desconto atacado.'
+    :'À vista: o fornecedor concede um desconto extra sobre o custo líquido quando você paga na hora. Esse ganho vira margem extra para a Bruto.')+'</span>';
+  calcPrec();
+}
+function setPG(m){
+  PGMODE=m;
+  $('pg-pix').classList.toggle('on',m==='pix');
+  $('pg-cartao').classList.toggle('on',m==='cartao');
+  $('pg-pixwrap').style.display=m==='pix'?'block':'none';
+  $('pg-cardwrap').style.display=m==='cartao'?'block':'none';
+  const el=$('pg-md');
+  el.innerHTML='<span class="ai">—</span><span>'+(m==='pix'
+    ?'Pix à vista: você dá um desconto direto ao cliente, mas recebe na hora, sem taxa de operadora e sem risco de inadimplência.'
+    :'Cartão parcelado sem juros: o cliente não paga nada a mais — a taxa da maquininha sai inteira da sua margem.')+'</span>';
+  calcPrec();
+}
 function syncDisc(v){ $('p-dsclbl',v+'%'); $('p-dsci').value=v; calcPrec(); }
 function syncDiscI(v){ $('p-dscr').value=v; $('p-dsclbl',v+'%'); calcPrec(); }
 function syncCbDisc(v){ $('cb-dsclbl',v+'%'); calcCen(); }
@@ -1817,12 +1868,16 @@ function calcPrec(){
   const prodEl=$('p-prod'),dscEl=$('p-dsci');
   const prodSlug=prodEl?prodEl.value:'brick-eco-palha',disc=dscEl?+dscEl.value:0;
   const prodPrice=CUSTO_FORNECEDOR[prodSlug]||123.12;
-  const c=prodPrice*(1-disc/100);
+  const pfPct=PFMODE==='avista'?(+$('pf-pct').value||0):0;
+  const c=prodPrice*(1-disc/100)*(1-pfPct/100);
   const prodName=NOMES[prodSlug]||'Produto';
   S.prodSlug=prodSlug;
   $('p-cst-net','R$ '+c.toFixed(2)+'/m²');
   const mg=+$('p-mgi').value||0;
-  const a=+$('p-area').value||0,tx=+$('p-tax').value||0,pd=+$('p-pda').value||0;
+  // taxa efetiva de recebimento: Pix = desconto dado ao cliente; Cartão = taxa da maquininha assumida pela Bruto
+  const txEfetiva=PGMODE==='cartao'?(+$('pg-cardpct').value||0):(+$('pg-pixpct').value||0);
+  $('p-tax').value=txEfetiva;
+  const a=+$('p-area').value||0,tx=txEfetiva,pd=+$('p-pda').value||0;
   const pm2=mg>=100?c*2:c/(1-mg/100);
   // aT = área real comprada (com perda de corte). O custo do produto (cp) sempre
   // usa aT, porque é o material que a Bruto de fato precisa comprar. O valor
