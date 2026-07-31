@@ -31,31 +31,33 @@
 html{scroll-behavior:smooth}
 body{background:var(--k);color:var(--w);font-family:'Barlow',system-ui,sans-serif;font-weight:400;min-height:100vh;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 
-/* ===== Exportação em PDF (identidade Bruto) ===== */
+/* ===== Exportação em PDF (identidade Bruto — conforme Manual V1.0) ===== */
+/* Paleta oficial: Ferro #0A0A0A · Grafite #1E1E1E · Concreto #6E6E6E · Titânio #B2AFAB · Argamassa #F0EEEC */
 .pdf-only{display:none}
-#pdf-export{background:#fff;color:#0A0A0A;font-family:'Barlow',system-ui,sans-serif;padding:0;max-width:720px;margin:0 auto}
-.pdf-head{display:flex;align-items:center;gap:14px;padding:0 0 18px}
-.pdf-logo{width:40px;height:40px;background:#0A0A0A;color:#F0EEEC;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.pdf-headtext{flex:1}
-.pdf-brand{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;letter-spacing:.18em;color:#0A0A0A}
-.pdf-sub{font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#6E6E6E;margin-top:2px}
-.pdf-date{font-size:11px;color:#6E6E6E;text-align:right;white-space:nowrap}
-.pdf-rule{height:2px;background:#0A0A0A;margin-bottom:20px}
-.pdf-section-title{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#0A0A0A;border-bottom:1px solid rgba(10,10,10,.14);padding-bottom:6px;margin:22px 0 8px}
+#pdf-export{background:#F0EEEC;color:#0A0A0A;font-family:'Barlow',system-ui,sans-serif;font-weight:400;padding:0;max-width:720px;margin:0 auto}
+.pdf-head{display:flex;align-items:center;gap:16px;padding:0 0 20px}
+.pdf-logo{flex-shrink:0;display:flex;align-items:center}
+.pdf-headtext{flex:1;display:flex;align-items:baseline;gap:14px}
+.pdf-divider{width:1px;height:22px;background:#B2AFAB}
+.pdf-brand{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:22px;letter-spacing:.26em;text-transform:uppercase;color:#0A0A0A}
+.pdf-sub{font-size:11px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:#6E6E6E}
+.pdf-date{font-size:11px;color:#6E6E6E;letter-spacing:.04em;text-align:right;white-space:nowrap}
+.pdf-rule{height:1px;background:#0A0A0A;margin-bottom:8px}
+.pdf-section-title{font-family:'Barlow',sans-serif;font-weight:400;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#6E6E6E;border-bottom:1px solid rgba(110,110,110,.3);padding-bottom:10px;margin:28px 0 12px}
 .pdf-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
-.pdf-tbl td{padding:7px 4px;border-bottom:1px solid rgba(10,10,10,.08)}
-.pdf-tbl td:first-child{color:#6E6E6E}
-.pdf-tbl td:last-child{text-align:right;font-weight:600;color:#0A0A0A}
-.pdf-tbl-highlight td{background:rgba(10,10,10,.04);font-weight:700}
-.pdf-hero{background:#F0EEEC;border:1px solid rgba(10,10,10,.14);padding:16px;text-align:center;margin-bottom:4px}
-.pdf-hero-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30px;color:#0A0A0A}
-.pdf-hero-lbl{font-size:11px;color:#6E6E6E;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
-.pdf-foot{margin-top:24px;padding-top:12px;border-top:1px solid rgba(10,10,10,.14);font-size:10.5px;color:#857F79;line-height:1.6}
+.pdf-tbl td{padding:8px 4px;border-bottom:1px solid rgba(110,110,110,.15)}
+.pdf-tbl td:first-child{color:#6E6E6E;font-weight:300}
+.pdf-tbl td:last-child{text-align:right;font-weight:400;color:#0A0A0A;letter-spacing:.02em}
+.pdf-tbl-highlight td{background:rgba(10,10,10,.04);font-weight:600}
+.pdf-hero{background:#F0EEEC;border:1px solid #0A0A0A;padding:20px;text-align:center;margin-bottom:4px}
+.pdf-hero-val{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:32px;color:#0A0A0A;letter-spacing:.02em}
+.pdf-hero-lbl{font-size:11px;color:#6E6E6E;text-transform:uppercase;letter-spacing:.16em;margin-top:4px;font-weight:300}
+.pdf-foot{margin-top:28px;padding-top:14px;border-top:1px solid rgba(110,110,110,.3);font-size:10.5px;font-weight:300;color:#6E6E6E;line-height:1.7;letter-spacing:.02em}
 @media print{
   @page{margin:16mm}
   body *{visibility:hidden}
   #pdf-export, #pdf-export *{visibility:visible}
-  #pdf-export{position:absolute;left:0;top:0;display:block !important;max-width:none}
+  #pdf-export{position:absolute;left:0;top:0;display:block !important;max-width:none;background:#fff}
 }
 
 /* ONBOARDING */
@@ -568,9 +570,14 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
 <!-- TEMPLATE DE EXPORTAÇÃO PDF — invisível na tela, exibido apenas na impressão -->
 <div id="pdf-export" class="pdf-only">
   <div class="pdf-head">
-    <div class="pdf-logo">B</div>
+    <div class="pdf-logo">
+      <svg viewBox="0 0 176 286" width="20" height="32" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#0A0A0A" fill-rule="evenodd" d="M0,0 L132,0 L132,132 L176,132 L176,286 L0,286 Z M22,22 L110,22 L110,132 L22,132 Z M22,154 L154,154 L154,264 L22,264 Z"/>
+      </svg>
+    </div>
     <div class="pdf-headtext">
       <div class="pdf-brand">BRUTO</div>
+      <div class="pdf-divider"></div>
       <div class="pdf-sub">Simulação de Precificação</div>
     </div>
     <div class="pdf-date" id="pdf-date">—</div>
@@ -603,7 +610,7 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
     <tr class="pdf-tbl-highlight"><td>Margem líquida real</td><td id="pdf-ml">—</td></tr>
   </table>
 
-  <div class="pdf-foot">Documento interno de simulação comercial — Bruto Cerâmica. Valores sujeitos a confirmação junto ao fornecedor e à operadora de pagamento no momento do fechamento.</div>
+  <div class="pdf-foot">Documento interno de simulação comercial — BRUTO. Valores sujeitos a confirmação com o fornecedor e a operadora de pagamento no fechamento.</div>
 </div>
 
 <!-- 02 · FRETE -->
