@@ -24,7 +24,8 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;background:#080808}
-  body{font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  html{overflow-x:hidden}
+  body{margin:0;overflow-x:hidden;font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
   #root{width:100%;height:100vh}
   #boot-fallback{
     position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
@@ -1685,7 +1686,10 @@ function BrutoAtendimento() {
   }
 
   function handleKeyDown(e) {
-    if (e.key === "Enter" && !e.shiftKey && !busy) {
+    // No mobile, Enter só quebra linha (comportamento nativo do navegador) —
+    // só o botão de enviar (avião) dispara o envio. No desktop, mantém o
+    // padrão de chat: Enter envia, Shift+Enter quebra linha.
+    if (e.key === "Enter" && !e.shiftKey && !busy && !isMobile) {
       e.preventDefault();
       send();
     }
@@ -2496,7 +2500,7 @@ const green = "#4ADE80";
 const amber = "#FBBF24";
 
 const S = {
-  root: { width: "100%", height: "100vh", background: "#080808", fontFamily: dm, position: "relative" },
+  root: { width: "100%", height: "100vh", background: "#080808", fontFamily: dm, position: "relative", overflowX: "hidden" },
   app: { display: "flex", flexDirection: "column", height: "100%", background: bg, borderLeft: `1px solid ${border}`, borderRight: `1px solid ${border}` },
   led: { height: 1, background: `linear-gradient(90deg,transparent 0%,rgba(87,153,155,.45) 15%,rgba(87,153,155,.85) 50%,rgba(87,153,155,.45) 85%,transparent 100%)` },
   header: { display: "flex", alignItems: "center", gap: 12, padding: "12px 20px", background: `linear-gradient(180deg,#181818 0%,${surface} 100%)`, borderBottom: `1px solid ${border}`, flexShrink: 0 },
