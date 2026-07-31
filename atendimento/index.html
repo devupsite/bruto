@@ -571,9 +571,6 @@ function esc(s) { return s; }
 
 function ExportCopyBtn({ text, label = "Copiar JSON" }) {
   const [copied, setCopied] = useState(false);
-  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth <= 768);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   async function copy() {
     let ok = false;
     try { await navigator.clipboard.writeText(text); ok = true; } catch (_) {}
@@ -599,6 +596,9 @@ function ExportCopyBtn({ text, label = "Copiar JSON" }) {
 
 function BrutoAtendimento() {
   const [mode, setMode] = useState("consulta");
+  const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth <= 768);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [client, setClient] = useState({ name: "Cliente", type: "", project: "", phone: "", tags: ["Consulta Técnica"] });
   const [messages, setMessages] = useState([]);
   const [selectedKB, setSelectedKB] = useState([]);
