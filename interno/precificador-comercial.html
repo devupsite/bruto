@@ -31,6 +31,33 @@
 html{scroll-behavior:smooth}
 body{background:var(--k);color:var(--w);font-family:'Barlow',system-ui,sans-serif;font-weight:400;min-height:100vh;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 
+/* ===== Exportação em PDF (identidade Bruto) ===== */
+.pdf-only{display:none}
+#pdf-export{background:#fff;color:#0A0A0A;font-family:'Barlow',system-ui,sans-serif;padding:0;max-width:720px;margin:0 auto}
+.pdf-head{display:flex;align-items:center;gap:14px;padding:0 0 18px}
+.pdf-logo{width:40px;height:40px;background:#0A0A0A;color:#F0EEEC;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pdf-headtext{flex:1}
+.pdf-brand{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;letter-spacing:.18em;color:#0A0A0A}
+.pdf-sub{font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#6E6E6E;margin-top:2px}
+.pdf-date{font-size:11px;color:#6E6E6E;text-align:right;white-space:nowrap}
+.pdf-rule{height:2px;background:#0A0A0A;margin-bottom:20px}
+.pdf-section-title{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#0A0A0A;border-bottom:1px solid rgba(10,10,10,.14);padding-bottom:6px;margin:22px 0 8px}
+.pdf-tbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.pdf-tbl td{padding:7px 4px;border-bottom:1px solid rgba(10,10,10,.08)}
+.pdf-tbl td:first-child{color:#6E6E6E}
+.pdf-tbl td:last-child{text-align:right;font-weight:600;color:#0A0A0A}
+.pdf-tbl-highlight td{background:rgba(10,10,10,.04);font-weight:700}
+.pdf-hero{background:#F0EEEC;border:1px solid rgba(10,10,10,.14);padding:16px;text-align:center;margin-bottom:4px}
+.pdf-hero-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30px;color:#0A0A0A}
+.pdf-hero-lbl{font-size:11px;color:#6E6E6E;text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.pdf-foot{margin-top:24px;padding-top:12px;border-top:1px solid rgba(10,10,10,.14);font-size:10.5px;color:#857F79;line-height:1.6}
+@media print{
+  @page{margin:16mm}
+  body *{visibility:hidden}
+  #pdf-export, #pdf-export *{visibility:visible}
+  #pdf-export{position:absolute;left:0;top:0;display:block !important;max-width:none}
+}
+
 /* ONBOARDING */
 #ob{position:fixed;inset:0;background:var(--k);z-index:200;display:flex;align-items:center;justify-content:center;padding:32px}
 .ob-inner{text-align:center;max-width:400px;width:100%}
@@ -533,8 +560,50 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
         <div class="sr"><span>Margem líquida</span><span id="r-bl">14,4%</span></div>
         <div class="bt"><div class="bf" id="r-bar" style="width:29%"></div></div>
       </div>
+      <button type="button" class="ob-btn" style="margin-top:16px" onclick="exportarPDF()">⬇ Exportar simulação em PDF</button>
     </div>
   </div>
+</div>
+
+<!-- TEMPLATE DE EXPORTAÇÃO PDF — invisível na tela, exibido apenas na impressão -->
+<div id="pdf-export" class="pdf-only">
+  <div class="pdf-head">
+    <div class="pdf-logo">B</div>
+    <div class="pdf-headtext">
+      <div class="pdf-brand">BRUTO</div>
+      <div class="pdf-sub">Simulação de Precificação</div>
+    </div>
+    <div class="pdf-date" id="pdf-date">—</div>
+  </div>
+  <div class="pdf-rule"></div>
+
+  <div class="pdf-section-title">Produto e parâmetros</div>
+  <table class="pdf-tbl">
+    <tr><td>Produto</td><td id="pdf-prod">—</td></tr>
+    <tr><td>Desconto atacado</td><td id="pdf-disc">—</td></tr>
+    <tr><td>Pagamento ao fornecedor</td><td id="pdf-pf">—</td></tr>
+    <tr><td>Margem desejada</td><td id="pdf-mg">—</td></tr>
+    <tr><td>Área do pedido</td><td id="pdf-area">—</td></tr>
+    <tr><td>Perda / corte</td><td id="pdf-pda">—</td></tr>
+    <tr><td>Forma de recebimento do cliente</td><td id="pdf-pg">—</td></tr>
+  </table>
+
+  <div class="pdf-section-title">Resultado do pedido</div>
+  <div class="pdf-hero">
+    <div class="pdf-hero-val" id="pdf-pm2">R$ 0</div>
+    <div class="pdf-hero-lbl">Preço de venda por m²</div>
+  </div>
+  <table class="pdf-tbl">
+    <tr><td>Área entregue (c/ perda)</td><td id="pdf-at">—</td></tr>
+    <tr><td>Valor total do pedido</td><td id="pdf-vp">—</td></tr>
+    <tr><td>Custo produto (fornecedor)</td><td id="pdf-cp">—</td></tr>
+    <tr><td>Margem bruta</td><td id="pdf-mb">—</td></tr>
+    <tr><td>Taxa de pagamento</td><td id="pdf-tx">—</td></tr>
+    <tr class="pdf-tbl-highlight"><td>Lucro líquido por pedido</td><td id="pdf-ll">—</td></tr>
+    <tr class="pdf-tbl-highlight"><td>Margem líquida real</td><td id="pdf-ml">—</td></tr>
+  </table>
+
+  <div class="pdf-foot">Documento interno de simulação comercial — Bruto Cerâmica. Valores sujeitos a confirmação junto ao fornecedor e à operadora de pagamento no momento do fechamento.</div>
 </div>
 
 <!-- 02 · FRETE -->
@@ -1831,6 +1900,31 @@ function tab(id,el){
   if(id==='salvos') carregarCenarios();
 }
 
+function exportarPDF(){
+  const prodNome=S.prodName||($('p-prod')?$('p-prod').selectedOptions[0].textContent:'—');
+  $('pdf-date',new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}));
+  $('pdf-prod',prodNome);
+  $('pdf-disc',($('p-dsci').value||0)+'%');
+  const pfTxt=PFMODE==='padrao'?'Padrão'
+    :'À vista — '+($('pf-pct').value||0)+'% de desconto extra ('+(PFCAPTURE==='capturar'?'capturado como lucro':'repassado ao preço')+')';
+  $('pdf-pf',pfTxt);
+  $('pdf-mg',($('p-mgi').value||0)+'%');
+  $('pdf-area',($('p-area').value||0)+' m²');
+  $('pdf-pda',($('p-pda').value||0)+'% ('+(PDMODE==='absorver'?'Bruto absorve':'repassado ao cliente')+')');
+  const pgTxt=PGMODE==='pix'?'Pix à vista — '+($('pg-pixpct').value||0)+'% de desconto ao cliente'
+    :'Cartão parcelado sem juros — taxa de '+($('pg-cardpct').value||0)+'% assumida pela Bruto';
+  $('pdf-pg',pgTxt);
+  // resultados: reaproveita o texto já formatado (brl/pct) dos campos calculados em calcPrec()
+  $('pdf-pm2',$('r-pm2').textContent);
+  $('pdf-at',$('r-at').textContent);
+  $('pdf-vp',$('r-vp').textContent);
+  $('pdf-cp',$('r-cp').textContent);
+  $('pdf-mb',$('r-mb').textContent);
+  $('pdf-tx',$('r-tx').textContent);
+  $('pdf-ll',$('r-ll').textContent);
+  $('pdf-ml',$('r-ml').textContent);
+  window.print();
+}
 function selectProd(){ calcPrec(); }
 function setPD(m){
   PDMODE=m;
