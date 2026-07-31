@@ -455,9 +455,15 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
       <div class="ab" id="pf-md"><span class="ai">—</span><span>Padrão: você paga o fornecedor no prazo normal combinado, sem desconto adicional além do desconto atacado.</span></div>
       <div class="field" id="pf-pctwrap" style="display:none;margin-top:8px">
         <div class="fl">
-          <div class="tt"><span>Desconto extra à vista</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Desconto adicional que o fornecedor concede quando você paga à vista, além do desconto atacado já negociado. Esse ganho vira margem extra para a Bruto.</div></div>
+          <div class="tt"><span>Desconto extra à vista</span><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Desconto adicional que o fornecedor concede quando você paga à vista, além do desconto atacado já negociado.</div></div>
         </div>
         <div class="ig"><input type="number" id="pf-pct" value="5" min="0" max="20" step="0.5" oninput="calcPrec()"><div class="is">%</div></div>
+        <div class="sl" style="margin-top:12px">O que fazer com essa economia?</div>
+        <div class="tg-g">
+          <div class="tgb on" id="pf-cap-rp" onclick="setPFCap('repassar')">Repassar ao preço</div>
+          <div class="tgb" id="pf-cap-cp" onclick="setPFCap('capturar')">Manter preço, capturar como lucro</div>
+        </div>
+        <div class="ab" id="pf-cap-md" style="margin-top:8px"><span class="ai">—</span><span>Repassar ao preço: o preço de venda cai proporcionalmente, mantendo a margem % igual — você fica mais competitivo, mas não embolsa a economia.</span></div>
       </div>
       <div class="field">
         <div class="fl">
@@ -1727,6 +1733,7 @@ const ESPESSURA_M={
 let FM='incluso',REG='mei',RS='su',TF=40;
 let PDMODE='absorver'; // quem paga o material extra da perda de corte: 'absorver' (Bruto) ou 'repassar' (cliente)
 let PFMODE='padrao';   // condição de pagamento ao fornecedor: 'padrao' ou 'avista' (desconto extra)
+let PFCAPTURE='repassar'; // o que fazer com a economia do fornecedor à vista: 'repassar' ao preço ou 'capturar' como lucro extra
 let PGMODE='pix';       // forma de recebimento do cliente: 'pix' (desconto) ou 'cartao' (taxa assumida pela Bruto)
 const FB={se:0,su:0,co:0,ne:0,no:0}; // R$/kg por região — preenchido pelo usuário na interface (Feature 2), zero até então
 
@@ -1846,6 +1853,16 @@ function setPF(m){
     :'À vista: o fornecedor concede um desconto extra sobre o custo líquido quando você paga na hora. Esse ganho vira margem extra para a Bruto.')+'</span>';
   calcPrec();
 }
+function setPFCap(m){
+  PFCAPTURE=m;
+  $('pf-cap-rp').classList.toggle('on',m==='repassar');
+  $('pf-cap-cp').classList.toggle('on',m==='capturar');
+  const el=$('pf-cap-md');
+  el.innerHTML='<span class="ai">—</span><span>'+(m==='repassar'
+    ?'Repassar ao preço: o preço de venda cai proporcionalmente, mantendo a margem % igual — você fica mais competitivo, mas não embolsa a economia.'
+    :'Manter preço, capturar como lucro: o preço de venda fica travado como se o fornecedor fosse pago no padrão — a economia inteira vira margem líquida extra.')+'</span>';
+  calcPrec();
+}
 function setPG(m){
   PGMODE=m;
   $('pg-pix').classList.toggle('on',m==='pix');
@@ -1868,8 +1885,13 @@ function calcPrec(){
   const prodEl=$('p-prod'),dscEl=$('p-dsci');
   const prodSlug=prodEl?prodEl.value:'brick-eco-palha',disc=dscEl?+dscEl.value:0;
   const prodPrice=CUSTO_FORNECEDOR[prodSlug]||123.12;
+  const c0=prodPrice*(1-disc/100); // custo líquido sem o desconto extra à vista
   const pfPct=PFMODE==='avista'?(+$('pf-pct').value||0):0;
-  const c=prodPrice*(1-disc/100)*(1-pfPct/100);
+  const c=c0*(1-pfPct/100); // custo real pago ao fornecedor (o que a Bruto de fato desembolsa)
+  // custo-base usado para calcular o preço de venda: se "capturar", o preço fica
+  // travado como se o fornecedor fosse pago no padrão (c0) — a economia vira lucro,
+  // não desconto ao cliente. Se "repassar" (padrão), o preço já reflete o custo real (c).
+  const cBase=(PFMODE==='avista'&&PFCAPTURE==='capturar')?c0:c;
   const prodName=NOMES[prodSlug]||'Produto';
   S.prodSlug=prodSlug;
   $('p-cst-net','R$ '+c.toFixed(2)+'/m²');
@@ -1878,7 +1900,7 @@ function calcPrec(){
   const txEfetiva=PGMODE==='cartao'?(+$('pg-cardpct').value||0):(+$('pg-pixpct').value||0);
   $('p-tax').value=txEfetiva;
   const a=+$('p-area').value||0,tx=txEfetiva,pd=+$('p-pda').value||0;
-  const pm2=mg>=100?c*2:c/(1-mg/100);
+  const pm2=mg>=100?cBase*2:cBase/(1-mg/100);
   // aT = área real comprada (com perda de corte). O custo do produto (cp) sempre
   // usa aT, porque é o material que a Bruto de fato precisa comprar. O valor
   // cobrado do cliente (vp) depende de quem absorve essa perda (toggle PD):
