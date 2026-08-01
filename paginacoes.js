@@ -423,12 +423,17 @@
     for (var r = -1; r < rows; r++) {
       for (var c = -1; c < cols; c++) {
         var X = c * stepB, Y = r * stepB;
-        rects.push({ x: X, y: Y, w: legLen, h: legW, rot: 0 });
+        // rot 0.001 (em vez de 0): imperceptível visualmente, mas força o
+        // motor a usar o recorte proporcional por peça (background-size:
+        // cover) em vez do truque de "janela" na textura contínua da parede
+        // — necessário porque essas peças não têm a proporção real do
+        // tijolo fotografado, e a janela contínua as deixava esticadas.
+        rects.push({ x: X, y: Y, w: legLen, h: legW, rot: 0.001 });
         rects.push({ x: X + B - legW, y: Y, w: legW, h: legLen, rot: 90 });
-        rects.push({ x: X + legW, y: Y + B - legW, w: legLen, h: legW, rot: 0 });
+        rects.push({ x: X + legW, y: Y + B - legW, w: legLen, h: legW, rot: 0.001 });
         rects.push({ x: X, y: Y + legW, w: legW, h: legLen, rot: 90 });
         var centerSide = Math.max(4, legLen - gap);
-        rects.push({ x: X + legW, y: Y + legW, w: centerSide, h: centerSide, rot: 0 });
+        rects.push({ x: X + legW, y: Y + legW, w: centerSide, h: centerSide, rot: 0.001 });
       }
     }
     return rects;
@@ -473,7 +478,10 @@
       var off = (Math.abs(r) % 2) * (stepX / 2);
       for (var c = -2; c < cols; c++) {
         var x = c * stepX - off;
-        rects.push({ x: x, y: y, w: S, h: S, rot: 0 });
+        // rot 0.001: mesma correção do Cata-vento -- peça quadrada, não usa
+        // a proporção real do tijolo, então precisa do recorte por peça
+        // (cover) em vez da janela contínua na parede, senão distorce.
+        rects.push({ x: x, y: y, w: S, h: S, rot: 0.001 });
       }
     }
     return rects;
@@ -660,7 +668,14 @@
         var face = Math.floor(hashPos(b.x, b.y, 1) * texturas.length) % texturas.length;
         var gira = hashPos(b.x, b.y, 2) > 0.5;
         el.style.backgroundImage = "url('" + texturas[face] + "')";
-        el.style.backgroundSize = '100% 100%';
+        // cover em vez de "100% 100%": recorta proporcionalmente ao centro
+        // em vez de esticar a foto pra caber na caixa. Pra peças com a
+        // proporção natural do tijolo (a maioria dos padrões já existentes)
+        // o resultado é idêntico -- só passa a importar (e corrige a
+        // distorção) nas peças com formato diferente, como os quadrados de
+        // Escama e Cata-vento.
+        el.style.backgroundSize = 'cover';
+        el.style.backgroundPosition = '50% 50%';
         var ang = (b.rot || 0) + (gira ? 180 : 0);
         if (ang) {
           el.style.transformOrigin = 'center center';
