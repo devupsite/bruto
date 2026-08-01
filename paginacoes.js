@@ -113,7 +113,33 @@
     { id: 'espinha',    label: 'Espinha de Peixe', cat: 'geometrico', nivel: 3,
       desc: 'Peças em 45° alternadas — acabamento premium.' },
     { id: 'diagonal',   label: 'Diagonal',        cat: 'geometrico', nivel: 3,
-      desc: 'Amarrado girado em 45° — amplia visualmente e gera mais recortes.' }
+      desc: 'Amarrado girado em 45° — amplia visualmente e gera mais recortes.' },
+    { id: 'flandres',   label: 'Flandrês',        cat: 'corrido',    nivel: 2,
+      desc: 'Alternância de uma peça deitada e uma de topo em cada fiada. Padrão europeu clássico com textura visual rica.' },
+    { id: 'americano',  label: 'Americano',       cat: 'corrido',    nivel: 2,
+      desc: 'A cada 3 a 5 fiadas amarradas, uma fiada de topo. Cria listras horizontais de textura diferenciada.' },
+    { id: 'misto',      label: 'Misto',           cat: 'geometrico', nivel: 3,
+      desc: 'Alternância entre fiadas horizontais e fiadas verticais — dois planos de textura distintos.' },
+    { id: 'ingles',     label: 'Inglês',          cat: 'corrido',    nivel: 2,
+      desc: 'Fiadas alternadas de peças deitadas e fiadas inteiras de topo — um dos padrões mais antigos da alvenaria.' },
+    { id: 'inglescruzado', label: 'Inglês Cruzado', cat: 'corrido',  nivel: 3,
+      desc: 'Variação do Inglês em que as fiadas de topo se alternam com offset, criando cruzamentos diagonais sutis.' },
+    { id: 'catavento',  label: 'Cata-vento',      cat: 'geometrico', nivel: 3,
+      desc: 'Quatro peças envolvem um quadrado central em rotação — forte identidade visual.' },
+    { id: 'monge',      label: 'Monge',           cat: 'corrido',    nivel: 3,
+      desc: 'Dois tijolos deitados seguidos de um de topo em cada fiada, alternando o offset.' },
+    { id: 'jardim',     label: 'Jardim',          cat: 'corrido',    nivel: 2,
+      desc: 'Três tijolos deitados para cada um de topo — variação mais discreta do Monge.' },
+    { id: 'losango',    label: 'Losango',         cat: 'geometrico', nivel: 3,
+      desc: 'Paginação empilhada girada 45°, formando losangos entre as juntas.' },
+    { id: 'aleatorio',  label: 'Aleatório',       cat: 'especial',   nivel: 2,
+      desc: 'Peças em comprimentos variados sem padrão fixo de offset — resultado orgânico e rústico.' },
+    { id: 'diagonalcruzada', label: 'Diagonal Cruzada', cat: 'geometrico', nivel: 3,
+      desc: 'Duas camadas em diagonais opostas (+30° e −30°) sobrepostas, formando uma trama visual complexa.' },
+    { id: 'escama',     label: 'Escama',          cat: 'geometrico', nivel: 2,
+      desc: 'Peças quadradas sobrepostas em offset diagonal, imitando escamas de peixe.' },
+    { id: 'larga',      label: 'Junta Larga',     cat: 'corrido',    nivel: 1,
+      desc: 'Paginação amarrada com rejunte generoso — a junta vira elemento visual tão importante quanto o brick.' }
   ];
 
   var FILTROS = [
@@ -197,6 +223,299 @@
     });
   }
 
+  /* ---------- Geradores novos (item 25 padrões — branch feature/paginacoes-completas) ---------- */
+
+  function genFlandres(wallW, wallH, mw, mh, gap) {
+    // Alternância de peça deitada (stretcher) e peça de topo (header) em cada fiada.
+    var hw = mh * 1.2; // largura aproximada da peça "de topo"
+    var rects = [];
+    var stepY = mh + gap;
+    var rows = Math.ceil(wallH / stepY) + 2;
+    var unit = mw + gap + hw + gap;
+    for (var r = -1; r < rows; r++) {
+      var y = r * stepY;
+      var off = (Math.abs(r) % 2) * (unit / 2);
+      var cols = Math.ceil((wallW + unit * 2) / unit) + 2;
+      for (var c = -2; c < cols; c++) {
+        var x = c * unit - off;
+        rects.push({ x: x, y: y, w: mw, h: mh, rot: 0 });
+        rects.push({ x: x + mw + gap, y: y, w: hw, h: mh, rot: 0 });
+      }
+    }
+    return rects;
+  }
+
+  function genIngles(wallW, wallH, mw, mh, gap) {
+    // Fiadas inteiras de topo alternando com fiadas inteiras deitadas.
+    var hw = mh * 1.2;
+    var rects = [];
+    var stepY = mh + gap;
+    var rows = Math.ceil(wallH / stepY) + 2;
+    for (var r = -1; r < rows; r++) {
+      var y = r * stepY;
+      var stretcherRow = (Math.abs(r) % 2) === 0;
+      var pieceW = stretcherRow ? mw : hw;
+      var stepX = pieceW + gap;
+      var cols = Math.ceil((wallW + stepX * 2) / stepX) + 2;
+      for (var c = -2; c < cols; c++) {
+        rects.push({ x: c * stepX, y: y, w: pieceW, h: mh, rot: 0 });
+      }
+    }
+    return rects;
+  }
+
+  function genInglesCruzado(wallW, wallH, mw, mh, gap) {
+    // Igual ao Inglês, mas a fiada de topo alterna offset de meio-header a cada
+    // ocorrência, criando o cruzamento diagonal sutil entre as juntas verticais.
+    var hw = mh * 1.2;
+    var rects = [];
+    var stepY = mh + gap;
+    var rows = Math.ceil(wallH / stepY) + 2;
+    var headerRowCount = 0;
+    for (var r = -1; r < rows; r++) {
+      var y = r * stepY;
+      var stretcherRow = (Math.abs(r) % 2) === 0;
+      if (stretcherRow) {
+        var stepXs = mw + gap;
+        var colsS = Math.ceil((wallW + stepXs * 2) / stepXs) + 2;
+        for (var c = -2; c < colsS; c++) {
+          rects.push({ x: c * stepXs, y: y, w: mw, h: mh, rot: 0 });
+        }
+      } else {
+        headerRowCount++;
+        var stepXh = hw + gap;
+        var offH = (headerRowCount % 2) * (stepXh / 2);
+        var colsH = Math.ceil((wallW + stepXh * 2) / stepXh) + 2;
+        for (var c2 = -2; c2 < colsH; c2++) {
+          rects.push({ x: c2 * stepXh - offH, y: y, w: hw, h: mh, rot: 0 });
+        }
+      }
+    }
+    return rects;
+  }
+
+  function genAmericano(wallW, wallH, mw, mh, gap) {
+    // Fiadas amarradas normais, com uma fiada inteira de topo a cada 4 fiadas.
+    var hw = mh * 1.2;
+    var rects = [];
+    var stepY = mh + gap;
+    var rows = Math.ceil(wallH / stepY) + 2;
+    var HEADER_EVERY = 4;
+    for (var r = -1; r < rows; r++) {
+      var y = r * stepY;
+      var rr = ((r % HEADER_EVERY) + HEADER_EVERY) % HEADER_EVERY;
+      if (rr === 0) {
+        var stepXh = hw + gap;
+        var colsH = Math.ceil((wallW + stepXh * 2) / stepXh) + 2;
+        for (var c = -2; c < colsH; c++) {
+          rects.push({ x: c * stepXh, y: y, w: hw, h: mh, rot: 0 });
+        }
+      } else {
+        var stepXs = mw + gap;
+        var off = (Math.floor(r / HEADER_EVERY) % 2) * (stepXs / 2);
+        var colsS = Math.ceil((wallW + stepXs * 2) / stepXs) + 2;
+        for (var c2 = -2; c2 < colsS; c2++) {
+          rects.push({ x: c2 * stepXs - off, y: y, w: mw, h: mh, rot: 0 });
+        }
+      }
+    }
+    return rects;
+  }
+
+  function genMonge(wallW, wallH, mw, mh, gap) {
+    // Duas peças deitadas + uma de topo por unidade, offset alternando a cada fiada.
+    var hw = mh * 1.2;
+    var rects = [];
+    var stepY = mh + gap;
+    var rows = Math.ceil(wallH / stepY) + 2;
+    var unit = mw * 2 + gap * 3 + hw;
+    for (var r = -1; r < rows; r++) {
+      var y = r * stepY;
+      var off = (Math.abs(r) % 2) * (unit / 2);
+      var cols = Math.ceil((wallW + unit * 2) / unit) + 2;
+      for (var c = -2; c < cols; c++) {
+        var x = c * unit - off;
+        rects.push({ x: x, y: y, w: mw, h: mh, rot: 0 });
+        rects.push({ x: x + mw + gap, y: y, w: mw, h: mh, rot: 0 });
+        rects.push({ x: x + mw * 2 + gap * 2, y: y, w: hw, h: mh, rot: 0 });
+      }
+    }
+    return rects;
+  }
+
+  function genJardim(wallW, wallH, mw, mh, gap) {
+    // Três peças deitadas + uma de topo — variação mais discreta do Monge.
+    var hw = mh * 1.2;
+    var rects = [];
+    var stepY = mh + gap;
+    var rows = Math.ceil(wallH / stepY) + 2;
+    var unit = mw * 3 + gap * 4 + hw;
+    for (var r = -1; r < rows; r++) {
+      var y = r * stepY;
+      var off = (Math.abs(r) % 2) * (unit / 2);
+      var cols = Math.ceil((wallW + unit * 2) / unit) + 2;
+      for (var c = -2; c < cols; c++) {
+        var x = c * unit - off;
+        rects.push({ x: x, y: y, w: mw, h: mh, rot: 0 });
+        rects.push({ x: x + mw + gap, y: y, w: mw, h: mh, rot: 0 });
+        rects.push({ x: x + (mw + gap) * 2, y: y, w: mw, h: mh, rot: 0 });
+        rects.push({ x: x + (mw + gap) * 3, y: y, w: hw, h: mh, rot: 0 });
+      }
+    }
+    return rects;
+  }
+
+  function genLosango(wallW, wallH, mw, mh, gap) {
+    // Igual ao Diagonal, mas a base é empilhada (sem offset) — forma losangos
+    // regulares em vez do recorte irregular do amarrado girado.
+    var R = Math.ceil(Math.sqrt(wallW * wallW + wallH * wallH)) + mw * 2;
+    var base = genCorrido(R, R, mw, mh, gap, 0);
+    var cos = Math.SQRT1_2, sin = Math.SQRT1_2;
+    var half = R / 2;
+    return base.map(function (b) {
+      var cx = b.x + b.w / 2 - half;
+      var cy = b.y + b.h / 2 - half;
+      var nx = cx * cos - cy * sin + wallW / 2;
+      var ny = cx * sin + cy * cos + wallH / 2;
+      return { x: nx - b.w / 2, y: ny - b.h / 2, w: b.w, h: b.h, rot: 45 };
+    });
+  }
+
+  function seededRand(seed) {
+    var x = Math.sin(seed * 12.9898) * 43758.5453;
+    return x - Math.floor(x);
+  }
+
+  function genAleatorio(wallW, wallH, mw, mh, gap) {
+    // Peças de comprimento variável, sem offset fixo — irregularidade
+    // controlada por um pseudo-random determinístico (estável entre re-renders,
+    // não usa Math.random() puro pra não "piscar" a cada resize).
+    var rects = [];
+    var stepY = mh + gap;
+    var rows = Math.ceil(wallH / stepY) + 2;
+    for (var r = -1; r < rows; r++) {
+      var y = r * stepY;
+      var x = -mw * 2;
+      var seed = r * 97 + 1;
+      var guard = 0;
+      while (x < wallW + mw * 2 && guard < 200) {
+        var variance = 0.55 + seededRand(seed) * 0.9; // 0.55x–1.45x da largura padrão
+        var w = mw * variance;
+        rects.push({ x: x, y: y, w: w, h: mh, rot: 0 });
+        x += w + gap;
+        seed += 1.7;
+        guard++;
+      }
+    }
+    return rects;
+  }
+
+  function genCataVento(wallW, wallH, mw, mh, gap) {
+    // Módulo quadrado: 4 peças em rotação ao redor de um quadrado central.
+    var rects = [];
+    var B = mw; // lado do módulo
+    var legW = mh; // espessura da peça
+    var legLen = B - legW;
+    if (legLen <= 0) legLen = B * 0.5; // guarda contra proporções degeneradas
+    var stepB = B + gap;
+    var rows = Math.ceil(wallH / stepB) + 2;
+    var cols = Math.ceil(wallW / stepB) + 2;
+    for (var r = -1; r < rows; r++) {
+      for (var c = -1; c < cols; c++) {
+        var X = c * stepB, Y = r * stepB;
+        rects.push({ x: X, y: Y, w: legLen, h: legW, rot: 0 });
+        rects.push({ x: X + B - legW, y: Y, w: legW, h: legLen, rot: 90 });
+        rects.push({ x: X + legW, y: Y + B - legW, w: legLen, h: legW, rot: 0 });
+        rects.push({ x: X, y: Y + legW, w: legW, h: legLen, rot: 90 });
+        var centerSide = Math.max(4, legLen - gap);
+        rects.push({ x: X + legW, y: Y + legW, w: centerSide, h: centerSide, rot: 0 });
+      }
+    }
+    return rects;
+  }
+
+  function genDiagonalAngulo(wallW, wallH, mw, mh, gap, angleDeg, offsetFrac) {
+    var R = Math.ceil(Math.sqrt(wallW * wallW + wallH * wallH)) + mw * 2;
+    var base = genCorrido(R, R, mw, mh, gap, offsetFrac == null ? 0.5 : offsetFrac);
+    var rad = angleDeg * Math.PI / 180;
+    var cos = Math.cos(rad), sin = Math.sin(rad);
+    var half = R / 2;
+    return base.map(function (b) {
+      var cx = b.x + b.w / 2 - half;
+      var cy = b.y + b.h / 2 - half;
+      var nx = cx * cos - cy * sin + wallW / 2;
+      var ny = cx * sin + cy * cos + wallH / 2;
+      return { x: nx - b.w / 2, y: ny - b.h / 2, w: b.w, h: b.h, rot: angleDeg };
+    });
+  }
+
+  function genDiagonalCruzada(wallW, wallH, mw, mh, gap) {
+    // Duas camadas diagonais opostas (+30°/-30°), com gap ampliado em cada
+    // camada pra sobra "respirar" entre as duas tramas sobrepostas.
+    var gapWide = gap * 3;
+    var layer1 = genDiagonalAngulo(wallW, wallH, mw, mh, gapWide, 30, 0.5);
+    var layer2 = genDiagonalAngulo(wallW, wallH, mw, mh, gapWide, -30, 0.5);
+    return layer1.concat(layer2);
+  }
+
+  function genEscama(wallW, wallH, mw, mh, gap) {
+    // Quadrados sobrepostos em offset diagonal, imitando escamas — cada fiada
+    // é pintada por cima da anterior (array em ordem topo→base).
+    var rects = [];
+    var S = mw * 0.8;
+    var overlapY = S * 0.35;
+    var stepY = S - overlapY;
+    var stepX = S + gap;
+    var rows = Math.ceil(wallH / stepY) + 3;
+    var cols = Math.ceil(wallW / stepX) + 3;
+    for (var r = -1; r < rows; r++) {
+      var y = r * stepY;
+      var off = (Math.abs(r) % 2) * (stepX / 2);
+      for (var c = -2; c < cols; c++) {
+        var x = c * stepX - off;
+        rects.push({ x: x, y: y, w: S, h: S, rot: 0 });
+      }
+    }
+    return rects;
+  }
+
+  function genMisto(wallW, wallH, mw, mh, gap) {
+    // Faixas alternadas: fiadas horizontais amarradas / peças verticais.
+    var rects = [];
+    var bandH = mh * 3 + gap * 3;
+    var bands = Math.ceil(wallH / bandH) + 2;
+    for (var b = -1; b < bands; b++) {
+      var bandY = b * bandH;
+      var horizontal = (Math.abs(b) % 2) === 0;
+      if (horizontal) {
+        var rowsInBand = 3;
+        for (var i = 0; i < rowsInBand; i++) {
+          var y = bandY + i * (mh + gap);
+          var off = (i % 2) * (mw + gap) / 2;
+          var stepX = mw + gap;
+          var cols = Math.ceil((wallW + stepX * 2) / stepX) + 2;
+          for (var c = -2; c < cols; c++) {
+            rects.push({ x: c * stepX - off, y: y, w: mw, h: mh, rot: 0 });
+          }
+        }
+      } else {
+        var stepXv = mh + gap;
+        var stepYv = mw + gap;
+        var colsV = Math.ceil(wallW / stepXv) + 2;
+        var rowsV = Math.ceil(bandH / stepYv) + 2;
+        for (var cv = -1; cv < colsV; cv++) {
+          var offv = (Math.abs(cv) % 2) * stepYv * 0.5;
+          for (var rv = -1; rv < rowsV; rv++) {
+            var cx = cv * stepXv + mh / 2;
+            var cy = bandY + rv * stepYv - offv + mw / 2;
+            rects.push({ x: cx - mw / 2, y: cy - mh / 2, w: mw, h: mh, rot: 90 });
+          }
+        }
+      }
+    }
+    return rects;
+  }
+
   function genCesta(wallW, wallH, mw, mh, gap) {
     // blocos quadrados (lado = largura da peça) alternando k peças
     // deitadas e k peças em pé, em xadrez
@@ -276,6 +595,19 @@
       case 'cesta':      return genCesta(wallW, wallH, mw, mh, gap);
       case 'diagonal':   return genDiagonal(wallW, wallH, mw, mh, gap);
       case 'espinha':    return genEspinha(wallW, wallH, mw * 1.35, gap);
+      case 'flandres':        return genFlandres(wallW, wallH, mw, mh, gap);
+      case 'ingles':           return genIngles(wallW, wallH, mw, mh, gap);
+      case 'inglescruzado':    return genInglesCruzado(wallW, wallH, mw, mh, gap);
+      case 'americano':        return genAmericano(wallW, wallH, mw, mh, gap);
+      case 'monge':            return genMonge(wallW, wallH, mw, mh, gap);
+      case 'jardim':           return genJardim(wallW, wallH, mw, mh, gap);
+      case 'losango':          return genLosango(wallW, wallH, mw, mh, gap);
+      case 'aleatorio':        return genAleatorio(wallW, wallH, mw, mh, gap);
+      case 'catavento':        return genCataVento(wallW, wallH, mw, mh, gap);
+      case 'diagonalcruzada':  return genDiagonalCruzada(wallW, wallH, mw, mh, gap);
+      case 'escama':           return genEscama(wallW, wallH, mw, mh, gap);
+      case 'misto':            return genMisto(wallW, wallH, mw, mh, gap);
+      case 'larga':            return genCorrido(wallW, wallH, mw, mh, gap * 2.5, 0.5);
       case 'corrido12':
       default:           return genCorrido(wallW, wallH, mw, mh, gap, 0.5);
     }
@@ -395,6 +727,18 @@
     if (id === 'cesta')      { s = r(4, 4, 20, 6) + r(4, 11, 20, 6) + r(4, 18, 20, 6) + r(26, 4, 6, 20) + r(33, 4, 6, 20) + r(40, 4, 6, 20) + r(48, 4, 20, 6) + r(48, 11, 20, 6) + r(48, 18, 20, 6); }
     if (id === 'espinha')    { s = '<g transform="rotate(45 34 20)">' + r(10, 2, 18, 8) + r(28, 2, 8, 18) + r(18, 11, 18, 8) + r(36, 11, 8, 18) + r(26, 20, 18, 8) + r(0, 11, 8, 18) + '</g>'; }
     if (id === 'diagonal')   { s = '<g transform="rotate(45 34 20)">'; for (i = -1; i < 3; i++) for (c = -1; c < 3; c++) s += r(2 + c * 22 + (((i % 2) + 2) % 2) * 11, 2 + i * 11, 20, 9); s += '</g>'; }
+    if (id === 'flandres' || id === 'ingles')   { for (i = 0; i < 3; i++) { s += r(4, 4 + i * 11, 20, 9); s += r(28, 4 + i * 11, 9, 9); s += r(41, 4 + i * 11, 20, 9); } }
+    if (id === 'inglescruzado') { for (i = 0; i < 3; i++) { var hx = (i % 2) * 5; s += r(4, 4 + i * 11, 20, 9); s += r(28 + hx, 4 + i * 11, 9, 9); s += r(41 + hx, 4 + i * 11, 20, 9); } }
+    if (id === 'americano')  { s = r(4, 4, 60, 8) + r(4, 15, 28, 8) + r(36, 15, 28, 8) + r(4, 26, 28, 8) + r(36, 26, 28, 8); }
+    if (id === 'monge')      { for (i = 0; i < 2; i++) { var mx = (i % 2) * 8; s += r(4 + mx, 4 + i * 15, 18, 9) + r(24 + mx, 4 + i * 15, 18, 9) + r(44 + mx, 4 + i * 15, 9, 9); } }
+    if (id === 'jardim')     { s = r(4, 6, 14, 9) + r(20, 6, 14, 9) + r(36, 6, 14, 9) + r(52, 6, 8, 9) + r(4, 21, 14, 9) + r(20, 21, 14, 9) + r(36, 21, 14, 9) + r(52, 21, 8, 9); }
+    if (id === 'losango')    { s = '<g transform="rotate(45 34 20)">'; for (i = -1; i < 3; i++) for (c = -1; c < 3; c++) s += r(2 + c * 22, 2 + i * 11, 20, 9); s += '</g>'; }
+    if (id === 'aleatorio')  { s = r(4, 4, 14, 9) + r(21, 4, 24, 9) + r(48, 4, 12, 9) + r(4, 15, 26, 9) + r(33, 15, 16, 9) + r(52, 15, 10, 9) + r(4, 26, 20, 9) + r(27, 26, 30, 9); }
+    if (id === 'catavento')  { s = r(4, 4, 20, 8) + r(26, 4, 8, 20) + r(12, 26, 20, 8) + r(4, 12, 8, 20) + r(12, 12, 8, 8); }
+    if (id === 'diagonalcruzada') { s = '<g transform="rotate(30 34 20)">' + r(4, 18, 60, 5) + '</g><g transform="rotate(-30 34 20)">' + r(4, 18, 60, 5) + '</g><g transform="rotate(30 34 20)">' + r(4, 8, 60, 5) + '</g><g transform="rotate(-30 34 20)">' + r(4, 28, 60, 5) + '</g>'; }
+    if (id === 'escama')     { for (i = 0; i < 2; i++) for (c = -1; c < 4; c++) s += r(4 + c * 17 + (i % 2) * 8.5, 4 + i * 14, 15, 15); }
+    if (id === 'misto')      { s = r(4, 4, 60, 6) + r(4, 12, 60, 6) + r(4, 22, 9, 14) + r(15, 22, 9, 14) + r(26, 22, 9, 14) + r(37, 22, 9, 14) + r(48, 22, 9, 14); }
+    if (id === 'larga')      { for (i = 0; i < 3; i++) for (c = -1; c < 3; c++) s += r(5 + c * 24 + (i % 2) * 12, 5 + i * 12, 19, 8); }
     return '<svg viewBox="0 0 68 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + s + '</svg>';
   }
 
