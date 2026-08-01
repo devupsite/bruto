@@ -2586,3 +2586,72 @@ qualquer sessão futura não tratar isso como oversight a corrigir.
 **Se algum dia isso for revisitado:** qualquer rastreio nessas páginas
 deveria vir de uma tag customizada que NÃO usa Correspondência
 Avançada Automática, e nunca do Meta Pixel padrão.
+
+---
+
+## 61. Decisão: regras de cor pros 25 padrões bicolor do simulador de paginações (01/08/2026)
+
+Contexto: até aqui só 3 padrões eram bicolor (Xadrez Bicolor, Módulo
+Quadrado, Gótico), com pareamento automático de segunda cor
+(`getSegundaCor` em `paginacoes.js` — pega outra peça da mesma coleção,
+"meio caminho" na lista) e, desde a sessão de 31/07→01/08, um seletor
+manual pra sobrescrever essa escolha.
+
+Decidido expandir bicolor pros 25 padrões, mas não com a mesma regra
+de alternância pra todos — pesquisa validou que cada família de
+padrão tem uma convenção real de mercado/histórica diferente:
+
+- **Família Clássico (Flandrês, Inglês, Inglês Cruzado, Americano,
+  Monge, Jardim, Gótico):** peça "de topo" recebe a cor de destaque, a
+  "deitada" fica na cor base — é o chamado *diaper bond*, técnica
+  documentada desde alvenaria Tudor (peças de topo vitrificadas/mais
+  escuras criando losangos). Já é o que o Gótico faz hoje; estender
+  pros outros 6. Inglês/Inglês Cruzado/Americano geram listra
+  horizontal (fiada inteira de topo); Flandrês/Monge/Jardim geram
+  losango/pintado (peça de topo isolada dentro da fiada).
+- **Família Corrido (Amarrado, Terço/Quarto Corrido, Fiadas Duplas,
+  Junta a Prumo, Junta Larga):** xadrez por posição (linha+coluna).
+- **Família Diagonal (Diagonal, Losango):** faixa/losango na diagonal,
+  não xadrez por peça — mesma lógica do diaper tradicional aplicada a
+  45°.
+- **Vertical:** listra por coluna.
+- **Espinha de Peixe:** ⚠️ mudança em relação ao que eu tinha proposto
+  antes da pesquisa — NÃO colorir por orientação da perna (V). A
+  convenção de mercado real é mistura de tom/contraste ou faixa
+  diagonal. Manter "por orientação" só como opção avançada, não
+  default.
+- **Cata-vento:** ⚠️ mudança — colorir só a peça CENTRAL do módulo como
+  destaque, não alternar módulos inteiros. É a convenção documentada
+  (centro mais escuro que as peças ao redor).
+- **Módulo Quadrado:** alternância por módulo inteiro — mantém como já
+  está.
+- **Misto:** cor por faixa (banda horizontal vs. banda vertical).
+- **Aleatório:** não é alternância fixa — mistura aleatória ponderada,
+  simulando no mínimo 3 tons (não 2), proporção default 70/30. Regra
+  vem de norma real de blend de tijolo (Brick Development Association
+  UK e Brick Industry Association EUA recomendam mínimo de 3
+  pacotes/cubos pra evitar manchas/faixas visíveis).
+- **Padrões "complexos" (Cesta, Escama, Diagonal Cruzada, e em menor
+  grau Cata-vento):** nascem com CONTRASTE BAIXO por padrão (tons
+  próximos), não alto contraste. Orientação profissional (ArtFasad e
+  outras fontes) é explícita: duas cores de alto contraste nesses
+  padrões em parede grande vira "ruído visual" — reservar alto
+  contraste pra painel pequeno (~2m) ou uso opcional.
+- **Xadrez Bicolor:** já é bicolor por definição, sem mudança.
+
+Ajuste também no pareamento automático (`getSegundaCor`): tendência de
+mercado 2025-2026 (múltiplas fontes convergindo) é contraste sutil,
+tons quentes próximos, não preto-no-branco. Quando implementado, a
+função deveria preferir cor próxima em tom dentro da coleção, não
+qualquer item "meio caminho" na lista como hoje.
+
+**Status: decisão de regras registrada, código ainda NÃO implementado.**
+Isso é só o registro da pesquisa/decisão de design — a extensão real
+do motor (`buildLayout`, `renderWall`, ícones, CTAs) pros 22 padrões
+que ainda não são bicolor fica pra uma próxima sessão.
+
+**Importante — NÃO atualizar a KB de atendimento (`atendimento/index.html`,
+chave `paginacoes`) com essa nova capacidade até o código estar de fato
+publicado.** Essa KB alimenta o atendimento ao cliente; anunciar bicolor
+em todos os 25 padrões antes de existir no site arrisca um consultor
+prometer algo que ainda não está lá.
