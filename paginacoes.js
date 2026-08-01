@@ -93,6 +93,23 @@
     return col.itens.filter(function (b) { return b.id === id; })[0] || col.itens[0];
   }
 
+  function getSegundaCor(brickId) {
+    // Padrões bicolor não têm seletor de segunda cor na interface (ainda) --
+    // escolhe automaticamente outra peça da MESMA coleção, distante o
+    // suficiente na lista pra dar contraste (ex.: numa coleção com 11 itens,
+    // pega a peça ~5-6 posições à frente, ciclando). Determinístico: a
+    // mesma peça de base sempre resulta na mesma parceira, sem variar a
+    // cada render.
+    var col = colecaoDe(brickId);
+    var itens = col.itens;
+    var idx = -1;
+    for (var i = 0; i < itens.length; i++) { if (itens[i].id === brickId) { idx = i; break; } }
+    if (idx < 0) idx = 0;
+    var offset = Math.max(1, Math.floor(itens.length / 2));
+    var idxB = (idx + offset) % itens.length;
+    return itens[idxB];
+  }
+
   // Padrões — cat segue a taxonomia do catálogo de paginações
   // (corrido / geometrico / especial); nivel: 1 fácil · 2 médio · 3 avançado
   var PATTERNS = [
@@ -139,7 +156,13 @@
     { id: 'escama',     label: 'Escama',          cat: 'geometrico', nivel: 2,
       desc: 'Peças quadradas sobrepostas em offset diagonal, imitando escamas de peixe.' },
     { id: 'larga',      label: 'Junta Larga',     cat: 'corrido',    nivel: 1,
-      desc: 'Paginação amarrada com rejunte generoso — a junta vira elemento visual tão importante quanto o brick.' }
+      desc: 'Paginação amarrada com rejunte generoso — a junta vira elemento visual tão importante quanto o brick.' },
+    { id: 'xadrezbicolor', label: 'Xadrez Bicolor', cat: 'especial', nivel: 1, bicolor: true,
+      desc: 'Alternância de dois tons de brick no padrão amarrado — explora cores contrastantes da mesma linha.' },
+    { id: 'modquadrado', label: 'Módulo Quadrado', cat: 'especial', nivel: 2, bicolor: true,
+      desc: 'Grupos de três peças formam módulos verticais, alternados em dois tons — efeito modular e preciso.' },
+    { id: 'gotico',      label: 'Gótico',          cat: 'especial', nivel: 3, bicolor: true,
+      desc: 'Uma peça deitada e uma de topo em cada fiada, bicolor — padrão medieval de grande riqueza visual.' }
   ];
 
   var FILTROS = [
@@ -487,6 +510,71 @@
     return rects;
   }
 
+  function genXadrezBicolor(wallW, wallH, mw, mh, gap) {
+    // Amarrado normal (igual corrido12), mas cada peça carrega colorIdx
+    // 0 ou 1 num xadrez real -- considera o deslocamento de meia-peça de
+    // cada fiada pra alternância ficar em diagonal, não em coluna reta.
+    var rects = [];
+    var stepY = mh + gap;
+    var stepX = mw + gap;
+    var rows = Math.ceil(wallH / stepY) + 2;
+    for (var r = -1; r < rows; r++) {
+      var y = r * stepY;
+      var off = (Math.abs(r) % 2) * (mw * 0.5);
+      var cols = Math.ceil((wallW + mw * 2) / stepX) + 2;
+      for (var c = -2; c < cols; c++) {
+        var x = c * stepX - off;
+        var colorIdx = ((Math.abs(r) % 2) + (((c % 2) + 2) % 2)) % 2;
+        rects.push({ x: x, y: y, w: mw, h: mh, rot: 0, colorIdx: colorIdx });
+      }
+    }
+    return rects;
+  }
+
+  function genModuloQuadrado(wallW, wallH, mw, mh, gap) {
+    // Módulos verticais de 3 peças empilhadas (mw de largura, 3×mh de
+    // altura), lado a lado, alternando colorIdx a cada módulo.
+    var rects = [];
+    var moduleH = mh * 3 + gap * 2;
+    var stepX = mw + gap;
+    var stepY = moduleH + gap;
+    var rows = Math.ceil(wallH / stepY) + 2;
+    var cols = Math.ceil(wallW / stepX) + 2;
+    for (var r = -1; r < rows; r++) {
+      for (var c = -1; c < cols; c++) {
+        var X = c * stepX;
+        var Y = r * stepY;
+        var colorIdx = ((r + c) % 2 + 2) % 2;
+        for (var i = 0; i < 3; i++) {
+          rects.push({ x: X, y: Y + i * (mh + gap), w: mw, h: mh, rot: 0, colorIdx: colorIdx });
+        }
+      }
+    }
+    return rects;
+  }
+
+  function genGotico(wallW, wallH, mw, mh, gap) {
+    // Mesma geometria do Flandrês (deitada + topo em cada fiada), mas cada
+    // peça de topo usa colorIdx 1 -- contraste entre a fiada corrida e a
+    // peça de topo, como descrito ("uma peça deitada e uma de topo... bicolor").
+    var hw = mh * 1.2;
+    var rects = [];
+    var stepY = mh + gap;
+    var rows = Math.ceil(wallH / stepY) + 2;
+    var unit = mw + gap + hw + gap;
+    for (var r = -1; r < rows; r++) {
+      var y = r * stepY;
+      var off = (Math.abs(r) % 2) * (unit / 2);
+      var cols = Math.ceil((wallW + unit * 2) / unit) + 2;
+      for (var c = -2; c < cols; c++) {
+        var x = c * unit - off;
+        rects.push({ x: x, y: y, w: mw, h: mh, rot: 0, colorIdx: 0 });
+        rects.push({ x: x + mw + gap, y: y, w: hw, h: mh, rot: 0, colorIdx: 1 });
+      }
+    }
+    return rects;
+  }
+
   function genMisto(wallW, wallH, mw, mh, gap) {
     // Faixas alternadas: fiadas horizontais amarradas / peças verticais.
     var rects = [];
@@ -616,6 +704,9 @@
       case 'escama':           return genEscama(wallW, wallH, mw, mh, gap);
       case 'misto':            return genMisto(wallW, wallH, mw, mh, gap);
       case 'larga':            return genCorrido(wallW, wallH, mw, mh, gap * 2.5, 0.5);
+      case 'xadrezbicolor':    return genXadrezBicolor(wallW, wallH, mw, mh, gap);
+      case 'modquadrado':      return genModuloQuadrado(wallW, wallH, mw, mh, gap);
+      case 'gotico':           return genGotico(wallW, wallH, mw, mh, gap);
       case 'corrido12':
       default:           return genCorrido(wallW, wallH, mw, mh, gap, 0.5);
     }
@@ -651,6 +742,20 @@
     // 1:1, com giro opcional de 180° — como um lote real assentado.
     // Itens sem `texturas` mantêm a janela reveladora original.
     var texturas = peca.texturas || null;
+
+    // Padrões bicolor (Xadrez Bicolor, Módulo Quadrado, Gótico): peças com
+    // colorIdx === 1 usam uma segunda cor, escolhida automaticamente na
+    // mesma coleção (ver getSegundaCor). Peças sem colorIdx (todos os
+    // outros padrões) seguem exatamente como antes — nada muda pra eles.
+    var patternDef = null;
+    for (var pi = 0; pi < PATTERNS.length; pi++) { if (PATTERNS[pi].id === state.pattern) { patternDef = PATTERNS[pi]; break; } }
+    var pecaB = null, texturasB = null, urlB = null;
+    if (patternDef && patternDef.bicolor) {
+      pecaB = getSegundaCor(state.brickId);
+      texturasB = pecaB.texturas || null;
+      urlB = "url('" + textureUrl(pecaB.id) + "')";
+    }
+
     function hashPos(x, y, salt) {
       var v = Math.sin(x * 127.1 + y * 311.7 + salt * 74.77) * 43758.5453;
       return v - Math.floor(v);
@@ -664,10 +769,14 @@
       el.style.width = b.w + 'px';
       el.style.height = b.h + 'px';
 
-      if (texturas) {
-        var face = Math.floor(hashPos(b.x, b.y, 1) * texturas.length) % texturas.length;
+      var usaSegundaCor = b.colorIdx === 1 && pecaB;
+      var texturasAtivo = usaSegundaCor ? texturasB : texturas;
+      var urlAtivo = usaSegundaCor ? urlB : url;
+
+      if (texturasAtivo) {
+        var face = Math.floor(hashPos(b.x, b.y, 1) * texturasAtivo.length) % texturasAtivo.length;
         var gira = hashPos(b.x, b.y, 2) > 0.5;
-        el.style.backgroundImage = "url('" + texturas[face] + "')";
+        el.style.backgroundImage = "url('" + texturasAtivo[face] + "')";
         // cover em vez de "100% 100%": recorta proporcionalmente ao centro
         // em vez de esticar a foto pra caber na caixa. Pra peças com a
         // proporção natural do tijolo (a maioria dos padrões já existentes)
@@ -684,14 +793,18 @@
       } else if (b.rot) {
         el.style.transformOrigin = 'center center';
         el.style.transform = 'rotate(' + b.rot + 'deg)';
-        el.style.backgroundImage = url;
+        el.style.backgroundImage = urlAtivo;
         el.style.backgroundSize = 'cover';
         el.style.backgroundPosition = '50% 50%';
       } else {
         // truque de "janela reveladora": a textura cobre toda a
         // parede numa única escala e cada peça revela seu recorte,
         // criando continuidade fotográfica entre as peças.
-        el.style.backgroundImage = url;
+        // (bicolor sem `texturas` fotográfica: cai aqui só se a peça B
+        // também não tiver `texturas`; usa a mesma janela contínua da
+        // peça B, ainda proporcional porque essas peças normalmente têm
+        // w/h do tijolo natural nos padrões bicolor que criamos.)
+        el.style.backgroundImage = urlAtivo;
         el.style.backgroundSize = rectW + 'px ' + rectH + 'px';
         el.style.backgroundPosition = (-b.x) + 'px ' + (-b.y) + 'px';
       }
@@ -754,6 +867,9 @@
     if (id === 'escama')     { for (i = 0; i < 2; i++) for (c = -1; c < 4; c++) s += r(4 + c * 17 + (i % 2) * 8.5, 4 + i * 14, 15, 15); }
     if (id === 'misto')      { s = r(4, 4, 60, 6) + r(4, 12, 60, 6) + r(4, 22, 9, 14) + r(15, 22, 9, 14) + r(26, 22, 9, 14) + r(37, 22, 9, 14) + r(48, 22, 9, 14); }
     if (id === 'larga')      { for (i = 0; i < 3; i++) for (c = -1; c < 3; c++) s += r(5 + c * 24 + (i % 2) * 12, 5 + i * 12, 19, 8); }
+    if (id === 'xadrezbicolor') { for (i = 0; i < 3; i++) for (c = -1; c < 3; c++) s += r(4 + c * 22 + (i % 2) * 11, 4 + i * 11, 20, 9); }
+    if (id === 'modquadrado') { for (c = 0; c < 4; c++) for (i = 0; i < 3; i++) s += r(4 + c * 16, 4 + i * 11, 13, 9); }
+    if (id === 'gotico')     { for (i = 0; i < 3; i++) { s += r(4, 4 + i * 11, 20, 9); s += r(28, 4 + i * 11, 9, 9); s += r(41, 4 + i * 11, 20, 9); } }
     return '<svg viewBox="0 0 68 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + s + '</svg>';
   }
 
