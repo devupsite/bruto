@@ -85,6 +85,18 @@
     .stagger > .reveal:nth-child(3) { transition-delay: .24s; }
     .stagger > .reveal:nth-child(4) { transition-delay: .32s; }
 
+    /* Hero fica acima da dobra e já é visível no primeiro frame — não faz
+       sentido esperar IntersectionObserver + transição de .8s pra aparecer.
+       Isso estava contando contra o LCP mobile no PageSpeed Insights
+       (FCP 6,3s / LCP 11,3s — o hero só "pintava de vez" bem depois do FCP).
+       Escopo restrito a .hero pra não alterar o comportamento dos outros
+       136 usos de .reveal no resto do site. */
+    .hero .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .reveal { transition: none; opacity: 1; transform: none; }
       html { scroll-behavior: auto; }
