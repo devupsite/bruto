@@ -6,6 +6,19 @@
 # ── Página de erro 404 (o 404.html já existia, mas nunca era servido) ──
 ErrorDocument 404 /404.html
 
+# ── Redirecionamentos 301: páginas renomeadas/descontinuadas ──
+# Evita 404 pra quem chega por link antigo, resultado de busca desatualizado
+# ou favorito salvo. Achado via GA4: "Página não encontrada" com 60% de
+# rejeição — provável origem em URLs indexadas antes das renomeações abaixo.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^colecoes\.html$ /texturas.html [R=301,L]
+  RewriteRule ^produto-cimenticio-grigio\.html$ /produto-cimenticio-brisa.html [R=301,L]
+  RewriteRule ^produto-rockface-grigio\.html$ /produto-rockface-urban.html [R=301,L]
+  RewriteRule ^produto-brick-branco-rose\.html$ /texturas.html [R=301,L]
+  RewriteRule ^produto-brick-vulcano\.html$ /texturas.html [R=301,L]
+</IfModule>
+
 # ── Forçar HTTPS ──
 <IfModule mod_rewrite.c>
   RewriteEngine On
