@@ -2173,6 +2173,7 @@
 }
 
 .pgn-control-group { display: flex; flex-direction: column; gap: 0.7rem; }
+.pgn-control-group[hidden] { display: none; }
 
 .pgn-control-label {
   font-family: var(--f-display);

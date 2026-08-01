@@ -751,7 +751,7 @@
     for (var pi = 0; pi < PATTERNS.length; pi++) { if (PATTERNS[pi].id === state.pattern) { patternDef = PATTERNS[pi]; break; } }
     var pecaB = null, texturasB = null, urlB = null;
     if (patternDef && patternDef.bicolor) {
-      pecaB = getSegundaCor(state.brickId);
+      pecaB = findItem(state.brickIdB || getSegundaCor(state.brickId).id);
       texturasB = pecaB.texturas || null;
       urlB = "url('" + textureUrl(pecaB.id) + "')";
     }
@@ -836,6 +836,36 @@
         btn.classList.add('is-active');
         var label = root.querySelector('.pgn-current-name');
         if (label) label.textContent = b.nome;
+        onChange();
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
+  function buildSwatchesB(root, state, onChange) {
+    // Espelha buildSwatches, mas pra segunda cor dos padrões bicolor
+    // (Xadrez Bicolor, Módulo Quadrado, Gótico). Só fica visível quando o
+    // padrão ativo tem `bicolor: true` -- ver toggleSwatchesBVisibility em
+    // initOne. Marca `state.brickIdBManual = true` ao ser usado, pra
+    // avisar o resto do código que a pessoa escolheu à mão e o
+    // auto-pareamento (getSegundaCor) não deve mais sobrescrever.
+    var wrap = root.querySelector('.pgn-swatches-b');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    colecaoDe(state.brickId).itens.forEach(function (b) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pgn-swatch' + (b.id === state.brickIdB ? ' is-active' : '');
+      btn.setAttribute('data-brick', b.id);
+      btn.setAttribute('title', b.nome);
+      btn.setAttribute('aria-label', b.nome + ' (segunda cor)');
+      btn.innerHTML = '<img src="' + thumbUrl(b.id) + '" alt="' + b.nome + '" loading="lazy">';
+      btn.addEventListener('click', function () {
+        if (state.brickIdB === b.id) return;
+        state.brickIdB = b.id;
+        state.brickIdBManual = true;
+        wrap.querySelectorAll('.pgn-swatch').forEach(function (s) { s.classList.remove('is-active'); });
+        btn.classList.add('is-active');
         onChange();
       });
       wrap.appendChild(btn);
@@ -1067,6 +1097,8 @@
 
     var state = {
       brickId: findItem(initialId).id,
+      brickIdB: null,            // segunda cor (padrões bicolor) -- preenchido logo abaixo
+      brickIdBManual: false,     // true assim que a pessoa escolher a segunda cor à mão
       pattern: padraoInicial,
       ambiente: 'claro',
       vista: 'frontal',
@@ -1074,6 +1106,7 @@
       junta: 8,                 // mm — mesmo valor da calculadora de m²
       rejunte: REJUNTES[0]
     };
+    state.brickIdB = getSegundaCor(state.brickId).id;
 
     var nameLabel = root.querySelector('.pgn-current-name');
     if (nameLabel) nameLabel.textContent = findItem(state.brickId).nome;
@@ -1084,14 +1117,44 @@
       descLabel.textContent = pAtivo.desc;
     }
 
+    function toggleSwatchesBVisibility() {
+      var pAtivo2 = PATTERNS.filter(function (p) { return p.id === state.pattern; })[0];
+      var isBicolor = !!(pAtivo2 && pAtivo2.bicolor);
+      var group = root.querySelector('.pgn-control-group--bicolor');
+      if (group) group.hidden = !isBicolor;
+    }
+
     function rerender() {
       renderWall(root, state);
       var colorLink = root.querySelector('.pgn-color-link');
       if (colorLink) colorLink.setAttribute('href', 'produto-' + state.brickId + '.html');
     }
 
-    buildSwatches(root, state, rerender);
-    buildPatternButtons(root, state, rerender);
+    // onChange da cor PRIMÁRIA: se a segunda cor ainda não foi escolhida à
+    // mão, recalcula o auto-pareamento pra acompanhar a nova cor primária.
+    function onPrimaryChange() {
+      if (!state.brickIdBManual) {
+        state.brickIdB = getSegundaCor(state.brickId).id;
+        buildSwatchesB(root, state, onSecondaryChange);
+      }
+      rerender();
+    }
+
+    function onSecondaryChange() {
+      rerender();
+    }
+
+    // onChange do PADRÃO: além de renderizar, mostra/esconde o seletor de
+    // segunda cor conforme o padrão escolhido ser bicolor ou não.
+    function onPatternChange() {
+      toggleSwatchesBVisibility();
+      rerender();
+    }
+
+    buildSwatches(root, state, onPrimaryChange);
+    buildSwatchesB(root, state, onSecondaryChange);
+    toggleSwatchesBVisibility();
+    buildPatternButtons(root, state, onPatternChange);
     buildAmbientToggle(root, state);
     buildViewToggle(root, state);
     buildGroutControls(root, state, rerender);
