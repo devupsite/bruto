@@ -60,7 +60,7 @@ import {
   X, MessageCircle, Lightbulb, Copy, Check, History, Plus, Trash2, Download, Upload,
   Image as ImageIcon, Camera, FileText,
   Target, ClipboardList, GraduationCap, Dices, MessageSquareShare, Users, Pencil, BarChart3,
-  Menu, MoreVertical,
+  Menu, MoreVertical, Archive, ArchiveRestore, Tag,
 } from "lucide-react";
 
 // ── CONFIG DE DEPLOY (fora do Claude.ai) ───────────────────────────
@@ -540,32 +540,7 @@ const DIAG_CATEGORIES = [
   { key: "devolucao", label: "Devolução", icon: RotateCcw },
 ];
 
-const KB_LIST = [
-  { group: "Empresa", items: [
-    { key: "sobre", label: "Sobre a Bruto", icon: Home },
-  ]},
-  { group: "Comercial", items: [
-    { key: "comercial", label: "Script de Campanha & Objeções", icon: MessageCircle },
-    { key: "escalonamento", label: "Quando Escalar", icon: X },
-  ]},
-  { group: "Produtos", items: [
-    { key: "brick", label: "Brick", icon: Box },
-    { key: "cimenticio", label: "Cimentício", icon: Box },
-    { key: "rockface", label: "Rockface", icon: Box },
-    { key: "comparativo", label: "Comparativo de Linhas", icon: MessageCircle },
-  ]},
-  { group: "Logística", items: [
-    { key: "frete", label: "Frete & Amostras", icon: Truck },
-  ]},
-  { group: "Técnico", items: [
-    { key: "instalacao", label: "Instalação", icon: Hammer },
-    { key: "manutencao", label: "Manutenção & Limpeza", icon: Settings },
-    { key: "indicacoes", label: "Produtos Indicados", icon: Box },
-    { key: "devolucao", label: "Troca & Devolução", icon: RotateCcw },
-    { key: "qualidade", label: "Qualidade & Variação", icon: CheckCircle2 },
-    { key: "benchmark", label: "Regras do Setor (Benchmark)", icon: Plug },
-  ]},
-];
+const TAG_SUGESTOES = ["Consulta Técnica", "Orçamento", "Reclamação", "Pós-venda", "Urgente"];
 
 function esc(s) { return s; }
 
@@ -601,7 +576,6 @@ function BrutoAtendimento() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [client, setClient] = useState({ name: "Cliente", type: "", project: "", phone: "", tags: ["Consulta Técnica"] });
   const [messages, setMessages] = useState([]);
-  const [selectedKB, setSelectedKB] = useState([]);
   const [busy, setBusy] = useState(false);
   const [diagFlow, setDiagFlow] = useState(null);
   const [copiedIdx, setCopiedIdx] = useState(null);
@@ -613,11 +587,8 @@ function BrutoAtendimento() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historySearch, setHistorySearch] = useState("");
   const [exportModal, setExportModal] = useState(null); // null | { content: string, ext: "json"|"html" }
-  const [escalationOpen, setEscalationOpen] = useState(true);
-  const [calcOpen, setCalcOpen] = useState(false);
-  const [calcArea, setCalcArea] = useState("");
-  const [calcWaste, setCalcWaste] = useState(15);
-  const [kbSectionOpen, setKbSectionOpen] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
+  const [tagFilter, setTagFilter] = useState(null);
   const [imageAttachments, setImageAttachments] = useState([]); // [{ dataUrl, mediaType, name }, ...]
   const [recommendModalOpen, setRecommendModalOpen] = useState(false);
   const [recommendText, setRecommendText] = useState("");
@@ -644,6 +615,14 @@ function BrutoAtendimento() {
 
   // ── GESTÃO DE USUÁRIOS (admin) ──────────────────────────────────────
   const [userMgmtOpen, setUserMgmtOpen] = useState(false);
+  const [painelAdminOpen, setPainelAdminOpen] = useState(false);
+  const [painelResumo, setPainelResumo] = useState([]);
+  const [painelPeriodo, setPainelPeriodo] = useState("hoje");
+  const [painelErr, setPainelErr] = useState("");
+  const [painelBusy, setPainelBusy] = useState(false);
+  const [painelAtendenteSel, setPainelAtendenteSel] = useState(null);
+  const [painelLogins, setPainelLogins] = useState([]);
+  const [painelSessoes, setPainelSessoes] = useState([]);
   const [userMgmtList, setUserMgmtList] = useState([]);
   const [userMgmtBusy, setUserMgmtBusy] = useState(false);
   const [userMgmtErr, setUserMgmtErr] = useState("");
@@ -681,6 +660,15 @@ function BrutoAtendimento() {
       }
     })();
   }, []);
+
+  // ── Heartbeat: mantém o registro de "tempo online" no servidor enquanto a aba está aberta ──
+  useEffect(() => {
+    if (!currentUser) return;
+    const HEARTBEAT_MS = 60000;
+    const tick = () => { if (!document.hidden) apiCall("api/me.php", {}).catch(() => {}); };
+    const id = setInterval(tick, HEARTBEAT_MS);
+    return () => clearInterval(id);
+  }, [currentUser]);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -723,6 +711,53 @@ function BrutoAtendimento() {
         setAdminIndex([]);
       }
     }
+  }
+
+  // ── PAINEL ADMIN (tempo online, logins e perguntas por atendente) ──
+  async function openPainelAdmin() {
+    setPainelAdminOpen(true);
+    setPainelAtendenteSel(null);
+    setPainelLogins([]);
+    setPainelSessoes([]);
+    await carregarResumoAtividade(painelPeriodo);
+  }
+
+  async function carregarResumoAtividade(periodo) {
+    setPainelBusy(true);
+    setPainelErr("");
+    try {
+      const data = await apiCall("api/atividade.php", { acao: "resumo", periodo });
+      setPainelResumo(data.atendentes || []);
+    } catch (e) {
+      setPainelErr(e.message || "Não consegui carregar o resumo de atividade.");
+    } finally {
+      setPainelBusy(false);
+    }
+  }
+
+  async function abrirAtendenteNoPainel(atendente) {
+    setPainelAtendenteSel(atendente);
+    setPainelBusy(true);
+    setPainelErr("");
+    try {
+      const [logins, sessoes] = await Promise.all([
+        apiCall("api/atividade.php", { acao: "logins", usuarioId: atendente.id, periodo: painelPeriodo }),
+        apiCall("api/historico.php", { acao: "listar", todos: true, usuarioId: atendente.id }),
+      ]);
+      setPainelLogins(logins.logins || []);
+      setPainelSessoes(sessoes.sessoes || []);
+    } catch (e) {
+      setPainelErr(e.message || "Não consegui carregar os detalhes desse atendente.");
+    } finally {
+      setPainelBusy(false);
+    }
+  }
+
+  function formatarDuracao(segundos) {
+    const h = Math.floor(segundos / 3600);
+    const m = Math.floor((segundos % 3600) / 60);
+    if (h > 0) return `${h}h${m > 0 ? ` ${m}min` : ""}`;
+    return `${m}min`;
   }
 
   // ── GESTÃO DE USUÁRIOS (admin) ──────────────────────────────────────
@@ -789,7 +824,8 @@ function BrutoAtendimento() {
     })();
     const firstUserMsg = msgs.find((m) => m.role === "user")?.content || "";
     const preview = firstUserMsg.slice(0, 60) + (firstUserMsg.length > 60 ? "…" : "");
-    const meta = { id, createdAt: parseInt(id.replace("sess_", "")), clientName: cli.name, clientType: cli.type, preview, msgCount: msgs.length };
+    const existing = sessionIndex.find((s) => s.id === id);
+    const meta = { id, createdAt: parseInt(id.replace("sess_", "")), clientName: cli.name, clientType: cli.type, preview, msgCount: msgs.length, tags: cli.tags || [], arquivado: existing?.arquivado || false };
     const payload = JSON.stringify({ meta, client: cli, messages: msgs });
     // Cache local primeiro — resposta instantânea, funciona offline
     try {
@@ -801,6 +837,8 @@ function BrutoAtendimento() {
       });
     } catch (_) {}
     // Servidor depois — armazenamento permanente, por usuário (não bloqueia a interface)
+    // OBS: campos "tags" e "arquivado" abaixo dependem de suporte em bruto-secrets/API/historico.php
+    // (ver nota de integração) — se o backend ainda não aceitar, são ignorados sem quebrar o salvamento.
     try {
       await apiCall("api/historico.php", {
         acao: "salvar",
@@ -810,16 +848,36 @@ function BrutoAtendimento() {
         preview,
         msgCount: msgs.length,
         criadoEm: meta.createdAt,
+        tags: meta.tags,
+        arquivado: meta.arquivado,
         payload,
       });
     } catch (_) { /* offline/erro: o cache local garante; sincroniza no próximo save */ }
+  }
+
+  // ── Arquivar/desarquivar uma conversa salva (esquema tipo WhatsApp) ──
+  async function toggleArchiveSession(id, e) {
+    if (e) e.stopPropagation();
+    let novoValor = true;
+    setSessionIndex((prev) => {
+      const updated = prev.map((s) => {
+        if (s.id !== id) return s;
+        novoValor = !s.arquivado;
+        return { ...s, arquivado: novoValor };
+      });
+      storage.set("session-index", JSON.stringify(updated));
+      return updated;
+    });
+    setAdminIndex((prev) => prev.map((s) => s.id === id ? { ...s, arquivado: novoValor } : s));
+    try {
+      await apiCall("api/historico.php", { acao: "arquivar", id, arquivado: novoValor });
+    } catch (_) { /* depende do backend aceitar "acao: arquivar" — ver nota de integração */ }
   }
 
   async function startNewSession() {
     setMessages([]);
     setInput("");
     setDiagFlow(null);
-    setSelectedKB([]);
     setClient({ name: "Cliente", type: "", project: "", phone: "", tags: ["Consulta Técnica"] });
     setCurrentSessionId(null);
   }
@@ -1252,10 +1310,6 @@ function BrutoAtendimento() {
     input.click();
   }
 
-  function toggleKB(key) {
-    setSelectedKB((prev) => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
-  }
-
   // ── ANEXO DE FOTO (obra/reforma do lead) — suporta várias por mensagem ──
   const MAX_IMAGES_PER_MSG = 4;
   const MAX_IMAGE_SIZE = 1.5 * 1024 * 1024; // 1.5MB por foto (várias fotos por mensagem somam rápido)
@@ -1371,9 +1425,6 @@ function BrutoAtendimento() {
     let dynamicSys = `Data/hora atual (horário de São Paulo): ${agoraSP}. Se for a PRIMEIRA mensagem da conversa, pode cumprimentar com "${periodoDia}" (condizente com o horário real agora) — só na abertura, nunca repita o cumprimento de horário nas mensagens seguintes da mesma conversa.\n`;
     dynamicSys += `Modo: ${mode === "consulta" ? "CONSULTA TÉCNICA — seja direto e propositivo" : "DIAGNÓSTICO — investigue antes de concluir"}\n`;
     dynamicSys += `Cliente: ${client.name}${client.type ? ` (${client.type})` : ""}${client.project ? ` — ${client.project}` : ""}\n`;
-    if (selectedKB.length > 0) {
-      dynamicSys += `\nFOCO ADICIONAL solicitado pela atendente para esta pergunta: ${selectedKB.join(", ")}. Priorize esse assunto na resposta, mas use o restante da base se for relevante.\n`;
-    }
 
     return [
       { type: "text", text: staticSys, cache_control: { type: "ephemeral" } },
@@ -1456,7 +1507,7 @@ function BrutoAtendimento() {
         content: text,
         metadata: {
           mode,
-          kb: selectedKB.join(", ") || (lastUserHadImage ? "análise de imagem" : "nenhuma"),
+          kb: lastUserHadImage ? "análise de imagem" : "nenhuma",
           generatedBy: "Claude (Sonnet 5)",
           tema,
         },
@@ -1788,6 +1839,9 @@ function BrutoAtendimento() {
               {currentUser.papel === "admin" && (
                 <button style={S.newChatBtn} onClick={openUserMgmt} title="Gestão de usuários"><Users size={13} strokeWidth={2}/> Usuários</button>
               )}
+              {currentUser.papel === "admin" && (
+                <button style={S.newChatBtn} onClick={openPainelAdmin} title="Painel admin — tempo online e atividade da equipe"><BarChart3 size={13} strokeWidth={2}/> Painel Admin</button>
+              )}
             </>)}
             {isMobile && (
               <div style={{ position: "relative" }}>
@@ -1801,6 +1855,9 @@ function BrutoAtendimento() {
                     <div style={S.mobileMenuItem} onClick={() => { setMobileMenuOpen(false); openHandoffModal(); }}><ClipboardList size={14} strokeWidth={1.75}/> Resumo</div>
                     {currentUser.papel === "admin" && (
                       <div style={S.mobileMenuItem} onClick={() => { setMobileMenuOpen(false); openUserMgmt(); }}><Users size={14} strokeWidth={1.75}/> Usuários</div>
+                    )}
+                    {currentUser.papel === "admin" && (
+                      <div style={S.mobileMenuItem} onClick={() => { setMobileMenuOpen(false); openPainelAdmin(); }}><BarChart3 size={14} strokeWidth={1.75}/> Painel Admin</div>
                     )}
                   </div>
                 )}
@@ -1846,109 +1903,6 @@ function BrutoAtendimento() {
               </div>
             </div>
 
-            {/* PAINEL FIXO — QUANDO ESCALAR (sempre visível, não depende de IA) */}
-            <div style={{ borderBottom: `1px solid ${border}` }}>
-              <div
-                style={{ ...S.sidebarSection, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(239,68,68,.06)", borderBottom: escalationOpen ? `1px solid rgba(239,68,68,.2)` : "none" }}
-                onClick={() => setEscalationOpen((v) => !v)}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 13 }}>🛑</span>
-                  <span style={{ ...S.sectionTitle, color: "#F87171" }}>Quando Escalar</span>
-                </div>
-                <span style={{ fontSize: 9, color: mid, transform: escalationOpen ? "rotate(180deg)" : "none", transition: ".2s" }}>▾</span>
-              </div>
-              {escalationOpen && (
-                <div style={{ padding: "10px 13px", fontSize: 9.5, color: "#ddd", lineHeight: 1.7 }}>
-                  Pare e chame o responsável, sem prometer nada ao cliente, se aparecer:
-                  <ul style={{ margin: "6px 0 0", paddingLeft: 15 }}>
-                    <li>Pedido grande / construtora / revenda</li>
-                    <li>Pedido de desconto ou condição especial</li>
-                    <li>Ameaça de Procon, processo ou avaliação pública negativa</li>
-                    <li>Defeito contestado que a IA não resolveu com clareza</li>
-                    <li>Pergunta técnica fora do padrão (uso submerso, fachada muito alta)</li>
-                    <li>Imprensa, influenciador ou proposta de parceria</li>
-                    <li>Cliente muito insatisfeito ou tom agressivo</li>
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* CALCULADORA DE ÁREA — determinística, sem IA */}
-            <div style={{ borderBottom: `1px solid ${border}` }}>
-              <div
-                style={{ ...S.sidebarSection, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: calcOpen ? `1px solid ${border}` : "none" }}
-                onClick={() => setCalcOpen((v) => !v)}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <span style={{ fontSize: 12 }}>📐</span>
-                  <span style={S.sectionTitle}>Calculadora de Área</span>
-                </div>
-                <span style={{ fontSize: 9, color: mid, transform: calcOpen ? "rotate(180deg)" : "none", transition: ".2s" }}>▾</span>
-              </div>
-              {calcOpen && (
-                <div style={{ padding: "10px 13px" }}>
-                  <label style={{ fontSize: 9, color: mid2, display: "block", marginBottom: 3 }}>Área do projeto (m²)</label>
-                  <input
-                    type="number" min="0" step="0.1" value={calcArea}
-                    onChange={(e) => setCalcArea(e.target.value)}
-                    placeholder="Ex: 12.5"
-                    style={{ width: "100%", padding: "6px 8px", background: "#111", border: `1px solid ${border}`, borderRadius: 5, color: white, fontSize: 11, fontFamily: dm, marginBottom: 8, boxSizing: "border-box" }}
-                  />
-                  <label style={{ fontSize: 9, color: mid2, display: "block", marginBottom: 3 }}>Perda técnica de corte</label>
-                  <select
-                    value={calcWaste} onChange={(e) => setCalcWaste(Number(e.target.value))}
-                    style={{ width: "100%", padding: "6px 8px", background: "#111", border: `1px solid ${border}`, borderRadius: 5, color: white, fontSize: 11, fontFamily: dm, marginBottom: 8, boxSizing: "border-box" }}
-                  >
-                    <option value={10}>10% — parede reta, poucos recortes (Cimentício)</option>
-                    <option value={15}>15% — padrão (Brick / Rockface)</option>
-                    <option value={20}>20% — muitos cantos, recortes, vãos</option>
-                  </select>
-                  {calcArea && !isNaN(parseFloat(calcArea)) && parseFloat(calcArea) > 0 && (
-                    <div style={{ background: "rgba(87,153,155,.08)", border: `1px solid rgba(87,153,155,.25)`, borderRadius: 6, padding: "8px 10px", fontSize: 10.5, color: white }}>
-                      Comprar: <strong style={{ color: teal }}>{(parseFloat(calcArea) * (1 + calcWaste / 100)).toFixed(2)} m²</strong>
-                      <div style={{ fontSize: 9, color: mid2, marginTop: 2 }}>{calcArea} m² de projeto + {calcWaste}% de perda técnica</div>
-                    </div>
-                  )}
-                  <div style={{ fontSize: 8.5, color: mid2, marginTop: 6, lineHeight: 1.5 }}>
-                    Cálculo determinístico (não usa IA) — sempre confirme a quantidade final com o consultor antes de fechar o pedido.
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div style={{ borderBottom: `1px solid ${border}` }}>
-              <div
-                style={{ ...S.sidebarSection, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: kbSectionOpen ? `1px solid ${border}` : "none" }}
-                onClick={() => setKbSectionOpen((v) => !v)}
-              >
-                <span style={S.sectionTitle}>Focar em um Tema (opcional)</span>
-                <span style={{ fontSize: 9, color: mid, transform: kbSectionOpen ? "rotate(180deg)" : "none", transition: ".2s" }}>▾</span>
-              </div>
-              {kbSectionOpen && (
-                <div style={{ padding: "10px 13px 4px" }}>
-                  <div style={{ fontSize: 9, color: mid2, marginBottom: 10, lineHeight: 1.5 }}>
-                    Não precisa selecionar nada — toda a base já está disponível em qualquer pergunta. Use isto só se quiser pedir foco extra num assunto específico.
-                  </div>
-                  {KB_LIST.map((group) => (
-                    <div key={group.group} style={{ marginTop: 12 }}>
-                      <div style={S.kbGroupLabel}>{group.group}</div>
-                      {group.items.map((item) => (
-                        <div
-                          key={item.key}
-                          className="kb-item"
-                          style={S.kbItem(selectedKB.includes(item.key))}
-                          onClick={() => toggleKB(item.key)}
-                        >
-                          <item.icon size={12} strokeWidth={1.75}/>{item.label}
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
             <div style={S.tipBox}>
               <div style={S.sectionTitle}>Como Usar</div>
               <div style={{ fontSize: 9, color: "#888", lineHeight: 1.6, display: "flex", gap: 6, alignItems: "flex-start" }}>
@@ -1958,7 +1912,7 @@ function BrutoAtendimento() {
             </div>
 
 
-            {/* HISTÓRICO */}
+            {/* CONVERSAS — esquema tipo WhatsApp: Etiquetas + Arquivadas */}
             <div style={{ borderTop: `1px solid ${border}` }}>
               <div
                 style={{ ...S.sidebarSection, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: historyOpen ? `1px solid ${border}` : "none" }}
@@ -1966,8 +1920,8 @@ function BrutoAtendimento() {
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <History size={11} strokeWidth={1.75} style={{ color: teal }}/>
-                  <span style={S.sectionTitle}>Histórico</span>
-                  {sessionIndex.length > 0 && <span style={S.histBadge}>{sessionIndex.length}</span>}
+                  <span style={S.sectionTitle}>Conversas</span>
+                  {sessionIndex.filter((s) => !s.arquivado).length > 0 && <span style={S.histBadge}>{sessionIndex.filter((s) => !s.arquivado).length}</span>}
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   {currentUser.papel === "admin" && (
@@ -1983,56 +1937,100 @@ function BrutoAtendimento() {
                   <span style={{ fontSize: 9, color: mid, transform: historyOpen ? "rotate(180deg)" : "none", transition: ".2s" }}>▾</span>
                 </div>
               </div>
-              {historyOpen && (
-                <div style={{ maxHeight: 300, overflowY: "auto" }}>
-                  {sessionIndex.length > 0 && (
-                    <div style={{ padding: "8px 13px 4px" }}>
-                      <input
-                        value={historySearch}
-                        onChange={(e) => setHistorySearch(e.target.value)}
-                        placeholder="Buscar por cliente ou palavra..."
-                        style={S.historySearchInput}
-                      />
-                    </div>
-                  )}
-                  {(() => {
-                    const source = adminViewAll && currentUser.papel === "admin" ? adminIndex : sessionIndex;
-                    const q = historySearch.trim().toLowerCase();
-                    const filtered = q
-                      ? source.filter((s) =>
-                          (s.clientName || "").toLowerCase().includes(q) ||
-                          (s.preview || "").toLowerCase().includes(q) ||
-                          (s.clientType || "").toLowerCase().includes(q) ||
-                          (s.atendente || "").toLowerCase().includes(q)
-                        )
-                      : source;
-                    if (source.length === 0) {
-                      return <div style={{ padding: "12px 13px", fontSize: 9, color: mid2, textAlign: "center" }}>{adminViewAll ? "Nenhuma conversa da equipe ainda." : "Nenhuma conversa salva ainda."}</div>;
-                    }
-                    if (filtered.length === 0) {
-                      return <div style={{ padding: "12px 13px", fontSize: 9, color: mid2, textAlign: "center" }}>Nenhuma conversa encontrada para "{historySearch}".</div>;
-                    }
-                    return filtered.map((s) => (
+              {historyOpen && (() => {
+                const fullSource = adminViewAll && currentUser.papel === "admin" ? adminIndex : sessionIndex;
+                const arquivadas = fullSource.filter((s) => s.arquivado);
+                const ativas = fullSource.filter((s) => !s.arquivado);
+                const allTags = [...new Set(fullSource.flatMap((s) => s.tags || []))];
+                const base = showArchived ? arquivadas : ativas;
+                const q = historySearch.trim().toLowerCase();
+                const filtered = base.filter((s) => {
+                  const matchQ = !q ||
+                    (s.clientName || "").toLowerCase().includes(q) ||
+                    (s.preview || "").toLowerCase().includes(q) ||
+                    (s.clientType || "").toLowerCase().includes(q) ||
+                    (s.atendente || "").toLowerCase().includes(q);
+                  const matchTag = !tagFilter || (s.tags || []).includes(tagFilter);
+                  return matchQ && matchTag;
+                });
+                return (
+                  <div>
+                    {/* Barra: Conversas | Arquivadas (N), igual ao WhatsApp */}
+                    <div style={{ display: "flex", borderBottom: `1px solid ${border}` }}>
                       <div
-                        key={s.id}
-                        style={S.histItem(s.id === currentSessionId)}
-                        onClick={() => loadSession(s.id)}
-                      >
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={S.histClient}>
-                            {s.clientName || "Cliente"}
-                            {adminViewAll && s.atendente ? <span style={S.histAtendente}> · {s.atendente}</span> : null}
-                          </div>
-                          <div style={S.histPreview}>{s.preview || "Sem mensagens"}</div>
-                          <div style={S.histMeta}>{s.msgCount} msgs · {new Date(s.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} {new Date(s.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
-                        </div>
-                        <button style={S.histDelete} onClick={(e) => openEditClient(s, e)} title="Editar perfil do cliente"><Pencil size={10} strokeWidth={1.75}/></button>
-                        <button style={S.histDelete} onClick={(e) => deleteSession(s.id, e)} title="Excluir"><Trash2 size={10} strokeWidth={1.75}/></button>
+                        onClick={() => setShowArchived(false)}
+                        style={{ flex: 1, textAlign: "center", padding: "7px 4px", fontSize: 10, cursor: "pointer", color: !showArchived ? teal : mid2, borderBottom: !showArchived ? `2px solid ${teal}` : "2px solid transparent" }}
+                      >Conversas</div>
+                      <div
+                        onClick={() => setShowArchived(true)}
+                        style={{ flex: 1, textAlign: "center", padding: "7px 4px", fontSize: 10, cursor: "pointer", color: showArchived ? teal : mid2, borderBottom: showArchived ? `2px solid ${teal}` : "2px solid transparent", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}
+                      ><Archive size={10} strokeWidth={1.75}/> Arquivadas{arquivadas.length > 0 ? ` (${arquivadas.length})` : ""}</div>
+                    </div>
+
+                    {allTags.length > 0 && (
+                      <div style={{ display: "flex", gap: 5, flexWrap: "wrap", padding: "8px 13px 0" }}>
+                        <div
+                          onClick={() => setTagFilter(null)}
+                          style={{ fontSize: 9, padding: "3px 8px", borderRadius: 20, cursor: "pointer", border: `1px solid ${!tagFilter ? teal : border}`, color: !tagFilter ? teal : mid2 }}
+                        >Todas</div>
+                        {allTags.map((t) => (
+                          <div
+                            key={t}
+                            onClick={() => setTagFilter(tagFilter === t ? null : t)}
+                            style={{ fontSize: 9, padding: "3px 8px", borderRadius: 20, cursor: "pointer", border: `1px solid ${tagFilter === t ? teal : border}`, color: tagFilter === t ? teal : mid2, display: "flex", alignItems: "center", gap: 3 }}
+                          ><Tag size={8} strokeWidth={1.75}/>{t}</div>
+                        ))}
                       </div>
-                    ));
-                  })()}
-                </div>
-              )}
+                    )}
+
+                    {fullSource.length > 0 && (
+                      <div style={{ padding: "8px 13px 4px" }}>
+                        <input
+                          value={historySearch}
+                          onChange={(e) => setHistorySearch(e.target.value)}
+                          placeholder="Buscar por cliente ou palavra..."
+                          style={S.historySearchInput}
+                        />
+                      </div>
+                    )}
+
+                    <div style={{ maxHeight: 300, overflowY: "auto" }}>
+                      {base.length === 0 ? (
+                        <div style={{ padding: "12px 13px", fontSize: 9, color: mid2, textAlign: "center" }}>
+                          {showArchived ? "Nenhuma conversa arquivada." : (adminViewAll ? "Nenhuma conversa da equipe ainda." : "Nenhuma conversa salva ainda.")}
+                        </div>
+                      ) : filtered.length === 0 ? (
+                        <div style={{ padding: "12px 13px", fontSize: 9, color: mid2, textAlign: "center" }}>Nenhuma conversa encontrada.</div>
+                      ) : filtered.map((s) => (
+                        <div
+                          key={s.id}
+                          style={S.histItem(s.id === currentSessionId)}
+                          onClick={() => loadSession(s.id)}
+                        >
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={S.histClient}>
+                              {s.clientName || "Cliente"}
+                              {adminViewAll && s.atendente ? <span style={S.histAtendente}> · {s.atendente}</span> : null}
+                            </div>
+                            <div style={S.histPreview}>{s.preview || "Sem mensagens"}</div>
+                            <div style={S.histMeta}>{s.msgCount} msgs · {new Date(s.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} {new Date(s.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
+                            {(s.tags || []).length > 0 && (
+                              <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 3 }}>
+                                {s.tags.map((t) => <span key={t} style={{ fontSize: 8, padding: "1px 6px", borderRadius: 20, border: `1px solid ${border}`, color: mid2 }}>{t}</span>)}
+                              </div>
+                            )}
+                          </div>
+                          <button style={S.histDelete} onClick={(e) => openEditClient(s, e)} title="Editar perfil do cliente"><Pencil size={10} strokeWidth={1.75}/></button>
+                          <button style={S.histDelete} onClick={(e) => toggleArchiveSession(s.id, e)} title={s.arquivado ? "Desarquivar" : "Arquivar"}>
+                            {s.arquivado ? <ArchiveRestore size={10} strokeWidth={1.75}/> : <Archive size={10} strokeWidth={1.75}/>}
+                          </button>
+                          <button style={S.histDelete} onClick={(e) => deleteSession(s.id, e)} title="Excluir"><Trash2 size={10} strokeWidth={1.75}/></button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </aside>
 
@@ -2056,18 +2054,7 @@ function BrutoAtendimento() {
                   </div>
                 )
               )}
-              {selectedKB.length > 0 && (
-                <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 9, color: "#606060" }}>Contexto carregado:</span>
-                  {selectedKB.map((kb) => (
-                    <div key={kb} style={S.toolItem(true)}><CheckCircle2 size={11} strokeWidth={1.75}/> {kb}</div>
-                  ))}
-                </div>
-              )}
               <div style={S.toolItem(true)}><Plug size={11} strokeWidth={1.75}/> IA conectada (Claude)</div>
-              {selectedKB.length === 0 && mode === "consulta" && (
-                <span style={{ fontSize: 9, color: "#606060" }}>Nenhum contexto carregado</span>
-              )}
             </div>            <div style={S.messages}>
               {messages.length === 0 && !busy && (
                 <div style={S.emptyState}>
@@ -2267,6 +2254,37 @@ function BrutoAtendimento() {
               <label style={S.formLabel}>Projeto (opcional)</label>
               <input style={S.formInput} value={tmpClient.project} onChange={(e) => setTmpClient({ ...tmpClient, project: e.target.value })} placeholder="Ex: Casa moderna em São Paulo"/>
             </div>
+            <div style={S.formGroup}>
+              <label style={S.formLabel}>Etiquetas</label>
+              <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 6 }}>
+                {TAG_SUGESTOES.map((t) => {
+                  const ativa = (tmpClient.tags || []).includes(t);
+                  return (
+                    <div
+                      key={t}
+                      onClick={() => {
+                        const atuais = tmpClient.tags || [];
+                        setTmpClient({ ...tmpClient, tags: ativa ? atuais.filter((x) => x !== t) : [...atuais, t] });
+                      }}
+                      style={{ fontSize: 10, padding: "4px 9px", borderRadius: 20, cursor: "pointer", border: `1px solid ${ativa ? "#57999B" : "#333"}`, color: ativa ? "#57999B" : "#999" }}
+                    >{t}</div>
+                  );
+                })}
+              </div>
+              <input
+                style={S.formInput}
+                placeholder="Etiqueta personalizada — Enter para adicionar"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && e.target.value.trim()) {
+                    e.preventDefault();
+                    const nova = e.target.value.trim();
+                    const atuais = tmpClient.tags || [];
+                    if (!atuais.includes(nova)) setTmpClient({ ...tmpClient, tags: [...atuais, nova] });
+                    e.target.value = "";
+                  }
+                }}
+              />
+            </div>
             <button style={S.formButton} onClick={saveClient}>Salvar Perfil</button>
           </div>
         </div>
@@ -2425,6 +2443,104 @@ function BrutoAtendimento() {
       )}
 
       {/* MODAL GESTÃO DE USUÁRIOS (admin) */}
+      {painelAdminOpen && (
+        <div style={S.modalOverlay} onClick={() => setPainelAdminOpen(false)}>
+          <div style={{ ...S.modalContent, maxWidth: 640 }} onClick={(e) => e.stopPropagation()}>
+            <button style={S.modalClose} onClick={() => setPainelAdminOpen(false)}><X size={16} strokeWidth={1.75}/></button>
+            <div style={S.modalTitle}>Painel Admin — Atividade da Equipe</div>
+            <p style={{ fontSize: 10.5, color: mid2, marginBottom: 12, lineHeight: 1.6 }}>
+              "Tempo online" é estimado por atividade na ferramenta (sem gaps maiores que 15min contados como o mesmo período). Não é um relógio de ponto exato.
+            </p>
+
+            <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+              {[["hoje", "Hoje"], ["7d", "7 dias"], ["30d", "30 dias"]].map(([v, label]) => (
+                <div
+                  key={v}
+                  onClick={() => { setPainelPeriodo(v); carregarResumoAtividade(v); if (painelAtendenteSel) abrirAtendenteNoPainel(painelAtendenteSel); }}
+                  style={{ fontSize: 10, padding: "5px 12px", borderRadius: 20, cursor: "pointer", border: `1px solid ${painelPeriodo === v ? "#57999B" : "#333"}`, color: painelPeriodo === v ? "#57999B" : "#999" }}
+                >{label}</div>
+              ))}
+            </div>
+
+            {painelErr && <div style={{ fontSize: 11, color: "#F87171", marginBottom: 10 }}>{painelErr}</div>}
+
+            {!painelAtendenteSel ? (
+              <div>
+                {painelBusy ? (
+                  <div style={{ fontSize: 11, color: mid2, textAlign: "center", padding: 20 }}>Carregando…</div>
+                ) : painelResumo.length === 0 ? (
+                  <div style={{ fontSize: 11, color: mid2, textAlign: "center", padding: 20 }}>Nenhum atendente ativo.</div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {painelResumo.map((a) => (
+                      <div
+                        key={a.id}
+                        onClick={() => abrirAtendenteNoPainel(a)}
+                        style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", border: `1px solid ${border}`, borderRadius: 8, cursor: "pointer" }}
+                      >
+                        <div>
+                          <div style={{ fontSize: 12.5, color: white, fontWeight: 600 }}>{a.nome}</div>
+                          <div style={{ fontSize: 9.5, color: mid2, marginTop: 2 }}>
+                            {a.total_logins > 0 ? `${a.total_logins} período(s) online` : "Sem atividade no período"}
+                            {a.ultima_atividade ? ` · última vez: ${new Date(a.ultima_atividade * 1000).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}` : ""}
+                          </div>
+                        </div>
+                        <div style={{ fontSize: 14, color: "#57999B", fontWeight: 700 }}>{formatarDuracao(a.segundos_online)}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div>
+                <div
+                  onClick={() => setPainelAtendenteSel(null)}
+                  style={{ fontSize: 10, color: teal, cursor: "pointer", marginBottom: 10 }}
+                >← Voltar para a equipe</div>
+                <div style={{ fontSize: 13, color: white, fontWeight: 600, marginBottom: 10 }}>{painelAtendenteSel.nome}</div>
+
+                {painelBusy ? (
+                  <div style={{ fontSize: 11, color: mid2, textAlign: "center", padding: 20 }}>Carregando…</div>
+                ) : (
+                  <>
+                    <div style={S.sectionTitle}>Registro de logins (blocos online)</div>
+                    <div style={{ maxHeight: 130, overflowY: "auto", marginBottom: 14 }}>
+                      {painelLogins.length === 0 ? (
+                        <div style={{ fontSize: 10, color: mid2, padding: "6px 0" }}>Nenhum período registrado.</div>
+                      ) : painelLogins.map((l, i) => (
+                        <div key={i} style={{ fontSize: 10, color: "#ddd", padding: "4px 0", borderBottom: `1px solid ${border}` }}>
+                          {new Date(l.inicio_em * 1000).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                          {" → "}
+                          {new Date(l.fim_em * 1000).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          {" · "}{formatarDuracao(l.fim_em - l.inicio_em)}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={S.sectionTitle}>Conversas ({painelSessoes.length})</div>
+                    <div style={{ maxHeight: 220, overflowY: "auto" }}>
+                      {painelSessoes.length === 0 ? (
+                        <div style={{ fontSize: 10, color: mid2, padding: "6px 0" }}>Nenhuma conversa registrada.</div>
+                      ) : painelSessoes.map((s) => (
+                        <div
+                          key={s.id}
+                          onClick={() => { setPainelAdminOpen(false); loadSession(s.id); }}
+                          style={{ padding: "8px 0", borderBottom: `1px solid ${border}`, cursor: "pointer" }}
+                        >
+                          <div style={{ fontSize: 11, color: white }}>{s.clientName || "Cliente"}</div>
+                          <div style={{ fontSize: 9.5, color: mid2 }}>{s.preview || "Sem mensagens"}</div>
+                          <div style={{ fontSize: 8.5, color: mid2, marginTop: 2 }}>{s.msgCount} msgs · {new Date(s.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {userMgmtOpen && (
         <div style={S.modalOverlay} onClick={() => setUserMgmtOpen(false)}>
           <div style={{ ...S.modalContent, maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
