@@ -73,14 +73,20 @@
   // Miniaturas dedicadas pra alguns produtos (foto de textura própria, recortada
   // pro seletor de padrão de assentamento) - usadas SÓ aqui, não mexe no
   // *-frontal-thumb.webp compartilhado com home/quiz/galeria do produto.
-  var SWATCH_V = 1; // bump sempre que os arquivos *-swatch.webp forem substituídos
+  var SWATCH_V = 2; // bump sempre que os arquivos *-swatch.webp forem substituídos
   var SWATCH_OVERRIDES = {
     'rockface-alpino':   'rockface-alpino-swatch.webp',
     'rockface-brisa':    'rockface-brisa-swatch.webp',
     'rockface-urban':    'rockface-urban-swatch.webp',
     'cimenticio-alpino': 'cimenticio-alpino-swatch.webp',
     'cimenticio-brisa':  'cimenticio-brisa-swatch.webp',
-    'cimenticio-urban':  'cimenticio-urban-swatch.webp'
+    'cimenticio-urban':  'cimenticio-urban-swatch.webp',
+    // Rusticatto do Sertão não tinha miniatura própria -- o seletor de cor
+    // (e o de segunda cor, nos padrões bicolor) caía no frontal-thumb
+    // compartilhado, que na prática reaproveitava uma foto do array geral
+    // do produto em vez de uma textura de perto de verdade. Reportado pelo
+    // Rafael em 02/08/2026, foto nova fornecida por ele.
+    'brick-rusticatto-sertao': 'brick-rusticatto-sertao-swatch.webp'
   };
 
   function textureUrl(id)  { return id + '-frontal.webp'; }
