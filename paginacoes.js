@@ -732,7 +732,7 @@
         case 'vertical':   return genVertical(wallW, wallH, mw, mh, gap);
         case 'cesta':      return genCesta(wallW, wallH, mw, mh, gap);
         case 'diagonal':   return genDiagonal(wallW, wallH, mw, mh, gap);
-        case 'espinha':    return genEspinha(wallW, wallH, mw * 1.35, gap);
+        case 'espinha':    return genEspinha(wallW, wallH, mw, gap);
         case 'flandres':        return genFlandres(wallW, wallH, mw, mh, gap);
         case 'ingles':           return genIngles(wallW, wallH, mw, mh, gap);
         case 'inglescruzado':    return genInglesCruzado(wallW, wallH, mw, mh, gap);
