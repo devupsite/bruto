@@ -801,10 +801,13 @@
         return marcar(function (r) { return r.w < mw * 0.75 ? 1 : 0; });
       // Espinha de Peixe: mistura de tom 50/50 (não por orientação da perna
       // -- pesquisa mostrou que não é a convenção de mercado real)
+      // Espinha de Peixe: cada FILEIRA inteira já tem uma única orientação
+      // (45°/135°, alternando linha a linha -- ver comentário em
+      // genEspinha). Usar esse sinal pronto pra colorir gera faixa
+      // horizontal limpa, sem risco de desalinhamento como uma banda
+      // diagonal genérica teria nessa geometria específica.
       case 'espinha':
-        return marcar(function (r) {
-          return seededRand(r.x * 0.13 + r.y * 0.29 + 7) < 0.5 ? 0 : 1;
-        });
+        return marcar(function (r) { return r.rot === 135 ? 1 : 0; });
       // Aleatório: mistura ponderada 70/30 (convenção real de blend de
       // tijolo — mínimo de 3 tons na prática, aqui simplificado pra 2)
       case 'aleatorio':

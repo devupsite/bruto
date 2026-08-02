@@ -1998,6 +1998,21 @@
   .pgn-preview-wrap { position: sticky; top: clamp(16px, 2vw, 32px); }
 }
 
+@media (max-width: 860px) {
+  /* Mesmo problema existe no mobile — na verdade pior, tela mais estreita
+     e lista igualmente longa. Aqui sim funciona empilhado: a prévia é a
+     primeira coisa no DOM, então "grudar" ela no topo funciona mesmo em
+     coluna única. Compacta (altura menor) pra não tomar a tela toda e
+     deixar espaço real pros controles abaixo dela. */
+  .pgn-preview-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    padding: clamp(10px, 3vw, 16px);
+  }
+  .pgn-wall { max-height: 34vh; }
+}
+
 .pgn-preview-wrap.pgn-ambient--escuro {
   background: linear-gradient(180deg, #2a2825 0%, #16140f 100%);
 }
