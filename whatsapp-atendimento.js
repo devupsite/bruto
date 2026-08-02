@@ -47,12 +47,12 @@
   var ADS_STORAGE_KEY = 'bruto_ads_contexto';
 
   // Fallback local caso a API de rodízio caia ou a rede falhe.
-  // Hoje o rodízio tem 2 posições: o número Bruto (5511990049468,
+  // Hoje o rodízio tem 2 posições: o número Bruto (5511950458882,
   // desbanido pela Meta) ativo, e uma segunda posição em placeholder
   // aguardando um número novo. Por ora, mantém só o número Bruto
   // como rede de segurança; quando a 2ª posição for definida,
   // idealmente incluir aqui também pra o fallback também alternar.
-  var FALLBACK_NUMEROS = ['5511990049468'];
+  var FALLBACK_NUMEROS = ['5511950458882'];
 
   var promessaNumero = null;
 
