@@ -1988,6 +1988,16 @@
                        pinta por cima do conteúdo anterior da página */
 }
 
+@media (min-width: 861px) {
+  /* Grudado ao rolar: a lista de padrões (25 itens) + controles de cor
+     empurram bastante conteúdo pra baixo, e sem isso a prévia saía do
+     campo visual assim que a pessoa descia pra escolher as cores —
+     perdia o feedback em tempo real. Só no desktop (>860px), onde o
+     grid é 2 colunas de verdade; no mobile as colunas empilham e sticky
+     não faria sentido. */
+  .pgn-preview-wrap { position: sticky; top: clamp(16px, 2vw, 32px); }
+}
+
 .pgn-preview-wrap.pgn-ambient--escuro {
   background: linear-gradient(180deg, #2a2825 0%, #16140f 100%);
 }
