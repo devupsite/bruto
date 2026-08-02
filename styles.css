@@ -712,6 +712,17 @@
     .depoimentos { padding: var(--sec-pad) 0; border-top: 1px solid var(--line); }
 
     .dep { border: 1px solid var(--line); padding: 28px; display: flex; flex-direction: column; }
+    .depoimentos__grid {
+      /* Só 2 depoimentos reais por enquanto -- centraliza em 2 colunas
+         mais largas em vez do grid-3 padrão de 3 colunas (que deixaria uma
+         terceira coluna vazia no desktop). Escopado só aqui pra não afetar
+         o .grid-3 genérico, usado em várias outras páginas do site. Nos
+         breakpoints menores, as regras responsivas já existentes do
+         .grid-3 (2 colunas, depois 1) já resolvem bem sozinhas pra 2 itens
+         -- não precisa de override extra ali. */
+      grid-template-columns: repeat(2, minmax(0, 420px));
+      justify-content: center;
+    }
     .dep__quote {
       font-size: 14px;
       font-style: italic;
