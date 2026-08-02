@@ -35,7 +35,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.44.0/dist/tabler-icons.min.css">
 
-  <link rel="stylesheet" href="styles.min.css?v=7">
+  <link rel="stylesheet" href="styles.min.css?v=8">
   <style>
     .carousel {
       position: relative;
@@ -891,9 +891,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <span class="pgn-control-label">Cor — coleção Rockface</span>
             <div class="pgn-swatches" role="group" aria-label="Selecionar cor"></div>
           </div>
-          <div class="pgn-control-group pgn-control-group--bicolor" hidden>
-            <span class="pgn-control-label">Segunda cor — só p/ padrões bicolor</span>
-            <div class="pgn-swatches-b" role="group" aria-label="Selecionar segunda cor"></div>
+          <div class="pgn-control-group pgn-control-group--bicolor">
+            <label class="pgn-bicolor-toggle">
+              <input type="checkbox" class="pgn-bicolor-checkbox">
+              <span>Usar duas cores neste padrão</span>
+            </label>
+            <div class="pgn-swatches-b" role="group" aria-label="Selecionar segunda cor" hidden></div>
           </div>
         </div>
       </div>
@@ -1376,7 +1379,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <script defer src="mobile-cta-bar.min.js?v=2"></script>
   <script defer src="cookie-consent.min.js?v=1"></script>
   <script defer src="amostras.min.js?v=4"></script>
-  <script defer src="paginacoes.min.js?v=33"></script>
+  <script defer src="paginacoes.min.js?v=34"></script>
   <script defer src="lead-pdf.min.js?v=12"></script>
   <script defer src="parcelamento.min.js?v=2"></script>
   <script src="analytics.min.js"></script>

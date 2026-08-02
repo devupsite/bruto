@@ -93,69 +93,104 @@
     return col.itens.filter(function (b) { return b.id === id; })[0] || col.itens[0];
   }
 
-  function getSegundaCor(brickId) {
-    // Padrões bicolor não têm seletor de segunda cor na interface (ainda) --
-    // escolhe automaticamente outra peça da MESMA coleção, distante o
-    // suficiente na lista pra dar contraste (ex.: numa coleção com 11 itens,
-    // pega a peça ~5-6 posições à frente, ciclando). Determinístico: a
-    // mesma peça de base sempre resulta na mesma parceira, sem variar a
-    // cada render.
+  // Tom médio (RGB) de cada peça, amostrado da foto real (face1) em 40x40px.
+  // Gerado uma vez via script (ver README/COLABORACAO item 61) -- se uma
+  // textura for substituída, regenerar esta tabela (não é crítico deixar
+  // desatualizado, só faz o pareamento de cor ficar menos preciso).
+  var TONS = {
+    'brick-eco-palha': [174,160,134],
+    'brick-rusticatto-palha': [152,141,116],
+    'brick-lumus': [155,170,204],
+    'brick-mescla-prime': [178,162,136],
+    'brick-natura': [173,117,101],
+    'brick-rosso-prime': [169,120,91],
+    'brick-rusticatto-sertao': [200,139,97],
+    'brick-rusticatto-fume': [45,61,73],
+    'brick-rusticatto-rosso': [141,100,69],
+    'brick-rusticatto-terra-negra': [58,77,92],
+    'brick-terra-cerrado': [157,113,74],
+    'cimenticio-alpino': [231,231,226],
+    'cimenticio-brisa': [192,179,154],
+    'cimenticio-urban': [151,151,151],
+    'rockface-alpino': [216,219,219],
+    'rockface-brisa': [207,196,153],
+    'rockface-urban': [173,172,173]
+  };
+
+  function distanciaCor(idA, idB) {
+    var a = TONS[idA], b = TONS[idB];
+    if (!a || !b) return 999999; // sem dado -- nao prioriza nem penaliza
+    var dr = a[0] - b[0], dg = a[1] - b[1], db = a[2] - b[2];
+    return Math.sqrt(dr * dr + dg * dg + db * db);
+  }
+
+  function getSegundaCor(brickId, baixoContraste) {
+    // Escolhe automaticamente uma segunda cor da MESMA coleção, usando a
+    // distância real de tom (RGB médio da foto) em vez de só "outra peça
+    // qualquer da lista". Sem `baixoContraste`: pega uma peça de distância
+    // MODERADA (nem a mais parecida, nem a mais diferente) -- alinhado à
+    // tendência 2025-2026 de contraste sutil, não extremo (ver item 61 do
+    // COLABORACAO.md). Com `baixoContraste`: pega a mais PARECIDA em tom,
+    // pros padrões que a pesquisa marcou como visualmente carregados em
+    // alto contraste (Cesta, Escama, Diagonal Cruzada, Cata-vento).
     var col = colecaoDe(brickId);
     var itens = col.itens;
-    var idx = -1;
-    for (var i = 0; i < itens.length; i++) { if (itens[i].id === brickId) { idx = i; break; } }
-    if (idx < 0) idx = 0;
-    var offset = Math.max(1, Math.floor(itens.length / 2));
-    var idxB = (idx + offset) % itens.length;
-    return itens[idxB];
+    var candidatos = itens.filter(function (b) { return b.id !== brickId; });
+    if (!candidatos.length) return itens[0];
+    candidatos = candidatos.slice().sort(function (a, b) {
+      return distanciaCor(brickId, a.id) - distanciaCor(brickId, b.id);
+    });
+    if (baixoContraste) return candidatos[0];
+    var idx = Math.floor(candidatos.length / 2);
+    return candidatos[idx];
   }
 
   // Padrões — cat segue a taxonomia do catálogo de paginações
   // (corrido / geometrico / especial); nivel: 1 fácil · 2 médio · 3 avançado
   var PATTERNS = [
-    { id: 'corrido12',  label: 'Amarrado 1/2',    cat: 'corrido',    nivel: 1,
+    { id: 'corrido12',  label: 'Amarrado 1/2',    cat: 'corrido',    nivel: 1, bicolor: true,
       desc: 'O clássico — deslocamento de meia peça a cada fiada.' },
-    { id: 'corrido13',  label: 'Terço Corrido',   cat: 'corrido',    nivel: 1,
+    { id: 'corrido13',  label: 'Terço Corrido',   cat: 'corrido',    nivel: 1, bicolor: true,
       desc: 'Deslocamento de um terço, ritmo mais alongado.' },
-    { id: 'quarto',     label: 'Quarto Corrido',  cat: 'corrido',    nivel: 1,
+    { id: 'quarto',     label: 'Quarto Corrido',  cat: 'corrido',    nivel: 1, bicolor: true,
       desc: 'Deslocamento de um quarto — escalonado sutil, quase diagonal.' },
-    { id: 'fiadas',     label: 'Fiadas Duplas',   cat: 'corrido',    nivel: 2,
+    { id: 'fiadas',     label: 'Fiadas Duplas',   cat: 'corrido',    nivel: 2, bicolor: true,
       desc: 'Pares de fiadas alinhadas, deslocando a cada dupla. Ritmo mais largo.' },
-    { id: 'empilhado',  label: 'Junta a Prumo',   cat: 'corrido',    nivel: 2,
+    { id: 'empilhado',  label: 'Junta a Prumo',   cat: 'corrido',    nivel: 2, bicolor: true,
       desc: 'Sem deslocamento — grid puro, leitura industrial e contemporânea.' },
-    { id: 'vertical',   label: 'Vertical',        cat: 'especial',   nivel: 2,
+    { id: 'vertical',   label: 'Vertical',        cat: 'especial',   nivel: 2, bicolor: true,
       desc: 'Peças em pé — alonga o ambiente e destaca panos de parede.' },
-    { id: 'cesta',      label: 'Cesta',           cat: 'geometrico', nivel: 2,
+    { id: 'cesta',      label: 'Cesta',           cat: 'geometrico', nivel: 2, bicolor: true, baixoContraste: true,
       desc: 'Blocos alternados na horizontal e vertical — efeito de trama têxtil.' },
-    { id: 'espinha',    label: 'Espinha de Peixe', cat: 'geometrico', nivel: 3,
+    { id: 'espinha',    label: 'Espinha de Peixe', cat: 'geometrico', nivel: 3, bicolor: true,
       desc: 'Peças em 45° alternadas — acabamento premium.' },
-    { id: 'diagonal',   label: 'Diagonal',        cat: 'geometrico', nivel: 3,
+    { id: 'diagonal',   label: 'Diagonal',        cat: 'geometrico', nivel: 3, bicolor: true,
       desc: 'Amarrado girado em 45° — amplia visualmente e gera mais recortes.' },
-    { id: 'flandres',   label: 'Flandrês',        cat: 'corrido',    nivel: 2,
+    { id: 'flandres',   label: 'Flandrês',        cat: 'corrido',    nivel: 2, bicolor: true,
       desc: 'Alternância de uma peça deitada e uma de topo em cada fiada. Padrão europeu clássico com textura visual rica.' },
-    { id: 'americano',  label: 'Americano',       cat: 'corrido',    nivel: 2,
+    { id: 'americano',  label: 'Americano',       cat: 'corrido',    nivel: 2, bicolor: true,
       desc: 'A cada 3 a 5 fiadas amarradas, uma fiada de topo. Cria listras horizontais de textura diferenciada.' },
-    { id: 'misto',      label: 'Misto',           cat: 'geometrico', nivel: 3,
+    { id: 'misto',      label: 'Misto',           cat: 'geometrico', nivel: 3, bicolor: true,
       desc: 'Alternância entre fiadas horizontais e fiadas verticais — dois planos de textura distintos.' },
-    { id: 'ingles',     label: 'Inglês',          cat: 'corrido',    nivel: 2,
+    { id: 'ingles',     label: 'Inglês',          cat: 'corrido',    nivel: 2, bicolor: true,
       desc: 'Fiadas alternadas de peças deitadas e fiadas inteiras de topo — um dos padrões mais antigos da alvenaria.' },
-    { id: 'inglescruzado', label: 'Inglês Cruzado', cat: 'corrido',  nivel: 3,
+    { id: 'inglescruzado', label: 'Inglês Cruzado', cat: 'corrido',  nivel: 3, bicolor: true,
       desc: 'Variação do Inglês em que as fiadas de topo se alternam com offset, criando cruzamentos diagonais sutis.' },
-    { id: 'catavento',  label: 'Cata-vento',      cat: 'geometrico', nivel: 3,
+    { id: 'catavento',  label: 'Cata-vento',      cat: 'geometrico', nivel: 3, bicolor: true, baixoContraste: true,
       desc: 'Quatro peças envolvem um quadrado central em rotação — forte identidade visual.' },
-    { id: 'monge',      label: 'Monge',           cat: 'corrido',    nivel: 3,
+    { id: 'monge',      label: 'Monge',           cat: 'corrido',    nivel: 3, bicolor: true,
       desc: 'Dois tijolos deitados seguidos de um de topo em cada fiada, alternando o offset.' },
-    { id: 'jardim',     label: 'Jardim',          cat: 'corrido',    nivel: 2,
+    { id: 'jardim',     label: 'Jardim',          cat: 'corrido',    nivel: 2, bicolor: true,
       desc: 'Três tijolos deitados para cada um de topo — variação mais discreta do Monge.' },
-    { id: 'losango',    label: 'Losango',         cat: 'geometrico', nivel: 3,
+    { id: 'losango',    label: 'Losango',         cat: 'geometrico', nivel: 3, bicolor: true,
       desc: 'Paginação empilhada girada 45°, formando losangos entre as juntas.' },
-    { id: 'aleatorio',  label: 'Aleatório',       cat: 'especial',   nivel: 2,
+    { id: 'aleatorio',  label: 'Aleatório',       cat: 'especial',   nivel: 2, bicolor: true,
       desc: 'Peças em comprimentos variados sem padrão fixo de offset — resultado orgânico e rústico.' },
-    { id: 'diagonalcruzada', label: 'Diagonal Cruzada', cat: 'geometrico', nivel: 3,
+    { id: 'diagonalcruzada', label: 'Diagonal Cruzada', cat: 'geometrico', nivel: 3, bicolor: true, baixoContraste: true,
       desc: 'Duas camadas em diagonais opostas (+30° e −30°) sobrepostas, formando uma trama visual complexa.' },
-    { id: 'escama',     label: 'Escama',          cat: 'geometrico', nivel: 2,
+    { id: 'escama',     label: 'Escama',          cat: 'geometrico', nivel: 2, bicolor: true, baixoContraste: true,
       desc: 'Peças quadradas sobrepostas em offset diagonal, imitando escamas de peixe.' },
-    { id: 'larga',      label: 'Junta Larga',     cat: 'corrido',    nivel: 1,
+    { id: 'larga',      label: 'Junta Larga',     cat: 'corrido',    nivel: 1, bicolor: true,
       desc: 'Paginação amarrada com rejunte generoso — a junta vira elemento visual tão importante quanto o brick.' },
     { id: 'xadrezbicolor', label: 'Xadrez Bicolor', cat: 'especial', nivel: 1, bicolor: true,
       desc: 'Alternância de dois tons de brick no padrão amarrado — explora cores contrastantes da mesma linha.' },
@@ -682,33 +717,112 @@
     var mh = mw * (peca.h / peca.w);
     // converte a junta real (mm) para pixels usando a largura da peça como régua
     var gap = Math.max(1, mw * ((juntaMm || 8) / peca.w));
+    var rects = (function () {
+      switch (patternId) {
+        case 'corrido13': return genCorrido(wallW, wallH, mw, mh, gap, 1 / 3);
+        case 'quarto':     return genCorrido(wallW, wallH, mw, mh, gap, 1 / 4);
+        case 'fiadas':     return genCorrido(wallW, wallH, mw, mh, gap, 0.5, 2);
+        case 'empilhado':  return genEmpilhado(wallW, wallH, mw, mh, gap);
+        case 'vertical':   return genVertical(wallW, wallH, mw, mh, gap);
+        case 'cesta':      return genCesta(wallW, wallH, mw, mh, gap);
+        case 'diagonal':   return genDiagonal(wallW, wallH, mw, mh, gap);
+        case 'espinha':    return genEspinha(wallW, wallH, mw * 1.35, gap);
+        case 'flandres':        return genFlandres(wallW, wallH, mw, mh, gap);
+        case 'ingles':           return genIngles(wallW, wallH, mw, mh, gap);
+        case 'inglescruzado':    return genInglesCruzado(wallW, wallH, mw, mh, gap);
+        case 'americano':        return genAmericano(wallW, wallH, mw, mh, gap);
+        case 'monge':            return genMonge(wallW, wallH, mw, mh, gap);
+        case 'jardim':           return genJardim(wallW, wallH, mw, mh, gap);
+        case 'losango':          return genLosango(wallW, wallH, mw, mh, gap);
+        case 'aleatorio':        return genAleatorio(wallW, wallH, mw, mh, gap);
+        case 'catavento':        return genCataVento(wallW, wallH, mw, mh, gap);
+        case 'diagonalcruzada':  return genDiagonalCruzada(wallW, wallH, mw, mh, gap);
+        case 'escama':           return genEscama(wallW, wallH, mw, mh, gap);
+        case 'misto':            return genMisto(wallW, wallH, mw, mh, gap);
+        case 'larga':            return genCorrido(wallW, wallH, mw, mh, gap * 2.5, 0.5);
+        case 'xadrezbicolor':    return genXadrezBicolor(wallW, wallH, mw, mh, gap);
+        case 'modquadrado':      return genModuloQuadrado(wallW, wallH, mw, mh, gap);
+        case 'gotico':           return genGotico(wallW, wallH, mw, mh, gap);
+        case 'corrido12':
+        default:           return genCorrido(wallW, wallH, mw, mh, gap, 0.5);
+      }
+    })();
+    return colorirPecas(patternId, rects, mw, mh, gap);
+  }
+
+  function colorirPecas(patternId, rects, mw, mh, gap) {
+    // Aplica `colorIdx` (0 ou 1) por peça pra padrões bicolor cuja função
+    // geradora NÃO já define isso sozinha (xadrezbicolor/modquadrado/gotico
+    // continuam com a lógica própria deles, embutida na geometria -- essa
+    // função não mexe nesses três). Roda só com base em x/y/w/h/rot que já
+    // existem no retângulo -- nenhuma das 22 funções geradoras precisou ser
+    // alterada pra isso. Regras vêm do item 61 do COLABORACAO.md (pesquisa
+    // de convenção real de alvenaria/revestimento bicolor).
+    function marcar(fn) {
+      return rects.map(function (r) {
+        var novo = {};
+        for (var k in r) novo[k] = r[k];
+        novo.colorIdx = fn(r);
+        return novo;
+      });
+    }
     switch (patternId) {
-      case 'corrido13': return genCorrido(wallW, wallH, mw, mh, gap, 1 / 3);
-      case 'quarto':     return genCorrido(wallW, wallH, mw, mh, gap, 1 / 4);
-      case 'fiadas':     return genCorrido(wallW, wallH, mw, mh, gap, 0.5, 2);
-      case 'empilhado':  return genEmpilhado(wallW, wallH, mw, mh, gap);
-      case 'vertical':   return genVertical(wallW, wallH, mw, mh, gap);
-      case 'cesta':      return genCesta(wallW, wallH, mw, mh, gap);
-      case 'diagonal':   return genDiagonal(wallW, wallH, mw, mh, gap);
-      case 'espinha':    return genEspinha(wallW, wallH, mw * 1.35, gap);
-      case 'flandres':        return genFlandres(wallW, wallH, mw, mh, gap);
-      case 'ingles':           return genIngles(wallW, wallH, mw, mh, gap);
-      case 'inglescruzado':    return genInglesCruzado(wallW, wallH, mw, mh, gap);
-      case 'americano':        return genAmericano(wallW, wallH, mw, mh, gap);
-      case 'monge':            return genMonge(wallW, wallH, mw, mh, gap);
-      case 'jardim':           return genJardim(wallW, wallH, mw, mh, gap);
-      case 'losango':          return genLosango(wallW, wallH, mw, mh, gap);
-      case 'aleatorio':        return genAleatorio(wallW, wallH, mw, mh, gap);
-      case 'catavento':        return genCataVento(wallW, wallH, mw, mh, gap);
-      case 'diagonalcruzada':  return genDiagonalCruzada(wallW, wallH, mw, mh, gap);
-      case 'escama':           return genEscama(wallW, wallH, mw, mh, gap);
-      case 'misto':            return genMisto(wallW, wallH, mw, mh, gap);
-      case 'larga':            return genCorrido(wallW, wallH, mw, mh, gap * 2.5, 0.5);
-      case 'xadrezbicolor':    return genXadrezBicolor(wallW, wallH, mw, mh, gap);
-      case 'modquadrado':      return genModuloQuadrado(wallW, wallH, mw, mh, gap);
-      case 'gotico':           return genGotico(wallW, wallH, mw, mh, gap);
-      case 'corrido12':
-      default:           return genCorrido(wallW, wallH, mw, mh, gap, 0.5);
+      // Família corrido: xadrez por posição (linha/coluna)
+      case 'corrido12': case 'corrido13': case 'quarto': case 'fiadas':
+      case 'empilhado': case 'larga':
+        return marcar(function (r) {
+          var col = Math.round(r.x / Math.max(r.w, 1));
+          var row = Math.round(r.y / Math.max(r.h, 1));
+          return ((row % 2) + (col % 2) + 4) % 2;
+        });
+      // Vertical: listra por coluna
+      case 'vertical':
+        return marcar(function (r) {
+          var col = Math.round(r.x / Math.max(r.w, 1));
+          return ((col % 2) + 2) % 2;
+        });
+      // Família diagonal: faixa diagonal (não xadrez por peça)
+      case 'diagonal': case 'losango':
+        return marcar(function (r) {
+          var banda = Math.max(mw, mh) * 1.4;
+          var idx = Math.floor((r.x + r.y) / banda);
+          return ((idx % 2) + 2) % 2;
+        });
+      // Família clássico (diaper bond): peça de topo (mais estreita) recebe
+      // a cor de destaque, peça deitada fica na cor base
+      case 'flandres': case 'ingles': case 'inglescruzado':
+      case 'americano': case 'monge': case 'jardim':
+        return marcar(function (r) { return r.w < mw * 0.75 ? 1 : 0; });
+      // Espinha de Peixe: mistura de tom 50/50 (não por orientação da perna
+      // -- pesquisa mostrou que não é a convenção de mercado real)
+      case 'espinha':
+        return marcar(function (r) {
+          return seededRand(r.x * 0.13 + r.y * 0.29 + 7) < 0.5 ? 0 : 1;
+        });
+      // Aleatório: mistura ponderada 70/30 (convenção real de blend de
+      // tijolo — mínimo de 3 tons na prática, aqui simplificado pra 2)
+      case 'aleatorio':
+        return marcar(function (r) {
+          return seededRand(r.x * 0.13 + r.y * 0.29 + 7) < 0.7 ? 0 : 1;
+        });
+      // Cesta e Misto: já alternam rot 0°/90° por módulo/faixa na própria
+      // geometria -- reaproveita esse sinal como cor
+      case 'cesta': case 'misto':
+        return marcar(function (r) { return r.rot === 90 ? 1 : 0; });
+      // Escama: por fiada (banda de cor), como telhado de ardósia bicolor
+      case 'escama':
+        return marcar(function (r) {
+          var row = Math.round(r.y / Math.max(r.h, 1));
+          return ((row % 2) + 2) % 2;
+        });
+      // Diagonal Cruzada: uma cor sólida por camada (+30° vs -30°)
+      case 'diagonalcruzada':
+        return marcar(function (r) { return r.rot > 0 ? 0 : 1; });
+      // Cata-vento: só a peça central (quadrada) recebe a cor de destaque
+      case 'catavento':
+        return marcar(function (r) { return Math.abs(r.w - r.h) < 2 ? 1 : 0; });
+      default:
+        return rects; // xadrezbicolor / modquadrado / gotico já vêm prontos
     }
   }
 
@@ -743,15 +857,15 @@
     // Itens sem `texturas` mantêm a janela reveladora original.
     var texturas = peca.texturas || null;
 
-    // Padrões bicolor (Xadrez Bicolor, Módulo Quadrado, Gótico): peças com
-    // colorIdx === 1 usam uma segunda cor, escolhida automaticamente na
-    // mesma coleção (ver getSegundaCor). Peças sem colorIdx (todos os
-    // outros padrões) seguem exatamente como antes — nada muda pra eles.
+    // Padrões bicolor (agora os 25 suportam -- ver item 61 do
+    // COLABORACAO.md), mas só entram em modo bicolor se `state.usarBicolor`
+    // estiver ligado (checkbox opt-in) -- nenhum padrão vem bicolor por
+    // padrão. Peças com colorIdx === 1 usam a segunda cor quando ativo.
     var patternDef = null;
     for (var pi = 0; pi < PATTERNS.length; pi++) { if (PATTERNS[pi].id === state.pattern) { patternDef = PATTERNS[pi]; break; } }
     var pecaB = null, texturasB = null, urlB = null;
-    if (patternDef && patternDef.bicolor) {
-      pecaB = findItem(state.brickIdB || getSegundaCor(state.brickId).id);
+    if (patternDef && patternDef.bicolor && state.usarBicolor) {
+      pecaB = findItem(state.brickIdB || getSegundaCor(state.brickId, !!patternDef.baixoContraste).id);
       texturasB = pecaB.texturas || null;
       urlB = "url('" + textureUrl(pecaB.id) + "')";
     }
@@ -1097,8 +1211,9 @@
 
     var state = {
       brickId: findItem(initialId).id,
-      brickIdB: null,            // segunda cor (padrões bicolor) -- preenchido logo abaixo
+      brickIdB: null,            // segunda cor -- preenchido logo abaixo
       brickIdBManual: false,     // true assim que a pessoa escolher a segunda cor à mão
+      usarBicolor: false,        // opt-in -- todos os 25 padrões suportam, mas nenhum come\u00e7a bicolor sozinho
       pattern: padraoInicial,
       ambiente: 'claro',
       vista: 'frontal',
@@ -1106,22 +1221,24 @@
       junta: 8,                 // mm — mesmo valor da calculadora de m²
       rejunte: REJUNTES[0]
     };
-    state.brickIdB = getSegundaCor(state.brickId).id;
+
+    function padraoAtivo() {
+      return PATTERNS.filter(function (p) { return p.id === state.pattern; })[0] || PATTERNS[0];
+    }
+
+    state.brickIdB = getSegundaCor(state.brickId, !!padraoAtivo().baixoContraste).id;
 
     var nameLabel = root.querySelector('.pgn-current-name');
     if (nameLabel) nameLabel.textContent = findItem(state.brickId).nome;
 
     var descLabel = root.querySelector('.pgn-pattern-desc');
-    if (descLabel) {
-      var pAtivo = PATTERNS.filter(function (p) { return p.id === state.pattern; })[0] || PATTERNS[0];
-      descLabel.textContent = pAtivo.desc;
-    }
+    if (descLabel) descLabel.textContent = padraoAtivo().desc;
+
+    var checkboxBicolor = root.querySelector('.pgn-bicolor-checkbox');
 
     function toggleSwatchesBVisibility() {
-      var pAtivo2 = PATTERNS.filter(function (p) { return p.id === state.pattern; })[0];
-      var isBicolor = !!(pAtivo2 && pAtivo2.bicolor);
-      var group = root.querySelector('.pgn-control-group--bicolor');
-      if (group) group.hidden = !isBicolor;
+      var wrapB = root.querySelector('.pgn-swatches-b');
+      if (wrapB) wrapB.hidden = !state.usarBicolor;
     }
 
     function rerender() {
@@ -1130,11 +1247,20 @@
       if (colorLink) colorLink.setAttribute('href', 'produto-' + state.brickId + '.html');
     }
 
+    if (checkboxBicolor) {
+      checkboxBicolor.addEventListener('change', function () {
+        state.usarBicolor = checkboxBicolor.checked;
+        toggleSwatchesBVisibility();
+        rerender();
+      });
+    }
+
     // onChange da cor PRIMÁRIA: se a segunda cor ainda não foi escolhida à
-    // mão, recalcula o auto-pareamento pra acompanhar a nova cor primária.
+    // mão, recalcula o auto-pareamento (respeitando baixoContraste do
+    // padrão ativo) pra acompanhar a nova cor primária.
     function onPrimaryChange() {
       if (!state.brickIdBManual) {
-        state.brickIdB = getSegundaCor(state.brickId).id;
+        state.brickIdB = getSegundaCor(state.brickId, !!padraoAtivo().baixoContraste).id;
         buildSwatchesB(root, state, onSecondaryChange);
       }
       rerender();
@@ -1144,10 +1270,15 @@
       rerender();
     }
 
-    // onChange do PADRÃO: além de renderizar, mostra/esconde o seletor de
-    // segunda cor conforme o padrão escolhido ser bicolor ou não.
+    // onChange do PADRÃO: se a segunda cor não foi escolhida à mão,
+    // recalcula o auto-pareamento -- padrões diferentes podem pedir
+    // baixoContraste diferente. O checkbox "usar duas cores" NÃO muda
+    // sozinho ao trocar de padrão (fica como a pessoa deixou).
     function onPatternChange() {
-      toggleSwatchesBVisibility();
+      if (!state.brickIdBManual) {
+        state.brickIdB = getSegundaCor(state.brickId, !!padraoAtivo().baixoContraste).id;
+        buildSwatchesB(root, state, onSecondaryChange);
+      }
       rerender();
     }
 

@@ -2297,9 +2297,25 @@
   gap: 0.5rem;
   max-width: 320px;
 }
+.pgn-swatches-b[hidden] { display: none; }
 
 @media (max-width: 860px) {
   .pgn-swatches, .pgn-swatches-b { grid-template-columns: repeat(8, 1fr); max-width: none; }
+}
+
+.pgn-bicolor-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.pgn-bicolor-toggle input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--ferro, #0A0A0A);
+  cursor: pointer;
 }
 
 .pgn-swatch {
