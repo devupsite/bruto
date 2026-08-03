@@ -1032,6 +1032,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       slides[n].classList.add('active');
       dots[n].classList.add('active');
       currentSlide = n;
+
+      // Fix: com opacity:0 empilhado, o navegador nunca decide carregar a
+      // imagem lazy sozinho (opacity não conta como "fora da tela" pro
+      // IntersectionObserver nativo). Força eager assim que o slide vira ativo.
+      const img = slides[n].querySelector('img');
+      if (img && img.loading === 'lazy') img.loading = 'eager';
     }
 
     function nextSlide() {
