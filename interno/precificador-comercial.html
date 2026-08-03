@@ -541,6 +541,13 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
       </div>
       <div class="ab" style="margin-top:8px"><span class="ai">—</span><span>Ambas as condições têm o pagamento vinculado à entrega: a mercadoria só é liberada após confirmação do Pix ou aprovação da transação do cartão.</span></div>
 
+      <div class="sl" style="margin-top:16px">Cliente solicita nota fiscal?</div>
+      <div class="tg-g">
+        <div class="tgb on" id="nf-sim" onclick="setNF('sim')">Sim, com nota</div>
+        <div class="tgb" id="nf-nao" onclick="setNF('nao')">Sem nota</div>
+      </div>
+      <div class="ab" id="nf-md"><span class="ai">—</span><span>Com nota: preço e margem calculados normalmente.</span></div>
+
       <input type="hidden" id="p-tax" value="5">
     </div>
     <div>
@@ -554,6 +561,7 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
         <div class="or"><span class="orl">Custo produto (fornecedor)</span><span class="orv neg" id="r-cp">— calculando</span></div>
         <div class="or"><span class="orl">Margem bruta</span><span class="orv pos" id="r-mb">R$ 220</span></div>
         <div class="or"><span class="orl">Taxa de pagamento</span><span class="orv neg" id="r-tx">− R$ 38</span></div>
+        <div class="or" id="r-bonus-wrap" style="display:none"><span class="orl">Bônus sem nota (8% do valor de venda)</span><span class="orv pos" id="r-bonus">+ R$ 0</span></div>
         <div class="or"><span class="orl">Lucro líquido por pedido</span><span class="orv pos" id="r-ll">R$ 182</span></div>
         <!-- r-mb e r-ll: classe pos/neg e sinal (−) agora setados dinamicamente em calcPrec(), conforme o valor real seja positivo ou negativo -->
         <div class="or"><span class="orl">Margem líquida real</span><span class="orv acc" id="r-ml">14,4%</span></div>
@@ -1811,6 +1819,7 @@ let PDMODE='absorver'; // quem paga o material extra da perda de corte: 'absorve
 let PFMODE='padrao';   // condição de pagamento ao fornecedor: 'padrao' ou 'avista' (desconto extra)
 let PFCAPTURE='repassar'; // o que fazer com a economia do fornecedor à vista: 'repassar' ao preço ou 'capturar' como lucro extra
 let PGMODE='pix';       // forma de recebimento do cliente: 'pix' (desconto) ou 'cartao' (taxa assumida pela Bruto)
+let NFMODE='sim';       // nota fiscal: 'sim' (padrão) ou 'nao' (+8% de margem líquida, imposto evitado, preço ao cliente não muda)
 const FB={se:0,su:0,co:0,ne:0,no:0}; // R$/kg por região — preenchido pelo usuário na interface (Feature 2), zero até então
 
 // Mapa de UF -> região macro, mesma divisão das 5 taxas do frete (Feature 2).
@@ -1976,6 +1985,16 @@ function setPG(m){
     :'Cartão parcelado sem juros: o cliente não paga nada a mais — a taxa da maquininha sai inteira da sua margem.')+'</span>';
   calcPrec();
 }
+function setNF(m){
+  NFMODE=m;
+  $('nf-sim').classList.toggle('on',m==='sim');
+  $('nf-nao').classList.toggle('on',m==='nao');
+  const el=$('nf-md');
+  el.innerHTML='<span class="ai">—</span><span>'+(m==='sim'
+    ?'Com nota: preço e margem calculados normalmente.'
+    :'Sem nota: o preço pro cliente não muda, mas +8% do valor de venda vira margem líquida extra pra Bruto (imposto que deixaria de ser recolhido na emissão).')+'</span>';
+  calcPrec();
+}
 function syncDisc(v){ $('p-dsclbl',v+'%'); $('p-dsci').value=v; calcPrec(); }
 function syncDiscI(v){ $('p-dscr').value=v; $('p-dsclbl',v+'%'); calcPrec(); }
 function syncCbDisc(v){ $('cb-dsclbl',v+'%'); calcCen(); }
@@ -2009,12 +2028,19 @@ function calcPrec(){
   // paga pela área real com perda (aT), igual ao custo.
   const aT=a*(1+pd/100),cp=c*aT;
   const vp=PDMODE==='repassar'?pm2*aT:pm2*a;
-  const mb=vp-cp,txv=vp*(tx/100),ll=mb-txv;
+  const mb=vp-cp,txv=vp*(tx/100);
+  // Sem nota fiscal: preço ao cliente (vp) e margem bruta (mb) não mudam — só o
+  // lucro líquido aumenta, pelo imposto que deixaria de ser recolhido na emissão.
+  const BONUS_SEM_NOTA_PCT=8;
+  const bonusSemNota=NFMODE==='nao'?vp*(BONUS_SEM_NOTA_PCT/100):0;
+  const ll=mb-txv+bonusSemNota;
   const ml=vp>0?(ll/vp)*100:0;
   $('r-pm2',brl(pm2));$('r-at',aT.toFixed(1)+' m²');$('r-vp',brl(vp));
   $('r-cp','− '+brl(cp));
   $('r-mb',brl(mb));$('r-mb').classList.toggle('pos',mb>=0);$('r-mb').classList.toggle('neg',mb<0);
   $('r-tx','− '+brl(txv));
+  $('r-bonus-wrap').style.display=NFMODE==='nao'?'flex':'none';
+  if(NFMODE==='nao') $('r-bonus','+ '+brl(bonusSemNota));
   $('r-ll',brl(ll));$('r-ll').classList.toggle('pos',ll>=0);$('r-ll').classList.toggle('neg',ll<0);
   $('r-ml',pct(ml));$('r-bl',pct(ml));
   const bar=$('r-bar');
