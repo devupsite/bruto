@@ -92,7 +92,17 @@
     // compartilhado, que na prática reaproveitava uma foto do array geral
     // do produto em vez de uma textura de perto de verdade. Reportado pelo
     // Rafael em 02/08/2026, foto nova fornecida por ele.
-    'brick-rusticatto-sertao': 'brick-rusticatto-sertao-swatch.webp'
+    // Rusticatto do Sertão não tinha miniatura própria -- o seletor de cor
+    // (e o de segunda cor, nos padrões bicolor) caía no frontal-thumb
+    // compartilhado, que na prática reaproveitava uma foto do array geral
+    // do produto em vez de uma textura de perto de verdade. Reportado pelo
+    // Rafael em 02/08/2026, foto nova fornecida por ele.
+    'brick-rusticatto-sertao': 'brick-rusticatto-sertao-swatch.webp',
+    // Itens "Verso" (03/08/2026): produtos novos, sem *-frontal-thumb.webp
+    // (não têm página de produto própria), precisam de override sempre.
+    'brick-rusticatto-fume-verso':        'brick-rusticatto-fume-verso-swatch.webp',
+    'brick-rusticatto-palha-verso':       'brick-rusticatto-palha-verso-swatch.webp',
+    'brick-rusticatto-terra-negra-verso': 'brick-rusticatto-terra-negra-verso-swatch.webp'
   };
 
   function textureUrl(id)  { return id + '-frontal.webp'; }
