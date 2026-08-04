@@ -2108,6 +2108,17 @@ function calcFrete(){
   const limiteIsencao=+$('fr-isencao').value||0;
   const freteGratis=limiteIsencao>0 && a>=limiteIsencao;
 
+  // Regra do fornecedor (Faion) pra promoção de isenção 10m² (04/08/2026):
+  // dentro de 300km da fábrica, a isenção é total (cliente não paga nada,
+  // igual já era). Além de 300km, o fornecedor cobra R$3,00/km só na
+  // distância EXCEDENTE (não na distância inteira) — é isso que a Bruto
+  // absorve nesse caso, substituindo a taxa genérica (taxaKm) só pra esse
+  // cálculo específico da promoção. Sem distância disponível (CEP não
+  // buscado), assume 0km de excedente — não penaliza por falta de dado.
+  const RAIO_ISENCAO_KM=300, TAXA_EXCEDENTE_KM=3.00;
+  const kmExcedente = usaDistancia && distanciaKm>RAIO_ISENCAO_KM ? (distanciaKm-RAIO_ISENCAO_KM) : 0;
+  const custoExcedenteIsencao = Math.round(kmExcedente*TAXA_EXCEDENTE_KM);
+
   const temBase = usaDistancia || taxaKg>0;
   const sugerido=freteGratis ? 0 : (temBase?freteComMargem:0);
   $('fr-sugerido',
@@ -2118,7 +2129,7 @@ function calcFrete(){
   );
   if(!FR_MANUAL) $('fr-val').value=sugerido;
   const fr=freteGratis ? 0 : (+$('fr-val').value||0);
-  const custoAbsorvidoGratis=freteGratis ? custoRealFrete : 0; // Bruto paga o custo real, sem margem, quando é isenção
+  const custoAbsorvidoGratis=freteGratis ? custoExcedenteIsencao : 0; // Bruto absorve só o excedente além de 300km — dentro do raio, custo zero
   const ll=S.ll,vp=S.ticket;
   let lr,tot;
   if(freteGratis){ lr=ll-custoAbsorvidoGratis; tot=vp; }
@@ -2130,7 +2141,9 @@ function calcFrete(){
   const mv=$('fr-mr');mv.textContent=brl(lr);
   mv.className='mbv'+(lr<0?' er':lr<ll*0.5?' wn':'');
   const al=$('fr-alerta');
-  if(freteGratis)al.innerHTML='<div class="ab ab-ok"><span class="ai">✓</span><span>Frete grátis aplicado (pedido de '+a+'m², isenção a partir de '+limiteIsencao+'m²) — precisa bater com a promessa ativa no Google Ads. A Bruto absorve o custo real do frete ('+brl(custoRealFrete)+'), sem margem sobre ele.</span></div>';
+  if(freteGratis)al.innerHTML='<div class="ab ab-ok"><span class="ai">✓</span><span>Frete grátis aplicado (pedido de '+a+'m², isenção a partir de '+limiteIsencao+'m²) — precisa bater com a promessa ativa no Google Ads. '+(kmExcedente>0
+    ? 'Cliente a '+distanciaKm+'km da fábrica — dentro dos 300km a isenção é total, mas os '+Math.round(kmExcedente)+'km excedentes custam '+brl(custoExcedenteIsencao)+' (R$3,00/km, regra do fornecedor), que a Bruto absorve sem repassar ao cliente.'
+    : 'Dentro do raio de 300km da fábrica — isenção sem nenhum custo excedente.')+'</span></div>';
   else if(!temBase)al.innerHTML='<div class="ab ab-wn"><span class="ai">!</span><span>Sem base pra calcular ainda — busque o CEP do cliente (calcula por distância) ou preencha a taxa de R$/kg de uma região como reserva. O frete abaixo está zerado, não é um resultado real.</span></div>';
   else if(lr<0)al.innerHTML='<div class="ab ab-er"><span class="ai">!</span><span>Frete inviável: absorver '+brl(fr)+' com lucro de '+brl(ll)+' gera prejuízo. Aumente o ticket mínimo ou cobre o frete à parte.</span></div>';
   else if(fp>25)al.innerHTML='<div class="ab ab-wn"><span class="ai">—</span><span>Frete representa '+pct(fp)+' do pedido. Considere estabelecer pedido mínimo para esta região ou incluí-lo no preço de forma transparente.</span></div>';
