@@ -821,6 +821,20 @@ function BrutoAtendimento() {
     }
   }
 
+  async function deleteUser(id, nome) {
+    if (!window.confirm(`Excluir "${nome}" definitivamente? Isso remove o cadastro dentro da ferramenta — não é reversível pelo painel. A senha de acesso (Basic Auth, no hPanel) precisa ser removida separadamente, se quiser revogar o acesso por completo.`)) return;
+    setUserMgmtBusy(true);
+    setUserMgmtErr("");
+    try {
+      await apiCall("api/usuarios.php", { acao: "excluir", id });
+      await refreshUserMgmtList();
+    } catch (e) {
+      setUserMgmtErr(e.message || "Não consegui excluir esse usuário.");
+    } finally {
+      setUserMgmtBusy(false);
+    }
+  }
+
   // ── Auto-save: persiste sessão corrente 800ms após cada mudança ────
   useEffect(() => {
     if (messages.length === 0) return;
@@ -2595,13 +2609,23 @@ function BrutoAtendimento() {
                     <div style={{ fontSize: 12, color: white, fontWeight: 600 }}>{u.nome} {u.papel === "admin" ? "★" : ""}</div>
                     <div style={{ fontSize: 10, color: mid2 }}>{u.usuario} · {u.ativo ? "ativo" : "desativado"}</div>
                   </div>
-                  <button
-                    style={{ ...S.histActionBtn, opacity: userMgmtBusy ? 0.5 : 1 }}
-                    disabled={userMgmtBusy}
-                    onClick={() => toggleUserActive(u.id, !u.ativo)}
-                  >
-                    {u.ativo ? "Desativar" : "Reativar"}
-                  </button>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button
+                      style={{ ...S.histActionBtn, opacity: userMgmtBusy ? 0.5 : 1 }}
+                      disabled={userMgmtBusy}
+                      onClick={() => toggleUserActive(u.id, !u.ativo)}
+                    >
+                      {u.ativo ? "Desativar" : "Reativar"}
+                    </button>
+                    <button
+                      style={{ ...S.histActionBtn, opacity: userMgmtBusy ? 0.5 : 1, color: "#F09595", borderColor: "rgba(240,149,149,.3)" }}
+                      disabled={userMgmtBusy}
+                      onClick={() => deleteUser(u.id, u.nome)}
+                      title="Excluir definitivamente"
+                    >
+                      Excluir
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
