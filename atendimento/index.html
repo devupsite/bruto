@@ -86,22 +86,34 @@ async function apiCall(endpoint, payload) {
 // Fora dele, este "storage" reproduz a mesma API (get/set/delete/list)
 // usando localStorage do navegador, para o resto do código não precisar
 // mudar nada além desta troca (storage.* → storage.*).
+//
+// CORREÇÃO (04/08/2026): localStorage é por NAVEGADOR/domínio, não por
+// usuário autenticado — se duas pessoas usam Basic Auth diferente no
+// mesmo computador (ex: passar o acesso pro Mateus depois de usar como
+// Rafael), o cache local antigo vazava pro novo usuário (histórico de
+// um aparecendo pro outro). Toda chave agora é prefixada com o usuário
+// autenticado atual (storageNamespace) — atualizado assim que a
+// autenticação é confirmada pelo servidor, logo abaixo.
+let storageNamespace = "anon"; // trocado pro usuário real assim que api/me.php confirma quem está logado
 const storage = {
   async get(key) {
-    const v = window.localStorage.getItem(key);
+    const v = window.localStorage.getItem(storageNamespace + ":" + key);
     if (v === null) throw new Error("not found");
     return { key, value: v };
   },
   async set(key, value) {
-    window.localStorage.setItem(key, value);
+    window.localStorage.setItem(storageNamespace + ":" + key, value);
     return { key, value };
   },
   async delete(key) {
-    window.localStorage.removeItem(key);
+    window.localStorage.removeItem(storageNamespace + ":" + key);
     return { key, deleted: true };
   },
   async list(prefix) {
-    const keys = Object.keys(window.localStorage).filter((k) => !prefix || k.startsWith(prefix));
+    const fullPrefix = storageNamespace + ":" + (prefix || "");
+    const keys = Object.keys(window.localStorage)
+      .filter((k) => k.startsWith(fullPrefix))
+      .map((k) => k.slice(storageNamespace.length + 1));
     return { keys };
   },
 };
@@ -652,6 +664,7 @@ function BrutoAtendimento() {
     (async () => {
       try {
         const me = await apiCall("api/me.php", {});
+        storageNamespace = me.usuario || "anon"; // separa o cache local deste usuário de qualquer outro que já tenha usado este navegador
         setCurrentUser({ nome: me.nome, papel: me.papel, usuario: me.usuario });
       } catch (e) {
         setAuthError({ status: e.status || 0, message: e.message || "Não foi possível confirmar seu acesso." });

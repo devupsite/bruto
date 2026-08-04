@@ -560,7 +560,7 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
         <div class="or"><span class="orl">Valor total do pedido</span><span class="orv acc" id="r-vp">R$ 1.260</span></div>
         <div class="or"><span class="orl">Custo produto (fornecedor)</span><span class="orv neg" id="r-cp">— calculando</span></div>
         <div class="or"><span class="orl">Margem bruta</span><span class="orv pos" id="r-mb">R$ 220</span></div>
-        <div class="or"><span class="orl">Taxa de pagamento</span><span class="orv neg" id="r-tx">− R$ 38</span></div>
+        <div class="or"><span class="orl" id="r-tx-lbl">Taxa de pagamento</span><span class="orv neg" id="r-tx">− R$ 38</span></div>
         <div class="or" id="r-bonus-wrap" style="display:none"><span class="orl">Bônus sem nota (8% do valor de venda)</span><span class="orv pos" id="r-bonus">+ R$ 0</span></div>
         <div class="or"><span class="orl">Lucro líquido por pedido</span><span class="orv pos" id="r-ll">R$ 182</span></div>
         <!-- r-mb e r-ll: classe pos/neg e sinal (−) agora setados dinamicamente em calcPrec(), conforme o valor real seja positivo ou negativo -->
@@ -2038,6 +2038,7 @@ function calcPrec(){
   $('r-pm2',brl(pm2));$('r-at',aT.toFixed(1)+' m²');$('r-vp',brl(vp));
   $('r-cp','− '+brl(cp));
   $('r-mb',brl(mb));$('r-mb').classList.toggle('pos',mb>=0);$('r-mb').classList.toggle('neg',mb<0);
+  $('r-tx-lbl',PGMODE==='pix'?'Desconto dado ao cliente (Pix)':'Taxa da maquininha (cartão)');
   $('r-tx','− '+brl(txv));
   $('r-bonus-wrap').style.display=NFMODE==='nao'?'flex':'none';
   if(NFMODE==='nao') $('r-bonus','+ '+brl(bonusSemNota));
