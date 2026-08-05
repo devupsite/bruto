@@ -1939,8 +1939,11 @@ function BrutoAtendimento() {
             </div>
 
 
-            {/* CONVERSAS — esquema tipo WhatsApp: Etiquetas + Arquivadas */}
-            <div style={{ borderTop: `1px solid ${border}` }}>
+            {/* CONVERSAS — esquema tipo WhatsApp: Etiquetas + Arquivadas.
+                flex:1 + minHeight:0 faz esse bloco esticar até preencher
+                o espaço vago da sidebar, com rolagem própria na lista
+                (em vez da lista parar numa altura fixa e sobrar vazio embaixo). */}
+            <div style={{ borderTop: `1px solid ${border}`, flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
               <div
                 style={{ ...S.sidebarSection, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: historyOpen ? `1px solid ${border}` : "none" }}
                 onClick={() => setHistoryOpen((v) => !v)}
@@ -1981,7 +1984,7 @@ function BrutoAtendimento() {
                   return matchQ && matchTag;
                 });
                 return (
-                  <div>
+                  <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
                     {/* Barra: Conversas | Arquivadas (N), igual ao WhatsApp */}
                     <div style={{ display: "flex", borderBottom: `1px solid ${border}` }}>
                       <div
@@ -2021,7 +2024,7 @@ function BrutoAtendimento() {
                       </div>
                     )}
 
-                    <div style={{ maxHeight: 300, overflowY: "auto" }}>
+                    <div style={{ flex: 1, minHeight: 0, overflowY: "auto" }}>
                       {base.length === 0 ? (
                         <div style={{ padding: "12px 13px", fontSize: 9, color: mid2, textAlign: "center" }}>
                           {showArchived ? "Nenhuma conversa arquivada." : (adminViewAll ? "Nenhuma conversa da equipe ainda." : "Nenhuma conversa salva ainda.")}
@@ -2706,7 +2709,7 @@ const S = {
     border: `1px solid ${active ? "rgba(87,153,155,.3)" : "transparent"}`,
     borderRadius: 4, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, marginBottom: 2,
   }),
-  tipBox: { padding: "12px 13px", marginTop: "auto", background: "rgba(87,153,155,.04)", borderTop: `1px solid rgba(87,153,155,.15)` },
+  tipBox: { padding: "12px 13px", background: "rgba(87,153,155,.04)", borderTop: `1px solid rgba(87,153,155,.15)` },
   chatArea: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" },
   toolbar: { padding: "10px 16px", background: "linear-gradient(90deg,rgba(87,153,155,.05),rgba(87,153,155,.02))", borderBottom: "1px solid rgba(87,153,155,.1)", display: "flex", alignItems: "center", gap: 8, flexShrink: 0, flexWrap: "wrap", minHeight: 18 },
   toolItem: (active) => ({
