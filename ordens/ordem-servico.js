@@ -398,7 +398,7 @@
 
     doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
-    doc.text('Gerado em ' + new Date().toLocaleString('pt-BR') + ' · uso interno BRUTO', 20, 285);
+    doc.text('Gerado em ' + new Date().toLocaleString('pt-BR') + ' · uso interno BRUTO · brutoceramica.com.br · contato@brutoceramica.com.br', 20, 285);
 
     var pdfBase64 = doc.output('datauristring');
     doc.save(numeroOS.toLowerCase() + '.pdf');
