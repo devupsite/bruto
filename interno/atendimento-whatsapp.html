@@ -180,6 +180,13 @@
     color:var(--gl);background:var(--k3);border:1px solid rgba(255,255,255,.08);
     padding:3px 7px;border-radius:3px;white-space:nowrap;
   }
+  .lead-tel-link{cursor:pointer;}
+  .lead-tel-link:hover{opacity:.75;}
+  .lead-tel-vazio{
+    font-family:'DM Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:.02em;
+    color:var(--gl);background:transparent;border:1px dashed rgba(255,255,255,.2);
+    padding:3px 7px;border-radius:3px;white-space:nowrap;
+  }
   .lead-codigo{font-family:monospace;font-size:10px;color:var(--g);margin-top:4px;word-break:break-all}
   .lead-resultados{display:flex;gap:6px;flex-wrap:wrap}
   .res-btn{
@@ -711,13 +718,26 @@
           }
         }
         if (lead.telefone_hash) {
-          // Telefone hasheado capturado ao marcar "fechou" — entra na
-          // exportação mesmo sem gclid (ver exportarConversoes()).
+          // Telefone hasheado já capturado — entra na exportação mesmo
+          // sem gclid (ver exportarConversoes()). Ainda clicável pra
+          // trocar, caso o atendente descubra o número certo depois.
           var selTelefone = document.createElement('span');
-          selTelefone.className = 'lead-anuncio';
-          selTelefone.title = 'Telefone capturado (hash) — entra na exportação de conversão mesmo sem clique de anúncio registrado';
+          selTelefone.className = 'lead-anuncio lead-tel-link';
+          selTelefone.title = 'Telefone capturado (hash) — clique pra atualizar';
           selTelefone.textContent = 'Tel. capturado';
+          selTelefone.addEventListener('click', function () { editarTelefone(lead); });
           topo.appendChild(selTelefone);
+        } else {
+          // Sem telefone ainda: nunca dá pra pegar no clique do botão
+          // (o navegador não tem acesso ao número do visitante, só o
+          // WhatsApp Business mostra isso depois que ele manda mensagem
+          // de verdade) — então o campo fica aberto pro atendente
+          // adicionar a qualquer momento, não só ao marcar "fechou".
+          var addTelefone = document.createElement('span');
+          addTelefone.className = 'lead-tel-link lead-tel-vazio';
+          addTelefone.textContent = '+ Adicionar telefone';
+          addTelefone.addEventListener('click', function () { editarTelefone(lead); });
+          topo.appendChild(addTelefone);
         }
         card.appendChild(topo);
 
@@ -844,6 +864,41 @@
       .catch(function () {
         leadsLista.innerHTML = '';
         mostrarAviso('Não foi possível carregar os leads agora. Recarregue a página.');
+      });
+  }
+
+  // Edita/adiciona o telefone de um lead a qualquer momento — não só no
+  // instante de marcar "fechou". Reaproveita marcar-lead.php mandando o
+  // resultado atual sem mudança (o backend só grava o hash do telefone,
+  // independente do valor de resultado).
+  function editarTelefone(lead) {
+    esconderAviso();
+    var novoTelefone = window.prompt(
+      'Telefone do cliente (qualquer formatação — vai ser guardado só como hash, nunca em texto puro):',
+      ''
+    );
+    if (!novoTelefone) return;
+
+    fetch(API_MARCAR_LEAD, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: lead.id || null,
+        codigo_referencia: lead.codigo_referencia,
+        recebido_em: lead.recebido_em,
+        resultado: lead.resultado || null,
+        telefone: novoTelefone
+      })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (resposta) {
+        if (!resposta || !resposta.ok) {
+          mostrarAviso(resposta && resposta.erro ? resposta.erro : 'Não foi possível salvar o telefone.');
+        }
+        carregarLeads();
+      })
+      .catch(function () {
+        mostrarAviso('Não foi possível salvar o telefone agora. Tente de novo.');
       });
   }
 
