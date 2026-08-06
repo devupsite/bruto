@@ -159,6 +159,15 @@ input[type=text]:focus,input[type=number]:focus{border-color:var(--t)}
 .cep-endereco b{color:var(--t)}
 .cep-erro{margin-top:8px;font-size:12px;color:var(--er)}
 .cep-dist{color:var(--gl);font-size:12px;font-weight:400}
+.mapa-alt-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.mapa-alt-btn{padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--w);font-size:12px;cursor:pointer;font-family:'Barlow',sans-serif;transition:border-color .15s,background .15s}
+.mapa-alt-btn.on{border-color:var(--t);background:rgba(87,153,155,.1);color:var(--t);font-weight:600}
+.mapa-alt-btn .alt-dist{display:block;font-size:10px;color:var(--g);margin-top:2px}
+.mapa-alt-btn.on .alt-dist{color:var(--t)}
+.parada-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--line);border-radius:8px;margin-bottom:8px;font-size:12px}
+.parada-item .parada-num{width:20px;height:20px;border-radius:50%;background:var(--t);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.parada-item .parada-end{flex:1}
+.parada-item .parada-remover{background:none;border:none;color:var(--er);cursor:pointer;font-size:16px;line-height:1;padding:0 4px}
 .fr-reset-btn{
   margin-top:6px;background:none;border:none;color:var(--t);font-size:11px;
   font-weight:500;cursor:pointer;text-decoration:underline;padding:0;
@@ -348,6 +357,8 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
 .timeline-title{font-weight:500;font-size:13px;margin-bottom:3px}
 .timeline-desc{font-size:12px;color:var(--g);line-height:1.6}
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 </head>
 <body>
 
@@ -650,6 +661,19 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
     <div id="cep-erro" class="cep-erro" style="display:none">CEP não encontrado — confira e tente de novo, ou selecione a região manualmente abaixo.</div>
   </div>
   <div class="ab" style="margin-bottom:16px"><span class="ai">—</span><span>O cálculo de frete sempre parte do endereço do fornecedor (Tambaú-SP, de onde a Bruto despacha) até o CEP do cliente. O CEP só define automaticamente a região abaixo — a taxa de R$/kg de cada uma continua sendo a sua cotação real com a transportadora.</span></div>
+
+  <div id="mapa-box" style="display:none">
+    <div class="sl">Mapa da rota <span class="tt" style="display:inline-block"><span class="tt-ic" onclick="this.parentElement.classList.toggle('open')">i</span><div class="tt-box">Rota real por estrada (OpenStreetMap/OSRM, gratuito) — não inclui trânsito em tempo real. Serviço comunitário sem garantia de disponibilidade; se sair do ar, a distância em linha reta continua funcionando como reserva.</div></span></div>
+    <div id="mapa-rota" style="height:320px;border-radius:8px;overflow:hidden;border:1px solid var(--line)"></div>
+    <div id="mapa-alternativas" class="mapa-alt-row" style="display:none"></div>
+    <div id="mapa-erro" class="cep-erro" style="display:none">Não consegui calcular a rota agora (serviço de mapas fora do ar) — a distância em linha reta continua sendo usada no cálculo.</div>
+
+    <div class="sl" style="margin-top:16px">Paradas adicionais <span style="font-weight:400;color:var(--g);text-transform:none;letter-spacing:0">(aproveitar a mesma rota pra várias entregas)</span></div>
+    <div id="paradas-lista"></div>
+    <div class="field" style="max-width:220px">
+      <input type="text" id="parada-cep-input" placeholder="CEP da parada" maxlength="9" inputmode="numeric" oninput="mascararParadaCep(this)">
+    </div>
+  </div>
 
   <div class="sl">Região de destino — taxa por kg (editável, ajuste com sua transportadora)</div>
   <div class="g5" style="margin-bottom:20px">
@@ -1865,6 +1889,9 @@ function buscarCep(cep) {
   resultado.style.display = 'none';
   erro.style.display = 'none';
   distanciaKm = null;
+  paradas = []; // novo destino principal = zera paradas da rota anterior
+  document.getElementById('paradas-lista').innerHTML = '';
+  document.getElementById('mapa-box').style.display = 'none';
 
   fetch('https://viacep.com.br/ws/' + cep + '/json/')
     .then(function (r) { return r.json(); })
@@ -1879,11 +1906,11 @@ function buscarCep(cep) {
       const regiao = UF_REGIAO[dados.uf];
       if (regiao) selR(regiao);
 
-      // Distância em linha reta (Tambaú-SP -> CEP do cliente) via
-      // coordenadas de um segundo serviço gratuito (ViaCEP não devolve
-      // lat/long). Best-effort: se falhar (rede, CORS, CEP raro sem
-      // coordenada), a ferramenta simplesmente continua funcionando só
-      // pela região, como já funcionava antes.
+      // Distância em linha reta primeiro (rápida, sempre funciona) — depois
+      // tenta a rota real por estrada (OSRM), que substitui esse número se
+      // der certo. Best-effort nos dois: se falhar (rede, CORS, CEP raro
+      // sem coordenada, OSRM fora do ar), a ferramenta segue funcionando
+      // com o que já tiver calculado, sem travar nada.
       fetch('https://cep.awesomeapi.com.br/json/' + cep)
         .then(function (r) { return r.json(); })
         .then(function (geo) {
@@ -1892,12 +1919,172 @@ function buscarCep(cep) {
           distanciaKm = Math.round(haversineKm(TAMBAU_LAT, TAMBAU_LNG, lat, lng));
           document.getElementById('cep-endereco').innerHTML += ' <span class="cep-dist">— ' + distanciaKm + 'km em linha reta de Tambaú-SP</span>';
           calcFrete();
+          atualizarRotaCompleta(lat, lng); // troca pra rota real por estrada assim que o OSRM responder
         })
         .catch(function () { calcFrete(); });
     })
     .catch(function () { erro.style.display = 'block'; });
 }
 const brl=v=>{const r=Math.round(Math.abs(v));return (v<0&&r>0?'− ':'')+'R$ '+r.toLocaleString('pt-BR');};
+
+// ═══════════════════════════════════════════════════════════════════
+// MAPA DE ROTA — Leaflet + OSRM (gratuitos). Rota real por estrada, até
+// 3 alternativas, e suporte a paradas (várias entregas na mesma rota).
+// Sem trânsito em tempo real (isso só existe em serviço pago). Se o
+// OSRM falhar (fora do ar, sem garantia de disponibilidade — é um
+// servidor comunitário gratuito), cai de volta pra distância em linha
+// reta que já existia, sem quebrar o cálculo de frete.
+// ═══════════════════════════════════════════════════════════════════
+let mapaLeaflet = null, mapaCamadas = [], mapaMarcadores = [];
+let rotasAtuais = [], rotaSelecionadaIdx = 0;
+let paradas = []; // { cep, lat, lng, endereco }
+
+function inicializarMapa() {
+  if (mapaLeaflet) return mapaLeaflet;
+  mapaLeaflet = L.map('mapa-rota').setView([TAMBAU_LAT, TAMBAU_LNG], 7);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19,
+  }).addTo(mapaLeaflet);
+  return mapaLeaflet;
+}
+
+function limparCamadasMapa() {
+  mapaCamadas.forEach(c => mapaLeaflet.removeLayer(c));
+  mapaMarcadores.forEach(m => mapaLeaflet.removeLayer(m));
+  mapaCamadas = []; mapaMarcadores = [];
+}
+
+async function calcularRotaOSRM(destLat, destLng) {
+  const temParadas = paradas.length > 0;
+  const pontos = [[TAMBAU_LNG, TAMBAU_LAT], ...paradas.map(p => [p.lng, p.lat]), [destLng, destLat]];
+  const coordsStr = pontos.map(p => p[0] + ',' + p[1]).join(';');
+  // "alternatives" só é suportado de forma útil em rota simples (2 pontos) —
+  // com paradas, o OSRM já devolve o melhor caminho passando por todas elas
+  // na ordem em que foram adicionadas, então não pedimos alternativas.
+  const url = 'https://router.project-osrm.org/route/v1/driving/' + coordsStr +
+    '?geometries=geojson&overview=full' + (temParadas ? '' : '&alternatives=true');
+  const resp = await fetch(url);
+  const dados = await resp.json();
+  if (dados.code !== 'Ok' || !dados.routes || !dados.routes.length) throw new Error('OSRM sem rota');
+  return dados.routes.slice(0, 3); // no máximo 3, mesmo se vier mais
+}
+
+function renderizarRotasNoMapa(rotas, destLat, destLng) {
+  const mapa = inicializarMapa();
+  limparCamadasMapa();
+  document.getElementById('mapa-box').style.display = 'block';
+  mapa.invalidateSize();
+
+  const corSelecionada = '#57999B', corOutras = '#999999';
+  rotas.forEach((rota, i) => {
+    const coordsLatLng = rota.geometry.coordinates.map(c => [c[1], c[0]]);
+    const linha = L.polyline(coordsLatLng, {
+      color: i === rotaSelecionadaIdx ? corSelecionada : corOutras,
+      weight: i === rotaSelecionadaIdx ? 5 : 3,
+      opacity: i === rotaSelecionadaIdx ? 0.9 : 0.5,
+    }).addTo(mapa);
+    linha.on('click', () => selecionarRota(i));
+    mapaCamadas.push(linha);
+  });
+
+  const marcadorOrigem = L.marker([TAMBAU_LAT, TAMBAU_LNG]).addTo(mapa).bindPopup('Fábrica (Tambaú-SP)');
+  mapaMarcadores.push(marcadorOrigem);
+  paradas.forEach((p, i) => {
+    const m = L.marker([p.lat, p.lng]).addTo(mapa).bindPopup('Parada ' + (i + 1) + ': ' + p.endereco);
+    mapaMarcadores.push(m);
+  });
+  const marcadorDestino = L.marker([destLat, destLng]).addTo(mapa).bindPopup('Destino final');
+  mapaMarcadores.push(marcadorDestino);
+
+  const grupo = L.featureGroup([...mapaCamadas, ...mapaMarcadores]);
+  mapa.fitBounds(grupo.getBounds(), { padding: [24, 24] });
+
+  const altRow = document.getElementById('mapa-alternativas');
+  if (rotas.length > 1) {
+    altRow.style.display = 'flex';
+    altRow.innerHTML = rotas.map((rota, i) => {
+      const km = Math.round(rota.distance / 1000);
+      const min = Math.round(rota.duration / 60);
+      return `<button type="button" class="mapa-alt-btn ${i === rotaSelecionadaIdx ? 'on' : ''}" onclick="selecionarRota(${i})">Rota ${i + 1}<span class="alt-dist">${km}km · ${min}min</span></button>`;
+    }).join('');
+  } else {
+    altRow.style.display = 'none';
+  }
+}
+
+function selecionarRota(idx) {
+  rotaSelecionadaIdx = idx;
+  distanciaKm = Math.round(rotasAtuais[idx].distance / 1000);
+  document.getElementById('cep-endereco').innerHTML =
+    document.getElementById('cep-endereco').innerHTML.replace(/— \d+km.*$/, '') +
+    ' <span class="cep-dist">— ' + distanciaKm + 'km por estrada (rota ' + (idx + 1) + ')</span>';
+  renderizarRotasNoMapa(rotasAtuais, mapaMarcadores[mapaMarcadores.length - 1].getLatLng().lat, mapaMarcadores[mapaMarcadores.length - 1].getLatLng().lng);
+  calcFrete();
+}
+
+async function atualizarRotaCompleta(destLat, destLng) {
+  const erroEl = document.getElementById('mapa-erro');
+  erroEl.style.display = 'none';
+  try {
+    rotasAtuais = await calcularRotaOSRM(destLat, destLng);
+    rotaSelecionadaIdx = 0;
+    distanciaKm = Math.round(rotasAtuais[0].distance / 1000);
+    document.getElementById('cep-endereco').innerHTML += ' <span class="cep-dist">— ' + distanciaKm + 'km por estrada</span>';
+    renderizarRotasNoMapa(rotasAtuais, destLat, destLng);
+  } catch (e) {
+    // OSRM fora do ar ou sem rota — mantém a distância em linha reta já
+    // calculada (haversine), só avisa que o mapa não pôde ser desenhado.
+    document.getElementById('mapa-box').style.display = 'none';
+    erroEl.style.display = 'block';
+  }
+  calcFrete();
+}
+
+function mascararParadaCep(input) {
+  let v = input.value.replace(/\D/g, '').slice(0, 8);
+  if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+  input.value = v;
+  const digitos = v.replace(/\D/g, '');
+  if (digitos.length === 8) adicionarParada(digitos, input);
+}
+
+async function adicionarParada(cep, inputEl) {
+  try {
+    const viaCep = await (await fetch('https://viacep.com.br/ws/' + cep + '/json/')).json();
+    if (viaCep.erro) { alert('CEP da parada não encontrado.'); return; }
+    const geo = await (await fetch('https://cep.awesomeapi.com.br/json/' + cep)).json();
+    const lat = parseFloat(geo.lat), lng = parseFloat(geo.lng);
+    if (isNaN(lat) || isNaN(lng)) { alert('Não consegui localizar esse CEP no mapa.'); return; }
+    paradas.push({ cep, lat, lng, endereco: viaCep.logradouro ? (viaCep.logradouro + ', ' + viaCep.localidade + '/' + viaCep.uf) : (viaCep.localidade + '/' + viaCep.uf) });
+    inputEl.value = '';
+    renderizarListaParadas();
+    // Última coordenada conhecida do destino final (o último marcador antes desta parada ser adicionada)
+    const destino = mapaMarcadores[mapaMarcadores.length - 1];
+    if (destino) atualizarRotaCompleta(destino.getLatLng().lat, destino.getLatLng().lng);
+  } catch (e) {
+    alert('Não consegui adicionar essa parada agora — tenta de novo.');
+  }
+}
+
+function removerParada(idx) {
+  paradas.splice(idx, 1);
+  renderizarListaParadas();
+  const destino = mapaMarcadores[mapaMarcadores.length - 1];
+  if (destino) atualizarRotaCompleta(destino.getLatLng().lat, destino.getLatLng().lng);
+}
+
+function renderizarListaParadas() {
+  const lista = document.getElementById('paradas-lista');
+  lista.innerHTML = paradas.map((p, i) => `
+    <div class="parada-item">
+      <span class="parada-num">${i + 1}</span>
+      <span class="parada-end">${p.endereco}</span>
+      <button type="button" class="parada-remover" onclick="removerParada(${i})" title="Remover parada">×</button>
+    </div>
+  `).join('');
+}
+
 const num=v=>Math.round(v).toLocaleString('pt-BR');
 const pct=v=>parseFloat(v).toFixed(1)+'%';
 const $=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined)e.textContent=v;return e;};
