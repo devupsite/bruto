@@ -2589,6 +2589,27 @@ Avançada Automática, e nunca do Meta Pixel padrão.
 
 ---
 
+## 66. IA passa a saber qual atendente está logado (Rafael/Luana/Mateus) e pode se apresentar pelo nome (06/08/2026)
+
+Ewerson perguntou se a ferramenta já sabia identificar qual dos 3 usuários
+(Rafael, Luana, Mateus) estava usando a KB. Resposta: o login (`api/me.php`
++ HTTP Basic Auth + tabela `usuarios`) já existia e alimenta `currentUser`
+no front, mas essa informação nunca chegava ao prompt da IA — a IA respondia
+sem saber quem estava do outro lado do teclado.
+
+Correção:
+- `buildSystemPrompt`: nova linha no bloco dinâmico `Atendente logado: ${nome}`.
+- Nova instrução no bloco estático ("APRESENTAÇÃO DO ATENDENTE"): a IA pode
+  se apresentar pelo nome do atendente logado na saudação de ABERTURA da
+  conversa (ex: "Bom dia! Aqui é o Rafael, da Bruto"), só uma vez, nunca
+  repetindo em mensagens seguintes. Se não identificado, cumprimenta normal
+  sem inventar nome.
+- Modo Treino (`submitTrainingAnswer`): o feedback da avaliação agora se
+  dirige ao atendente pelo nome real em vez do genérico "a atendente".
+
+Não mexe no objeto `client` (que representa o cliente/lead, sem relação com
+isso) nem no login em si — só passa a informação que já existia pro prompt.
+
 ## 65. Limite de fotos por mensagem aumentado de 4 para 10 (06/08/2026)
 
 A pedido do Ewerson. Aumentar só a contagem sem mais nada seria arriscado:

@@ -1510,6 +1510,8 @@ function BrutoAtendimento() {
 
     staticSys += `\n\nCLASSIFICAÇÃO DE PERSONA (uso interno, não é visível pro cliente): ao final da sua resposta, em outra linha totalmente separada, inclua um marcador oculto no formato <!--persona:TIPO--> onde TIPO é exatamente UMA destas palavras: arquiteto, construtor, revendedor, residencial, comercial, indefinido. Baseie-se em pistas reais que já apareceram na conversa até agora (ex: "sou arquiteto", "pra minha construtora", "quero revender", "é pra minha casa", "projeto comercial/loja/escritório") — NUNCA chute com base só no tom da mensagem ou no produto perguntado. Use "indefinido" sempre que não houver pista clara ainda — é o valor seguro por padrão, não force uma classificação. Esse marcador nunca aparece pro cliente — é removido antes de exibir a resposta, existe só pra sugerir automaticamente o tipo de cliente no perfil quando ainda não foi preenchido manualmente (uma sugestão, nunca substitui uma escolha que o consultor já fez).`;
 
+    staticSys += `\n\nAPRESENTAÇÃO DO ATENDENTE: o nome de quem está logado na ferramenta agora vem abaixo, em "Atendente logado". Se for a PRIMEIRA mensagem da conversa, pode se apresentar por esse nome junto da saudação — ex: "Bom dia! Aqui é o Rafael, da Bruto" — de forma natural, nunca forçada. Só uma vez, na abertura; não repita o nome do atendente nas mensagens seguintes da mesma conversa. Se "Atendente logado" vier como "não identificado", só cumprimente normalmente, sem inventar um nome.`;
+
     // ── BLOCO DINÂMICO (não cacheado) ───────────────────────────────
     // Muda a cada turno/sessão — fica de fora do prefixo cacheado.
     const agoraSP = new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit", hour12: false, weekday: "long", day: "2-digit", month: "2-digit" });
@@ -1518,6 +1520,7 @@ function BrutoAtendimento() {
     let dynamicSys = `Data/hora atual (horário de São Paulo): ${agoraSP}. Se for a PRIMEIRA mensagem da conversa, pode cumprimentar com "${periodoDia}" (condizente com o horário real agora) — só na abertura, nunca repita o cumprimento de horário nas mensagens seguintes da mesma conversa.\n`;
     dynamicSys += `Modo: ${mode === "consulta" ? "CONSULTA TÉCNICA — seja direto e propositivo" : "DIAGNÓSTICO — investigue antes de concluir"}\n`;
     dynamicSys += `Cliente: ${client.name}${client.type ? ` (${client.type})` : ""}${client.project ? ` — ${client.project}` : ""}\n`;
+    dynamicSys += `Atendente logado: ${currentUser?.nome || "não identificado"}\n`;
 
     return [
       { type: "text", text: staticSys, cache_control: { type: "ephemeral" } },
@@ -1768,7 +1771,8 @@ function BrutoAtendimento() {
       // Reaproveita o mesmo bloco de sistema cacheado (tom + KB completa + escalonamento)
       // usado nas respostas normais, só acrescentando a instrução de avaliação por cima.
       const baseSystem = buildSystemPrompt();
-      const evalInstruction = `MODO TREINO — AVALIAÇÃO INTERNA (não é uma resposta para o cliente). A pergunta simulada de cliente foi: "${trainingQuestion}". A atendente escreveu esta resposta de prática: "${answer}". Avalie usando a base de conhecimento acima: o que está correto, o que faltou ou saiu errado, se o tom bateu com o estilo Bruto (curto, direto, WhatsApp — até 80 palavras), e se era um caso que deveria ter sido escalado antes de responder. Dê uma nota de 0 a 10 e no máximo 3 linhas de feedback prático, falando diretamente com a atendente (não com o cliente).`;
+      const nomeAtendenteTreino = currentUser?.nome || "atendente";
+      const evalInstruction = `MODO TREINO — AVALIAÇÃO INTERNA (não é uma resposta para o cliente). A pergunta simulada de cliente foi: "${trainingQuestion}". ${nomeAtendenteTreino} escreveu esta resposta de prática: "${answer}". Avalie usando a base de conhecimento acima: o que está correto, o que faltou ou saiu errado, se o tom bateu com o estilo Bruto (curto, direto, WhatsApp — até 80 palavras), e se era um caso que deveria ter sido escalado antes de responder. Dê uma nota de 0 a 10 e no máximo 3 linhas de feedback prático, falando diretamente com ${nomeAtendenteTreino} pelo nome (não com o cliente).`;
       const systemForEval = Array.isArray(baseSystem)
         ? [...baseSystem, { type: "text", text: evalInstruction }]
         : `${baseSystem}\n\n${evalInstruction}`;
