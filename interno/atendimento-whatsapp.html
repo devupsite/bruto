@@ -180,6 +180,13 @@
     color:var(--gl);background:var(--k3);border:1px solid rgba(255,255,255,.08);
     padding:3px 7px;border-radius:3px;white-space:nowrap;
   }
+  .lead-tel-link{cursor:pointer;}
+  .lead-tel-link:hover{opacity:.75;}
+  .lead-tel-vazio{
+    font-family:'DM Sans',sans-serif;font-size:9px;font-weight:500;letter-spacing:.02em;
+    color:var(--gl);background:transparent;border:1px dashed rgba(255,255,255,.2);
+    padding:3px 7px;border-radius:3px;white-space:nowrap;
+  }
   .lead-codigo{font-family:monospace;font-size:10px;color:var(--g);margin-top:4px;word-break:break-all}
   .lead-resultados{display:flex;gap:6px;flex-wrap:wrap}
   .res-btn{
@@ -710,6 +717,28 @@
             topo.appendChild(selCampanha);
           }
         }
+        if (lead.telefone_hash) {
+          // Telefone hasheado já capturado — entra na exportação mesmo
+          // sem gclid (ver exportarConversoes()). Ainda clicável pra
+          // trocar, caso o atendente descubra o número certo depois.
+          var selTelefone = document.createElement('span');
+          selTelefone.className = 'lead-anuncio lead-tel-link';
+          selTelefone.title = 'Telefone capturado (hash) — clique pra atualizar';
+          selTelefone.textContent = 'Tel. capturado';
+          selTelefone.addEventListener('click', function () { editarTelefone(lead); });
+          topo.appendChild(selTelefone);
+        } else {
+          // Sem telefone ainda: nunca dá pra pegar no clique do botão
+          // (o navegador não tem acesso ao número do visitante, só o
+          // WhatsApp Business mostra isso depois que ele manda mensagem
+          // de verdade) — então o campo fica aberto pro atendente
+          // adicionar a qualquer momento, não só ao marcar "fechou".
+          var addTelefone = document.createElement('span');
+          addTelefone.className = 'lead-tel-link lead-tel-vazio';
+          addTelefone.textContent = '+ Adicionar telefone';
+          addTelefone.addEventListener('click', function () { editarTelefone(lead); });
+          topo.appendChild(addTelefone);
+        }
         card.appendChild(topo);
 
         var resultados = document.createElement('div');
@@ -838,10 +867,17 @@
       });
   }
 
-  function marcarResultado(lead, novoResultado, btn) {
+  // Edita/adiciona o telefone de um lead a qualquer momento — não só no
+  // instante de marcar "fechou". Reaproveita marcar-lead.php mandando o
+  // resultado atual sem mudança (o backend só grava o hash do telefone,
+  // independente do valor de resultado).
+  function editarTelefone(lead) {
     esconderAviso();
-    var todosBotoes = btn.parentElement.querySelectorAll('.res-btn');
-    todosBotoes.forEach(function (b) { b.disabled = true; });
+    var novoTelefone = window.prompt(
+      'Telefone do cliente (qualquer formatação — vai ser guardado só como hash, nunca em texto puro):',
+      ''
+    );
+    if (!novoTelefone) return;
 
     fetch(API_MARCAR_LEAD, {
       method: 'POST',
@@ -850,8 +886,55 @@
         id: lead.id || null,
         codigo_referencia: lead.codigo_referencia,
         recebido_em: lead.recebido_em,
-        resultado: novoResultado
+        resultado: lead.resultado || null,
+        telefone: novoTelefone
       })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (resposta) {
+        if (!resposta || !resposta.ok) {
+          mostrarAviso(resposta && resposta.erro ? resposta.erro : 'Não foi possível salvar o telefone.');
+        }
+        carregarLeads();
+      })
+      .catch(function () {
+        mostrarAviso('Não foi possível salvar o telefone agora. Tente de novo.');
+      });
+  }
+
+  function marcarResultado(lead, novoResultado, btn) {
+    esconderAviso();
+
+    // Ao marcar "fechou", pede o telefone do cliente — é o identificador
+    // alternativo pro Google Ads casar a conversão quando não tem gclid
+    // (Safari/iOS derruba o parâmetro do anúncio antes do clique de
+    // WhatsApp, ex: leads via iPhone). O número em si nunca sai do
+    // navegador do atendente pra lugar nenhum além dessa chamada — o
+    // backend (marcar-lead.php) grava só o hash, nunca o texto puro.
+    // Opcional: cancelar ou deixar em branco não impede marcar "fechou".
+    var telefoneCliente = null;
+    if (novoResultado === 'fechou' && !lead.telefone_hash) {
+      telefoneCliente = window.prompt(
+        'Telefone do cliente (opcional, ajuda a rastrear a venda de volta pro anúncio quando o clique original não ficou registrado):',
+        ''
+      );
+    }
+
+    var todosBotoes = btn.parentElement.querySelectorAll('.res-btn');
+    todosBotoes.forEach(function (b) { b.disabled = true; });
+
+    var corpoRequisicao = {
+      id: lead.id || null,
+      codigo_referencia: lead.codigo_referencia,
+      recebido_em: lead.recebido_em,
+      resultado: novoResultado
+    };
+    if (telefoneCliente) corpoRequisicao.telefone = telefoneCliente;
+
+    fetch(API_MARCAR_LEAD, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(corpoRequisicao)
     })
       .then(function (r) { return r.json(); })
       .then(function (resposta) {
@@ -867,10 +950,15 @@
   }
 
   // ── Exportação de conversão pro Google Ads ───────────────────────
-  // Formato de importação de conversão offline: Google Click ID,
-  // Conversion Name, Conversion Time, Conversion Value, Conversion
-  // Currency. Só entra quem foi marcado "fechou" E tem gclid (ou seja,
-  // veio de um clique em anúncio) — sem os dois, não tem o que importar.
+  // Formato de importação de conversão offline com Conversões Otimizadas:
+  // Google Click ID, Conversion Name, Conversion Time, Conversion Value,
+  // Conversion Currency, Hashed Phone Number. Entra quem foi marcado
+  // "fechou" E tem gclid OU telefone_hash (06/08/2026: telefone_hash é
+  // o identificador alternativo pra quando o Safari/iOS derruba o
+  // parâmetro do anúncio antes do clique de WhatsApp — casos como leads
+  // via iPhone que chegam com a tag interna de rastreio mas sem gclid).
+  // Se tiver os dois, exporta os dois na mesma linha; o Google usa
+  // gclid como prioridade e cai pro telefone hasheado quando não bate.
   function csvEscape(v) {
     var s = String(v == null ? '' : v);
     if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
@@ -893,20 +981,23 @@
   }
 
   function exportarConversoes() {
-    var elegiveis = leadsCache.filter(function (l) { return l.resultado === 'fechou' && l.gclid; });
+    var elegiveis = leadsCache.filter(function (l) {
+      return l.resultado === 'fechou' && (l.gclid || l.telefone_hash);
+    });
     if (!elegiveis.length) {
-      alert('Nenhum lead fechado com clique de anúncio (gclid) pra exportar ainda.');
+      alert('Nenhum lead fechado com clique de anúncio (gclid) ou telefone hasheado pra exportar ainda.');
       return;
     }
 
-    var linhas = ['Google Click ID,Conversion Name,Conversion Time,Conversion Value,Conversion Currency'];
+    var linhas = ['Google Click ID,Conversion Name,Conversion Time,Conversion Value,Conversion Currency,Hashed Phone Number'];
     elegiveis.forEach(function (l) {
       linhas.push([
         csvEscape(l.gclid),
         csvEscape('Fechamento BRUTO'),
         csvEscape(formatarDataConversao(l.resultado_marcado_em || l.recebido_em)),
         '', // valor: preencha manualmente antes de importar, se quiser levar valor por venda
-        'BRL'
+        'BRL',
+        csvEscape(l.telefone_hash)
       ].join(','));
     });
 
