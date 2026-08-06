@@ -2589,6 +2589,89 @@ Avançada Automática, e nunca do Meta Pixel padrão.
 
 ---
 
+## 65. Limite de fotos por mensagem aumentado de 4 para 10 (06/08/2026)
+
+A pedido do Ewerson. Aumentar só a contagem sem mais nada seria arriscado:
+com o limite antigo de 1.5MB por foto, 10 fotos no limite individual dariam
+até ~15MB brutos (~20MB em base64) numa mensagem só — sem nenhuma
+compressão automática no cliente. Isso podia estourar limite de payload do
+proxy PHP ou deixar a resposta bem mais lenta, e ainda se acumula por até
+3 turnos por causa da janela deslizante de histórico (`history.slice(-6)`).
+
+Correção: além de `MAX_IMAGES_PER_MSG` 4 → 10, foi adicionado
+`MAX_TOTAL_IMAGES_SIZE` (8MB somando todas as fotos da mensagem, novo
+campo `sizeBytes` guardado por anexo). O limite individual de 1.5MB/foto
+continua o mesmo. Se o total ultrapassar 8MB, a foto excedente é rejeitada
+com aviso claro, em vez de deixar o payload crescer sem controle.
+
+## 64. Classificação automática de persona (Tipo de Cliente) a partir da conversa (06/08/2026)
+
+Ewerson perguntou se a ferramenta já identificava a persona (arquiteto,
+construtor, revendedor, residencial, comercial) a partir da conversa.
+Resposta: não — "Tipo de Cliente" sempre foi 100% manual, preenchido pelo
+consultor no modal de perfil.
+
+Implementado o mesmo padrão já usado pra classificação de tema
+(`<!--tema:CATEGORIA-->`), agora também pra persona:
+
+- Nova instrução no bloco estático do system prompt: IA classifica a persona
+  a partir de pistas reais já ditas na conversa (nunca chuta pelo tom ou
+  produto) e emite `<!--persona:TIPO-->` oculto ao final da resposta.
+- `generateResponse` extrai a tag e, **só se `client.type` ainda estiver
+  vazio**, preenche automaticamente com `typeInferred: true` — nunca
+  sobrescreve uma escolha manual do consultor.
+- Sidebar e modal de perfil mostram aviso visível ("sugerido pela IA —
+  confira") enquanto não confirmado.
+- Qualquer interação manual no `<select>` do modal limpa `typeInferred`,
+  virando uma escolha confirmada.
+- Valor padrão seguro é "indefinido" (não preenche nada) — a IA é instruída
+  a não forçar classificação sem pista clara.
+
+## 63. Correção: resposta da IA cortada sem aviso no atendimento (06/08/2026)
+
+Ewerson relatou que, em raros momentos, a resposta do assistente vinha
+cortada no meio do raciocínio. Causa raiz: `max_tokens: 600` na chamada
+principal (`generateResponse`) — baixo pra casos legítimos de resposta mais
+longa (passo a passo de instalação, comparativo entre linhas, análise de
+foto com várias imagens) — e nenhuma checagem de `stop_reason`, então uma
+resposta truncada pela API era exibida normalmente, sem nenhum sinal pro
+consultor.
+
+Correção:
+- `max_tokens` de 600 → 1024 na chamada principal.
+- Captura `data.stop_reason === "max_tokens"` e guarda em `metadata.truncated`.
+- Painel de metadados da mensagem mostra aviso visível (ícone + texto laranja)
+  quando a resposta foi cortada, pra o consultor saber que precisa regenerar
+  ou pedir continuação.
+- Ícone `AlertTriangle` adicionado ao import do lucide-react.
+
+Não mexido: os outros 2 usos de `max_tokens` (120 no gerador de pergunta de
+treino, 300 na avaliação do modo treino) — são respostas curtas por natureza
+(uma pergunta, ou até 3 linhas de feedback), risco de corte bem menor e fora
+do escopo do relato original. Se acontecer neles também, revisitar.
+
+## 62. Pendência registrada: módulo de Pós-venda/Fidelização (Advocate) na KB do atendimento (06/08/2026)
+
+Durante uma sessão de brainstorm de retenção de leads (baseada em livros de
+marketing/vendas + prints de roteiro de reengajamento trazidos pelo Ewerson),
+foram identificadas 4 frentes de melhoria pra `atendimento/index.html`:
+
+1. Reengajamento de lead frio — **implementado nesta sessão** (chave `reengajamento`)
+2. Escadinha de compromisso até o fechamento — **implementado nesta sessão** (chave `escadinha_compromisso`)
+3. Prova social ativa na conversa — **estrutura implementada nesta sessão** (chave `prova_social`), mas sem casos reais ainda — ver nota na própria chave
+4. **Pós-venda e fidelização (Advocate)** — explicitamente adiado pelo Ewerson. Fica registrado aqui pra retomar quando ele pedir.
+
+O que essa frente 4 envolveria, quando for retomada:
+- Nova chave KB `posvenda`: roteiro de contato pós-entrega (checar satisfação,
+  tirar dúvida de instalação antes que vire reclamação).
+- Definir com o Ewerson um gatilho de indicação (ex: desconto/brinde pra quem
+  indica um projeto que fecha) — decisão comercial dele, não pode ser
+  inventada pela IA.
+- Framework de referência: jornada 5A de Kotler (o "Advocate" é o estágio que
+  falta hoje na Bruto — a jornada para no fechamento).
+
+**Status: não implementado. Aguardando o Ewerson retomar.**
+
 ## 61. Decisão: regras de cor pros 25 padrões bicolor do simulador de paginações (01/08/2026)
 
 Contexto: até aqui só 3 padrões eram bicolor (Xadrez Bicolor, Módulo

@@ -60,7 +60,7 @@ import {
   X, MessageCircle, Lightbulb, Copy, Check, History, Plus, Trash2, Download, Upload,
   Image as ImageIcon, Camera, FileText,
   Target, ClipboardList, GraduationCap, Dices, MessageSquareShare, Users, Pencil, BarChart3,
-  Menu, MoreVertical, Archive, ArchiveRestore, Tag,
+  Menu, MoreVertical, Archive, ArchiveRestore, Tag, AlertTriangle,
 } from "lucide-react";
 
 // ── CONFIG DE DEPLOY (fora do Claude.ai) ───────────────────────────
@@ -439,6 +439,65 @@ LEAD FRIO QUE SÓ QUER CATÁLOGO/PREÇO, SEM CONVERSA:
 Tudo bem — envie a faixa de preço da linha perguntada e convide para o WhatsApp oficial para catálogo completo e confirmação de valores. Não force continuidade da conversa se o cliente só queria informação rápida.
 
 Regra geral da campanha: a meta da primeira conversa é qualificar o interesse e manter o relacionamento (amostra, WhatsApp, projeto) — não fechar preço definitivo no primeiro contato.`,
+
+  reengajamento: `REENGAJAMENTO — LEAD QUE ESFRIOU OU SUMIU
+
+Quando o cliente para de responder, pede pra "pensar" sem prazo, ou enrola há mais de uma resposta, o objetivo NUNCA é insistir pra ele decidir agora — é fazer UMA pergunta que gera um compromisso concreto (prazo, critério ou próximo passo). Toda resposta de reengajamento termina em pergunta, nunca em frase de encerramento passiva.
+
+FRASES A EVITAR (matam a conversa, não geram compromisso nenhum):
+"Tudo bem, te aguardo." / "Sem pressa, fica à vontade." / "Qualquer dúvida, estou à disposição." / "Obrigado pelo seu tempo." / "Quando posso te procurar de novo?" / "Só passando pra saber se você decidiu."
+Por que evitar: todas devolvem o controle do próximo passo pro cliente, sem prazo nem gatilho — na prática, é desistir da conversa educadamente.
+
+O QUE DIZER NO LUGAR (cada uma ancorada num objetivo diferente):
+
+1. DEFINIR PRAZO NA HORA (quando o cliente disse "vou ver"): oferecer 2 horários concretos pra retorno, nunca "quando puder". Ex: "Perfeito! Prefere me dar esse retorno hoje à tarde ou amanhã de manhã?"
+
+2. DESCOBRIR O CRITÉRIO DE DECISÃO (quando o motivo da demora não está claro): perguntar o que exatamente falta pra decidir — preço, cor, prazo, aprovação de terceiro. Isso costuma revelar a objeção real, que muitas vezes nem é a que o cliente verbalizou.
+
+3. ANTECIPAR A OBJEÇÃO (quando o lead sumiu sem dar motivo): perguntar diretamente o que ficou em aberto, em vez de adivinhar ou insistir na mesma informação já enviada.
+
+4. MOSTRAR O CUSTO DA DEMORA (só quando fizer sentido real — nunca inventado): se o prazo de entrega ou a validade de uma condição comercial for afetada pela demora, isso pode ser dito com honestidade, nunca como pressão artificial. Nunca invente urgência que não existe (ex: nunca dizer que o preço vai subir se isso não for verdade).
+
+5. VIRAR FACILITADOR, NÃO PRESSIONADOR (quando o cliente parece travado por excesso de opção, não por desinteresse): oferecer ajudar a clarear a decisão agora mesmo, reduzindo o esforço dele em vez de cobrar uma resposta.
+
+6. REDUZIR O CAMPO DE DECISÃO (quando o cliente está em dúvida entre linhas/produtos, ver bloco Comparativo): em vez de pedir "qual você quer", oferecer uma escolha binária mais fácil (ex: pelo caminho mais rápido ou mais completo).
+
+7. CONFIRMAR COMPROMISSO REAL (fechando a conversa com um combinado claro, não uma promessa vaga): resumir o que ficou combinado e o prazo, e deixar aberto pra o cliente avisar se mudar de ideia — isso é diferente de "te aguardo" porque tem prazo e ação específica dos dois lados.
+
+8. AMARRAR O PRÓXIMO PASSO (quando o cliente concordou em continuar depois): propor você tomar a iniciativa de retomar contato num horário específico, em vez de deixar em aberto quem retoma.
+
+REGRA DE OURO: nunca usar mais de uma dessas técnicas na mesma mensagem — escolher a que melhor se encaixa no momento específico da conversa. E nunca criar falsa urgência (prazo, estoque ou condição que não é real) só pra pressionar — isso quebra a confiança e vai contra o jeito consultivo da Bruto.
+
+QUANDO ESCALAR EM VEZ DE INSISTIR: se o lead já foi reengajado 2-3 vezes sem resposta nenhuma, ou reclamou de estar sendo cobrado demais, parar de insistir — isso já não é mais reengajamento, é desgaste. Registrar como lead frio e seguir o fluxo normal de nutrição (conteúdo, campanha), não follow-up manual repetido.`,
+
+  escadinha_compromisso: `ESCADINHA DE COMPROMISSO — CONDUZIR ATÉ O FECHAMENTO SEM PRESSÃO
+
+Em vez de pedir "fecha agora?" direto, o caminho mais natural (e que gera menos objeção) é conduzir o cliente por pequenos "sins" progressivos, cada um mais fácil de dar que o anterior — o fechamento vira consequência do que ele já concordou ao longo da conversa, não um pedido isolado.
+
+DEGRAUS TÍPICOS (adaptar conforme o que o cliente já sinalizou, não repetir degrau já dado):
+1. Confirmar interesse no tipo certo de produto ("faz mais sentido pra você o visual mais rústico ou mais contemporâneo?")
+2. Confirmar aplicação (interno/externo, quantos m²) — necessário de qualquer forma pra orçar direito
+3. Oferecer a amostra física como próximo passo natural, não como "vender mais uma coisa" — é o jeito de ele decidir com segurança
+4. Confirmar prazo de instalação/projeto (quando ele pretende aplicar) — isso já pressupõe que ele vai seguir em frente
+5. Fechar pedido com prazo e forma de pagamento
+
+CLIENTE RESIDENCIAL (reforma/construção própria): a escadinha tende a ser mais emocional — visual do ambiente, como vai ficar, comparação com referências que ele já viu (Pinterest, obra de vizinho). Amostra física pesa mais aqui porque reduz o medo de errar a escolha.
+
+CLIENTE B2B (arquiteto, construtora, revendedor): a escadinha é mais técnica e depende de terceiros — confirmar se é decisão dele sozinho ou precisa de aprovação de cliente/sócio, prazo de obra, volume estimado. Nesse caso, "vou aprovar amostra pra você levar pro cliente aprovar" costuma ser o degrau certo, não empurrar fechamento direto.
+
+REGRA: nunca pular degraus que o cliente ainda não confirmou (ex: já perguntar forma de pagamento sem ele ter confirmado que quer seguir) — isso soa apressado e quebra a confiança. Se o cliente já veio adiantado (ex: já sabe o produto e quer preço, código [ref:...] do tipo "produto-orcamento"), pular pros degraus finais é correto — a escadinha serve pra guiar quem ainda está decidindo, não pra atrasar quem já decidiu.
+
+Isso não é script engessado — é lógica de conversa. Adaptar sempre ao que o cliente já disse, nunca fazer a mesma pergunta que ele já respondeu.`,
+
+  prova_social: `PROVA SOCIAL — CASOS REAIS PRA REFORÇAR OBJEÇÃO DE PREÇO OU INDECISÃO
+
+Prova social (outros clientes reais que já resolveram a mesma dúvida) é mais convincente que qualquer explicação de processo — mas só funciona com casos VERDADEIROS. Nunca inventar, aproximar ou generalizar um caso que a atendente não tem certeza que aconteceu.
+
+QUANDO USAR: objeção de preço ("por que é mais caro"), indecisão entre linhas, ou cliente pedindo mais confiança antes de fechar (comum em pedido grande/B2B).
+
+COMO USAR: mencionar de forma natural, sem soar como depoimento decorado — ex: "isso é bem parecido com um projeto de [tipo de aplicação] que fechamos recentemente" — só se a atendente realmente souber do caso, com produto e contexto corretos. Nunca citar nome de cliente sem autorização.
+
+(Lista de casos reais em construção — ainda não temos casos documentados e aprovados pra citar no chat. Até a equipe Bruto validar e cadastrar aqui, NÃO invente ou aproxime nenhum caso: se o cliente pedir referência/exemplo real, seja honesto que a equipe pode buscar um projeto parecido pra mostrar, e direcione pro consultor/WhatsApp em vez de citar algo não confirmado.)`,
 };
 
 // ── MOTOR DE DIAGNÓSTICO (ROTEIRO FIXO, REGRAS LOCAIS — NÃO USA API) ───────
@@ -1338,8 +1397,9 @@ function BrutoAtendimento() {
   }
 
   // ── ANEXO DE FOTO (obra/reforma do lead) — suporta várias por mensagem ──
-  const MAX_IMAGES_PER_MSG = 4;
-  const MAX_IMAGE_SIZE = 1.5 * 1024 * 1024; // 1.5MB por foto (várias fotos por mensagem somam rápido)
+  const MAX_IMAGES_PER_MSG = 10;
+  const MAX_IMAGE_SIZE = 1.5 * 1024 * 1024; // 1.5MB por foto individual
+  const MAX_TOTAL_IMAGES_SIZE = 8 * 1024 * 1024; // 8MB somando todas as fotos da mensagem — protege contra payload gigante (10 fotos no limite individual passaria de 15MB brutos)
 
   function openImagePicker() {
     fileInputRef.current?.click();
@@ -1371,11 +1431,15 @@ function BrutoAtendimento() {
       }
       const reader = new FileReader();
       reader.onload = () => {
-        setImageAttachments((prev) =>
-          prev.length >= MAX_IMAGES_PER_MSG
-            ? prev
-            : [...prev, { dataUrl: reader.result, mediaType: file.type, name: file.name }]
-        );
+        setImageAttachments((prev) => {
+          if (prev.length >= MAX_IMAGES_PER_MSG) return prev;
+          const totalAtual = prev.reduce((soma, img) => soma + (img.sizeBytes || 0), 0);
+          if (totalAtual + file.size > MAX_TOTAL_IMAGES_SIZE) {
+            alert(`"${file.name}" não coube — o total de fotos nesta mensagem passaria de ${(MAX_TOTAL_IMAGES_SIZE / (1024 * 1024)).toFixed(0)}MB. Remova alguma foto ou envie esta em outra mensagem.`);
+            return prev;
+          }
+          return [...prev, { dataUrl: reader.result, mediaType: file.type, name: file.name, sizeBytes: file.size }];
+        });
       };
       reader.onerror = () => alert(`Não foi possível ler "${file.name}". Tente novamente.`);
       reader.readAsDataURL(file);
@@ -1444,6 +1508,8 @@ function BrutoAtendimento() {
 
     staticSys += `\n\nCLASSIFICAÇÃO DE TEMA (uso interno, não é visível pro cliente): ao final da sua resposta, em uma linha totalmente separada, inclua um marcador oculto no formato <!--tema:CATEGORIA--> onde CATEGORIA é exatamente UMA destas palavras: frete, instalacao, devolucao, qualidade, comparacao, preco, produto, manutencao, geral. Escolha a que melhor descreve o assunto CENTRAL da pergunta do cliente (não da resposta toda). "comparacao" é pra quando o cliente está decidindo entre produtos/linhas; "produto" é pra dúvida sobre um produto específico que não é preço nem comparação; "geral" só se nada mais se encaixar. Esse marcador nunca aparece pro cliente — é removido antes de exibir a resposta, existe só pra alimentar um contador interno de temas mais frequentes.`;
 
+    staticSys += `\n\nCLASSIFICAÇÃO DE PERSONA (uso interno, não é visível pro cliente): ao final da sua resposta, em outra linha totalmente separada, inclua um marcador oculto no formato <!--persona:TIPO--> onde TIPO é exatamente UMA destas palavras: arquiteto, construtor, revendedor, residencial, comercial, indefinido. Baseie-se em pistas reais que já apareceram na conversa até agora (ex: "sou arquiteto", "pra minha construtora", "quero revender", "é pra minha casa", "projeto comercial/loja/escritório") — NUNCA chute com base só no tom da mensagem ou no produto perguntado. Use "indefinido" sempre que não houver pista clara ainda — é o valor seguro por padrão, não force uma classificação. Esse marcador nunca aparece pro cliente — é removido antes de exibir a resposta, existe só pra sugerir automaticamente o tipo de cliente no perfil quando ainda não foi preenchido manualmente (uma sugestão, nunca substitui uma escolha que o consultor já fez).`;
+
     // ── BLOCO DINÂMICO (não cacheado) ───────────────────────────────
     // Muda a cada turno/sessão — fica de fora do prefixo cacheado.
     const agoraSP = new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit", hour12: false, weekday: "long", day: "2-digit", month: "2-digit" });
@@ -1484,7 +1550,7 @@ function BrutoAtendimento() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-5",
-          max_tokens: 600,
+          max_tokens: 1024,
           system: buildSystemPrompt(),
           messages: windowedMsgs,
         }),
@@ -1519,6 +1585,11 @@ function BrutoAtendimento() {
       const data = await response.json();
       let text = data?.content?.find((c) => c.type === "text")?.text || "[Sem resposta da IA]";
 
+      // Resposta cortada pelo limite de tamanho antes de terminar o raciocínio —
+      // acontece raramente (foto com várias imagens, comparativo longo, passo a
+      // passo de instalação). Sinalizamos em vez de mostrar como se fosse completa.
+      const truncated = data?.stop_reason === "max_tokens";
+
       // Extrai a tag oculta de classificação de tema (uso interno, nunca exibida)
       const CATEGORIAS_TEMA = ["frete", "instalacao", "devolucao", "qualidade", "comparacao", "preco", "produto", "manutencao", "geral"];
       let tema = null;
@@ -1527,6 +1598,16 @@ function BrutoAtendimento() {
         tema = matchTema[1].toLowerCase();
       }
       text = text.replace(/<!--\s*tema:\s*[a-z]+\s*-->/gi, "").trim();
+
+      // Extrai a tag oculta de classificação de persona (uso interno, nunca exibida).
+      // Só preenche o Tipo de Cliente automaticamente se ainda estiver vazio —
+      // nunca sobrescreve uma escolha que o consultor já fez manualmente no perfil.
+      const PERSONAS_VALIDAS = ["arquiteto", "construtor", "revendedor", "residencial", "comercial"];
+      const matchPersona = text.match(/<!--\s*persona:\s*([a-z]+)\s*-->/i);
+      if (matchPersona && PERSONAS_VALIDAS.includes(matchPersona[1].toLowerCase()) && !client.type) {
+        setClient((prev) => (prev.type ? prev : { ...prev, type: matchPersona[1].toLowerCase(), typeInferred: true }));
+      }
+      text = text.replace(/<!--\s*persona:\s*[a-z]+\s*-->/gi, "").trim();
 
       const lastUserHadImage = (history[history.length - 1]?.images?.length || 0) > 0;
       setMessages((prev) => [...prev, {
@@ -1537,6 +1618,7 @@ function BrutoAtendimento() {
           kb: lastUserHadImage ? "análise de imagem" : "nenhuma",
           generatedBy: "Claude (Sonnet 5)",
           tema,
+          truncated,
         },
       }]);
     } catch (err) {
@@ -1920,7 +2002,7 @@ function BrutoAtendimento() {
                 <div style={S.clientDetail} dangerouslySetInnerHTML={{ __html:
                   [
                     client.phone ? `<strong>Telefone:</strong> ${client.phone}` : "",
-                    client.type ? `<strong>Tipo:</strong> ${client.type}` : "",
+                    client.type ? `<strong>Tipo:</strong> ${client.type}${client.typeInferred ? ' <span style="color:#B8650A;font-weight:600;">(sugerido pela IA — confira)</span>' : ""}` : "",
                     client.project ? `<strong>Projeto:</strong> ${client.project}` : "",
                     client.tags.length ? `<strong>Tags:</strong> ${client.tags.join(", ")}` : "",
                     client.codigoReferencia ? `<strong>Origem:</strong> ${client.codigoReferencia.split("_").join(" · ")}` : "",
@@ -2141,6 +2223,11 @@ function BrutoAtendimento() {
                     </div>
                     {msg.metadata && (
                       <div style={S.msgInfo}>
+                        {msg.metadata.truncated && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, padding: "6px 8px", background: "rgba(240,140,20,.12)", border: "1px solid rgba(240,140,20,.35)", borderRadius: 5, color: "#B8650A", fontWeight: 600 }}>
+                            <AlertTriangle size={12} strokeWidth={2}/> Resposta pode ter sido cortada antes de terminar — confira o final e regenere se precisar.
+                          </div>
+                        )}
                         <div style={S.infoTitle}>Metadados da Resposta</div>
                         <div style={S.infoItem}><span style={S.infoLabel}>Modo:</span><span>{msg.metadata.mode || "—"}</span></div>
                         <div style={S.infoItem}><span style={S.infoLabel}>KB Usada:</span><span>{msg.metadata.kb || "—"}</span></div>
@@ -2270,7 +2357,7 @@ function BrutoAtendimento() {
             </div>
             <div style={S.formGroup}>
               <label style={S.formLabel}>Tipo de Cliente</label>
-              <select style={S.formInput} value={tmpClient.type} onChange={(e) => setTmpClient({ ...tmpClient, type: e.target.value })}>
+              <select style={S.formInput} value={tmpClient.type} onChange={(e) => setTmpClient({ ...tmpClient, type: e.target.value, typeInferred: false })}>
                 <option value="">Selecionar...</option>
                 <option value="arquiteto">Arquiteto/Designer</option>
                 <option value="construtor">Construtor</option>
@@ -2279,6 +2366,9 @@ function BrutoAtendimento() {
                 <option value="comercial">Comercial</option>
                 <option value="outro">Outro</option>
               </select>
+              {tmpClient.typeInferred && (
+                <div style={{ fontSize: 10, color: "#B8650A", marginTop: 4 }}>Sugerido automaticamente pela IA a partir da conversa — confirme ou ajuste se necessário.</div>
+              )}
             </div>
             <div style={S.formGroup}>
               <label style={S.formLabel}>Projeto (opcional)</label>
