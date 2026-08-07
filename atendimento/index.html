@@ -643,6 +643,11 @@ function ExportCopyBtn({ text, label = "Copiar JSON" }) {
 function BrutoAtendimento() {
   const [mode, setMode] = useState("consulta");
   const [isMobile, setIsMobile] = useState(typeof window !== "undefined" && window.innerWidth <= 768);
+  const [sidebarWidth, setSidebarWidth] = useState(() => {
+    const salva = typeof window !== "undefined" ? parseInt(window.localStorage.getItem("bruto_sidebar_width") || "", 10) : NaN;
+    return !isNaN(salva) && salva >= 180 && salva <= 420 ? salva : 220;
+  });
+  const [arrastandoSidebar, setArrastandoSidebar] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [client, setClient] = useState({ name: "Cliente", type: "", project: "", phone: "", tags: ["Consulta Técnica"] });
@@ -711,6 +716,27 @@ function BrutoAtendimento() {
   const msgEndRef = useRef(null);
   const saveTimerRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  // ── Barra lateral redimensionável — puxar e arrastar ao vivo. Só
+  // escuta mousemove/mouseup globalmente ENQUANTO está arrastando, pra
+  // não ficar um listener pendurado o tempo todo à toa.
+  useEffect(() => {
+    if (!arrastandoSidebar) return;
+    function onMove(e) {
+      const nova = Math.min(420, Math.max(180, e.clientX));
+      setSidebarWidth(nova);
+    }
+    function onUp() {
+      setArrastandoSidebar(false);
+      setSidebarWidth((w) => { window.localStorage.setItem("bruto_sidebar_width", String(w)); return w; });
+    }
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [arrastandoSidebar]);
 
   // ── Detecção de tela mobile — reage a rotação/resize ao vivo ──────
   useEffect(() => {
@@ -1063,6 +1089,8 @@ function BrutoAtendimento() {
       phone: parsed.client?.phone || "",
       type: parsed.client?.type || "",
       project: parsed.client?.project || "",
+      followupData: parsed.client?.followupData || "",
+      followupNota: parsed.client?.followupNota || "",
     });
   }
 
@@ -1070,13 +1098,15 @@ function BrutoAtendimento() {
     if (!editClientModal || !editClientFull || editClientBusy) return;
     setEditClientBusy(true);
     setEditClientErr("");
-    const updatedClient = {
+    const updatedClient = sincronizarTagFollowup({
       ...editClientFull.client,
       name: editClientModal.name.trim() || "Cliente",
       phone: editClientModal.phone.trim(),
       type: editClientModal.type,
       project: editClientModal.project.trim(),
-    };
+      followupData: editClientModal.followupData || "",
+      followupNota: (editClientModal.followupNota || "").trim(),
+    });
     const updatedPayload = { ...editClientFull, client: updatedClient };
     const payloadStr = JSON.stringify(updatedPayload);
     try {
@@ -1088,12 +1118,13 @@ function BrutoAtendimento() {
         preview: editClientFull.meta?.preview || "",
         msgCount: (editClientFull.messages || []).length,
         criadoEm: editClientFull.meta?.createdAt || 0,
+        tags: updatedClient.tags,
         payload: payloadStr,
       });
       try { await storage.set(`session:${editClientModal.id}`, payloadStr); } catch (_) {}
 
       const patch = (s) => s.id === editClientModal.id
-        ? { ...s, clientName: updatedClient.name, clientType: updatedClient.type }
+        ? { ...s, clientName: updatedClient.name, clientType: updatedClient.type, tags: updatedClient.tags }
         : s;
       setSessionIndex((prev) => prev.map(patch));
       setAdminIndex((prev) => prev.map(patch));
@@ -1507,8 +1538,32 @@ function BrutoAtendimento() {
     setClientModalOpen(true);
   }
 
+  // Guarda a data do followup como uma tag especial ("followup:YYYY-MM-DD")
+  // dentro do array de tags que já existe e já persiste corretamente até a
+  // lista do histórico — evita precisar mexer no backend (historico.php)
+  // pra adicionar uma coluna nova só pra isso. Essa tag fica escondida da
+  // exibição normal de etiquetas (filtrada em todo lugar que mostra tags).
+  function sincronizarTagFollowup(cli) {
+    const semFollowup = (cli.tags || []).filter((t) => !t.startsWith("followup:"));
+    const tags = cli.followupData ? [...semFollowup, `followup:${cli.followupData}`] : semFollowup;
+    return { ...cli, tags };
+  }
+
+  // Lê a tag especial de followup de uma lista de tags e devolve o status
+  // pra exibir na lista do histórico: "atrasado" (passou da data), "hoje",
+  // ou null (followup futuro, ou não tem followup nenhum — sem destaque).
+  function statusFollowup(tags) {
+    const tagFollowup = (tags || []).find((t) => t.startsWith("followup:"));
+    if (!tagFollowup) return null;
+    const data = tagFollowup.slice("followup:".length);
+    const hoje = new Date().toISOString().slice(0, 10);
+    if (data < hoje) return "atrasado";
+    if (data === hoje) return "hoje";
+    return null;
+  }
+
   function saveClient() {
-    setClient({ ...tmpClient, name: tmpClient.name || "Cliente" });
+    setClient(sincronizarTagFollowup({ ...tmpClient, name: tmpClient.name || "Cliente" }));
     setClientModalOpen(false);
   }
 
@@ -2033,7 +2088,7 @@ function BrutoAtendimento() {
 
         <div style={S.bodyWrap}>
           {/* SIDEBAR */}
-          <aside style={isMobile ? S.asideMobile(sidebarOpen) : S.aside}>
+          <aside style={isMobile ? S.asideMobile(sidebarOpen) : S.aside(sidebarWidth)}>
             {isMobile && (
               <button style={S.sidebarCloseBtn} onClick={() => setSidebarOpen(false)} title="Fechar menu">
                 <X size={18} strokeWidth={1.75}/>
@@ -2157,22 +2212,27 @@ function BrutoAtendimento() {
                         </div>
                       ) : filtered.length === 0 ? (
                         <div style={{ padding: "12px 13px", fontSize: 9, color: mid2, textAlign: "center" }}>Nenhuma conversa encontrada.</div>
-                      ) : filtered.map((s) => (
+                      ) : filtered.map((s) => {
+                        const followup = statusFollowup(s.tags);
+                        const tagsVisiveis = (s.tags || []).filter((t) => !t.startsWith("followup:"));
+                        return (
                         <div
                           key={s.id}
-                          style={S.histItem(s.id === currentSessionId)}
+                          style={{ ...S.histItem(s.id === currentSessionId), ...(followup === "atrasado" ? { borderLeft: "3px solid #B9614F" } : followup === "hoje" ? { borderLeft: "3px solid #C9A15A" } : {}) }}
                           onClick={() => loadSession(s.id)}
                         >
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={S.histClient}>
+                              {followup === "atrasado" && <span title="Followup atrasado">🔴 </span>}
+                              {followup === "hoje" && <span title="Followup hoje">🟡 </span>}
                               {s.clientName || "Cliente"}
                               {adminViewAll && s.atendente ? <span style={S.histAtendente}> · {s.atendente}</span> : null}
                             </div>
                             <div style={S.histPreview}>{s.preview || "Sem mensagens"}</div>
                             <div style={S.histMeta}>{s.msgCount} msgs · {new Date(s.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} {new Date(s.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
-                            {(s.tags || []).length > 0 && (
+                            {tagsVisiveis.length > 0 && (
                               <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 3 }}>
-                                {s.tags.map((t) => <span key={t} style={{ fontSize: 8, padding: "1px 6px", borderRadius: 20, border: `1px solid ${border}`, color: mid2 }}>{t}</span>)}
+                                {tagsVisiveis.map((t) => <span key={t} style={{ fontSize: 8, padding: "1px 6px", borderRadius: 20, border: `1px solid ${border}`, color: mid2 }}>{t}</span>)}
                               </div>
                             )}
                           </div>
@@ -2182,13 +2242,20 @@ function BrutoAtendimento() {
                           </button>
                           <button style={S.histDelete} onClick={(e) => deleteSession(s.id, e)} title="Excluir"><Trash2 size={10} strokeWidth={1.75}/></button>
                         </div>
-                      ))}
+                      );})}
                     </div>
                   </div>
                 );
               })()}
             </div>
           </aside>
+          {!isMobile && (
+            <div
+              style={S.sidebarResizeHandle}
+              onMouseDown={() => setArrastandoSidebar(true)}
+              title="Arrastar pra redimensionar"
+            />
+          )}
 
           {/* CHAT */}
           <div style={S.chatArea}>
@@ -2419,6 +2486,14 @@ function BrutoAtendimento() {
               <input style={S.formInput} value={tmpClient.project} onChange={(e) => setTmpClient({ ...tmpClient, project: e.target.value })} placeholder="Ex: Casa moderna em São Paulo"/>
             </div>
             <div style={S.formGroup}>
+              <label style={S.formLabel}>Próximo followup (opcional)</label>
+              <input type="date" style={S.formInput} value={tmpClient.followupData || ""} onChange={(e) => setTmpClient({ ...tmpClient, followupData: e.target.value })}/>
+            </div>
+            <div style={S.formGroup}>
+              <label style={S.formLabel}>Nota do followup</label>
+              <input style={S.formInput} value={tmpClient.followupNota || ""} onChange={(e) => setTmpClient({ ...tmpClient, followupNota: e.target.value })} placeholder="Ex: confirmar se decidiu entre Fumê e Terra Negra"/>
+            </div>
+            <div style={S.formGroup}>
               <label style={S.formLabel}>Etiquetas</label>
               <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 6 }}>
                 {TAG_SUGESTOES.map((t) => {
@@ -2487,6 +2562,14 @@ function BrutoAtendimento() {
             <div style={S.formGroup}>
               <label style={S.formLabel}>Projeto (opcional)</label>
               <input style={S.formInput} value={editClientModal.project} onChange={(e) => setEditClientModal({ ...editClientModal, project: e.target.value })} placeholder="Ex: Casa moderna em São Paulo"/>
+            </div>
+            <div style={S.formGroup}>
+              <label style={S.formLabel}>Próximo followup (opcional)</label>
+              <input type="date" style={S.formInput} value={editClientModal.followupData || ""} onChange={(e) => setEditClientModal({ ...editClientModal, followupData: e.target.value })}/>
+            </div>
+            <div style={S.formGroup}>
+              <label style={S.formLabel}>Nota do followup</label>
+              <input style={S.formInput} value={editClientModal.followupNota || ""} onChange={(e) => setEditClientModal({ ...editClientModal, followupNota: e.target.value })} placeholder="Ex: confirmar se decidiu entre Fumê e Terra Negra"/>
             </div>
             {editClientErr && <div style={{ fontSize: 11, color: "#F09595", marginBottom: 10 }}>{editClientErr}</div>}
             <button style={{ ...S.formButton, opacity: editClientBusy ? 0.6 : 1 }} onClick={saveEditClient} disabled={editClientBusy}>
@@ -2809,7 +2892,8 @@ const S = {
   statusBadge: { display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 20, background: "rgba(74,222,128,.08)", border: "1px solid rgba(74,222,128,.25)", color: green, fontSize: 10, fontWeight: 500 },
   dot: { width: 5, height: 5, borderRadius: "50%", background: green },
   bodyWrap: { display: "flex", flex: 1, overflow: "hidden" },
-  aside: { width: 220, minWidth: 220, borderRight: `1px solid ${border}`, background: `linear-gradient(180deg,${card} 0%,#0a0a0a 100%)`, display: "flex", flexDirection: "column", overflowY: "auto" },
+  aside: (largura) => ({ width: largura, minWidth: 180, maxWidth: 420, borderRight: `1px solid ${border}`, background: `linear-gradient(180deg,${card} 0%,#0a0a0a 100%)`, display: "flex", flexDirection: "column", overflowY: "auto" }),
+  sidebarResizeHandle: { width: 5, marginLeft: -2, cursor: "col-resize", flexShrink: 0, position: "relative", zIndex: 10 },
   asideMobile: (open) => ({
     width: "82vw", maxWidth: 300, minWidth: 0,
     borderRight: `1px solid ${border}`, background: `linear-gradient(180deg,${card} 0%,#0a0a0a 100%)`,
