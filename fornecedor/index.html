@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<!-- ══════════════════════════════════════════════════════════════
+     Portal Faion — disponibilidade de produto + sinal de demanda.
+     Pensado como parceria: a Faion atualiza disponibilidade em
+     segundos, e em troca vê quais produtos estão sendo mais
+     orçados (sem preço, sem margem, sem dado de cliente — só
+     volume de interesse agregado).
+     SEM GTM de propósito, mesmo motivo do /interno e /atendimento:
+     ferramenta de uso restrito, não ponto de conversão de cliente.
+     ══════════════════════════════════════════════════════════════ -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Faion — Bruto Cerâmica</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Barlow+Condensed:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --k:#0F0F0F;--k2:#1A1A1A;--k3:#242424;--k4:#2E2E2E;
+    --t:#57999B;--td:#3D7072;--tl:#8BBCBE;
+    --w:#F2F2F2;--g:#606060;--gl:#8A8A8A;
+    --ok:#5F9E6E;--wn:#C9A15A;--err:#B9614F;
+    --surface:#1A1A1A;--border:#2E2E2E;--mid2:#888888;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--k);overflow-x:hidden}
+  body{font-family:'DM Sans',system-ui,sans-serif;font-weight:300;color:var(--w);-webkit-font-smoothing:antialiased;min-height:100vh}
+  .app{display:flex;flex-direction:column;min-height:100vh;max-width:820px;margin:0 auto;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+  .led{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(87,153,155,.45) 15%,rgba(87,153,155,.85) 50%,rgba(87,153,155,.45) 85%,transparent 100%);flex-shrink:0}
+  .header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:linear-gradient(180deg,#181818 0%,var(--surface) 100%);border-bottom:1px solid var(--border)}
+  .logo-lockup{display:flex;align-items:center;gap:8px}
+  .logo-mark{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:20px;letter-spacing:.10em;text-transform:uppercase;color:var(--w)}
+  .logo-dash{width:16px;height:1.5px;background:var(--t)}
+  .logo-co{font-family:'Barlow Condensed',sans-serif;font-weight:400;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--t)}
+  .badge{font-size:9px;color:var(--gl);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--border);padding:4px 10px;border-radius:20px}
+  .body{padding:24px;flex:1}
+  .intro{font-size:13px;color:var(--gl);line-height:1.6;margin-bottom:24px;max-width:520px}
+  .intro b{color:var(--w)}
+  .aviso{display:none;padding:10px 14px;background:rgba(185,97,79,.1);border:1px solid rgba(185,97,79,.3);border-radius:8px;font-size:12px;color:#E39A8C;margin-bottom:16px}
+  .aviso.on{display:block}
+  .secao-titulo{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--t);margin:28px 0 12px;text-transform:uppercase}
+  .lista{display:flex;flex-direction:column;gap:8px}
+  .item{display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+  .item-nome{flex:1;min-width:0}
+  .item-nome b{font-family:'Syne',sans-serif;font-size:13px;color:var(--w);display:block}
+  .item-nome span{font-size:10px;color:var(--gl);text-transform:uppercase;letter-spacing:.06em}
+  .status-grupo{display:flex;gap:6px;flex-wrap:wrap}
+  .status-btn{padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--gl);font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;white-space:nowrap}
+  .status-btn.on-disponivel{background:rgba(95,158,110,.15);border-color:var(--ok);color:var(--ok)}
+  .status-btn.on-sob_encomenda{background:rgba(201,161,90,.15);border-color:var(--wn);color:var(--wn)}
+  .status-btn.on-indisponivel{background:rgba(185,97,79,.15);border-color:var(--err);color:var(--err)}
+  .dias-input{width:56px;padding:5px 6px;border-radius:6px;border:1px solid var(--border);background:var(--k3);color:var(--w);font-size:11px;text-align:center;display:none}
+  .dias-input.on{display:inline-block}
+  .demanda-lista{display:flex;flex-direction:column;gap:6px}
+  .demanda-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:12px}
+  .demanda-nome{flex:1;color:var(--w)}
+  .demanda-barra-bg{width:100px;height:5px;background:var(--k3);border-radius:3px;overflow:hidden}
+  .demanda-barra{height:100%;background:var(--t)}
+  .demanda-num{color:var(--gl);font-size:11px;width:22px;text-align:right}
+  .vazio{font-size:12px;color:var(--gl);padding:16px;text-align:center}
+  .rodape{padding:16px 24px;border-top:1px solid var(--border);font-size:10px;color:var(--mid2);text-align:center}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="led"></div>
+  <header class="header">
+    <div class="logo-lockup">
+      <span class="logo-mark">BRUTO</span>
+      <div class="logo-dash"></div>
+      <span class="logo-co">Portal Faion</span>
+    </div>
+    <span class="badge">Parceria Bruto ↔ Faion</span>
+  </header>
+
+  <div class="body">
+    <p class="intro">
+      Atualize a disponibilidade dos produtos aqui — leva alguns segundos, e evita mensagem indo e voltando toda vez que a Bruto precisa saber. Em troca, você vê abaixo <b>quais produtos estão sendo mais orçados</b> nas últimas 2 semanas (sem preço, sem margem, sem dado de cliente — só volume de interesse).
+    </p>
+    <div class="aviso" id="aviso"></div>
+
+    <div class="secao-titulo">Disponibilidade por produto</div>
+    <div class="lista" id="lista-produtos"><div class="vazio">Carregando…</div></div>
+
+    <div class="secao-titulo">Sinal de demanda (últimos 14 dias)</div>
+    <div class="demanda-lista" id="lista-demanda"><div class="vazio">Carregando…</div></div>
+  </div>
+
+  <div class="led"></div>
+  <footer class="rodape">Portal Faion · brutoceramica.com.br · contato@brutoceramica.com.br</footer>
+</div>
+
+<script>
+const API = 'api/disponibilidade.php';
+const NOMES_PRODUTO = {
+  'brick-eco-palha': 'Eco Palha', 'brick-rusticatto-palha': 'Rusticatto Palha',
+  'brick-lumus': 'Lumus', 'brick-mescla-prime': 'Mescla Prime', 'brick-natura': 'Natura',
+  'brick-rosso-prime': 'Rosso Prime', 'brick-rusticatto-fume': 'Rusticatto Fumê',
+  'brick-rusticatto-rosso': 'Rusticatto Rosso', 'brick-rusticatto-sertao': 'Rusticatto do Sertão',
+  'brick-rusticatto-terra-negra': 'Rusticatto Terra Negra', 'brick-terra-cerrado': 'Terra do Cerrado',
+  'cimenticio-alpino': 'Alpino', 'cimenticio-brisa': 'Brisa', 'cimenticio-urban': 'Urban',
+  'rockface-alpino': 'Alpino', 'rockface-brisa': 'Brisa', 'rockface-urban': 'Urban',
+};
+const LINHA_PRODUTO = {
+  'brick-eco-palha': 'Brick', 'brick-rusticatto-palha': 'Brick', 'brick-lumus': 'Brick',
+  'brick-mescla-prime': 'Brick', 'brick-natura': 'Brick', 'brick-rosso-prime': 'Brick',
+  'brick-rusticatto-fume': 'Brick', 'brick-rusticatto-rosso': 'Brick', 'brick-rusticatto-sertao': 'Brick',
+  'brick-rusticatto-terra-negra': 'Brick', 'brick-terra-cerrado': 'Brick',
+  'cimenticio-alpino': 'Cimentício', 'cimenticio-brisa': 'Cimentício', 'cimenticio-urban': 'Cimentício',
+  'rockface-alpino': 'Rockface', 'rockface-brisa': 'Rockface', 'rockface-urban': 'Rockface',
+};
+
+function mostrarAviso(msg) {
+  const el = document.getElementById('aviso');
+  el.textContent = msg;
+  el.classList.add('on');
+}
+function esconderAviso() {
+  document.getElementById('aviso').classList.remove('on');
+}
+
+async function chamarAPI(corpo) {
+  const res = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corpo) });
+  const dados = await res.json();
+  if (!dados.ok) throw new Error(dados.erro || 'erro desconhecido');
+  return dados;
+}
+
+async function carregarProdutos() {
+  try {
+    const { produtos } = await chamarAPI({ acao: 'listar' });
+    renderizarProdutos(produtos);
+  } catch (e) {
+    mostrarAviso('Não consegui carregar a lista de produtos agora. Recarregue a página.');
+  }
+}
+
+function renderizarProdutos(produtos) {
+  const lista = document.getElementById('lista-produtos');
+  lista.innerHTML = produtos.map(p => `
+    <div class="item">
+      <div class="item-nome">
+        <b>${NOMES_PRODUTO[p.produto_slug] || p.produto_slug}</b>
+        <span>${LINHA_PRODUTO[p.produto_slug] || ''}</span>
+      </div>
+      <div class="status-grupo">
+        <button type="button" class="status-btn ${p.status === 'disponivel' ? 'on-disponivel' : ''}" onclick="atualizarStatus('${p.produto_slug}', 'disponivel')">Disponível</button>
+        <button type="button" class="status-btn ${p.status === 'sob_encomenda' ? 'on-sob_encomenda' : ''}" onclick="atualizarStatus('${p.produto_slug}', 'sob_encomenda')">Sob encomenda</button>
+        <input type="number" min="1" class="dias-input ${p.status === 'sob_encomenda' ? 'on' : ''}" id="dias-${p.produto_slug}" value="${p.dias_encomenda || ''}" placeholder="dias" onchange="atualizarStatus('${p.produto_slug}', 'sob_encomenda', this.value)">
+        <button type="button" class="status-btn ${p.status === 'indisponivel' ? 'on-indisponivel' : ''}" onclick="atualizarStatus('${p.produto_slug}', 'indisponivel')">Indisponível</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function atualizarStatus(slug, status, dias) {
+  esconderAviso();
+  try {
+    await chamarAPI({ acao: 'atualizar', produto_slug: slug, status, dias_encomenda: dias || null });
+    carregarProdutos(); // recarrega pra refletir o estado real salvo
+  } catch (e) {
+    mostrarAviso('Não consegui salvar essa atualização — tenta de novo.');
+  }
+}
+
+async function carregarDemanda() {
+  try {
+    const { sinal } = await chamarAPI({ acao: 'sinal_demanda' });
+    renderizarDemanda(sinal);
+  } catch (e) {
+    document.getElementById('lista-demanda').innerHTML = '<div class="vazio">Não consegui carregar o sinal de demanda agora.</div>';
+  }
+}
+
+function renderizarDemanda(sinal) {
+  const lista = document.getElementById('lista-demanda');
+  if (sinal.length === 0) {
+    lista.innerHTML = '<div class="vazio">Nenhum orçamento registrado nos últimos 14 dias ainda.</div>';
+    return;
+  }
+  const max = Math.max(...sinal.map(s => s.total));
+  lista.innerHTML = sinal.map(s => `
+    <div class="demanda-item">
+      <span class="demanda-nome">${NOMES_PRODUTO[s.produto_slug] || s.produto_slug}</span>
+      <div class="demanda-barra-bg"><div class="demanda-barra" style="width:${(s.total / max * 100).toFixed(0)}%"></div></div>
+      <span class="demanda-num">${s.total}</span>
+    </div>
+  `).join('');
+}
+
+carregarProdutos();
+carregarDemanda();
+</script>
+</body>
+</html>

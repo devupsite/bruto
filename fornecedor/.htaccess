@@ -1,0 +1,33 @@
+# ════════════════════════════════════════════════════════════════
+# Proteção da pasta /fornecedor/ — Portal Faion (disponibilidade de
+# produto + sinal de demanda). Acesso da Bruto (admin) e da Faion
+# (fornecedor) — usuários e senhas próprios, separados de /atendimento
+# e /interno (o Mateus NÃO deve ter a mesma senha de lá, já que aqui
+# ele só vê o próprio portal, não dados internos da Bruto).
+#
+# IMPORTANTE (lição aprendida em 05/08/2026, depois de uma investigação
+# longa no /atendimento): o caminho do AuthUserFile que REALMENTE
+# funciona no Hostinger é o .htpasswd DENTRO desta mesma pasta
+# (/fornecedor/.htpasswd), não em bruto-secrets/. O hPanel também tem
+# sua própria interface de "Diretórios protegidos" que gerencia um
+# .htpasswd separado — pra evitar o mesmo problema de duas fontes de
+# senha conflitando, o Rafael deve escolher UM dos dois caminhos
+# (preferencialmente só o .htpasswd manual abaixo, que é o comprovado)
+# e não mexer no gerenciador do hPanel pra esta pasta específica.
+# ════════════════════════════════════════════════════════════════
+
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+</IfModule>
+
+AuthType Basic
+AuthName "Portal Faion — Bruto Cerâmica"
+AuthUserFile /home/u764636502/domains/brutoceramica.com.br/public_html/fornecedor/.htpasswd
+Require valid-user
+
+<Files ".htpasswd">
+  Require all denied
+</Files>
+<Files ".htaccess">
+  Require all denied
+</Files>

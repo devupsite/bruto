@@ -2194,7 +2194,21 @@ function exportarPDF(){
   $('pdf-ml',$('r-ml').textContent);
   window.print();
 }
-function selectProd(){ calcPrec(); }
+function selectProd(){
+  calcPrec();
+  // Sinal de demanda pro Portal Faion (best-effort, nunca trava o
+  // precificador se falhar) — só dispara na troca de produto de
+  // verdade, não a cada tecla, pra não virar ruído. Endpoint público
+  // e estreito (fora do Basic Auth de /fornecedor/, que tem senha
+  // diferente de /interno/ — ver comentário no arquivo da ponte).
+  const slug = document.getElementById('p-prod')?.value;
+  if (slug) {
+    fetch('../api/registrar-sinal-demanda.php', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ produto_slug: slug }),
+    }).catch(() => {});
+  }
+}
 function setPD(m){
   PDMODE=m;
   $('pd-ab').classList.toggle('on',m==='absorver');
