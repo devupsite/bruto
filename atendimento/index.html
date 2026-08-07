@@ -648,6 +648,7 @@ function BrutoAtendimento() {
     return !isNaN(salva) && salva >= 180 && salva <= 420 ? salva : 220;
   });
   const [arrastandoSidebar, setArrastandoSidebar] = useState(false);
+  const [sugerindoFollowup, setSugerindoFollowup] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [client, setClient] = useState({ name: "Cliente", type: "", project: "", phone: "", tags: ["Consulta Técnica"] });
@@ -1815,6 +1816,44 @@ function BrutoAtendimento() {
     return txt;
   }
 
+  // ── Sugestão de nota de followup via IA — analisa as últimas mensagens
+  // da conversa e propõe uma nota curta e específica (ex: "confirmar se
+  // decidiu entre Fumê e Terra Negra"), em vez do atendente ter que
+  // lembrar/escrever do zero. Funciona tanto pra sessão ativa quanto pro
+  // modal de edição rápida pela lista (aceita a lista de mensagens certa
+  // pra cada caso, via parâmetro).
+  async function sugerirFollowup(msgs, aplicarEm) {
+    if (!msgs || msgs.length === 0) {
+      alert("Essa conversa ainda não tem mensagens pra basear uma sugestão.");
+      return;
+    }
+    setSugerindoFollowup(true);
+    try {
+      const ultimas = msgs.slice(-8).map((m) => `${m.role === "user" ? "Cliente" : "Atendente"}: ${m.content}`).join("\n");
+      const response = await fetch(API_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-5",
+          max_tokens: 60,
+          system: `Você ajuda um atendente da Bruto Cerâmica a lembrar o que fazer no próximo contato com um cliente. Leia a conversa e escreva UMA nota de followup curta e específica (máximo 12 palavras, sem pontuação final, sem aspas) — o que precisa ser confirmado, decidido ou verificado da próxima vez. Ex: "confirmar se decidiu entre Fumê e Terra Negra", "checar se amostra chegou", "retomar objeção de preço do Rockface". Se a conversa já estiver claramente fechada/resolvida (pedido confirmado, cliente satisfeito, nada pendente), responda exatamente: SEM_PENDENCIA. Responda só com a nota, nada mais.`,
+          messages: [{ role: "user", content: ultimas }],
+        }),
+      });
+      const data = await response.json();
+      const texto = (data.content || []).map((b) => b.text || "").join("").trim();
+      if (!texto || texto === "SEM_PENDENCIA") {
+        alert("Não achei nada pendente claro nessa conversa pra sugerir — pode escrever manualmente se preferir.");
+      } else {
+        aplicarEm(texto);
+      }
+    } catch (e) {
+      alert("Não consegui gerar uma sugestão agora — tenta de novo, ou escreve manualmente.");
+    } finally {
+      setSugerindoFollowup(false);
+    }
+  }
+
   function openHandoffModal() {
     if (messages.length === 0) { alert("Ainda não há atendimento para resumir."); return; }
     setHandoffModal(buildHandoffSummary());
@@ -2491,7 +2530,18 @@ function BrutoAtendimento() {
             </div>
             <div style={S.formGroup}>
               <label style={S.formLabel}>Nota do followup</label>
-              <input style={S.formInput} value={tmpClient.followupNota || ""} onChange={(e) => setTmpClient({ ...tmpClient, followupNota: e.target.value })} placeholder="Ex: confirmar se decidiu entre Fumê e Terra Negra"/>
+              <div style={{ display: "flex", gap: 6 }}>
+                <input style={{ ...S.formInput, flex: 1 }} value={tmpClient.followupNota || ""} onChange={(e) => setTmpClient({ ...tmpClient, followupNota: e.target.value })} placeholder="Ex: confirmar se decidiu entre Fumê e Terra Negra"/>
+                <button
+                  type="button"
+                  style={{ ...S.newChatBtn, opacity: sugerindoFollowup ? 0.6 : 1, flexShrink: 0 }}
+                  disabled={sugerindoFollowup}
+                  onClick={() => sugerirFollowup(messages, (texto) => setTmpClient((prev) => ({ ...prev, followupNota: texto })))}
+                  title="Sugerir com base na conversa"
+                >
+                  {sugerindoFollowup ? "Pensando…" : "✨ Sugerir"}
+                </button>
+              </div>
             </div>
             <div style={S.formGroup}>
               <label style={S.formLabel}>Etiquetas</label>
@@ -2569,7 +2619,18 @@ function BrutoAtendimento() {
             </div>
             <div style={S.formGroup}>
               <label style={S.formLabel}>Nota do followup</label>
-              <input style={S.formInput} value={editClientModal.followupNota || ""} onChange={(e) => setEditClientModal({ ...editClientModal, followupNota: e.target.value })} placeholder="Ex: confirmar se decidiu entre Fumê e Terra Negra"/>
+              <div style={{ display: "flex", gap: 6 }}>
+                <input style={{ ...S.formInput, flex: 1 }} value={editClientModal.followupNota || ""} onChange={(e) => setEditClientModal({ ...editClientModal, followupNota: e.target.value })} placeholder="Ex: confirmar se decidiu entre Fumê e Terra Negra"/>
+                <button
+                  type="button"
+                  style={{ ...S.newChatBtn, opacity: sugerindoFollowup ? 0.6 : 1, flexShrink: 0 }}
+                  disabled={sugerindoFollowup}
+                  onClick={() => sugerirFollowup(editClientFull?.messages, (texto) => setEditClientModal((prev) => ({ ...prev, followupNota: texto })))}
+                  title="Sugerir com base na conversa"
+                >
+                  {sugerindoFollowup ? "Pensando…" : "✨ Sugerir"}
+                </button>
+              </div>
             </div>
             {editClientErr && <div style={{ fontSize: 11, color: "#F09595", marginBottom: 10 }}>{editClientErr}</div>}
             <button style={{ ...S.formButton, opacity: editClientBusy ? 0.6 : 1 }} onClick={saveEditClient} disabled={editClientBusy}>
