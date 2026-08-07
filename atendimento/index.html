@@ -680,6 +680,7 @@ function BrutoAtendimento() {
   // em vez de uma tela de login própria — não existe formulário de senha aqui.
   const [authChecked, setAuthChecked] = useState(false);
   const [currentUser, setCurrentUser] = useState(null); // { nome, papel, usuario } | null
+  const [disponibilidade, setDisponibilidade] = useState({}); // { slug: {status, dias_encomenda} } — cache local, atualizado periodicamente
   const [authError, setAuthError] = useState(null); // { status, message } | null
   const [adminViewAll, setAdminViewAll] = useState(false);
   const [adminIndex, setAdminIndex] = useState([]);
@@ -716,6 +717,28 @@ function BrutoAtendimento() {
     function onResize() { setIsMobile(window.innerWidth <= 768); }
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // ── Disponibilidade de produto (Portal Faion) — carrega uma vez e
+  // atualiza a cada 5 minutos em segundo plano. Não bloqueia nada se
+  // falhar (fica só sem essa informação na resposta da IA). Endpoint
+  // público e somente-leitura (ver api/consultar-disponibilidade.php)
+  // — não usa Basic Auth, por isso não precisa de credencial aqui.
+  useEffect(() => {
+    async function carregarDisponibilidade() {
+      try {
+        const res = await fetch("../api/consultar-disponibilidade.php");
+        const dados = await res.json();
+        if (dados?.produtos) {
+          const mapa = {};
+          dados.produtos.forEach((p) => { mapa[p.produto_slug] = { status: p.status, dias: p.dias_encomenda }; });
+          setDisponibilidade(mapa);
+        }
+      } catch (e) { /* segue sem essa informação — não é crítico */ }
+    }
+    carregarDisponibilidade();
+    const intervalo = setInterval(carregarDisponibilidade, 5 * 60 * 1000);
+    return () => clearInterval(intervalo);
   }, []);
 
   // ── Carga inicial: descobre quem está autenticado e carrega histórico ──
@@ -1521,6 +1544,23 @@ function BrutoAtendimento() {
     dynamicSys += `Modo: ${mode === "consulta" ? "CONSULTA TÉCNICA — seja direto e propositivo" : "DIAGNÓSTICO — investigue antes de concluir"}\n`;
     dynamicSys += `Cliente: ${client.name}${client.type ? ` (${client.type})` : ""}${client.project ? ` — ${client.project}` : ""}\n`;
     dynamicSys += `Atendente logado: ${currentUser?.nome || "não identificado"}\n`;
+
+    // Disponibilidade de produto (Portal Faion) — dado muda com o
+    // tempo (o fornecedor atualiza), por isso fica no bloco dinâmico,
+    // não na KB estática/cacheada. Só inclui produtos que NÃO estão
+    // disponíveis — se um produto não aparecer aqui, está disponível
+    // normalmente, não precisa de aviso especial.
+    const indisponiveis = Object.entries(disponibilidade).filter(([, v]) => v.status !== "disponivel");
+    if (indisponiveis.length > 0) {
+      dynamicSys += `\nDISPONIBILIDADE DE PRODUTO (atualizado pelo fornecedor, confira antes de prometer prazo): os produtos abaixo NÃO estão com disponibilidade normal agora — o slug é o mesmo usado no código [ref:...] e corresponde ao nome do produto já descrito na base de conhecimento:\n`;
+      indisponiveis.forEach(([slug, v]) => {
+        if (v.status === "sob_encomenda") {
+          dynamicSys += `- ${slug}: sob encomenda${v.dias ? ` (aproximadamente ${v.dias} dias)` : ""} — informe esse prazo adicional ao cliente antes de fechar, some com o prazo normal de entrega\n`;
+        } else if (v.status === "indisponivel") {
+          dynamicSys += `- ${slug}: indisponível no momento — não prometa esse produto; ofereça uma alternativa parecida da mesma linha e sugira confirmar previsão de volta com um consultor\n`;
+        }
+      });
+    }
 
     return [
       { type: "text", text: staticSys, cache_control: { type: "ephemeral" } },
