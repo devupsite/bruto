@@ -165,6 +165,9 @@ input[type=text]:focus,input[type=number]:focus{border-color:var(--t)}
 .mapa-alt-btn .alt-dist{display:block;font-size:10px;color:var(--g);margin-top:2px}
 .mapa-alt-btn.on .alt-dist{color:var(--t)}
 .parada-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--line);border-radius:8px;margin-bottom:8px;font-size:12px;cursor:grab}
+.parada-corpo{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}
+.parada-numero-input{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--argamassa);font-family:'Barlow',sans-serif;font-size:11px;color:var(--ferro);outline:none}
+.parada-numero-input:focus{border-color:var(--ferro)}
 .parada-item.arrastando{opacity:0.4}
 .parada-arrastar{color:var(--g);font-size:14px;cursor:grab;flex-shrink:0;user-select:none}
 .parada-item .parada-num{width:20px;height:20px;border-radius:50%;background:var(--t);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
@@ -679,6 +682,7 @@ hr.tl{border:none;height:1px;background:linear-gradient(90deg,transparent,var(--
     <div class="field" style="max-width:220px">
       <input type="text" id="parada-cep-input" placeholder="CEP da parada" maxlength="9" inputmode="numeric" oninput="mascararParadaCep(this)">
     </div>
+    <button type="button" id="btn-compartilhar-paradas" class="mapa-alt-btn" style="margin-top:10px" onclick="compartilharListaParadas()">📋 Compartilhar lista de paradas</button>
   </div>
 
   <div class="g2">
@@ -2038,7 +2042,7 @@ async function adicionarParada(cep, inputEl) {
     const geo = await (await fetch('https://cep.awesomeapi.com.br/json/' + cep)).json();
     const lat = parseFloat(geo.lat), lng = parseFloat(geo.lng);
     if (isNaN(lat) || isNaN(lng)) { alert('Não consegui localizar esse CEP no mapa.'); return; }
-    paradas.push({ cep, lat, lng, endereco: viaCep.logradouro ? (viaCep.logradouro + ', ' + viaCep.localidade + '/' + viaCep.uf) : (viaCep.localidade + '/' + viaCep.uf) });
+    paradas.push({ cep, lat, lng, numeroCompl: '', endereco: viaCep.logradouro ? (viaCep.logradouro + ', ' + viaCep.localidade + '/' + viaCep.uf) : (viaCep.localidade + '/' + viaCep.uf) });
     inputEl.value = '';
     renderizarListaParadas();
     // Última coordenada conhecida do destino final (o último marcador antes desta parada ser adicionada)
@@ -2056,6 +2060,10 @@ function removerParada(idx) {
   if (destino) atualizarRotaCompleta(destino.getLatLng().lat, destino.getLatLng().lng);
 }
 
+function atualizarNumeroParada(idx, valor) {
+  paradas[idx].numeroCompl = valor;
+}
+
 function renderizarListaParadas() {
   const lista = document.getElementById('paradas-lista');
   lista.innerHTML = paradas.map((p, i) => `
@@ -2064,10 +2072,36 @@ function renderizarListaParadas() {
          ondrop="paradaDrop(event)" ondragend="paradaDragEnd(event)">
       <span class="parada-arrastar" title="Arrastar pra reordenar">⠿</span>
       <span class="parada-num">${i + 1}</span>
-      <span class="parada-end">${p.endereco}</span>
+      <div class="parada-corpo">
+        <span class="parada-end">${p.endereco}</span>
+        <input type="text" class="parada-numero-input" placeholder="Número / complemento" value="${p.numeroCompl || ''}" oninput="atualizarNumeroParada(${i}, this.value)">
+      </div>
       <button type="button" class="parada-remover" onclick="removerParada(${i})" title="Remover parada">×</button>
     </div>
   `).join('');
+}
+
+function compartilharListaParadas() {
+  if (paradas.length === 0) { alert('Nenhuma parada adicionada ainda.'); return; }
+  let texto = 'Roteiro de entregas — Bruto\n\nSaída: Fábrica (Tambaú-SP)\n\n';
+  paradas.forEach((p, i) => {
+    texto += (i + 1) + '. ' + p.endereco + (p.numeroCompl ? ', ' + p.numeroCompl : '') + '\n';
+  });
+  if (destinoAtual) {
+    const enderecoDestino = document.getElementById('cep-endereco').textContent.split('—')[0].trim();
+    const numeroDestino = document.getElementById('cep-numero').value;
+    texto += (paradas.length + 1) + '. ' + enderecoDestino + (numeroDestino ? ', ' + numeroDestino : '') + ' (destino final)\n';
+  }
+  if (navigator.share) {
+    navigator.share({ title: 'Roteiro de entregas — Bruto', text: texto }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(texto).then(() => {
+      const btn = document.getElementById('btn-compartilhar-paradas');
+      const original = btn.textContent;
+      btn.textContent = '✓ Copiado!';
+      setTimeout(() => { btn.textContent = original; }, 2000);
+    }).catch(() => alert('Não consegui copiar — tenta selecionar o texto manualmente.'));
+  }
 }
 
 // ── Arrastar pra reordenar as paradas (prioridade da rota) ────────────
