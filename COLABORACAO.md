@@ -2759,3 +2759,114 @@ chave `paginacoes`) com essa nova capacidade até o código estar de fato
 publicado.** Essa KB alimenta o atendimento ao cliente; anunciar bicolor
 em todos os 25 padrões antes de existir no site arrisca um consultor
 prometer algo que ainda não está lá.
+
+## 66. Novo projeto: Visualizador de Ambientes (visualizador.brutoceramica.com.br) — planejamento (11/08/2026)
+
+Início de um novo subdomínio próprio, padrão dos já existentes (`atendimento/`,
+`ordens/`): pasta isolada `visualizador/`, sem usar `public_html` da raiz.
+Ferramenta pública de "veja o revestimento no seu ambiente" — nível de
+referência: Roomvo — mas com identidade visual BRUTO, não cópia da marca
+deles.
+
+**Estado nesta data: projeto ainda não iniciado no código. Este item é o
+plano técnico acordado antes da Fase 1 começar.** Trabalho será feito em
+4 fases sequenciais, sem misturar mudanças de fases diferentes no mesmo
+commit, justamente pra facilitar reverter uma fase isoladamente se algo
+der errado. Cada fase só começa depois de mostrada e aprovada a anterior.
+
+### Contexto de por que existe
+
+Ideia do Rafael: evoluir de simulador estático de paginação (`paginacoes.html`,
+já existente, cliente escolhe padrão/cor num piso genérico ilustrado) pra
+uma ferramenta que aplica o revestimento real sobre uma FOTO do ambiente do
+próprio cliente, com IA ajudando a segmentar o piso e sugerir os cantos.
+Fase inicial explicitamente SEM captura de WhatsApp/lead — só validar a
+experiência pública antes de acoplar geração de lead.
+
+### Decisão de arquitetura — pipeline de composição roda no CLIENTE (WebGL), não no servidor
+
+Ponto central, decidido a partir de uma análise de quais técnicas de
+Photoshop precisam ser replicadas pra o resultado parecer real (não um
+"colei uma textura por cima"):
+
+1. **Perspectiva do piso = homografia (transformação projetiva 4 pontos)**,
+   equivalente ao Distorcer/Perspectiva do Photoshop. Canvas 2D não faz
+   homografia nativa (só afim) — decidido usar WebGL com matriz 3x3 de
+   homografia calculada a partir das 4 alças arrastáveis, recalculada em
+   tempo real ao arrastar.
+2. **Preservar luz/sombra do piso real** = extrair luminância do piso
+   original dentro da máscara do SAM, compor a textura nova por cima em
+   blend Multiply (equivalente ao truque de Cálculos + Multiply do
+   Photoshop). Isso é o que faz sombra de móvel, reflexo de janela e
+   desgaste do piso real continuarem aparecendo com o produto novo.
+3. **Feather na borda da máscara** (2-4px de blur gaussiano no canal alfa)
+   pra evitar contorno serrilhado/duro entre piso novo e parede/rodapé —
+   equivalente a Selecionar > Modificar > Esbater.
+4. **Escala real calibrada pelo `catalogo.json`**: a dimensão real de cada
+   peça (`dimensoes_mm`, já existe no catálogo) define a escala do padrão
+   dentro do quadrilátero desenhado pelo usuário — não escala arbitrária
+   "no olho" como um Pattern Overlay comum.
+5. Sombra de contato / linha de rejunte com leve sombra — anotado pra
+   polimento da Fase 4, não faz parte do MVP.
+
+**Consequência prática dessa decisão:** trocar de produto na mesma foto é
+um re-render instantâneo no navegador (sem chamada ao backend) — só a
+segmentação inicial da foto (Grounded SAM via Replicate) é uma chamada cara
+de servidor. Isso importa diretamente pro rate limiting da Fase 1 (ver
+abaixo): o limite conta segmentações, não trocas de produto.
+
+### Divisão de responsabilidades (rotas públicas x administrativas)
+
+Mesmo padrão de Basic Auth já usado em `interno/`, mas invertido: aqui o
+DEFAULT é público (sem login), e só a administração de catálogo fica atrás
+de senha.
+
+- **Público, sem login** (`visualizador/`): upload de foto, ajuste manual
+  das 4 alças, segmentação (Replicate), seleção de produto no catálogo
+  (leitura de `catalogo.json`), download da imagem final.
+- **Admin, com Basic Auth** (`visualizador/admin/`, `.htaccess` próprio):
+  CRUD do catálogo específico do visualizador (adicionar/editar produto,
+  ativar/desativar). Separado justamente porque o app deixou de exigir
+  login para uso — login só continua existindo pra quem administra.
+
+### Rate limiting — 10 segmentações por IP/hora + 30 por IP/dia
+
+Decidido em conjunto com o Rafael. Raciocínio:
+
+- **10/hora:** cobre uso legítimo generoso (alguém testando 2-3 fotos
+  diferentes do próprio ambiente) sem parecer travado, já que trocar de
+  produto na mesma foto NÃO consome cota (é local, ver decisão acima).
+  Ao mesmo tempo, limita o pior caso de custo por IP dentro de 1h.
+- **30/dia:** fecha a brecha de abuso "devagar e sempre" — sem esse teto,
+  um IP fixo poderia ficar batendo exatamente no limite horário 24x/dia
+  (240/dia), o que o cap diário evita.
+- Guardado em tabela nova no MySQL compartilhado (`u764636502_bruto_interno`)
+  — Hostinger não tem Redis/Node, então rate limit é feito com contagem em
+  tabela própria (ip/ip_hash + timestamp), não em memória.
+- **Pendência:** número calibrado com estimativa de custo do Replicate, mas
+  o modelo exato de Grounded SAM e o preço por execução ainda não foram
+  confirmados/pesquisados a fundo — revisitar o número se o custo real for
+  muito diferente do assumido. Considerar também uma trava diária global do
+  site inteiro (kill switch) como rede de segurança contra pico — ainda não
+  decidido se entra já na Fase 1 ou fica pra depois.
+
+### As 4 fases (plano, nenhuma iniciada ainda nesta data)
+
+1. **Segurança e acesso público** — como não existe nada ainda, esta fase
+   inclui também o scaffold mínimo funcional (upload, catálogo, 4 alças em
+   trapézio padrão fixo no terço inferior como fallback, segmentação via
+   Replicate, aplicação de textura, download), MAIS a divisão pública/admin
+   e o rate limiting descritos acima.
+2. **Claude Vision sugere os 4 cantos do piso** ao subir a foto, usados como
+   posição inicial das alças (usuário pode ajustar). Falha da API cai
+   graciosamente no trapézio padrão da Fase 1.
+3. **Claude Vision valida a máscara do SAM** — avisa sutilmente na interface
+   se a segmentação parecer errada (pegou móvel/parede), sem bloquear o uso.
+4. **Polimento visual/UX nível profissional** — instruções passo a passo,
+   loading states claros, transições suaves, tipografia/espaçamento
+   revisados (referência de nível: Roomvo, identidade visual: BRUTO),
+   botão de download bem visível, responsivo mobile-first (maioria do
+   tráfego do site é celular).
+
+**Próximo passo:** iniciar a Fase 1 (scaffold + segurança + rate limit),
+mostrar resultado antes de seguir pra Fase 2.
