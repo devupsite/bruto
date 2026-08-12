@@ -1,0 +1,56 @@
+# ════════════════════════════════════════════════════════════════
+# Suíte UP · BRUTO — endurecimento do subdomínio
+# Destino: raiz da pasta do subdomínio (ex: public_html/suite/.htaccess)
+# ════════════════════════════════════════════════════════════════
+
+# ── Nunca aparecer em buscador ──────────────────────────────────
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow, noarchive"
+  Header always set X-Frame-Options "DENY"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "same-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# ── Forçar HTTPS ────────────────────────────────────────────────
+# Sem isso, senha e cookie de sessão podem trafegar em texto puro.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+</IfModule>
+
+# ── Sem listagem de diretório ───────────────────────────────────
+Options -Indexes
+
+# ── Bloquear acesso a arquivos que não deveriam ser servidos ────
+<FilesMatch "\.(md|sql|log|bak|old|json|yml|yaml)$">
+  Require all denied
+</FilesMatch>
+
+# Arquivos ocultos (.git, .env, .htpasswd…)
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+# ── Página de entrada ───────────────────────────────────────────
+DirectoryIndex login.html
+
+# ════════════════════════════════════════════════════════════════
+# OPÇÃO A — PROTEÇÃO IMEDIATA (5 minutos, antes do login PHP ficar pronto)
+#
+# Descomente o bloco abaixo para exigir senha de pasta em TUDO.
+# É a forma mais rápida de fechar o buraco hoje. Depois que o login
+# por usuário estiver funcionando, pode comentar de novo — ou manter
+# as duas camadas, que também é válido.
+#
+# Para criar o arquivo de senha, rode no terminal do servidor:
+#     htpasswd -c /home/SEU_USUARIO/bruto-secrets/.htpasswd-suite nome_de_usuario
+# (o arquivo fica FORA do public_html — nunca dentro da pasta pública)
+#
+# AuthType Basic
+# AuthName "BRUTO — Suite interna"
+# AuthUserFile /home/SEU_USUARIO/bruto-secrets/.htpasswd-suite
+# Require valid-user
+# ════════════════════════════════════════════════════════════════

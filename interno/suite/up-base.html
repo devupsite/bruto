@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UP·Base — Documentação</title>
+  <script src="config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="nav.js"></script>
+  <style>
+    .base-content { flex:1;overflow:hidden;display:flex; }
+    .base-sidebar { width:260px;min-width:260px;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden; }
+    .base-sidebar-header { padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
+    .base-sidebar-title { font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em; }
+    .base-list { flex:1;overflow-y:auto; }
+    .base-item { padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;transition:background .1s; }
+    .base-item:hover { background:rgba(255,255,255,.02); }
+    .base-item.active { background:var(--teal-12); }
+    .base-item-title { font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px; }
+    .base-item-meta  { font-size:11px;color:var(--dim); }
+    .base-category   { font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:10px 16px 5px;color:var(--dim); }
+
+    .base-editor { flex:1;display:flex;flex-direction:column;overflow:hidden; }
+    .base-editor-header { padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0; }
+    .base-editor-title { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:18px;letter-spacing:-.03em; }
+    .base-editor-body { flex:1;overflow-y:auto;padding:24px; }
+    .sop-section { margin-bottom:24px; }
+    .sop-section-title { font-size:13px;font-weight:600;color:var(--teal);margin-bottom:10px;display:flex;align-items:center;gap:6px; }
+    .sop-step { display:flex;gap:12px;margin-bottom:10px; }
+    .sop-step-num { width:22px;height:22px;background:var(--teal-12);color:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:'Barlow Condensed',sans-serif; }
+    .sop-step-text { font-size:13px;color:var(--muted);line-height:1.6;padding-top:2px; }
+    .sop-note { background:var(--bg3);border-left:2px solid var(--teal);padding:10px 14px;border-radius:0 6px 6px 0;font-size:12px;color:var(--muted);line-height:1.6; }
+
+    .empty-doc { display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--dim); }
+    .empty-doc h3 { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;color:var(--muted); }
+
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px); }
+    .modal-overlay.hidden { display:none; }
+    .modal { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:480px;max-width:90vw; }
+    .modal-title { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;letter-spacing:-.02em;margin-bottom:20px; }
+    .form-group { margin-bottom:14px; }
+    .form-label { display:block;font-size:12px;color:var(--muted);margin-bottom:5px; }
+    .form-actions { display:flex;gap:8px;justify-content:flex-end;margin-top:20px; }
+  </style>
+</head>
+<body>
+<div class="suite-layout">
+  <aside id="suite-sidebar" class="suite-sidebar"></aside>
+  <main class="suite-main">
+    <div class="module-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <h1 class="module-title">UP <span class="dash">—</span> Base</h1>
+          <p class="module-subtitle">Documentação & SOPs · conhecimento da operação</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()" style="margin-top:4px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Novo documento
+        </button>
+      </div>
+    </div>
+
+    <div class="base-content">
+      <div class="base-sidebar">
+        <div class="base-sidebar-header">
+          <span class="base-sidebar-title">Documentos</span>
+          <span id="doc-count" style="font-size:11px;color:var(--dim);"></span>
+        </div>
+        <div class="base-list" id="base-list"></div>
+      </div>
+      <div class="base-editor">
+        <div class="base-editor-header" id="editor-header" style="display:none;">
+          <div>
+            <div class="base-editor-title" id="editor-title"></div>
+            <div style="font-size:12px;color:var(--dim);margin-top:3px;" id="editor-meta"></div>
+          </div>
+        </div>
+        <div class="base-editor-body" id="editor-body">
+          <div class="empty-doc">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" style="color:var(--dim)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <h3>Selecione um documento</h3>
+            <p style="font-size:13px;">ou crie um novo SOP, processo ou política</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay hidden" id="modal-doc" onclick="closeModalBg(event)">
+  <div class="modal">
+    <div class="modal-title">Novo documento</div>
+    <div class="form-group"><label class="form-label">Título</label><input class="input" id="d-titulo" type="text" placeholder="Ex: SOP de Onboarding de Cliente"/></div>
+    <div class="form-group">
+      <label class="form-label">Categoria</label>
+      <select class="input" id="d-cat">
+        <option>Processos</option><option>SOPs</option><option>Políticas</option><option>Vendas</option><option>Operação</option><option>Financeiro</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Conteúdo (etapas, uma por linha)</label><textarea class="input" id="d-content" rows="6" placeholder="Passo 1: Fazer X&#10;Passo 2: Verificar Y&#10;Passo 3: Confirmar com Z" style="resize:vertical;"></textarea></div>
+    <div class="form-group"><label class="form-label">Responsável</label><input class="input" id="d-resp" type="text" placeholder="Ex: Atendimento, Gestão, Dev"/></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveDoc()">Salvar</button>
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+<script>
+const MOCK_DOCS = [
+  { id:'d1', titulo:'SOP — Abertura e Qualificação de Lead', categoria:'SOPs', responsavel:'Atendimento', atualizado:'2026-07-10',
+    steps:['Cumprimentar, perguntar o nome e o que motivou o contato (projeto específico ou curiosidade sobre produto do anúncio)', 'Perguntar se é para projeto próprio, cliente de arquitetura/construção ou revenda antes de indicar linha e preço', '"Quanto custa?": informar a faixa de preço por m² da linha perguntada e sempre complementar que pode variar por quantidade e região — consultor confirma o valor final', '"Por que é mais caro?": explicar que a Bruto não fabrica em massa — é curadoria de peças artesanais batidas à mão, com parceria direta de fábrica', '"Tem pronta entrega?": ser honesto — prazo total de 7 a 15 dias úteis (já inclui produção e frete). A equipe confirma uma data exata em até 3 dias úteis', 'Amostra: oferecer até 3 peças, mas SEMPRE deixar claro que o frete da amostra não é grátis — varia por região e é confirmado antes do envio. Nunca dizer "amostra grátis"', 'Indeciso entre produtos: perguntar onde vai aplicar (interno/externo, destaque ou discreto) antes de recomendar', 'Lead frio que só quer catálogo/preço: enviar a faixa de preço e convidar para o WhatsApp oficial, sem forçar continuidade'],
+    nota:'A meta da primeira conversa é qualificar o interesse e manter o relacionamento (amostra, WhatsApp, projeto) — não fechar preço definitivo no primeiro contato.' },
+  { id:'d2', titulo:'Política — Quando Escalar para o Responsável', categoria:'Políticas', responsavel:'Gestão', atualizado:'2026-07-10',
+    steps:['Pedido grande/B2B — construtoras ou revendedores pedindo volume alto ou condição comercial diferenciada (preço e prazo não seguem o catálogo padrão)', 'Desconto além do publicado — nunca conceder ou prometer desconto por conta própria', 'Ameaça de ação legal ou Procon — escalar imediatamente, sem debater o mérito pelo chat', 'Defeito de fabricação contestado — cliente insiste e a KB não é conclusiva, ou o caso foge do padrão (rachadura, problema estrutural)', 'Pergunta técnica fora do que a KB cobre — não inventar resposta técnica definitiva, confirmar com a fábrica parceira', 'Contato de imprensa, influenciador ou proposta de parceria', 'Reclamação pública ou emocionalmente tensa — prioridade é acalmar e direcionar para atendimento humano'],
+    nota:'Regra de ouro: nunca prometer preço final, desconto, prazo exato ou resolução de disputa sem confirmação. Mais seguro dizer "vou confirmar com o time e te retorno" do que improvisar.' },
+  { id:'d3', titulo:'Política — Frete, Entrega e Amostras', categoria:'Políticas', responsavel:'Atendimento', atualizado:'2026-07-08',
+    steps:['Prazo total de entrega: 7 a 15 dias úteis — esse número já inclui produção/separação e frete, não são prazos somados', 'A equipe tem até 3 dias úteis após o pedido pra confirmar uma data específica dentro dessa faixa — isso não é o prazo de entrega em si, é o prazo pra dar uma data exata', 'Entrega própria só na Grande São Paulo. Fora da Grande SP, avaliar caso a caso — pedidos grandes costumam compensar o frete maior', 'Amostra física: até 3 por pedido, combinadas pelo site ou WhatsApp — mas o frete da amostra NÃO é grátis, varia por região e é confirmado antes do envio', 'Nunca prometer entrega mais rápida pra fechar venda — gera reclamação depois'],
+    nota:'Nunca confundir os dois prazos numa mesma resposta: 3 dias úteis é só a confirmação da data exata, 7 a 15 dias úteis é a entrega completa.' },
+  { id:'d4', titulo:'Política — Variação Natural e Devolução', categoria:'Políticas', responsavel:'Atendimento', atualizado:'2026-07-08',
+    steps:['Identificar o motivo do pedido: arrependimento (dentro de 7 dias, sem uso) vs. defeito de fabricação', 'Para defeito: pedir registro fotográfico e encaminhar para análise da equipe antes de prometer troca', 'Nunca tratar variação natural de tom/textura como defeito — explicar que é característica esperada do processo artesanal', 'Frete, prazos e condições finais de troca são sempre confirmados por um consultor'],
+    nota:'Peças batidas à mão e retificadas individualmente têm pequenas variações de tom e textura entre lotes — isso está nos Termos de Uso oficiais e não gera direito a troca por esse motivo.' },
+  { id:'d6', titulo:'SOP — Cadência de Follow-up', categoria:'Processos', responsavel:'Atendimento', atualizado:'2026-07-28',
+    steps:['D+1 · WhatsApp — confirmar que recebeu o orçamento/amostra e tirar dúvida técnica', 'D+3 · WhatsApp — oferecer amostra física se ainda não pediu (é o que segura o lead enquanto ele decide)', 'D+7 · Ligação — entender em que estágio está o projeto. Ligação tem retorno melhor que texto nesse ponto', 'D+14 · WhatsApp — mandar aplicação real parecida com o projeto dele, sem cobrar resposta', 'D+30 · WhatsApp — checar se a obra saiu do papel', 'Parar a cadência quando o cliente responder que desistiu, escolheu outro fornecedor ou pedir para não receber mais contato', 'Registrar cada toque no UP·Lead — sem registro, a cadência se perde entre atendentes'],
+    nota:'Venda por especificação morre de silêncio, não de objeção. Referência de mercado: a maior taxa de conversão acontece a partir do 7º contato, mas quase metade das empresas não faz nem o primeiro follow-up e só cerca de 10% passam de três. Ou seja: quem faz cadência disputa com pouca gente.' },
+  { id:'d7', titulo:'Referência — Catálogo e Faixas de Preço', categoria:'Vendas', responsavel:'Atendimento', atualizado:'2026-07-28',
+    steps:['Brick — 11 modelos, R$ 104,90 a R$ 197,90/m². Interno e externo. Natura é a entrada de linha; Rusticatto Terra Negra o topo', 'Cimentício — 3 modelos (Alpino, Brisa, Urban), R$ 186,90/m². Interno e externo, visual liso contemporâneo', 'Rockface — 3 modelos (Brisa, Alpino, Urban), R$ 186,90 a R$ 252,90/m². EXCLUSIVAMENTE externo — nunca indicar para área interna', 'Preços do site estão sujeitos a alteração e variam por quantidade, região e condição comercial vigente', 'A confirmação final de valor, prazo e forma de pagamento é sempre de um consultor — nunca fechar condição pelo chat'],
+    nota:'Rusticatto (Fumê, Palha, Rosso, Sertão, Terra Negra) tem espessura maior que os demais Brick — relevante para cálculo de argamassa e transição de nível com outros pisos.' },
+  { id:'d8', titulo:'SOP — Controle de Amostras', categoria:'Operação', responsavel:'Atendimento', atualizado:'2026-07-29',
+    steps:['Registrar QUAIS modelos foram enviados, não apenas "3 amostras" — sem isso não dá pra saber qual peça consome amostra sem virar venda', 'Confirmar o frete com o cliente ANTES do envio. Nunca dizer que a amostra é grátis: a peça é cortesia dentro do limite de 3, o frete não é', 'Lançar o custo das peças no UP·Vault na categoria Amostras — é custo real de aquisição de cliente, não despesa diluída em "Outros"', 'Marcar o lead como etapa "Amostra enviada" no UP·Lead na mesma hora — é o que dispara o follow-up de D+7', 'Se não houver retorno em 7 dias, puxar contato leve perguntando o que achou. Amostra entregue e esquecida é dinheiro parado na casa do cliente', 'Ao fechar ou perder o lead, registrar o desfecho — é isso que permite descobrir depois quais modelos convertem e quais só drenam'],
+    nota:'São 17 modelos no catálogo e cada amostra despachada é peça real com custo. Um modelo que gera amostra e nunca fecha só aparece somando meses — por isso o registro por modelo é obrigatório, não opcional.' },
+  { id:'d5', titulo:'SOP — Convenções de Deploy e Segurança', categoria:'Processos', responsavel:'Dev', atualizado:'2026-07-02',
+    steps:['Nunca fazer git push sem mostrar o diff e pedir confirmação explícita antes — o deploy é automático, um push errado vai direto pro site ao vivo', 'Usar sempre o formato GIT_ASKPASS=/bin/true com token de acesso — o formato simples de URL com token falha de forma confusa', 'Todo endpoint público (api/*.php) precisa de autenticação, no mínimo HTTP Basic Auth de pasta/subdomínio', 'Segredos (chave de API, senha de banco, números reais de WhatsApp) ficam em bruto-secrets/, fora do alcance do Git — nunca commitados', 'Subdomínios próprios seguem pasta isolada, nunca usando public_html da raiz'],
+    nota:'Já corrigimos uma ferramenta (Ordem de Serviço) que estava completamente aberta, sem senha, indexável pelo Google — segurança em primeiro lugar em qualquer ferramenta nova.' },
+];
+
+const DATA_LAYER = window.createDataLayer(
+  { getDocs:()=>Promise.resolve(JSON.parse(JSON.stringify(MOCK_DOCS))), addDoc:(d)=>{ MOCK_DOCS.unshift(d); return Promise.resolve(d); } },
+  {
+    // Documentos reais: CRUD na tabela `base_docs`, via api/base.php.
+    getDocs: async () => {
+      const res = await fetch('api/base.php', { method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'listar' }) });
+      if (res.status === 401) { window.location.replace('login.html?m=sessao'); return []; }
+      const data = await res.json().catch(() => ({ docs: [] }));
+      if (!res.ok) { window.toast?.(data.erro || 'Não consegui carregar os documentos.', 'error'); return []; }
+      return data.docs || [];
+    },
+    addDoc: async (d) => {
+      const res = await fetch('api/base.php', { method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ acao:'criar', titulo:d.titulo, categoria:d.categoria, responsavel:d.responsavel, steps:d.steps }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { window.toast?.(data.erro || 'Não consegui salvar o documento.', 'error'); return null; }
+      return d;
+    },
+  }
+);
+
+let docs=[], activeId=null;
+
+async function init() { docs=await DATA_LAYER.getDocs(); renderList(); }
+
+function renderList() {
+  const cats = [...new Set(docs.map(d=>d.categoria))];
+  document.getElementById('doc-count').textContent = docs.length + ' docs';
+  document.getElementById('base-list').innerHTML = cats.map(cat => `
+    <div class="base-category">${cat}</div>
+    ${docs.filter(d=>d.categoria===cat).map(d=>`
+      <div class="base-item ${d.id===activeId?'active':''}" onclick="selectDoc('${d.id}')">
+        <div class="base-item-title">${d.titulo}</div>
+        <div class="base-item-meta">${d.responsavel} · ${d.atualizado}</div>
+      </div>`).join('')}`).join('');
+}
+
+function selectDoc(id) {
+  activeId=id;
+  const d=docs.find(x=>x.id===id);
+  if(!d) return;
+  renderList();
+  document.getElementById('editor-header').style.display='flex';
+  document.getElementById('editor-title').textContent=d.titulo;
+  document.getElementById('editor-meta').textContent=`${d.categoria} · Responsável: ${d.responsavel} · Atualizado: ${d.atualizado}`;
+  document.getElementById('editor-body').innerHTML=`
+    <div class="sop-section">
+      <div class="sop-section-title"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Etapas</div>
+      ${d.steps.map((s,i)=>`<div class="sop-step"><div class="sop-step-num">${i+1}</div><div class="sop-step-text">${s}</div></div>`).join('')}
+    </div>
+    ${d.nota?`<div class="sop-note">📌 ${d.nota}</div>`:''}`;
+}
+
+function openModal() { document.getElementById('d-titulo').value=''; document.getElementById('d-content').value=''; document.getElementById('d-resp').value=''; document.getElementById('modal-doc').classList.remove('hidden'); }
+function closeModal() { document.getElementById('modal-doc').classList.add('hidden'); }
+function closeModalBg(e) { if(e.target.classList.contains('modal-overlay')) closeModal(); }
+
+async function saveDoc() {
+  const titulo=document.getElementById('d-titulo').value.trim();
+  if(!titulo){toast('Informe o título','warn');return;}
+  const steps=document.getElementById('d-content').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const doc={ id:'d'+Date.now(), titulo, categoria:document.getElementById('d-cat').value, responsavel:document.getElementById('d-resp').value||'Equipe', atualizado:new Date().toISOString().slice(0,10), steps, nota:'' };
+  await DATA_LAYER.addDoc(doc);
+  docs=await DATA_LAYER.getDocs();
+  renderList();
+  closeModal();
+  selectDoc(doc.id);
+  toast(`"${titulo}" salvo`, 'success');
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+init();
+</script>
+</body>
+</html>

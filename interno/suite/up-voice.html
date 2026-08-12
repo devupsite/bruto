@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UP·Voice — Alertas por E-mail</title>
+  <script src="config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="nav.js"></script>
+  <style>
+    .voice-content { flex:1;overflow-y:auto;padding:20px 28px 28px; }
+    .voice-top { display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px; }
+
+    .status-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px; }
+    .status-row { display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04); }
+    .status-row:last-child { border-bottom:none; }
+    .status-label { font-size:13px;color:var(--muted); }
+    .status-value { font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px; }
+    .status-dot { width:7px;height:7px;border-radius:50%; }
+    .dot-on  { background:var(--green); }
+    .dot-off { background:var(--dim); }
+
+    .config-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px; }
+    .config-title { font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:12px; }
+    .toggle-row { display:flex;align-items:center;justify-content:space-between;padding:8px 0; }
+    .toggle-label { font-size:13px;color:var(--text); }
+    .toggle-sub { font-size:11px;color:var(--dim);margin-top:2px; }
+    .toggle-switch { width:36px;height:20px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0; }
+    .toggle-switch.on { background:var(--teal); }
+    .toggle-knob { width:14px;height:14px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .2s; }
+    .toggle-switch.on .toggle-knob { transform:translateX(16px); }
+
+    .thresholds-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:24px; }
+    .threshold-item { display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04); }
+    .threshold-item:last-child { border-bottom:none; }
+    .threshold-info { flex:1; }
+    .threshold-name { font-size:13px;font-weight:500;color:var(--text); }
+    .threshold-desc { font-size:11px;color:var(--dim);margin-top:2px; }
+    .threshold-rule { font-size:12px;color:var(--teal);font-family:'Barlow Condensed',sans-serif;font-weight:600; }
+
+    .section-title { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.02em;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between; }
+
+    .alerts-feed { display:flex;flex-direction:column;gap:10px; }
+    .alert-card { background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;transition:border-color .15s; }
+    .alert-card:hover { border-color:var(--teal); }
+    .alert-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:8px; }
+    .alert-title { font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px; }
+    .alert-time { font-size:11px;color:var(--dim); }
+    .alert-body { font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px; }
+    .alert-recipients { display:flex;gap:6px;flex-wrap:wrap; }
+    .recipient-chip { font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;background:var(--bg3);color:var(--muted);display:flex;align-items:center;gap:4px; }
+    .recipient-chip.sent { color:var(--green); }
+
+    .urgency-icon { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+    .urgency-alta  { background:var(--red); }
+    .urgency-media { background:var(--amber); }
+    .urgency-baixa { background:var(--teal); }
+
+    .whatsapp-preview { background:#0a1014;border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:10px; }
+    .wa-bubble { background:#005c4b;color:#e9edef;padding:8px 12px;border-radius:8px;font-size:12.5px;line-height:1.5;max-width:90%;position:relative; }
+    .wa-meta { font-size:9px;color:rgba(255,255,255,.5);margin-top:4px;text-align:right; }
+
+    .empty-alerts { display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;gap:8px;color:var(--dim); }
+
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spin { animation:spin 1s linear infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+    .pulse { animation:pulse 1.6s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+<div class="suite-layout">
+  <aside id="suite-sidebar" class="suite-sidebar"></aside>
+  <main class="suite-main">
+    <div class="module-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <h1 class="module-title">UP <span class="dash">—</span> Voice</h1>
+          <p class="module-subtitle">Alertas proativos por e-mail · equipe Bruto</p>
+        </div>
+        <button class="btn btn-primary" onclick="runVoiceCheck()" id="btn-check" style="margin-top:4px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Verificar agora
+        </button>
+      </div>
+    </div>
+
+    <div class="voice-content">
+
+      <!-- Status + Config -->
+      <div class="voice-top">
+        <div class="status-card">
+          <div class="config-title" style="margin-bottom:14px;">Status da integração</div>
+          <div class="status-row">
+            <span class="status-label">Evolution API</span>
+            <span class="status-value"><span class="status-dot dot-off"></span>Não conectado (modo demo)</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">WhatsApp oficial Bruto</span>
+            <span class="status-value" id="status-founder-phone">—</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">WhatsApp do responsável</span>
+            <span class="status-value" id="status-rafael-phone">—</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Alertas enviados hoje</span>
+            <span class="status-value" id="status-sent-today">0 / 1 (limite diário)</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Última verificação</span>
+            <span class="status-value" id="status-last-check">—</span>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <div class="config-title">Configuração</div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Aprovação manual</div>
+              <div class="toggle-sub">O responsável revisa antes de enviar</div>
+            </div>
+            <div class="toggle-switch on" id="toggle-approval" onclick="toggleSwitch('toggle-approval')"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Cópia para o responsável</div>
+              <div class="toggle-sub">Todo alerta também chega pra você</div>
+            </div>
+            <div class="toggle-switch on" id="toggle-copy" onclick="toggleSwitch('toggle-copy')"><div class="toggle-knob"></div></div>
+          </div>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-label">Limite de 1/dia</div>
+              <div class="toggle-sub">Evita saturar o WhatsApp do cliente</div>
+            </div>
+            <div class="toggle-switch on" id="toggle-limit" onclick="toggleSwitch('toggle-limit')"><div class="toggle-knob"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Limiares -->
+      <div class="thresholds-card">
+        <div class="config-title">Limiares de disparo (regras determinísticas)</div>
+        <div id="thresholds-list"></div>
+      </div>
+
+      <!-- Feed de alertas -->
+      <div class="section-title">
+        <span>Alertas recentes</span>
+        <span style="font-size:11px;color:var(--dim);font-weight:400;">Mais recente primeiro</span>
+      </div>
+      <div class="alerts-feed" id="alerts-feed"></div>
+
+    </div>
+  </main>
+</div>
+<div id="toast-container"></div>
+
+<script>
+// ============================================================
+// UP·Voice — Motor de alertas
+// ============================================================
+// Regras determinísticas (não depende de IA para decidir SE dispara —
+// mais previsível e seguro). IA é usada apenas para REDIGIR a mensagem.
+// ============================================================
+
+const THRESHOLDS = [
+  { id:'gos_drop', nome:'Queda de Health Score', desc:'GOS cai 10+ pontos em relação à semana anterior', regra:'Δ ≥ -10 pts', fonte:'UP·GOS' },
+  { id:'lead_parado', nome:'Lead quente parado', desc:'Lead com temperatura "quente" sem resposta há 48h+', regra:'48h sem resposta', fonte:'UP·Lead' },
+  { id:'conta_risco', nome:'Conta a vencer sem saldo', desc:'Conta a pagar em 24h com saldo insuficiente para cobrir', regra:'saldo < conta', fonte:'UP·Vault' },
+  { id:'equipe_padrao', nome:'Padrão de atraso na equipe', desc:'Mesmo membro com 3+ atrasos/ausências em uma semana', regra:'≥ 3 ocorrências', fonte:'UP·Team' },
+];
+
+const MOCK_STATE = {
+  founder_phone: CLIENT_CONFIG.whatsapp_phone || '—',
+  rafael_phone: CLIENT_CONFIG.rafael_whatsapp || 'a definir',
+  sent_today: 0,
+  daily_limit: CLIENT_CONFIG.voice_daily_limit || 1,
+  last_check: null,
+};
+
+const MOCK_ALERTS = [
+  {
+    id: 'al1',
+    titulo: 'Orçamento parado há 3 dias',
+    urgencia: 'alta',
+    fonte: 'UP·Lead',
+    contexto: 'Camila Duarte (arquiteta) pediu orçamento de Rockface Urban para fachada de ~140m² e não recebe resposta há 3 dias. Ticket acima de R$ 18.000 em risco de esfriar.',
+    mensagem_whatsapp: '🔔 O orçamento da Camila Duarte (Rockface, ~R$ 18.900) tá parado há 3 dias. Vale confirmar prazo com a fábrica e responder hoje antes que esfrie.',
+    destinatarios: ['rafael'],
+    enviado_em: '2026-07-23 09:14',
+    status: 'enviado'
+  },
+  {
+    id: 'al2',
+    titulo: 'Health Score em queda',
+    urgencia: 'media',
+    fonte: 'UP·GOS',
+    contexto: 'O GOS caiu de 74 para 66 nesta semana — queda de 8 pontos, puxada principalmente pela dimensão Comercial.',
+    mensagem_whatsapp: `Oi! O health score dessa semana caiu um pouco (74 → 66), principalmente por causa do comercial. Nada grave, mas vale dar uma olhada no pipeline.`,
+    destinatarios: ['founder', 'rafael'],
+    enviado_em: '2026-07-20 22:35',
+    status: 'enviado'
+  },
+];
+
+let voiceState = { ...MOCK_STATE };
+let alerts = DEMO_MODE ? [...MOCK_ALERTS] : [];
+let toggles = { approval: true, copy: true, limit: true };
+
+// ── Carregamento real dos alertas ───────────────────────────
+// via api/voice.php → bruto-secrets/API/suite-voice.php.
+async function carregarAlertasReais() {
+  const res = await fetch('api/voice.php', { method:'POST', credentials:'same-origin',
+    headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'listar' }) });
+  if (res.status === 401) { window.location.replace('login.html?m=sessao'); return; }
+  const data = await res.json().catch(() => ({ alertas: [] }));
+  alerts = data.alertas || [];
+}
+
+async function aprovarAlerta(id) {
+  await fetch('api/voice.php', { method:'POST', credentials:'same-origin',
+    headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'aprovar', id }) });
+  await carregarAlertasReais(); renderAlerts();
+}
+async function enviarAlerta(id) {
+  // Manda e-mail de verdade pra contato@brutoceramica.com.br — ver
+  // suite-voice.php. WhatsApp foi trocado por e-mail porque a
+  // integração Evolution API estava banindo contas (decisão 08/08/2026).
+  const res = await fetch('api/voice.php', { method:'POST', credentials:'same-origin',
+    headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'enviar', id }) });
+  const data = await res.json().catch(() => ({}));
+  await carregarAlertasReais(); renderAlerts();
+  toast(data.email_enviado ? 'E-mail enviado para contato@brutoceramica.com.br' : 'Marcado como enviado, mas o e-mail pode não ter saído — confira.', data.email_enviado ? 'success' : 'warn');
+}
+async function descartarAlerta(id) {
+  await fetch('api/voice.php', { method:'POST', credentials:'same-origin',
+    headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'descartar', id }) });
+  await carregarAlertasReais(); renderAlerts();
+}
+
+async function init() {
+  document.getElementById('status-founder-phone').textContent = voiceState.founder_phone;
+  document.getElementById('status-rafael-phone').textContent = voiceState.rafael_phone;
+  document.getElementById('status-sent-today').textContent = `${voiceState.sent_today} / ${voiceState.daily_limit} (limite diário)`;
+  document.getElementById('status-last-check').textContent = voiceState.last_check || 'Ainda não verificado';
+
+  if (!DEMO_MODE) await carregarAlertasReais();
+  renderThresholds();
+  renderAlerts();
+}
+
+function renderThresholds() {
+  document.getElementById('thresholds-list').innerHTML = THRESHOLDS.map(t => `
+    <div class="threshold-item">
+      <div class="threshold-info">
+        <div class="threshold-name">${t.nome} <span style="font-size:10px;color:var(--dim);font-weight:400;">· ${t.fonte}</span></div>
+        <div class="threshold-desc">${t.desc}</div>
+      </div>
+      <div class="threshold-rule">${t.regra}</div>
+    </div>`).join('');
+}
+
+function renderAlerts() {
+  if (alerts.length === 0) {
+    document.getElementById('alerts-feed').innerHTML = `
+      <div class="empty-alerts">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <p>Nenhum alerta ainda. Clique em "Verificar agora" para rodar a análise.</p>
+      </div>`;
+    return;
+  }
+
+  const urgLabel = { alta:'Urgente', media:'Atenção', baixa:'Info' };
+  const statusLabel = { pendente:'Pendente', aguardando_aprovacao:'Aguardando aprovação', aprovado:'Aprovado — pronto pra marcar como enviado', enviado:'Enviado', descartado:'Descartado' };
+
+  document.getElementById('alerts-feed').innerHTML = alerts.map(a => `
+    <div class="alert-card">
+      <div class="alert-header">
+        <div class="alert-title">
+          <span class="urgency-icon urgency-${a.urgencia}"></span>
+          ${a.titulo}
+        </div>
+        <span class="alert-time">${a.enviado_em}</span>
+      </div>
+      <div class="alert-body">${a.contexto}</div>
+      <div class="whatsapp-preview">
+        <div class="wa-bubble">
+          ${a.mensagem_whatsapp}
+          <div class="wa-meta">${(a.enviado_em||'').split(' ')[1]||''} ${a.status === 'enviado' ? '✓✓' : ''}</div>
+        </div>
+      </div>
+      <div class="alert-recipients" style="margin-top:10px;">
+        <span class="recipient-chip">${statusLabel[a.status] || a.status}</span>
+        <span class="recipient-chip" style="margin-left:auto;">${a.fonte}</span>
+      </div>
+      ${(a.status === 'pendente' || a.status === 'aguardando_aprovacao') ? `
+      <div class="alert-actions" style="margin-top:10px;display:flex;gap:8px;">
+        <button class="btn btn-primary btn-sm" onclick="aprovarAlerta(${a.id})">Aprovar</button>
+        <button class="btn btn-ghost btn-sm" onclick="descartarAlerta(${a.id})">Descartar</button>
+      </div>` : ''}
+      ${a.status === 'aprovado' ? `
+      <div class="alert-actions" style="margin-top:10px;display:flex;gap:8px;">
+        <button class="btn btn-primary btn-sm" onclick="enviarAlerta(${a.id})">Marcar como enviado</button>
+        <button class="btn btn-ghost btn-sm" onclick="descartarAlerta(${a.id})">Descartar</button>
+      </div>` : ''}
+    </div>`).join('');
+}
+
+function toggleSwitch(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('on');
+  const key = id.replace('toggle-', '');
+  toggles[key] = el.classList.contains('on');
+  toast(`${toggles[key] ? 'Ativado' : 'Desativado'}: ${id.replace('toggle-','').replace('-',' ')}`, 'info');
+}
+
+// ── Motor de verificação (regras determinísticas) ──────────
+// Em produção, roda de verdade contra as tabelas reais via
+// api/voice.php → suite-voice.php (mesmas regras do THRESHOLDS acima).
+// A mensagem gravada é um template determinístico, não escrita por IA
+// nesta chamada — dá pra evoluir depois, não é essencial agora.
+async function runVoiceCheck() {
+  const btn = document.getElementById('btn-check');
+  btn.disabled = true;
+  btn.innerHTML = `<svg class="spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Verificando…`;
+  toast('Verificando limiares em todos os módulos…', 'info');
+
+  if (!DEMO_MODE) {
+    try {
+      const res = await fetch('api/voice.php', { method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'verificar' }) });
+      if (res.status === 401) { window.location.replace('login.html?m=sessao'); return; }
+      const data = await res.json().catch(() => ({}));
+      await carregarAlertasReais();
+      voiceState.last_check = new Date().toISOString().slice(0,16).replace('T',' ');
+      document.getElementById('status-last-check').textContent = voiceState.last_check;
+      renderAlerts();
+      toast(data.novos > 0 ? `${data.novos} novo(s) alerta(s) detectado(s)` : 'Nenhuma situação nova cruzou os limiares', data.novos > 0 ? 'warn' : 'info');
+    } catch (e) {
+      console.error('verificar:', e);
+      toast('Não consegui rodar a verificação agora.', 'error');
+    }
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Verificar agora`;
+    return;
+  }
+
+  await new Promise(r => setTimeout(r, 1400));
+
+  // Simulação (só em DEMO_MODE): detecta 1 nova situação que cruza limiar
+  const detected = {
+    id: 'al' + Date.now(),
+    titulo: 'Amostra sem retorno há 10 dias',
+    urgencia: 'media',
+    fonte: 'UP·Lead',
+    contexto: 'Estúdio Verbo Arquitetura recebeu amostras de Brick há 10 dias e ainda não respondeu. Projeto residencial em especificação — vale um toque leve antes que esfrie.',
+    destinatarios: ['rafael'],
+    enviado_em: new Date().toISOString().slice(0,16).replace('T',' '),
+    status: 'pendente'
+  };
+
+  // Redigir mensagem com IA
+  const msg = await window.callClaude({
+    systemPrompt: `Você escreve alertas de WhatsApp curtos e diretos para ${CLIENT_CONFIG.empresa}. Tom: ${CLIENT_CONFIG.tom_voz}. Máximo 3 linhas. Sem formalidade excessiva. Vai direto ao ponto e sugere uma ação clara.`,
+    userPayload: { situacao: detected.titulo, contexto: detected.contexto, urgencia: detected.urgencia },
+    mockResponse: `👋 As amostras de Brick do Estúdio Verbo estão sem retorno há 10 dias — projeto residencial em especificação. Vale mandar um toque leve hoje perguntando o que acharam antes de esfriar.`
+  });
+
+  detected.mensagem_whatsapp = msg;
+
+  if (toggles.approval) {
+    detected.status = 'aguardando_aprovacao';
+    detected.destinatarios = ['rafael']; // só o responsável até aprovar
+    toast('Novo alerta detectado — aguardando sua aprovação para enviar ao cliente', 'warn');
+  } else {
+    detected.status = 'enviado';
+    detected.destinatarios = toggles.copy ? ['founder', 'rafael'] : ['founder'];
+    toast('Alerta enviado automaticamente', 'success');
+  }
+
+  alerts.unshift(detected);
+  voiceState.last_check = new Date().toISOString().slice(0,16).replace('T',' ');
+  document.getElementById('status-last-check').textContent = voiceState.last_check;
+  renderAlerts();
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Verificar agora`;
+}
+
+init();
+</script>
+</body>
+</html>

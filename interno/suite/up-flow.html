@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UP·Flow — Projetos</title>
+  <script src="config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="nav.js"></script>
+  <style>
+    .flow-content { flex:1;overflow-y:auto;padding:20px 28px 28px; }
+    .flow-toolbar { display:flex;align-items:center;justify-content:space-between;margin-bottom:20px; }
+    .stats-row { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px; }
+    .stat-card { background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px; }
+    .pill-btn { background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:6px 14px;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap; }
+    .pill-btn:hover { color:var(--text);border-color:var(--teal); }
+    .pill-btn.active { background:var(--teal-12);color:var(--teal);border-color:var(--teal); }
+    .stat-label { font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:6px; }
+    .stat-value { font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;letter-spacing:-.04em;color:var(--text); }
+    .stat-sub { font-size:11px;color:var(--muted);margin-top:2px; }
+
+    .projects-list { display:flex;flex-direction:column;gap:12px; }
+    .project-card { background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .15s; }
+    .project-card:hover { border-color:var(--teal); }
+    .project-header { padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer; }
+    .project-status-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+    .project-name { font-size:14px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:-.02em;flex:1; }
+    .project-meta { display:flex;align-items:center;gap:12px; }
+    .project-date { font-size:12px;color:var(--muted); }
+    .project-expand { color:var(--dim);transition:transform .2s; }
+    .project-expand.open { transform:rotate(90deg); }
+
+    .project-body { display:none;border-top:1px solid var(--border);padding:16px 18px; }
+    .project-body.open { display:block; }
+    .etapas-list { display:flex;flex-direction:column;gap:6px;margin-bottom:14px; }
+    .etapa-item { display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;background:var(--bg3); }
+    .etapa-checkbox { width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s; }
+    .etapa-checkbox.locked { cursor:default; opacity:.75; }
+    .origem-badge { font-size:10px;color:var(--dim);letter-spacing:.03em;border:1px solid var(--border);border-radius:4px;padding:1px 6px; }
+    .etapa-checkbox.done { background:var(--teal);border-color:var(--teal); }
+    .etapa-name { flex:1;font-size:13px; }
+    .etapa-name.done { color:var(--dim);text-decoration:line-through; }
+    .etapa-resp { font-size:11px;color:var(--dim);background:var(--bg2);padding:2px 7px;border-radius:3px; }
+    .etapa-status { font-size:11px; }
+
+    .project-progress-bar { height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:10px; }
+    .project-progress-fill { height:100%;border-radius:2px;transition:width .5s ease; }
+
+    .ai-suggestion { background:var(--bg3);border-left:2px solid var(--teal);padding:10px 14px;border-radius:0 6px 6px 0;margin-top:12px; }
+    .ai-suggestion-label { font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:4px; }
+    .ai-suggestion-text { font-size:12px;color:var(--muted);line-height:1.6; }
+
+    .status-badge { font-size:10px;font-weight:500;letter-spacing:.04em;padding:2px 7px;border-radius:3px; }
+    .status-ativo    { background:var(--teal-12);color:var(--teal); }
+    .status-atrasado { background:var(--red-12);color:var(--red); }
+    .status-concluido{ background:var(--green-12);color:var(--green); }
+    .status-pausado  { background:rgba(255,255,255,.07);color:var(--muted); }
+    .status-cancelado{ background:rgba(255,255,255,.05);color:var(--dim);text-decoration:line-through; }
+
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px); }
+    .modal-overlay.hidden { display:none; }
+    .modal { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:500px;max-width:90vw; }
+    .modal-title { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;letter-spacing:-.02em;margin-bottom:20px; }
+    .form-group { margin-bottom:14px; }
+    .form-label { display:block;font-size:12px;color:var(--muted);margin-bottom:5px; }
+    .form-row { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+    .form-actions { display:flex;gap:8px;justify-content:flex-end;margin-top:20px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spin { animation:spin 1s linear infinite; }
+  </style>
+</head>
+<body>
+<div class="suite-layout">
+  <aside id="suite-sidebar" class="suite-sidebar"></aside>
+  <main class="suite-main">
+    <div class="module-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <h1 class="module-title">UP <span class="dash">—</span> Flow</h1>
+          <p class="module-subtitle">Projetos & processos · execução e entregas</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()" style="margin-top:4px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Novo projeto
+        </button>
+      </div>
+    </div>
+
+    <div class="flow-content">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Projetos ativos</div><div class="stat-value" id="stat-ativos">0</div><div class="stat-sub">Em andamento</div></div>
+        <div class="stat-card"><div class="stat-label">Atrasados</div><div class="stat-value" id="stat-atrasados" style="color:var(--red)">0</div><div class="stat-sub">Precisam de atenção</div></div>
+        <div class="stat-card"><div class="stat-label">Concluídos</div><div class="stat-value" id="stat-concluidos" style="color:var(--green)">0</div><div class="stat-sub">Este mês</div></div>
+        <div class="stat-card"><div class="stat-label">Taxa de entrega</div><div class="stat-value" id="stat-taxa">—</div><div class="stat-sub">No prazo</div></div>
+      </div>
+      <div class="flow-filters" style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
+        <div class="periodo-pills" style="display:flex;gap:6px;">
+          <button class="pill-btn active" data-periodo="todos" onclick="setPeriodo('todos',this)">Todos</button>
+          <button class="pill-btn" data-periodo="hoje" onclick="setPeriodo('hoje',this)">Hoje</button>
+          <button class="pill-btn" data-periodo="7dias" onclick="setPeriodo('7dias',this)">7 dias</button>
+          <button class="pill-btn" data-periodo="mes" onclick="setPeriodo('mes',this)">Mês</button>
+        </div>
+        <input id="busca-os" type="text" placeholder="Buscar por OS, cliente ou nome do pedido…"
+               style="flex:1;min-width:220px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 12px;color:var(--text);font-size:13px;"
+               oninput="renderProjects()">
+      </div>
+      <div class="projects-list" id="projects-list"></div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay hidden" id="modal-projeto" onclick="closeModalBg(event)">
+  <div class="modal">
+    <div class="modal-title">Novo projeto</div>
+    <div class="form-group"><label class="form-label">Nome do projeto</label><input class="input" id="p-nome" type="text" placeholder="Ex: Pedido — Rockface Urban (Cliente X)"/></div>
+    <div class="form-group"><label class="form-label">Cliente / contexto</label><input class="input" id="p-cliente" type="text" placeholder="Ex: Camila Duarte"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Data de início</label><input class="input" id="p-inicio" type="date"/></div>
+      <div class="form-group"><label class="form-label">Previsão de entrega</label><input class="input" id="p-entrega" type="date"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Etapas (uma por linha)</label><textarea class="input" id="p-etapas" rows="5" placeholder="Confirmação de pedido e pagamento&#10;Produção/separação na fábrica parceira&#10;Controle de qualidade e embalagem&#10;Frete e transporte&#10;Confirmação de entrega" style="resize:vertical;"></textarea></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveProject()">Criar projeto</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+const MOCK_PROJECTS = [
+  {
+    id:'p1', origem:'pedido', os_numero:'OS-0231', nome:'Pedido — Rockface Urban (Fachada Duarte)', cliente:'Camila Duarte',
+    status:'ativo', inicio:'2026-07-11', previsao:'2026-07-25', concluido_em:null,
+    ai_suggestion:null,
+    etapas:[
+      {id:'e1', nome:'Confirmação de pedido e pagamento',       status:'concluido', responsavel:'Atendimento'},
+      {id:'e2', nome:'Produção/separação na fábrica parceira',  status:'ativo',     responsavel:'Fábrica parceira'},
+      {id:'e3', nome:'Controle de qualidade e embalagem',       status:'pendente',  responsavel:'Fábrica parceira'},
+      {id:'e4', nome:'Frete e transporte',                      status:'pendente',  responsavel:'Logística'},
+      {id:'e5', nome:'Confirmação de entrega',                  status:'pendente',  responsavel:'Atendimento'},
+    ]
+  },
+  {
+    id:'p2', origem:'pedido', os_numero:'OS-0229', nome:'Pedido — Brick Residencial (Estúdio Verbo)', cliente:'Estúdio Verbo Arquitetura',
+    status:'atrasado', inicio:'2026-07-05', previsao:'2026-07-19', concluido_em:null,
+    ai_suggestion:{ gargalo:'Produção travada há 3 dias — lote de Rusticatto Fumê aguardando reposição na fábrica parceira', acao:'Confirmar com a fábrica nova previsão e avisar o cliente proativamente, antes que ele pergunte', responsavel:'Atendimento' },
+    etapas:[
+      {id:'e6', nome:'Confirmação de pedido e pagamento',      status:'concluido', responsavel:'Atendimento'},
+      {id:'e7', nome:'Produção/separação na fábrica parceira', status:'atrasado',  responsavel:'Fábrica parceira'},
+      {id:'e8', nome:'Controle de qualidade e embalagem',      status:'pendente',  responsavel:'Fábrica parceira'},
+      {id:'e9', nome:'Frete e transporte',                     status:'pendente',  responsavel:'Logística'},
+      {id:'e10',nome:'Confirmação de entrega',                 status:'pendente',  responsavel:'Atendimento'},
+    ]
+  },
+  {
+    id:'p3', origem:'interno', nome:'Revisão de SOPs — Atendimento Técnico', cliente:'Interno',
+    status:'concluido', inicio:'2026-06-01', previsao:'2026-06-30', concluido_em:'2026-06-28',
+    ai_suggestion:{ licao:'Casos de escalonamento bem documentados reduzem em 40% as respostas incorretas do atendimento automático. Priorizar isso em qualquer política nova.' },
+    etapas:[
+      {id:'e11',nome:'Mapear casos de escalonamento reais', status:'concluido', responsavel:'Gestão'},
+      {id:'e12',nome:'Identificar lacunas na KB',           status:'concluido', responsavel:'Gestão'},
+      {id:'e13',nome:'Documentar SOPs no UP·Base',          status:'concluido', responsavel:'Gestão'},
+    ]
+  },
+];
+
+// ── Projetos internos (não são pedidos reais) ──────────────────────
+// Vivem só no localStorage, como o UP·Lead e o UP·Vault já fazem.
+// Pedidos de verdade NUNCA são gravados aqui — só lidos da API.
+function _internosCarregar() { return window.localPersist.load('flow_internos', []); }
+function _internosSalvar(lista) { window.localPersist.save('flow_internos', lista); }
+
+function _toggleEtapaEmLista(lista, projId, etapaId) {
+  const p = lista.find(x => x.id === projId);
+  if (!p) return false;
+  const e = p.etapas.find(x => x.id === etapaId);
+  if (!e) return false;
+  e.status = e.status === 'concluido' ? 'pendente' : 'concluido';
+  return true;
+}
+
+const DATA_LAYER = window.createDataLayer(
+  {
+    getProjects: () => Promise.resolve([
+      ...JSON.parse(JSON.stringify(MOCK_PROJECTS)),
+      ..._internosCarregar(),
+    ]),
+    addProject: (p) => {
+      const lista = _internosCarregar();
+      lista.unshift(p);
+      _internosSalvar(lista);
+      return Promise.resolve(p);
+    },
+    toggleEtapa: (projId, etapaId) => {
+      // Tenta nos projetos internos persistidos primeiro
+      const internos = _internosCarregar();
+      if (_toggleEtapaEmLista(internos, projId, etapaId)) {
+        _internosSalvar(internos);
+        return Promise.resolve();
+      }
+      // Projeto interno de exemplo (p3) só existe em memória nesta sessão
+      _toggleEtapaEmLista(MOCK_PROJECTS, projId, etapaId);
+      return Promise.resolve();
+    }
+  },
+  {
+    // Pedidos reais: leitura E avanço de status, via
+    // api/ordens.php → bruto-secrets/API/suite-ordens.php.
+    // Antes só lia; agora a suíte também pode avançar (decisão do
+    // Rafael em 08/08/2026) — a Ordem de Serviço continua podendo
+    // avançar também, as duas escrevem no mesmo campo `status`.
+    getProjects: async () => {
+      const res = await fetch('api/ordens.php', { method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'listar' }) });
+      if (res.status === 401) { window.location.replace('login.html?m=sessao'); return []; }
+      const data = await res.json().catch(() => ({ pedidos: [] }));
+      if (!res.ok) { window.toast?.(data.erro || 'Não consegui carregar os pedidos.', 'error'); return _internosCarregar(); }
+      return [...(data.pedidos || []), ..._internosCarregar()];
+    },
+    // Projeto interno — mesma persistência local usada em demo. Uma tabela
+    // dedicada (flow_projetos_internos) pode substituir isto mais adiante;
+    // não é prioridade porque pedidos reais já vêm da API.
+    addProject: (p) => {
+      const lista = _internosCarregar();
+      lista.unshift(p);
+      _internosSalvar(lista);
+      return Promise.resolve(p);
+    },
+    toggleEtapa: async (projId, etapaId) => {
+      // Pedido real (id vem como 'os_123' — ver suite-ordens.php)
+      if (projId.startsWith('os_')) {
+        const p = projects.find(x => x.id === projId);
+        const etapaIndex = p ? p.etapas.findIndex(e => e.id === etapaId) : -1;
+        if (etapaIndex < 0) return;
+        const osId = parseInt(projId.replace('os_', ''), 10);
+        const res = await fetch('api/ordens.php', { method:'POST', credentials:'same-origin',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ acao:'avancar_status', id: osId, etapa_index: etapaIndex }) });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) window.toast?.(data.erro || 'Não consegui avançar o pedido.', 'error');
+        return;
+      }
+      // Projeto interno — segue como antes
+      const internos = _internosCarregar();
+      if (_toggleEtapaEmLista(internos, projId, etapaId)) _internosSalvar(internos);
+    },
+  }
+);
+
+let projects = [];
+let filtroPeriodo = 'todos';
+
+async function init() {
+  projects = await DATA_LAYER.getProjects();
+  renderStats(); renderProjects();
+}
+
+function setPeriodo(periodo, btn) {
+  filtroPeriodo = periodo;
+  document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProjects();
+}
+
+// Filtra por período (com base em p.inicio, data real de criação) e por
+// texto de busca (OS, cliente, nome do pedido) — tudo client-side, já
+// que a lista inteira já está carregada em memória.
+function projetosFiltrados() {
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const texto = (document.getElementById('busca-os')?.value || '').trim().toLowerCase();
+
+  return projects.filter(p => {
+    if (filtroPeriodo !== 'todos') {
+      if (!p.inicio) return false;
+      const dataInicio = new Date(p.inicio + 'T00:00:00');
+      const diffDias = Math.floor((hoje - dataInicio) / 86400000);
+      if (filtroPeriodo === 'hoje' && diffDias !== 0) return false;
+      if (filtroPeriodo === '7dias' && (diffDias < 0 || diffDias > 7)) return false;
+      if (filtroPeriodo === 'mes' && (diffDias < 0 || diffDias > 30)) return false;
+    }
+    if (texto) {
+      const alvo = `${p.nome||''} ${p.cliente||''} ${p.os_numero||''}`.toLowerCase();
+      if (!alvo.includes(texto)) return false;
+    }
+    return true;
+  });
+}
+
+function getProgress(p) {
+  const done = p.etapas.filter(e=>e.status==='concluido').length;
+  return p.etapas.length > 0 ? Math.round(done/p.etapas.length*100) : 0;
+}
+
+function renderStats() {
+  const ativos    = projects.filter(p=>p.status==='ativo').length;
+  const atrasados = projects.filter(p=>p.status==='atrasado').length;
+  const concluidos= projects.filter(p=>p.status==='concluido').length;
+  const total = ativos + atrasados + concluidos;
+  const taxa  = total > 0 ? Math.round(concluidos/total*100) : 0;
+  document.getElementById('stat-ativos').textContent    = ativos;
+  document.getElementById('stat-atrasados').textContent = atrasados;
+  document.getElementById('stat-concluidos').textContent= concluidos;
+  document.getElementById('stat-taxa').textContent      = taxa + '%';
+}
+
+function renderProjects() {
+  const statusDot  = { ativo:'var(--teal)', atrasado:'var(--red)', concluido:'var(--green)', pausado:'var(--dim)', cancelado:'var(--dim)' };
+  const statusCls  = { ativo:'status-ativo', atrasado:'status-atrasado', concluido:'status-concluido', pausado:'status-pausado', cancelado:'status-cancelado' };
+  const statusLabel= { ativo:'Ativo', atrasado:'Atrasado', concluido:'Concluído', pausado:'Pausado', cancelado:'Cancelado' };
+
+  const lista = projetosFiltrados();
+  if (lista.length === 0) {
+    document.getElementById('projects-list').innerHTML = `<div style="padding:30px;text-align:center;color:var(--dim);font-size:13px;">Nenhum pedido encontrado com esse filtro.</div>`;
+    return;
+  }
+
+  document.getElementById('projects-list').innerHTML = lista.map(p => {
+    const pct = getProgress(p);
+    const barColor = p.status==='atrasado' ? 'var(--red)' : p.status==='concluido' ? 'var(--green)' : 'var(--teal)';
+    return `
+    <div class="project-card" id="card-${p.id}">
+      <div class="project-header" onclick="toggleProject('${p.id}')">
+        <div class="project-status-dot" style="background:${statusDot[p.status]}"></div>
+        <div class="project-name">${p.nome}</div>
+        <div class="project-meta">
+          <span class="status-badge ${statusCls[p.status]}">${statusLabel[p.status]}</span>
+          ${p.origem === 'pedido' ? `<span class="origem-badge" title="Vem da Ordem de Serviço ${p.os_numero || ''} — avançar aqui também atualiza lá">${p.os_numero || 'OS'}</span>` : ''}
+          <span class="project-date">${p.previsao ? 'Entrega: ' + p.previsao : ''}</span>
+          <span style="font-size:12px;color:var(--teal);font-family:'Barlow Condensed',sans-serif;font-weight:600;">${pct}%</span>
+          <span class="project-expand" id="exp-${p.id}">▶</span>
+        </div>
+      </div>
+      <div class="project-body" id="body-${p.id}">
+        <div class="project-progress-bar">
+          <div class="project-progress-fill" style="width:${pct}%;background:${barColor}"></div>
+        </div>
+        <div class="etapas-list">
+          ${p.etapas.map(e => `
+            <div class="etapa-item">
+              <div class="etapa-checkbox ${e.status==='concluido'?'done':''}" onclick="toggleEtapa('${p.id}','${e.id}')">
+                ${e.status==='concluido' ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+              </div>
+              <span class="etapa-name ${e.status==='concluido'?'done':''}">${e.nome}</span>
+              ${e.responsavel ? `<span class="etapa-resp">${e.responsavel}</span>` : ''}
+              ${e.status==='atrasado' ? `<span class="etapa-status" style="color:var(--red);font-size:11px;">Atrasado</span>` : ''}
+            </div>`).join('')}
+        </div>
+        ${p.ai_suggestion && p.ai_suggestion.gargalo ? `
+          <div class="ai-suggestion">
+            <div class="ai-suggestion-label">✦ IA identificou gargalo</div>
+            <div class="ai-suggestion-text">${p.ai_suggestion.gargalo}</div>
+            <div class="ai-suggestion-text" style="color:var(--teal);margin-top:4px;">→ ${p.ai_suggestion.acao}</div>
+          </div>` : ''}
+        ${p.ai_suggestion && p.ai_suggestion.licao ? `
+          <div class="ai-suggestion">
+            <div class="ai-suggestion-label">✦ Lição aprendida</div>
+            <div class="ai-suggestion-text">${p.ai_suggestion.licao}</div>
+          </div>` : ''}
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="analyzeProject('${p.id}')">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Analisar com IA
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleProject(id) {
+  const body = document.getElementById('body-'+id);
+  const exp  = document.getElementById('exp-'+id);
+  body.classList.toggle('open');
+  exp.classList.toggle('open');
+}
+
+async function toggleEtapa(projId, etapaId) {
+  await DATA_LAYER.toggleEtapa(projId, etapaId);
+  projects = await DATA_LAYER.getProjects();
+  renderStats(); renderProjects();
+  // Manter aberto
+  setTimeout(() => {
+    document.getElementById('body-'+projId)?.classList.add('open');
+    document.getElementById('exp-'+projId)?.classList.add('open');
+  }, 10);
+}
+
+async function analyzeProject(projId) {
+  const p = projects.find(x=>x.id===projId);
+  if (!p) return;
+  toast('Analisando projeto com IA…', 'info');
+  const r = await window.callClaude({
+    systemPrompt:`Você analisa projetos de ${CLIENT_CONFIG.empresa}. Identifique gargalo e sugira UMA ação. JSON: {"gargalo":"...","acao":"...","responsavel":"..."}`,
+    userPayload:{ projeto:p.nome, status:p.status, dias_atraso: p.status==='atrasado' ? 3 : 0, etapas:p.etapas.map(e=>({nome:e.nome,status:e.status,responsavel:e.responsavel})) },
+    mockResponse: JSON.stringify({ gargalo:'Produção sem nova data confirmada — risco de atraso indefinido na entrega ao cliente', acao:'Cobrar a fábrica parceira por uma previsão até amanhã e avisar o cliente proativamente', responsavel:'Atendimento' })
+  });
+  try {
+    const ai = JSON.parse(r);
+    const proj = MOCK_PROJECTS.find(x=>x.id===projId);
+    if (proj) proj.ai_suggestion = ai;
+    projects = await DATA_LAYER.getProjects();
+    projects.find(x=>x.id===projId).ai_suggestion = ai;
+    renderProjects();
+    setTimeout(()=>{ document.getElementById('body-'+projId)?.classList.add('open'); document.getElementById('exp-'+projId)?.classList.add('open'); }, 10);
+    toast('Análise concluída', 'success');
+  } catch { toast('Erro na análise', 'error'); }
+}
+
+function openModal() {
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('p-inicio').value = today;
+  document.getElementById('p-nome').value = '';
+  document.getElementById('p-cliente').value = '';
+  document.getElementById('p-etapas').value = 'Confirmação de pedido e pagamento\nProdução/separação na fábrica parceira\nControle de qualidade e embalagem\nFrete e transporte\nConfirmação de entrega';
+  document.getElementById('modal-projeto').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('modal-projeto').classList.add('hidden'); }
+function closeModalBg(e) { if(e.target.classList.contains('modal-overlay')) closeModal(); }
+
+async function saveProject() {
+  const nome    = document.getElementById('p-nome').value.trim();
+  const cliente = document.getElementById('p-cliente').value.trim();
+  if (!nome) { toast('Informe o nome do projeto', 'warn'); return; }
+  const etapasRaw = document.getElementById('p-etapas').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const proj = {
+    // origem:'interno' — criado aqui na suíte, não vem de uma OS real.
+    // Pedidos de verdade só entram via api/ordens.php, nunca por este modal.
+    id: 'p'+Date.now(), origem:'interno', nome, cliente, status:'ativo',
+    inicio: document.getElementById('p-inicio').value,
+    previsao: document.getElementById('p-entrega').value,
+    concluido_em: null, ai_suggestion: null,
+    etapas: etapasRaw.map((n,i)=>({ id:'e'+Date.now()+i, nome:n, status:'pendente', responsavel:'Equipe' }))
+  };
+  await DATA_LAYER.addProject(proj);
+  projects = await DATA_LAYER.getProjects();
+  renderStats(); renderProjects();
+  closeModal();
+  toast(`Projeto "${nome}" criado`, 'success');
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+init();
+</script>
+</body>
+</html>

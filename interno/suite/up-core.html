@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UP·Core — BPM</title>
+  <script src="config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="nav.js"></script>
+  <style>
+    .core-content { flex:1;overflow-y:auto;padding:20px 28px 28px; }
+    .bpm-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px; }
+    .bpm-stat { background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px; }
+    .stat-label { font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:6px; }
+    .stat-value { font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;letter-spacing:-.04em;color:var(--text); }
+    .stat-sub { font-size:11px;color:var(--muted);margin-top:2px; }
+
+    .processes-list { display:flex;flex-direction:column;gap:12px; }
+    .process-card { background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .15s; }
+    .process-card:hover { border-color:var(--teal); }
+    .process-header { padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer; }
+    .process-status-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+    .process-name { font-size:14px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:-.02em;flex:1; }
+    .process-meta { display:flex;align-items:center;gap:8px; }
+    .process-expand { color:var(--dim);transition:transform .2s; }
+    .process-expand.open { transform:rotate(90deg); }
+
+    .process-body { display:none;border-top:1px solid var(--border);padding:16px 18px; }
+    .process-body.open { display:block; }
+    .flow-diagram { display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:14px; }
+    .flow-box { background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;position:relative; }
+    .flow-box-num { font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--teal); }
+    .flow-box-text { font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4; }
+    .flow-arrow { position:absolute;right:-14px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:16px; }
+    .flow-box:last-child .flow-arrow { display:none; }
+
+    .process-metrics { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px; }
+    .metric-mini { background:var(--bg2);border-radius:6px;padding:8px;text-align:center; }
+    .metric-mini-val { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;color:var(--teal); }
+    .metric-mini-label { font-size:10px;color:var(--dim);margin-top:2px; }
+
+    .process-note { background:var(--teal-12);border:1px solid var(--teal);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--teal);margin-top:12px;line-height:1.5; }
+
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px); }
+    .modal-overlay.hidden { display:none; }
+    .modal { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:500px;max-width:90vw; }
+    .modal-title { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;letter-spacing:-.02em;margin-bottom:20px; }
+    .form-group { margin-bottom:14px; }
+    .form-label { display:block;font-size:12px;color:var(--muted);margin-bottom:5px; }
+    .form-actions { display:flex;gap:8px;justify-content:flex-end;margin-top:20px; }
+  </style>
+</head>
+<body>
+<div class="suite-layout">
+  <aside id="suite-sidebar" class="suite-sidebar"></aside>
+  <main class="suite-main">
+    <div class="module-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <h1 class="module-title">UP <span class="dash">—</span> Core</h1>
+          <p class="module-subtitle">BPM & processos · definição e execução de fluxos críticos</p>
+        </div>
+        <button class="btn btn-primary" onclick="openModal()" style="margin-top:4px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Novo processo
+        </button>
+      </div>
+    </div>
+
+    <div class="core-content">
+      <div class="bpm-grid">
+        <div class="bpm-stat"><div class="stat-label">Processos documentados</div><div class="stat-value" id="stat-total">0</div><div class="stat-sub">Fluxos críticos</div></div>
+        <div class="bpm-stat"><div class="stat-label">Etapas total</div><div class="stat-value" id="stat-etapas">0</div><div class="stat-sub">Mapeadas</div></div>
+        <div class="bpm-stat"><div class="stat-label">Conformidade</div><div class="stat-value" id="stat-compliance">—</div><div class="stat-sub">vs plano</div></div>
+        <div class="bpm-stat"><div class="stat-label">Última atualização</div><div class="stat-value" id="stat-atualizacao">—</div><div class="stat-sub">Data</div></div>
+      </div>
+      <div class="processes-list" id="processes-list"></div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay hidden" id="modal-processo" onclick="closeModalBg(event)">
+  <div class="modal">
+    <div class="modal-title">Novo processo BPM</div>
+    <div class="form-group"><label class="form-label">Nome do processo</label><input class="input" id="p-nome" type="text" placeholder="Ex: Onboarding de Cliente"/></div>
+    <div class="form-group"><label class="form-label">Classificação</label><select class="input" id="p-class"><option>Crítico</option><option>Importante</option><option>Operacional</option></select></div>
+    <div class="form-group"><label class="form-label">Etapas do fluxo (uma por linha)</label><textarea class="input" id="p-etapas" rows="6" placeholder="Passo 1&#10;Passo 2&#10;Passo 3" style="resize:vertical;"></textarea></div>
+    <div class="form-group"><label class="form-label">Tempo padrão (horas)</label><input class="input" id="p-tempo" type="number" placeholder="4"/></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveProcess()">Salvar</button>
+    </div>
+  </div>
+</div>
+<div id="toast-container"></div>
+
+<script>
+const MOCK_PROCESSES = [
+  {
+    id:'bp1', nome:'Pedido — da Confirmação à Entrega', classificacao:'Crítico', status:'ativo',
+    etapas:['Confirmação de pedido e pagamento', 'Produção/separação na fábrica parceira', 'Controle de qualidade e embalagem', 'Frete e transporte', 'Confirmação de entrega'],
+    tempo_padrão:120, tempo_real:126, compliance:95, ultima_atualizacao:'2026-07-18',
+    nota:'Prazo total oficial: 7 a 15 dias úteis (produção + frete já somados). Última execução (Fachada Duarte): dentro da faixa.'
+  },
+  {
+    id:'bp2', nome:'Qualificação e Orçamento', classificacao:'Crítico', status:'ativo',
+    etapas:['Receber lead (WhatsApp, Instagram, formulário ou indicação)', 'Entender se é projeto próprio, arquitetura/construção ou revenda', 'Recomendar linha e enviar faixa de preço', 'Oferecer amostra física quando fizer sentido', 'Confirmar valor final e prazo com consultor', 'Enviar orçamento'],
+    tempo_padrão:48, tempo_real:56, compliance:88, ultima_atualizacao:'2026-07-20',
+    nota:'Meta: responder em até 48h. Execução recente (Estúdio Verbo): 56h — acima da meta, puxado pelo lote em espera na fábrica.'
+  },
+  {
+    id:'bp3', nome:'Reunião Semanal de Gestão', classificacao:'Importante', status:'ativo',
+    etapas:['Coletar métricas (UP·Dash)', 'Revisar pipeline (UP·Lead)', 'Analisar financeiro (UP·Vault)', 'Revisar pedidos em produção (UP·Flow)', 'Gerar pauta', 'Executar reunião', 'Documentar decisões'],
+    tempo_padrão:1.5, tempo_real:1.5, compliance:100, ultima_atualizacao:'2026-07-21',
+    nota:'Processo totalmente aderente. Executado toda segunda de manhã.'
+  },
+  {
+    id:'bp4', nome:'Tratamento de Incidente Operacional', classificacao:'Crítico', status:'pausado',
+    etapas:['Receber alerta', 'Avaliar impacto', 'Comunicar cliente', 'Diagnóstico técnico', 'Planejar correção', 'Executar', 'Validar', 'Comunicar resolução'],
+    tempo_padrão:3, tempo_real:null, compliance:null, ultima_atualizacao:'2026-04-15',
+    nota:'Ainda não ativado — sem incidentes em produção até agora. Mantido por segurança.'
+  },
+];
+
+const DATA_LAYER = window.createDataLayer(
+  { getProcesses: ()=>Promise.resolve(JSON.parse(JSON.stringify(MOCK_PROCESSES))), addProcess: (p)=>{ MOCK_PROCESSES.unshift(p); return Promise.resolve(p); } },
+  { getProcesses: ()=>supabase.from('core_processes').select('*').eq('empresa_id',CLIENT_CONFIG.empresa_id).then(r=>r.data), addProcess: (p)=>supabase.from('core_processes').insert({...p,empresa_id:CLIENT_CONFIG.empresa_id}).select().single().then(r=>r.data) }
+);
+
+let processes=[];
+
+async function init() { processes=await DATA_LAYER.getProcesses(); renderStats(); renderProcesses(); }
+
+function renderStats() {
+  const ativas=processes.filter(p=>p.status==='ativo');
+  const totalEtapas=processes.reduce((s,p)=>s+p.etapas.length,0);
+  const complianceMedia=ativas.length>0?Math.round(ativas.reduce((s,p)=>s+(p.compliance||0),0)/ativas.length):0;
+  document.getElementById('stat-total').textContent=processes.length;
+  document.getElementById('stat-etapas').textContent=totalEtapas;
+  document.getElementById('stat-compliance').textContent=complianceMedia+'%';
+  document.getElementById('stat-atualizacao').textContent='2026-06-23';
+}
+
+function renderProcesses() {
+  document.getElementById('processes-list').innerHTML=processes.map((p,i)=>{
+    const statusDot={ativo:'var(--teal)',pausado:'var(--dim)',finalizado:'var(--green)'}[p.status]||'var(--dim)';
+    const statusLabel={ativo:'Ativo',pausado:'Pausado',finalizado:'Finalizado'}[p.status]||'—';
+    return`
+    <div class="process-card">
+      <div class="process-header" onclick="toggleProcess('pb-${i}','pe-${i}')">
+        <div class="process-status-dot" style="background:${statusDot}"></div>
+        <div class="process-name">${p.nome}</div>
+        <div class="process-meta">
+          <span class="badge badge-${p.classificacao==='Crítico'?'red':'teal'}" style="font-size:10px;">${p.classificacao}</span>
+          <span style="font-size:12px;color:var(--dim);">${statusLabel}</span>
+          <span id="pe-${i}" class="process-expand">▶</span>
+        </div>
+      </div>
+      <div class="process-body" id="pb-${i}">
+        <div class="flow-diagram">
+          ${p.etapas.map((e,j)=>`<div class="flow-box"><div class="flow-box-num">${j+1}</div><div class="flow-box-text">${e}</div>${j<p.etapas.length-1?'<span class="flow-arrow">→</span>':''}</div>`).join('')}
+        </div>
+        <div class="process-metrics">
+          <div class="metric-mini">
+            <div class="metric-mini-val">${p.tempo_padrão}h</div>
+            <div class="metric-mini-label">Tempo padrão</div>
+          </div>
+          <div class="metric-mini">
+            <div class="metric-mini-val">${p.tempo_real?p.tempo_real+'h':'-'}</div>
+            <div class="metric-mini-label">Tempo real</div>
+          </div>
+          <div class="metric-mini">
+            <div class="metric-mini-val" style="color:${p.compliance>=90?'var(--green)':p.compliance>=70?'var(--amber)':'var(--red)'}">${p.compliance?p.compliance+'%':'-'}</div>
+            <div class="metric-mini-label">Conformidade</div>
+          </div>
+        </div>
+        ${p.nota?`<div class="process-note">📌 ${p.nota}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleProcess(bodyId,expId) {
+  const b=document.getElementById(bodyId),e=document.getElementById(expId);
+  b.classList.toggle('open');
+  e.classList.toggle('open');
+}
+
+function openModal() { document.getElementById('p-nome').value=''; document.getElementById('p-etapas').value=''; document.getElementById('p-tempo').value=''; document.getElementById('modal-processo').classList.remove('hidden'); }
+function closeModal() { document.getElementById('modal-processo').classList.add('hidden'); }
+function closeModalBg(e) { if(e.target.classList.contains('modal-overlay')) closeModal(); }
+
+async function saveProcess() {
+  const nome=document.getElementById('p-nome').value.trim();
+  if(!nome){toast('Informe o nome do processo','warn');return;}
+  const etapas=document.getElementById('p-etapas').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const p={id:'bp'+Date.now(),nome,classificacao:document.getElementById('p-class').value,status:'ativo',etapas,tempo_padrão:parseFloat(document.getElementById('p-tempo').value)||0,tempo_real:null,compliance:null,ultima_atualizacao:new Date().toISOString().slice(0,10),nota:''};
+  await DATA_LAYER.addProcess(p);
+  processes=await DATA_LAYER.getProcesses();
+  renderStats();renderProcesses();
+  closeModal();
+  toast(`"${nome}" documentado no BPM`, 'success');
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+init();
+</script>
+</body>
+</html>

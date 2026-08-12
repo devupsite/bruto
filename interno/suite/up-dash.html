@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UP·Dash — Dashboard</title>
+  <script src="config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="nav.js"></script>
+  <style>
+    .dash-content { flex:1;overflow-y:auto;padding:20px 28px 28px; }
+    .dash-top { display:grid;grid-template-columns:1fr 280px;gap:16px;margin-bottom:24px; }
+
+    /* Health Score */
+    .gos-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center; }
+    .gos-ring { position:relative;width:120px;height:120px;margin:0 auto 12px; }
+    .gos-ring svg { transform:rotate(-90deg); }
+    .gos-ring-track { fill:none;stroke:var(--bg3);stroke-width:10; }
+    .gos-ring-fill  { fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .8s ease; }
+    .gos-score { position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center; }
+    .gos-score-num { font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;letter-spacing:-.04em;color:var(--text); }
+    .gos-score-label { font-size:10px;color:var(--dim);font-weight:500;letter-spacing:.06em;text-transform:uppercase; }
+    .gos-title { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.02em; }
+    .gos-sub { font-size:12px;color:var(--muted);margin-top:4px; }
+    .gos-trend { font-size:12px;margin-top:8px;font-weight:500; }
+
+    /* Narrativa IA */
+    .narrative-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px; }
+    .narrative-label { font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;display:flex;align-items:center;gap:6px; }
+    .narrative-text { font-size:14px;color:var(--text);line-height:1.7; }
+    .narrative-refresh { float:right;margin-top:-2px; }
+
+    /* KPIs */
+    .kpis-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px; }
+    .kpi-card { background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px; }
+    .kpi-label { font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:8px; }
+    .kpi-value { font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:24px;letter-spacing:-.04em;color:var(--text); }
+    .kpi-sub { font-size:12px;color:var(--muted);margin-top:4px; }
+    .kpi-bar { height:3px;background:var(--bg3);border-radius:2px;margin-top:10px;overflow:hidden; }
+    .kpi-bar-fill { height:100%;border-radius:2px;background:var(--teal); }
+
+    /* Insights */
+    .insights-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px; }
+    .insight-card { background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px; }
+    .insight-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:10px; }
+    .insight-title { font-size:13px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:-.01em; }
+    .urgency-badge { font-size:10px;font-weight:500;letter-spacing:.04em;padding:2px 7px;border-radius:3px; }
+    .urgency-alta  { background:var(--red-12);color:var(--red); }
+    .urgency-media { background:var(--amber-12);color:var(--amber); }
+    .urgency-baixa { background:var(--green-12);color:var(--green); }
+    .insight-context { font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px; }
+    .insight-action { font-size:12px;color:var(--teal); }
+
+    /* Pulse summary */
+    .pulse-grid { display:grid;grid-template-columns:repeat(2,1fr);gap:12px; }
+    .pulse-section { background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px; }
+    .pulse-section-title { font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:10px; }
+    .pulse-row { display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px; }
+    .pulse-row:last-child { border:none; }
+    .pulse-row-label { color:var(--muted); }
+    .pulse-row-value { color:var(--text);font-weight:500;font-family:'Barlow Condensed',sans-serif; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spin { animation:spin 1s linear infinite; }
+  </style>
+</head>
+<body>
+<div class="suite-layout">
+  <aside id="suite-sidebar" class="suite-sidebar"></aside>
+  <main class="suite-main">
+    <div class="module-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <h1 class="module-title">UP <span class="dash">—</span> Dash</h1>
+          <p class="module-subtitle">Visão executiva semanal · <span id="semana-label"></span></p>
+        </div>
+        <button class="btn btn-ghost" onclick="refreshNarrative()" style="margin-top:4px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Atualizar
+        </button>
+      </div>
+    </div>
+
+    <div class="dash-content">
+
+      <!-- Health Score + Narrativa -->
+      <div class="dash-top">
+        <div class="narrative-card">
+          <div class="narrative-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Mensagem da semana
+          </div>
+          <div class="narrative-text" id="narrative-text">Carregando análise…</div>
+        </div>
+        <div class="gos-card">
+          <div class="gos-ring">
+            <svg viewBox="0 0 120 120" width="120" height="120">
+              <circle class="gos-ring-track" cx="60" cy="60" r="50"/>
+              <circle class="gos-ring-fill" id="gos-fill" cx="60" cy="60" r="50" stroke-dasharray="314" stroke-dashoffset="314"/>
+            </svg>
+            <div class="gos-score">
+              <div class="gos-score-num" id="gos-num">—</div>
+              <div class="gos-score-label">GOS</div>
+            </div>
+          </div>
+          <div class="gos-title">UP·GOS</div>
+          <div class="gos-sub">Health Score</div>
+          <div class="gos-trend" id="gos-trend"></div>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div style="margin-bottom:12px;"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.02em;">KPIs da semana</div></div>
+      <div class="kpis-grid" id="kpis-grid"></div>
+
+      <!-- Insights UP·Mind -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.02em;">Insights — UP·Mind</div>
+        <span style="font-size:11px;color:var(--dim);">Semana 30 · gerado domingo 23h30</span>
+      </div>
+      <div class="insights-grid" id="insights-grid"></div>
+
+      <!-- Pulso semanal -->
+      <div style="margin-bottom:12px;"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.02em;">Pulso semanal consolidado</div></div>
+      <div class="pulse-grid" id="pulse-grid"></div>
+
+    </div>
+  </main>
+</div>
+<div id="toast-container"></div>
+<script>
+const MOCK_PULSE = {
+  semana: '2026-W30',
+  health_score: 71,
+  health_score_anterior: 65,
+  financeiro:   { receitas_semana:9800, despesas_semana:2100, saldo_atual:41500, meta_mes:55000, realizado_mes:21400, contas_a_pagar_7d:1300 },
+  comercial:    { novos_leads:11, leads_respondidos_24h:9, orcamentos_enviados:4, orcamentos_aprovados:1, orcamentos_parados_48h:2, valor_pipeline:38700, amostras_solicitadas:6, amostras_convertidas:2, m2_especificados:412, ciclo_medio_dias:23, followups_pendentes:5 },
+  operacional:  { pedidos_em_producao:3, pedidos_atrasados:1, amostras_enviadas_semana:5, trocas_solicitadas:0 },
+  equipe:       { total_membros:3, alertas:['Gabriel: 2 leads sem resposta há mais de 24h'], ausencias:0 },
+};
+
+const MOCK_INSIGHTS = [
+  { titulo:'Orçamento parado — fachada Rockface', contexto:'A arquiteta Camila Duarte pediu orçamento de Rockface Urban para uma fachada de ~140m² há 3 dias e ainda não teve resposta. Ticket estimado acima de R$ 18.000.', acao:'Confirmar prazo de produção com a fábrica e responder hoje — projeto desse porte não pode esfriar.', urgencia:'alta' },
+  { titulo:'Amostra sem retorno há 10 dias', contexto:'Cliente residencial recebeu 3 amostras de Brick (Rusticatto Fumê, Rusticatto Terra Negra, Terra do Cerrado) há 10 dias. Sem contato desde a entrega.', acao:'Mandar um toque leve perguntando o que achou das amostras — não deixar a decisão esfriar sozinha.', urgencia:'media' },
+  { titulo:'2 leads sem resposta há mais de 24h', contexto:'Gabriel está com 2 conversas de campanha abertas sem resposta há mais de um dia — fora do padrão das últimas semanas.', acao:'Checar se é volume ou travamento em algo específico antes que os leads esfriem.', urgencia:'media' },
+];
+
+const DATA_LAYER = window.createDataLayer(
+  { getPulse: () => Promise.resolve(MOCK_PULSE), getInsights: () => Promise.resolve(MOCK_INSIGHTS) },
+  {
+    // Pulso real: agregação ao vivo das tabelas reais, via
+    // api/pulso.php → bruto-secrets/API/suite-pulso.php (mesmo backend
+    // que o UP·GOS usa, ação diferente).
+    getPulse: async () => {
+      const res = await fetch('api/pulso.php', { method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'pulso' }) });
+      if (res.status === 401) { window.location.replace('login.html?m=sessao'); return MOCK_PULSE; }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.pulse) { window.toast?.(data.erro || 'Não consegui carregar o pulso.', 'error'); return MOCK_PULSE; }
+      // meta_mes não vem do servidor — já está carregada no navegador
+      data.pulse.financeiro.meta_mes = window.CLIENT_CONFIG?.meta_mrr || 50000;
+      data.pulse.health_score = null; // health score real vem do UP·GOS — ver renderGOS
+      return data.pulse;
+    },
+    // UP·Mind (síntese de insights por IA a partir do histórico) ainda
+    // não está ativo — ver conversa sobre isso. Sem ele, não fabricamos
+    // insight falso: fica vazio até o módulo existir de verdade.
+    getInsights: () => Promise.resolve([]),
+  }
+);
+
+let pulse, insights;
+
+async function init() {
+  pulse    = await DATA_LAYER.getPulse();
+  insights = await DATA_LAYER.getInsights();
+
+  // Health score real: busca a mesma "fonte" que o UP·GOS usa e roda
+  // o MESMO algoritmo (window.calcularGOS, em nav.js) — nunca duas
+  // implementações do cálculo em paralelo.
+  if (!DEMO_MODE) {
+    try {
+      const res = await fetch('api/pulso.php', { method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'fonte' }) });
+      const data = await res.json();
+      if (data.transacoes) {
+        const { score } = window.calcularGOS(data);
+        pulse.health_score = score;
+        pulse.health_score_anterior = score; // sem histórico salvo ainda — ver Fase 7 (cron semanal)
+      }
+    } catch (e) { console.error('health score:', e); pulse.health_score = pulse.health_score ?? 0; }
+  }
+
+  renderWeekLabel();
+  renderGOS();
+  renderKPIs();
+  renderInsights();
+  renderPulse();
+  await refreshNarrative();
+}
+
+function renderWeekLabel() {
+  const hoje = new Date();
+  const diaSemana = hoje.getDay(); // 0=domingo
+  const seg = new Date(hoje); seg.setDate(hoje.getDate() - ((diaSemana + 6) % 7));
+  const dom = new Date(seg); dom.setDate(seg.getDate() + 6);
+  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const txt = seg.getMonth() === dom.getMonth()
+    ? `semana de ${seg.getDate()} a ${dom.getDate()} de ${meses[seg.getMonth()]} · ${dom.getFullYear()}`
+    : `semana de ${seg.getDate()} de ${meses[seg.getMonth()]} a ${dom.getDate()} de ${meses[dom.getMonth()]} · ${dom.getFullYear()}`;
+  document.getElementById('semana-label').textContent = txt;
+}
+
+function renderGOS() {
+  const score = pulse.health_score;
+  const diff  = score - (pulse.health_score_anterior || score);
+  const circ  = 2 * Math.PI * 50;
+  const color = score >= 70 ? '#27AE60' : score >= 50 ? '#F5A623' : '#E74C3C';
+
+  document.getElementById('gos-num').textContent = score;
+  document.getElementById('gos-num').style.color = color;
+  const fill = document.getElementById('gos-fill');
+  fill.style.stroke = color;
+  setTimeout(() => { fill.style.strokeDashoffset = circ * (1 - score/100); }, 100);
+
+  const sign = diff > 0 ? '+' : '';
+  const dcolor = diff > 0 ? 'var(--green)' : diff < 0 ? 'var(--red)' : 'var(--dim)';
+  document.getElementById('gos-trend').innerHTML = `<span style="color:${dcolor}">${sign}${diff} vs semana anterior</span>`;
+}
+
+function fmt(v) { return 'R$ ' + (v||0).toLocaleString('pt-BR'); }
+function fmtK(v) { return v >= 1000 ? 'R$ ' + (v/1000).toFixed(0)+'k' : fmt(v); }
+
+function renderKPIs() {
+  const f = pulse.financeiro, c = pulse.comercial, o = pulse.operacional;
+  const sla = window.BRUTO_OPS?.slas || {};
+  const kpis = [
+    { label:'Faturamento do mês', value: fmtK(f.realizado_mes), sub:`Meta: ${fmtK(f.meta_mes)}`, pct: Math.round(f.realizado_mes/f.meta_mes*100) },
+    { label:`Resposta em ${sla.resposta_lead_horas||24}h`, value: `${c.leads_respondidos_24h}/${c.novos_leads}`, sub:`${c.orcamentos_parados_48h} orçamento${c.orcamentos_parados_48h!==1?'s':''} parado${c.orcamentos_parados_48h!==1?'s':''} ${sla.orcamento_parado_horas||48}h+`, pct: Math.round(c.leads_respondidos_24h/c.novos_leads*100) },
+    { label:'Amostra → pedido', value: `${c.amostras_convertidas}/${c.amostras_solicitadas}`, sub:`${c.followups_pendentes} follow-up${c.followups_pendentes!==1?'s':''} em atraso`, pct: Math.round(c.amostras_convertidas/c.amostras_solicitadas*100) },
+    { label:'m² especificados', value: c.m2_especificados, sub:`Ciclo médio: ${c.ciclo_medio_dias} dias`, pct: Math.min(100, Math.round(c.m2_especificados/600*100)) },
+  ];
+  document.getElementById('kpis-grid').innerHTML = kpis.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-sub">${k.sub}</div>
+      <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${k.pct}%"></div></div>
+    </div>`).join('');
+}
+
+function renderInsights() {
+  const urgencyLabel = { alta:'Alta', media:'Média', baixa:'Baixa' };
+  document.getElementById('insights-grid').innerHTML = insights.map(i => `
+    <div class="insight-card">
+      <div class="insight-header">
+        <div class="insight-title">${i.titulo}</div>
+        <span class="urgency-badge urgency-${i.urgencia}">${urgencyLabel[i.urgencia]}</span>
+      </div>
+      <div class="insight-context">${i.contexto}</div>
+      <div class="insight-action">→ ${i.acao}</div>
+    </div>`).join('');
+}
+
+function renderPulse() {
+  const f = pulse.financeiro, c = pulse.comercial, o = pulse.operacional, e = pulse.equipe;
+  const sections = [
+    { title:'Financeiro', rows:[
+      ['Receitas da semana', fmt(f.receitas_semana)],
+      ['Despesas da semana', fmt(f.despesas_semana)],
+      ['Saldo atual', fmt(f.saldo_atual)],
+      ['Meta do mês', fmt(f.meta_mes)],
+      ['Contas a pagar 7d', fmt(f.contas_a_pagar_7d)],
+    ]},
+    { title:'Comercial', rows:[
+      ['Novos leads', c.novos_leads],
+      ['Respondidos em 24h', c.leads_respondidos_24h],
+      ['m² especificados', c.m2_especificados],
+      ['Ciclo médio (dias)', c.ciclo_medio_dias],
+      ['Amostras solicitadas', c.amostras_solicitadas],
+      ['Follow-ups em atraso', c.followups_pendentes],
+      ['Valor em pipeline', fmtK(c.valor_pipeline)],
+    ]},
+    { title:'Operacional', rows:[
+      ['Pedidos em produção', o.pedidos_em_producao],
+      ['Pedidos atrasados', o.pedidos_atrasados],
+      ['Amostras despachadas', o.amostras_enviadas_semana],
+      ['Trocas solicitadas', o.trocas_solicitadas],
+    ]},
+    { title:'Equipe', rows:[
+      ['Membros ativos', e.total_membros],
+      ['Ausências', e.ausencias],
+      ['Alertas', e.alertas.length],
+    ]},
+  ];
+  document.getElementById('pulse-grid').innerHTML = sections.map(s => `
+    <div class="pulse-section">
+      <div class="pulse-section-title">${s.title}</div>
+      ${s.rows.map(([l,v]) => `<div class="pulse-row"><span class="pulse-row-label">${l}</span><span class="pulse-row-value">${v}</span></div>`).join('')}
+    </div>`).join('');
+}
+
+async function refreshNarrative() {
+  const btn = document.querySelector('.btn-ghost');
+  if (btn) { btn.disabled = true; btn.querySelector('svg')?.classList.add('spin'); }
+  document.getElementById('narrative-text').style.opacity = '.5';
+
+  const r = await window.callClaude({
+    systemPrompt:`Você escreve a mensagem semanal para quem toca a operação da ${CLIENT_CONFIG.empresa}. Tom: ${CLIENT_CONFIG.tom_voz} Máximo 4 linhas. Comece pelo que mais importa essa semana. Retorne APENAS texto simples.`,
+    userPayload:{ health_score: pulse.health_score, variacao: pulse.health_score - (pulse.health_score_anterior||0), insight_principal: insights[0]?.titulo, destaque_positivo:'Faturamento do mês acima do ritmo da meta', acao_prioritaria: insights[0]?.acao },
+    mockResponse:`Semana positiva no financeiro — R$ 9.800 em receita, dentro do ritmo pra bater a meta do mês. O ponto crítico agora é o orçamento da Camila Duarte: fachada em Rockface parada há 3 dias, ticket acima de R$ 18 mil, não pode esperar. Responde hoje. As amostras enviadas há 10 dias também merecem um toque antes de esfriar.`
+  });
+
+  document.getElementById('narrative-text').textContent = r;
+  document.getElementById('narrative-text').style.opacity = '1';
+  if (btn) { btn.disabled = false; btn.querySelector('svg')?.classList.remove('spin'); }
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UP·Mind — IA</title>
+  <script src="config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="nav.js"></script>
+  <style>
+    .mind-content { flex:1;overflow-y:auto;padding:20px 28px 28px; }
+    .mind-intro { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:24px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center; }
+    .mind-intro-text h3 { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:-.02em;margin-bottom:6px; }
+    .mind-intro-text p { font-size:13px;color:var(--muted);line-height:1.6; }
+    .mind-stat { text-align:center; }
+    .mind-stat-val { font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;letter-spacing:-.04em;color:var(--teal); }
+    .mind-stat-label { font-size:11px;color:var(--dim);margin-top:2px; }
+
+    .historico-list { display:flex;flex-direction:column;gap:16px; }
+    .hist-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden; }
+    .hist-header { padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer; }
+    .hist-week { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.02em; }
+    .hist-meta { display:flex;align-items:center;gap:10px; }
+    .hist-score { font-size:13px;font-weight:600;font-family:'Barlow Condensed',sans-serif; }
+    .hist-body { padding:16px 18px;display:none; }
+    .hist-body.open { display:block; }
+    .insight-item { padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:10px; }
+    .insight-item-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:6px; }
+    .insight-item-title { font-size:13px;font-weight:600;color:var(--text); }
+    .insight-ctx { font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:5px; }
+    .insight-act { font-size:12px;color:var(--teal); }
+    .padrao-box { background:var(--teal-12);border:1px solid var(--teal);border-radius:8px;padding:12px;margin-top:12px; }
+    .padrao-label { font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:5px; }
+    .padrao-text { font-size:13px;color:var(--text);line-height:1.6; }
+
+    .run-section { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:24px; }
+    .run-title { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.02em;margin-bottom:14px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spin { animation:spin 1s linear infinite; }
+    .urgency-badge { font-size:10px;font-weight:500;letter-spacing:.04em;padding:2px 7px;border-radius:3px; }
+    .urgency-alta  { background:var(--red-12);color:var(--red); }
+    .urgency-media { background:var(--amber-12);color:var(--amber); }
+    .urgency-baixa { background:var(--green-12);color:var(--green); }
+  </style>
+</head>
+<body>
+<div class="suite-layout">
+  <aside id="suite-sidebar" class="suite-sidebar"></aside>
+  <main class="suite-main">
+    <div class="module-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <h1 class="module-title">UP <span class="dash">—</span> Mind</h1>
+          <p class="module-subtitle">IA contextualizada · insights semanais acumulativos</p>
+        </div>
+        <button class="btn btn-primary" onclick="runMind()" style="margin-top:4px;" id="btn-run">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Rodar análise agora
+        </button>
+      </div>
+    </div>
+    <div class="mind-content">
+      <div class="mind-intro">
+        <div class="mind-intro-text">
+          <h3>Como o UP·Mind funciona</h3>
+          <p>Toda semana (domingo 23h30), o UP·Mind analisa o Pulso Semanal junto com as últimas 6 semanas de histórico. Ele não vê a empresa pela primeira vez — ele acompanha. Com o tempo, identifica padrões que análises pontuais nunca capturam.</p>
+        </div>
+        <div class="mind-stat">
+          <div class="mind-stat-val" id="mind-weeks">0</div>
+          <div class="mind-stat-label">semanas<br>de histórico</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.02em;">Histórico de análises</div>
+      </div>
+      <div class="historico-list" id="hist-list"></div>
+    </div>
+  </main>
+</div>
+<div id="toast-container"></div>
+<script>
+const MOCK_HISTORICO = [
+  { semana:'2026-W30', health_score:71, padrao_identificado:'Orçamentos de fachada grande (Rockface) demoram em média 2 dias a mais pra sair do que os de Brick residencial — o gargalo é sempre esperar a confirmação de prazo com a fábrica parceira.', contexto_narrativo:'Semana positiva no financeiro, puxada pelo pedido da Cimentício. O ponto de atenção segue sendo resposta rápida em orçamentos de maior ticket.',
+    insights:[
+      { titulo:'Orçamentos grandes demoram mais pra sair', contexto:'Pedidos de Rockface/fachada levam em média 2 dias a mais que Brick residencial pra virar orçamento — o gargalo é sempre esperar confirmação de prazo da fábrica antes de responder ao cliente.', acao:'Definir um SLA interno com a fábrica parceira para prazos de produção, em vez de esperar resposta ad-hoc a cada orçamento grande.', urgencia:'alta' },
+      { titulo:'Gabriel em risco de sobrecarga', contexto:'2 leads sem resposta em 24h+ nesta semana. Nas 4 semanas anteriores: zero. Mudança abrupta merece atenção antes de virar tendência.', acao:'Conversa rápida esta semana. Não é cobrança — é entendimento.', urgencia:'media' },
+      { titulo:'Camila Duarte: janela de fechamento aberta', contexto:'Engajamento alto na conversa inicial, projeto de fachada com metragem já definida. Orçamento ainda não foi enviado.', acao:'Responder hoje com prazo confirmado pela fábrica — ticket alto não pode esfriar.', urgencia:'alta' },
+    ]
+  },
+  { semana:'2026-W29', health_score:65, padrao_identificado:null, contexto_narrativo:'Semana de prospecção intensa — vários leads novos, mas maioria ainda morna ou fria. Financeiro estável.',
+    insights:[
+      { titulo:'Volume de leads sem qualidade', contexto:'Vários leads na semana, mas a maioria morna ou fria. Instagram DM tem gerado contatos de curiosidade, sem projeto definido.', acao:'Revisar o texto do anúncio para qualificar melhor antes do primeiro contato.', urgencia:'media' },
+      { titulo:'Meta do mês distante no ritmo atual', contexto:'No ritmo da primeira quinzena, a meta de R$ 55k não seria atingida. Faltava fechar os pedidos de maior ticket em pipeline.', acao:'Priorizar fechamento da Construtora Tijucal (R$ 41.200 em pipeline).', urgencia:'alta' },
+    ]
+  },
+];
+
+const DATA_LAYER = window.createDataLayer(
+  { getHistorico: ()=>Promise.resolve(JSON.parse(JSON.stringify(MOCK_HISTORICO))) },
+  { getHistorico: ()=>supabase.from('mind_historico').select('*').eq('empresa_id',CLIENT_CONFIG.empresa_id).order('semana',{ascending:false}).limit(6).then(r=>r.data) }
+);
+
+let historico=[];
+
+async function init() { historico=await DATA_LAYER.getHistorico(); document.getElementById('mind-weeks').textContent=historico.length; renderHistorico(); }
+
+function scoreColor(s) { return s>=70?'var(--green)':s>=50?'var(--amber)':'var(--red)'; }
+const urgLabel = { alta:'Alta', media:'Média', baixa:'Baixa' };
+
+function renderHistorico() {
+  document.getElementById('hist-list').innerHTML = historico.map((h,i) => `
+    <div class="hist-card">
+      <div class="hist-header" onclick="toggleHist('hb-${i}','he-${i}')">
+        <div class="hist-week">Semana ${h.semana.split('-W')[1]} · ${h.semana.split('-W')[0]}</div>
+        <div class="hist-meta">
+          ${h.padrao_identificado ? `<span class="badge badge-teal" style="font-size:10px;">Padrão detectado</span>` : ''}
+          <span class="hist-score" style="color:${scoreColor(h.health_score)}">GOS ${h.health_score}</span>
+          <span id="he-${i}" style="color:var(--dim);transition:transform .2s;">▶</span>
+        </div>
+      </div>
+      <div class="hist-body" id="hb-${i}">
+        ${h.contexto_narrativo ? `<p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">${h.contexto_narrativo}</p>` : ''}
+        ${h.insights.map(ins=>`
+          <div class="insight-item">
+            <div class="insight-item-header">
+              <div class="insight-item-title">${ins.titulo}</div>
+              <span class="urgency-badge urgency-${ins.urgencia}">${urgLabel[ins.urgencia]}</span>
+            </div>
+            <div class="insight-ctx">${ins.contexto}</div>
+            <div class="insight-act">→ ${ins.acao}</div>
+          </div>`).join('')}
+        ${h.padrao_identificado ? `<div class="padrao-box"><div class="padrao-label">Padrão identificado</div><div class="padrao-text">${h.padrao_identificado}</div></div>` : ''}
+      </div>
+    </div>`).join('');
+  if (historico.length > 0) {
+    document.getElementById('hb-0').classList.add('open');
+    document.getElementById('he-0').style.transform='rotate(90deg)';
+  }
+}
+
+function toggleHist(bodyId, expId) {
+  const b=document.getElementById(bodyId), e=document.getElementById(expId);
+  b.classList.toggle('open');
+  e.style.transform=b.classList.contains('open')?'rotate(90deg)':'rotate(0)';
+}
+
+async function runMind() {
+  const btn=document.getElementById('btn-run');
+  btn.disabled=true;
+  btn.innerHTML=`<svg class="spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Analisando…`;
+  toast('Rodando UP·Mind — isso leva alguns segundos…', 'info');
+
+  const r = await window.callClaude({
+    systemPrompt:`Você é o analista estratégico de ${CLIENT_CONFIG.empresa}. Identidade: ${JSON.stringify(CLIENT_CONFIG)}. Histórico recente: ${JSON.stringify(historico.slice(0,3))}. Você acompanha essa empresa há semanas. Gere 3 insights acionáveis. JSON: {"insights":[{"titulo":"...","contexto":"...","acao":"...","urgencia":"alta|media|baixa"}],"padrao_identificado":"...ou null","contexto_narrativo":"..."}`,
+    userPayload:{ semana:'2026-W31', dados:{ health_score:71, novos_leads:11, receitas:9800, pedidos_atrasados:1 } },
+    mockResponse: JSON.stringify({
+      insights:[
+        { titulo:'Padrão de gargalo — confirmação de prazo com a fábrica', contexto:'Pela 3ª semana consecutiva, orçamentos de maior ticket esperam a confirmação de prazo da fábrica parceira antes de sair. Isso não é coincidência — é um gap de processo.', acao:'Fechar um SLA de prazo padrão com a fábrica parceira, em vez de confirmar caso a caso.', urgencia:'alta' },
+        { titulo:'Oportunidade de fechamento — Camila Duarte', contexto:'Camila interagiu positivamente logo no primeiro contato. Projeto de fachada comercial com metragem definida — decide junto com o cliente final.', acao:'Responder hoje com orçamento formal e prazo confirmado.', urgencia:'media' },
+        { titulo:'Custo de infra crescendo', contexto:'Com o volume de conversas do Atendimento Técnico subindo, o custo de Anthropic API subiu esse mês. Dentro do esperado, mas vale monitorar.', acao:'Revisar os prompts do Atendimento para reduzir tokens médios por conversa.', urgencia:'baixa' },
+      ],
+      padrao_identificado:'Orçamentos de maior ticket sempre esperam confirmação de prazo da fábrica antes de sair — 3 semanas seguidas.',
+      contexto_narrativo:'Operação em ritmo saudável, mas com gargalo recorrente na velocidade de resposta a orçamentos grandes. Gabriel merece atenção, e Camila Duarte é a oportunidade mais quente da semana.'
+    })
+  });
+
+  try {
+    const ai=JSON.parse(r);
+    const novaAnalise={ semana:'2026-W31', health_score:71, ...ai };
+    historico.unshift(novaAnalise);
+    document.getElementById('mind-weeks').textContent=historico.length;
+    renderHistorico();
+    toast('Análise concluída e salva no histórico', 'success');
+  } catch { toast('Erro na análise', 'error'); }
+
+  btn.disabled=false;
+  btn.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Rodar análise agora`;
+}
+
+init();
+</script>
+</body>
+</html>

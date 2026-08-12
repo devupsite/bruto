@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UP·GOS — Health Score</title>
+  <script src="config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="nav.js"></script>
+  <style>
+    .gos-content { flex:1;overflow-y:auto;padding:20px 28px 28px; }
+    .gos-main { display:grid;grid-template-columns:1fr 280px;gap:20px;margin-bottom:24px; }
+
+    /* Gauge */
+    .gos-gauge { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center; }
+    .gos-ring { position:relative;width:160px;height:160px; }
+    .gos-ring svg { transform:rotate(-90deg); }
+    .gos-ring-track { fill:none;stroke:var(--bg3);stroke-width:12; }
+    .gos-ring-fill { fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset 1s ease; }
+    .gos-score { position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center; }
+    .gos-num { font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:44px;letter-spacing:-.04em; }
+    .gos-label { font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-top:4px; }
+    .gos-status { font-size:13px;font-weight:600;margin-top:12px; }
+
+    /* Dimensões */
+    .dimensions-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px; }
+    .dim-title { font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:12px; }
+    .dim-item { margin-bottom:12px; }
+    .dim-item:last-child { margin-bottom:0; }
+    .dim-label { display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px; }
+    .dim-bar { height:4px;background:var(--bg3);border-radius:2px;overflow:hidden; }
+    .dim-fill { height:100%;border-radius:2px;transition:width .5s ease; }
+
+    /* Histórico */
+    .hist-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px; }
+    .hist-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px; }
+    .hist-period { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px; }
+    .hist-change { font-size:12px;font-weight:500; }
+    .change-up { color:var(--green); }
+    .change-down { color:var(--red); }
+    .hist-details { display:grid;grid-template-columns:repeat(4,1fr);gap:8px; }
+    .hist-detail { background:var(--bg3);border-radius:6px;padding:8px;text-align:center; }
+    .hist-detail-val { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;color:var(--teal); }
+    .hist-detail-label { font-size:9px;color:var(--dim);margin-top:2px; }
+
+    .section-title { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.02em;margin-bottom:12px; }
+  </style>
+</head>
+<body>
+<div class="suite-layout">
+  <aside id="suite-sidebar" class="suite-sidebar"></aside>
+  <main class="suite-main">
+    <div class="module-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <h1 class="module-title">UP <span class="dash">—</span> GOS</h1>
+          <p class="module-subtitle">Health Score dimensionado · 0–100 com diagnóstico</p>
+        </div>
+        <span style="font-size:12px;color:var(--dim);margin-top:6px;">Última atualização: domingo 22h30</span>
+      </div>
+    </div>
+
+    <div class="gos-content">
+      <div class="gos-main">
+        <div class="gos-gauge">
+          <div class="gos-ring">
+            <svg viewBox="0 0 120 120" width="160" height="160">
+              <circle class="gos-ring-track" cx="60" cy="60" r="50"/>
+              <circle class="gos-ring-fill" id="gos-fill" cx="60" cy="60" r="50" stroke-dasharray="314" stroke-dashoffset="100"/>
+            </svg>
+            <div class="gos-score">
+              <div class="gos-num" id="gos-num">—</div>
+              <div class="gos-label">GOS</div>
+            </div>
+          </div>
+          <div class="gos-status" id="gos-status"></div>
+        </div>
+        <div class="dimensions-card">
+          <div class="dim-title">Dimensões</div>
+          <div id="dimensions-list"></div>
+        </div>
+      </div>
+
+      <div class="section-title">Histórico de health score</div>
+      <div id="historico-list"></div>
+    </div>
+  </main>
+</div>
+<div id="toast-container"></div>
+
+<script>
+const MOCK_SOURCE = {
+  transacoes: [
+    { tipo: 'receita', valor: 18900, data: '2026-07-10' },
+    { tipo: 'receita', valor: 6200,  data: '2026-07-14' },
+    { tipo: 'receita', valor: 12400, data: '2026-07-18' },
+    { tipo: 'despesa', valor: 45,   data: '2026-07-01' },
+    { tipo: 'despesa', valor: 210,  data: '2026-07-05' },
+    { tipo: 'despesa', valor: 380,  data: '2026-07-05' },
+    { tipo: 'despesa', valor: 1200, data: '2026-07-08' },
+    { tipo: 'despesa', valor: 950,  data: '2026-07-15' },
+  ],
+  leads: [
+    { id: 'l1', temperatura: 'quente', status: 'open' },
+    { id: 'l2', temperatura: 'morno', status: 'pending' },
+    { id: 'l3', temperatura: 'frio', status: 'open' },
+  ],
+  pipeline: { stages: [{ deals: [{ valor: 0 }] }, { deals: [{ valor: 12400 }] }, { deals: [{ valor: 18900 }] }, { deals: [{ valor: 41200 }] }] },
+  projects: [
+    { status: 'ativo', etapas: Array(5).fill({ status: 'concluido' }), retrabalhos: 0 },
+    { status: 'atrasado', etapas: Array(5).fill({ status: 'ativo' }), retrabalhos: 1 },
+    { status: 'concluido', etapas: Array(3).fill({ status: 'concluido' }), retrabalhos: 0 },
+  ],
+  members: [
+    { tarefas_concluidas: 14, tarefas_abertas: 5, atrasos: 2, ausencias: 0 },
+    { tarefas_concluidas: 10, tarefas_abertas: 3, atrasos: 0, ausencias: 0 },
+    { tarefas_concluidas: 6,  tarefas_abertas: 4, atrasos: 0, ausencias: 1 },
+  ],
+  processes: [
+    { status: 'ativo', classificacao: 'Crítico', compliance: 95, etapas: Array(7).fill({}) },
+    { status: 'ativo', classificacao: 'Crítico', compliance: 88, etapas: Array(7).fill({}) },
+    { status: 'ativo', classificacao: 'Importante', compliance: 100, etapas: Array(7).fill({}) },
+  ],
+};
+
+let data = {};
+
+async function init() {
+  // Fonte real vem de api/pulso.php (mesmo backend do UP·Dash, ação
+  // diferente) — em demo, usa os dados de exemplo locais.
+  let fonte = MOCK_SOURCE;
+  if (!DEMO_MODE) {
+    try {
+      const res = await fetch('api/pulso.php', { method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'fonte' }) });
+      if (res.status === 401) { window.location.replace('login.html?m=sessao'); return; }
+      const real = await res.json().catch(() => null);
+      if (real && real.transacoes) fonte = real;
+      else window.toast?.('Não consegui carregar os dados reais — mostrando exemplo.', 'error');
+    } catch (e) { console.error('fonte GOS:', e); }
+  }
+
+  // Algoritmo em window.calcularGOS (nav.js) — mesma implementação
+  // usada pelo UP·Dash, não duplicada aqui.
+  const { score, dims } = window.calcularGOS(fonte);
+
+  data = {
+    current: { score, ...dims },
+    // Sem pulse_semanal populado ainda (isso é o cron da Fase 7 do
+    // DEPLOY.md) — não inventamos 4 semanas de histórico fictício.
+    // Só a semana atual aparece até o cron começar a acumular.
+    historico: [{ score, ...dims, semana: new Date().toISOString().slice(0,10) }],
+  };
+
+  render();
+}
+
+function scoreColor(s) { return s >= 70 ? '#27AE60' : s >= 50 ? '#F5A623' : '#E74C3C'; }
+function scoreStatus(s) { return s >= 70 ? 'Saudável' : s >= 50 ? 'Atenção necessária' : 'Crítico'; }
+
+function render() {
+  const { score } = data.current;
+  const color = scoreColor(score);
+  const circ = 2 * Math.PI * 50;
+
+  document.getElementById('gos-num').textContent = score;
+  document.getElementById('gos-num').style.color = color;
+  document.getElementById('gos-status').textContent = scoreStatus(score);
+  document.getElementById('gos-status').style.color = color;
+
+  const fill = document.getElementById('gos-fill');
+  fill.style.stroke = color;
+  setTimeout(() => { fill.style.strokeDashoffset = circ * (1 - score / 100); }, 100);
+
+  const dims = [
+    { label: 'Financeiro', val: data.current.financeiro },
+    { label: 'Comercial', val: data.current.comercial },
+    { label: 'Operacional', val: data.current.operacional },
+    { label: 'Equipe', val: data.current.equipe },
+    { label: 'Processos', val: data.current.processos },
+  ];
+
+  document.getElementById('dimensions-list').innerHTML = dims.map(d => `
+    <div class="dim-item">
+      <div class="dim-label"><span>${d.label}</span><span>${d.val}</span></div>
+      <div class="dim-bar"><div class="dim-fill" style="width:${d.val}%;background:${scoreColor(d.val)}"></div></div>
+    </div>`).join('');
+
+  document.getElementById('historico-list').innerHTML = data.historico.map((h, i) => {
+    const diff = i > 0 ? h.score - data.historico[i - 1].score : 0;
+    const sign = diff > 0 ? '+' : '';
+    const col = diff > 0 ? 'var(--green)' : diff < 0 ? 'var(--red)' : 'var(--dim)';
+    return `
+    <div class="hist-card">
+      <div class="hist-header">
+        <div class="hist-period">Semana ${h.semana.split('-W')[1]} · ${h.semana.split('-W')[0]}</div>
+        <div class="hist-change"><span style="color:${scoreColor(h.score)};font-weight:600;">${h.score}</span> <span style="color:${col};">${sign}${diff}</span></div>
+      </div>
+      <div class="hist-details">
+        <div class="hist-detail"><div class="hist-detail-val">${h.financeiro}</div><div class="hist-detail-label">Financeiro</div></div>
+        <div class="hist-detail"><div class="hist-detail-val">${h.comercial}</div><div class="hist-detail-label">Comercial</div></div>
+        <div class="hist-detail"><div class="hist-detail-val">${h.operacional}</div><div class="hist-detail-label">Operacional</div></div>
+        <div class="hist-detail"><div class="hist-detail-val">${h.equipe}</div><div class="hist-detail-label">Equipe</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+init();
+</script>
+</body>
+</html>

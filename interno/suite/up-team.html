@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UP·Team — Pessoas</title>
+  <script src="config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="nav.js"></script>
+  <style>
+    .team-content { flex:1;overflow-y:auto;padding:20px 28px 28px; }
+    .stats-row { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px; }
+    .stat-card { background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px 16px; }
+    .stat-label { font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:6px; }
+    .stat-value { font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;letter-spacing:-.04em;color:var(--text); }
+    .stat-sub { font-size:11px;color:var(--muted);margin-top:2px; }
+
+    .section-title { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.02em;color:var(--text);margin-bottom:12px; }
+    .two-col { display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px; }
+
+    .members-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:24px; }
+    .member-card { background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;transition:border-color .15s; }
+    .member-card:hover { border-color:var(--teal); }
+    .member-top { display:flex;align-items:center;gap:12px;margin-bottom:14px; }
+    .member-avatar { width:40px;height:40px;border-radius:50%;background:var(--teal-12);border:1.5px solid var(--teal);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:var(--teal);flex-shrink:0; }
+    .member-name { font-size:14px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:-.02em; }
+    .member-cargo { font-size:12px;color:var(--muted); }
+    .member-stats { display:grid;grid-template-columns:repeat(3,1fr);gap:8px; }
+    .member-stat { background:var(--bg3);border-radius:6px;padding:8px;text-align:center; }
+    .member-stat-val { font-size:16px;font-weight:600;font-family:'Barlow Condensed',sans-serif;color:var(--text); }
+    .member-stat-label { font-size:10px;color:var(--dim);margin-top:2px; }
+
+    .ai-report-card { background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:24px; }
+    .ai-report-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px; }
+    .ai-report-section { margin-bottom:12px; }
+    .ai-report-label { font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px; }
+    .ai-report-label.destaques { color:var(--green); }
+    .ai-report-label.alertas   { color:var(--amber); }
+    .ai-report-label.sugestao  { color:var(--teal); }
+    .ai-report-item { font-size:13px;color:var(--muted);padding:6px 10px;border-radius:5px;background:var(--bg3);margin-bottom:4px;line-height:1.5; }
+
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px); }
+    .modal-overlay.hidden { display:none; }
+    .modal { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:440px;max-width:90vw; }
+    .modal-title { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;letter-spacing:-.02em;margin-bottom:20px; }
+    .form-group { margin-bottom:14px; }
+    .form-label { display:block;font-size:12px;color:var(--muted);margin-bottom:5px; }
+    .form-row { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+    .form-actions { display:flex;gap:8px;justify-content:flex-end;margin-top:20px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spin { animation:spin 1s linear infinite; }
+  </style>
+</head>
+<body>
+<div class="suite-layout">
+  <aside id="suite-sidebar" class="suite-sidebar"></aside>
+  <main class="suite-main">
+    <div class="module-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <h1 class="module-title">UP <span class="dash">—</span> Team</h1>
+          <p class="module-subtitle">Pessoas & cultura · performance da equipe</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button class="btn btn-ghost" onclick="runAIReport()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Relatório IA
+          </button>
+          <button class="btn btn-primary" onclick="openModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Novo membro
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="team-content">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Total da equipe</div><div class="stat-value" id="stat-total">0</div><div class="stat-sub">Membros ativos</div></div>
+        <div class="stat-card"><div class="stat-label">Tarefas concluídas</div><div class="stat-value" id="stat-tasks" style="color:var(--green)">0</div><div class="stat-sub">Esta semana</div></div>
+        <div class="stat-card"><div class="stat-label">Em aberto</div><div class="stat-value" id="stat-open" style="color:var(--amber)">0</div><div class="stat-sub">Tarefas pendentes</div></div>
+        <div class="stat-card"><div class="stat-label">Ausências</div><div class="stat-value" id="stat-ausencias" style="color:var(--red)">0</div><div class="stat-sub">Esta semana</div></div>
+      </div>
+
+      <!-- Relatório IA -->
+      <div id="ai-report-area" style="display:none;margin-bottom:24px;">
+        <div class="section-title">Relatório da semana — IA</div>
+        <div id="ai-report-content"></div>
+      </div>
+
+      <!-- Membros -->
+      <div class="section-title">Membros da equipe</div>
+      <div class="members-grid" id="members-grid"></div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay hidden" id="modal-membro" onclick="closeModalBg(event)">
+  <div class="modal">
+    <div class="modal-title">Novo membro</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Nome</label><input class="input" id="m-nome" type="text" placeholder="Nome completo"/></div>
+      <div class="form-group"><label class="form-label">Cargo</label><input class="input" id="m-cargo" type="text" placeholder="Ex: Consultor"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Tarefas concluídas</label><input class="input" id="m-done" type="number" value="0"/></div>
+      <div class="form-group"><label class="form-label">Tarefas em aberto</label><input class="input" id="m-open" type="number" value="0"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Atrasos</label><input class="input" id="m-atrasos" type="number" value="0"/></div>
+      <div class="form-group"><label class="form-label">Ausências</label><input class="input" id="m-ausencias" type="number" value="0"/></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveMember()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+const MOCK_MEMBERS = [
+  { id:'m1', nome:'Gabriel Gomes',    cargo:'Consultor de Atendimento', ativo:true, tarefas_concluidas:14, tarefas_abertas:5, atrasos:2, ausencias:0 },
+  { id:'m2', nome:'Luana Maria', cargo:'Gestão de Operações',      ativo:true, tarefas_concluidas:10, tarefas_abertas:3, atrasos:0, ausencias:0 },
+  { id:'m3', nome:'Rafael Barros',    cargo:'Suporte Técnico',          ativo:true, tarefas_concluidas:6,  tarefas_abertas:4, atrasos:0, ausencias:1 },
+];
+
+const DATA_LAYER = window.createDataLayer(
+  {
+    getMembers: () => Promise.resolve(JSON.parse(JSON.stringify(MOCK_MEMBERS))),
+    addMember:  (m) => { MOCK_MEMBERS.push(m); return Promise.resolve(m); }
+  },
+  {
+    // Membros reais: CRUD na tabela `membros`, via api/team.php.
+    getMembers: async () => {
+      const res = await fetch('api/team.php', { method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'listar' }) });
+      if (res.status === 401) { window.location.replace('login.html?m=sessao'); return []; }
+      const data = await res.json().catch(() => ({ membros: [] }));
+      if (!res.ok) { window.toast?.(data.erro || 'Não consegui carregar a equipe.', 'error'); return []; }
+      return data.membros || [];
+    },
+    addMember: async (m) => {
+      const res = await fetch('api/team.php', { method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ acao:'criar', nome:m.nome, cargo:m.cargo }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { window.toast?.(data.erro || 'Não consegui adicionar.', 'error'); return null; }
+      return m;
+    },
+  }
+);
+
+let members = [];
+
+async function init() {
+  members = await DATA_LAYER.getMembers();
+  renderStats(); renderMembers();
+}
+
+function getInitials(nome) { return nome.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase(); }
+
+function renderStats() {
+  document.getElementById('stat-total').textContent    = members.length;
+  document.getElementById('stat-tasks').textContent    = members.reduce((s,m)=>s+m.tarefas_concluidas,0);
+  document.getElementById('stat-open').textContent     = members.reduce((s,m)=>s+m.tarefas_abertas,0);
+  document.getElementById('stat-ausencias').textContent= members.reduce((s,m)=>s+m.ausencias,0);
+}
+
+function renderMembers() {
+  document.getElementById('members-grid').innerHTML = members.map(m => {
+    const perf = m.tarefas_concluidas + m.tarefas_abertas > 0
+      ? Math.round(m.tarefas_concluidas / (m.tarefas_concluidas + m.tarefas_abertas) * 100)
+      : 0;
+    const perfColor = perf >= 80 ? 'var(--green)' : perf >= 60 ? 'var(--teal)' : 'var(--amber)';
+    return `
+    <div class="member-card">
+      <div class="member-top">
+        <div class="member-avatar">${getInitials(m.nome)}</div>
+        <div>
+          <div class="member-name">${m.nome}</div>
+          <div class="member-cargo">${m.cargo}</div>
+        </div>
+      </div>
+      <div class="member-stats">
+        <div class="member-stat">
+          <div class="member-stat-val" style="color:var(--green)">${m.tarefas_concluidas}</div>
+          <div class="member-stat-label">Concluídas</div>
+        </div>
+        <div class="member-stat">
+          <div class="member-stat-val" style="color:var(--amber)">${m.tarefas_abertas}</div>
+          <div class="member-stat-label">Em aberto</div>
+        </div>
+        <div class="member-stat">
+          <div class="member-stat-val" style="${perfColor}">${perf}%</div>
+          <div class="member-stat-label">Performance</div>
+        </div>
+      </div>
+      ${m.atrasos > 0 || m.ausencias > 0 ? `
+        <div style="margin-top:10px;padding:8px 10px;background:var(--amber-12);border-radius:6px;font-size:12px;color:var(--amber);">
+          ${m.atrasos > 0 ? `${m.atrasos} atraso${m.atrasos>1?'s':''}` : ''}
+          ${m.atrasos > 0 && m.ausencias > 0 ? ' · ' : ''}
+          ${m.ausencias > 0 ? `${m.ausencias} ausência${m.ausencias>1?'s':''}` : ''}
+        </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+async function runAIReport() {
+  const btn = document.querySelector('.btn-ghost');
+  btn.disabled = true;
+  btn.innerHTML = `<svg class="spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Gerando…`;
+
+  const r = await window.callClaude({
+    systemPrompt:`Você analisa performance de equipe de ${CLIENT_CONFIG.empresa}. Foco em padrões, não julgamento. Tom construtivo. JSON: {"destaques":["..."],"alertas":["..."],"proximo_passo":"..."}`,
+    userPayload:{ semana:'2026-W30', membros: members.map(m=>({ nome:m.nome, cargo:m.cargo, tarefas_concluidas:m.tarefas_concluidas, tarefas_abertas:m.tarefas_abertas, atrasos:m.atrasos, ausencias:m.ausencias })) },
+    mockResponse: JSON.stringify({
+      destaques: ['Fernanda fechou 10 tarefas sem nenhum atraso — ritmo consistente nas últimas semanas', 'Lucas manteve site e ferramentas no ar mesmo com uma ausência na semana'],
+      alertas:   ['Gabriel acumula 2 leads sem resposta em 24h+ — fora do padrão dele nas últimas semanas'],
+      proximo_passo: 'Conversa rápida com Gabriel antes de sexta. Não é cobrança — é entendimento. Ele pode estar com volume alto ou travado em algo específico.'
+    })
+  });
+
+  try {
+    const ai = JSON.parse(r);
+    document.getElementById('ai-report-content').innerHTML = `
+      <div class="ai-report-card">
+        <div class="ai-report-header">
+          <span style="font-size:12px;color:var(--muted);">Semana 30 · análise gerada agora</span>
+        </div>
+        ${ai.destaques?.length ? `
+          <div class="ai-report-section">
+            <div class="ai-report-label destaques">Destaques</div>
+            ${ai.destaques.map(d=>`<div class="ai-report-item">✓ ${d}</div>`).join('')}
+          </div>` : ''}
+        ${ai.alertas?.length ? `
+          <div class="ai-report-section">
+            <div class="ai-report-label alertas">Pontos de atenção</div>
+            ${ai.alertas.map(a=>`<div class="ai-report-item" style="border-left:2px solid var(--amber);padding-left:8px;">⚠ ${a}</div>`).join('')}
+          </div>` : ''}
+        ${ai.proximo_passo ? `
+          <div class="ai-report-section">
+            <div class="ai-report-label sugestao">Próximo passo sugerido</div>
+            <div class="ai-report-item" style="color:var(--teal);border-left:2px solid var(--teal);padding-left:8px;">→ ${ai.proximo_passo}</div>
+          </div>` : ''}
+      </div>`;
+    document.getElementById('ai-report-area').style.display = 'block';
+    toast('Relatório gerado', 'success');
+  } catch { toast('Erro ao gerar relatório', 'error'); }
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Relatório IA`;
+}
+
+function openModal() {
+  ['m-nome','m-cargo'].forEach(id => document.getElementById(id).value = '');
+  ['m-done','m-open','m-atrasos','m-ausencias'].forEach(id => document.getElementById(id).value = '0');
+  document.getElementById('modal-membro').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('modal-membro').classList.add('hidden'); }
+function closeModalBg(e) { if(e.target.classList.contains('modal-overlay')) closeModal(); }
+
+async function saveMember() {
+  const nome = document.getElementById('m-nome').value.trim();
+  if (!nome) { toast('Informe o nome do membro', 'warn'); return; }
+  const m = {
+    id:'m'+Date.now(), nome, cargo:document.getElementById('m-cargo').value.trim(), ativo:true,
+    tarefas_concluidas: parseInt(document.getElementById('m-done').value)||0,
+    tarefas_abertas:    parseInt(document.getElementById('m-open').value)||0,
+    atrasos:            parseInt(document.getElementById('m-atrasos').value)||0,
+    ausencias:          parseInt(document.getElementById('m-ausencias').value)||0,
+  };
+  await DATA_LAYER.addMember(m);
+  members = await DATA_LAYER.getMembers();
+  renderStats(); renderMembers();
+  closeModal();
+  toast(`${nome} adicionado à equipe`, 'success');
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+init();
+</script>
+</body>
+</html>

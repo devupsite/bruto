@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Entrar · BRUTO</title>
+<script src="config.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@300;400;500&display=swap');
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  html,body {
+    height:100%; background:#0A0A0A; color:#F0EEEC;
+    font-family:'Barlow',system-ui,sans-serif; font-size:14px;
+    -webkit-font-smoothing:antialiased;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .card { width:100%; max-width:340px; padding:24px; }
+  .brand { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+  .brand svg { color:#D44000; }
+  .wordmark {
+    font-family:'Barlow Condensed',sans-serif; font-weight:600;
+    font-size:22px; letter-spacing:.2em; text-transform:uppercase;
+  }
+  .tagline { font-size:11px; color:#5C5956; margin-bottom:28px; }
+  label { display:block; font-size:11px; color:#B2AFAB; margin-bottom:6px; letter-spacing:.02em; }
+  input {
+    width:100%; background:#141414; border:1px solid #2A2724; border-radius:6px;
+    padding:10px 12px; color:#F0EEEC; font-family:inherit; font-size:14px;
+    margin-bottom:14px; outline:none;
+  }
+  input:focus { border-color:#D44000; }
+  button {
+    width:100%; background:#D44000; border:none; border-radius:6px;
+    padding:11px; color:#fff; font-family:'Barlow',sans-serif; font-weight:500;
+    font-size:14px; cursor:pointer; letter-spacing:.01em;
+  }
+  button:disabled { opacity:.5; cursor:default; }
+  .msg { font-size:12px; margin-bottom:14px; min-height:16px; line-height:1.5; }
+  .msg.erro { color:#E74C3C; }
+  .msg.info { color:#B2AFAB; }
+  .footer { margin-top:26px; font-size:10px; color:#5C5956; text-align:center; letter-spacing:.03em; }
+  .footer .sig { color:#B2AFAB; font-weight:500; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">
+    <svg width="14" height="22" viewBox="0 0 176 286" xmlns="http://www.w3.org/2000/svg">
+      <path fill="currentColor" d="M0,0 L132,0 L132,132 L176,132 L176,286 L0,286 Z M22,22 L110,22 L110,132 L22,132 Z M22,154 L154,154 L154,264 L22,264 Z"/>
+    </svg>
+    <div class="wordmark">BRUTO</div>
+  </div>
+  <div class="tagline">Suíte de operação · acesso restrito</div>
+
+  <div class="msg" id="msg"></div>
+
+  <label for="usuario">Usuário</label>
+  <input id="usuario" type="text" autocomplete="username" autocapitalize="none" spellcheck="false"/>
+
+  <label for="senha">Senha</label>
+  <input id="senha" type="password" autocomplete="current-password"/>
+
+  <button id="btn" onclick="entrar()">Entrar</button>
+
+  <div class="footer">by <span class="sig">UP — Co.</span></div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const msgEl = document.getElementById('msg');
+if (params.get('m') === 'sessao') {
+  msgEl.className = 'msg info';
+  msgEl.textContent = 'Sua sessão expirou ou você ainda não entrou.';
+}
+
+function setMsg(txt, tipo) { msgEl.className = 'msg ' + (tipo||'info'); msgEl.textContent = txt; }
+
+async function entrar() {
+  const usuario = document.getElementById('usuario').value.trim();
+  const senha   = document.getElementById('senha').value;
+  const btn     = document.getElementById('btn');
+
+  if (!usuario || !senha) { setMsg('Preencha usuário e senha.', 'erro'); return; }
+
+  btn.disabled = true; setMsg('Entrando…', 'info');
+  try {
+    const res = await fetch('api/login.php', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      credentials:'same-origin',
+      body: JSON.stringify({ usuario, senha }),
+    });
+    const data = await res.json().catch(()=>({}));
+    if (!res.ok) throw new Error(data.erro || 'Não consegui entrar.');
+
+    const next = params.get('next');
+    const destino = (next && /^up-[a-z]+\.html$/.test(next)) ? next : 'up-dash.html';
+    window.location.replace(destino);
+  } catch (e) {
+    setMsg(e.message || 'Não consegui entrar.', 'erro');
+    document.getElementById('senha').value = '';
+    btn.disabled = false;
+  }
+}
+
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter') entrar(); });
+</script>
+</body>
+</html>

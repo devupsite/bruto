@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UP·Vault — Financeiro</title>
+  <script src="config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="nav.js"></script>
+  <style>
+    .vault-content { flex:1;overflow-y:auto;padding:20px 28px 28px; }
+    .metrics-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px; }
+    .metric-card { background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;cursor:pointer;transition:border-color .15s; }
+    .metric-card:hover { border-color:var(--teal); }
+    .metric-card.active { border-color:var(--teal);background:var(--teal-12); }
+    .metric-label { font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);margin-bottom:10px; }
+    .metric-value { font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.04em;color:var(--text); }
+    .metric-sub { font-size:12px;color:var(--muted);margin-top:4px; }
+    .metric-trend { font-size:11px;margin-top:6px;display:flex;align-items:center;gap:3px; }
+    .trend-up { color:var(--green); }
+    .trend-down { color:var(--red); }
+
+    .section-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:12px; }
+    .section-title { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.02em;color:var(--text); }
+
+    .two-col { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px; }
+    .card { background:var(--bg2);border:1px solid var(--border);border-radius:10px; }
+    .card-header { padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
+    .card-title { font-size:13px;font-weight:600;font-family:'Barlow Condensed',sans-serif;letter-spacing:-.01em; }
+    .card-body { padding:12px 16px; }
+
+    .tx-item { display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04); }
+    .tx-item:last-child { border-bottom:none; }
+    .tx-info { flex:1; }
+    .tx-desc { font-size:13px;color:var(--text);font-weight:500; }
+    .tx-meta { font-size:11px;color:var(--dim);margin-top:2px; }
+    .tx-value { font-size:13px;font-weight:600;font-family:'Barlow Condensed',sans-serif; }
+    .tx-value.receita { color:var(--green); }
+    .tx-value.despesa { color:var(--red); }
+
+    .progress-bar-wrap { margin-bottom:14px; }
+    .progress-label { display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px; }
+    .progress-bar { height:6px;background:var(--bg3);border-radius:3px;overflow:hidden; }
+    .progress-fill { height:100%;border-radius:3px;transition:width .6s ease; }
+
+    .ai-insight-card { background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px; }
+    .ai-insight-header { display:flex;align-items:center;gap:8px;margin-bottom:8px; }
+    .ai-insight-badge { font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px; }
+    .badge-saudavel { background:var(--green-12);color:var(--green); }
+    .badge-atencao  { background:var(--amber-12);color:var(--amber); }
+    .badge-critica  { background:var(--red-12);color:var(--red); }
+    .ai-insight-text { font-size:13px;color:var(--muted);line-height:1.6; }
+    .ai-insight-action { font-size:12px;color:var(--teal);margin-top:6px; }
+
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px); }
+    .modal-overlay.hidden { display:none; }
+    .modal { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;width:440px;max-width:90vw; }
+    .modal-title { font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;letter-spacing:-.02em;margin-bottom:20px; }
+    .form-group { margin-bottom:14px; }
+    .form-label { display:block;font-size:12px;color:var(--muted);margin-bottom:5px; }
+    .form-row { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+    .form-actions { display:flex;gap:8px;justify-content:flex-end;margin-top:20px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spin { animation:spin 1s linear infinite; }
+  </style>
+</head>
+<body>
+<div class="suite-layout">
+  <aside id="suite-sidebar" class="suite-sidebar"></aside>
+  <main class="suite-main">
+    <div class="module-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <h1 class="module-title">UP <span class="dash">—</span> Vault</h1>
+          <p class="module-subtitle">Controle financeiro · caixa e resultados</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button class="btn btn-ghost" onclick="runAIAnalysis()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Análise IA
+          </button>
+          <button class="btn btn-primary" onclick="openModal('modal-tx')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nova transação
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="vault-content">
+      <!-- Métricas -->
+      <div class="metrics-grid">
+        <div class="metric-card" id="card-saldo">
+          <div class="metric-label">Saldo atual</div>
+          <div class="metric-value" id="val-saldo">—</div>
+          <div class="metric-sub" id="sub-saldo">Caixa disponível</div>
+        </div>
+        <div class="metric-card" id="card-receitas">
+          <div class="metric-label">Receitas do mês</div>
+          <div class="metric-value" id="val-receitas">—</div>
+          <div class="metric-trend trend-up" id="trend-receitas"></div>
+        </div>
+        <div class="metric-card" id="card-despesas">
+          <div class="metric-label">Despesas do mês</div>
+          <div class="metric-value" id="val-despesas">—</div>
+          <div class="metric-trend" id="trend-despesas"></div>
+        </div>
+        <div class="metric-card" id="card-resultado">
+          <div class="metric-label">Resultado</div>
+          <div class="metric-value" id="val-resultado">—</div>
+          <div class="metric-sub">Receitas − Despesas</div>
+        </div>
+      </div>
+
+      <!-- Meta do mês -->
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-header">
+          <div class="card-title">Meta do mês</div>
+          <span id="meta-pct-label" style="font-size:12px;color:var(--muted);"></span>
+        </div>
+        <div class="card-body">
+          <div class="progress-bar-wrap">
+            <div class="progress-label">
+              <span>Realizado</span>
+              <span id="meta-pct">0%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="meta-bar" style="background:var(--teal);width:0%"></div></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--dim);">
+            <span id="meta-realizado"></span>
+            <span id="meta-valor"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Análise IA -->
+      <div id="ai-insight-area" style="margin-bottom:24px;display:none;">
+        <div class="section-header"><div class="section-title">Análise IA</div></div>
+        <div id="ai-insight-content"></div>
+      </div>
+
+      <!-- Listas -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Receitas</div>
+            <button class="btn btn-ghost btn-sm" onclick="openModal('modal-tx', 'receita')">+ Adicionar</button>
+          </div>
+          <div class="card-body" id="list-receitas"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Despesas</div>
+            <button class="btn btn-ghost btn-sm" onclick="openModal('modal-tx', 'despesa')">+ Adicionar</button>
+          </div>
+          <div class="card-body" id="list-despesas"></div>
+        </div>
+      </div>
+
+      <!-- Contas a pagar em 7 dias -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Contas a pagar nos próximos 7 dias</div>
+          <span id="contas7d-total" style="font-size:13px;font-weight:600;color:var(--red);font-family:'Barlow Condensed',sans-serif;"></span>
+        </div>
+        <div class="card-body" id="list-contas7d">
+          <div style="font-size:13px;color:var(--dim);text-align:center;padding:16px;">Nenhuma conta próxima do vencimento</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Nova Transação -->
+<div class="modal-overlay hidden" id="modal-tx" onclick="closeModalBg(event,'modal-tx')">
+  <div class="modal">
+    <div class="modal-title">Nova transação</div>
+    <div class="form-group">
+      <label class="form-label">Tipo</label>
+      <select class="input" id="tx-tipo">
+        <option value="receita">Receita</option>
+        <option value="despesa">Despesa</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Descrição</label><input class="input" id="tx-desc" type="text" placeholder="Ex: Mensalidade cliente X"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Valor (R$)</label><input class="input" id="tx-valor" type="number" placeholder="0"/></div>
+      <div class="form-group"><label class="form-label">Data</label><input class="input" id="tx-data" type="date"/></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Categoria</label>
+      <select class="input" id="tx-cat">
+        <option>Vendas de produto</option><option>Amostras</option><option>Software / Ferramentas</option>
+        <option>Marketing</option><option>Pessoal</option><option>Infraestrutura</option><option>Outros</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-tx')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveTx()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+const DEMO_TX = [
+    { id:'t1', tipo:'receita', descricao:'Pedido — Rockface Urban (Fachada Duarte)',           valor:18900, data:'2026-07-10', categoria:'Vendas de produto' },
+    { id:'t2', tipo:'receita', descricao:'Pedido — Brick Rusticatto (Residencial)',             valor:6200,  data:'2026-07-14', categoria:'Vendas de produto' },
+    { id:'t3', tipo:'receita', descricao:'Pedido — Cimentício (Construtora Tijucal, 1ª parcela)', valor:12400, data:'2026-07-18', categoria:'Vendas de produto' },
+    { id:'t4', tipo:'despesa', descricao:'Hostinger — Hospedagem Web Individual',                valor:45,   data:'2026-07-01', categoria:'Infraestrutura' },
+    { id:'t5', tipo:'despesa', descricao:'Anthropic API — Atendimento Técnico',                  valor:210,  data:'2026-07-05', categoria:'Software / Ferramentas' },
+    { id:'t6', tipo:'despesa', descricao:'Amostras — peças enviadas no mês (6 un.)',      valor:380,  data:'2026-07-05', categoria:'Amostras' },
+    { id:'t7', tipo:'despesa', descricao:'Marketing — Google Ads',                               valor:1200, data:'2026-07-08', categoria:'Marketing', vencimento_7d: true },
+    { id:'t8', tipo:'despesa', descricao:'Comissão consultor — pedido Fachada Duarte',           valor:950,  data:'2026-07-15', categoria:'Pessoal' },
+];
+
+// Carrega do localStorage se já existir; senão usa dados de demonstração.
+const MOCK = {
+  transacoes: window.localPersist.load('transacoes', DEMO_TX),
+  meta_mes: CLIENT_CONFIG.meta_mrr || 50000
+};
+
+function persistTx() { window.localPersist.save('transacoes', MOCK.transacoes); }
+
+const DATA_LAYER = window.createDataLayer(
+  {
+    getTx: () => Promise.resolve([...MOCK.transacoes]),
+    addTx: (tx) => { MOCK.transacoes.unshift(tx); persistTx(); return Promise.resolve(tx); },
+    getMeta: () => Promise.resolve(MOCK.meta_mes),
+  },
+  {
+    // Transações reais: CRUD direto na tabela `transacoes`, via
+    // api/vault.php → bruto-secrets/API/suite-vault.php.
+    getTx: async () => {
+      const res = await fetch('api/vault.php', { method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'listar' }) });
+      if (res.status === 401) { window.location.replace('login.html?m=sessao'); return []; }
+      const data = await res.json().catch(() => ({ transacoes: [] }));
+      if (!res.ok) { window.toast?.(data.erro || 'Não consegui carregar as transações.', 'error'); return []; }
+      return data.transacoes || [];
+    },
+    addTx: async (tx) => {
+      const res = await fetch('api/vault.php', { method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ acao:'criar', tipo:tx.tipo, descricao:tx.descricao, valor:tx.valor, data:tx.data, categoria:tx.categoria }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { window.toast?.(data.erro || 'Não consegui salvar a transação.', 'error'); return null; }
+      return tx;
+    },
+    // A meta do mês já vem carregada no navegador via config.js —
+    // não precisa de chamada ao servidor pra isso.
+    getMeta: () => Promise.resolve(window.CLIENT_CONFIG?.meta_mrr || 50000),
+  }
+);
+
+let txs = [], meta = 0;
+
+async function init() {
+  txs  = await DATA_LAYER.getTx();
+  meta = await DATA_LAYER.getMeta();
+  render();
+}
+
+function fmt(v) { return 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:0}); }
+
+function render() {
+  const receitas  = txs.filter(t => t.tipo === 'receita');
+  const despesas  = txs.filter(t => t.tipo === 'despesa');
+  const totalR    = receitas.reduce((s,t) => s + t.valor, 0);
+  const totalD    = despesas.reduce((s,t) => s + t.valor, 0);
+  const saldo     = totalR - totalD;
+  const resultado = totalR - totalD;
+  const pctMeta   = meta > 0 ? Math.min(100, Math.round(totalR / meta * 100)) : 0;
+
+  document.getElementById('val-saldo').textContent    = fmt(saldo);
+  document.getElementById('val-receitas').textContent = fmt(totalR);
+  document.getElementById('val-despesas').textContent = fmt(totalD);
+  document.getElementById('val-resultado').textContent= fmt(resultado);
+  document.getElementById('val-resultado').style.color = resultado >= 0 ? 'var(--green)' : 'var(--red)';
+
+  document.getElementById('meta-pct').textContent = pctMeta + '%';
+  document.getElementById('meta-bar').style.width = pctMeta + '%';
+  document.getElementById('meta-bar').style.background = pctMeta >= 80 ? 'var(--green)' : pctMeta >= 50 ? 'var(--teal)' : 'var(--amber)';
+  document.getElementById('meta-realizado').textContent = fmt(totalR) + ' realizados';
+  document.getElementById('meta-valor').textContent     = 'Meta: ' + fmt(meta);
+  document.getElementById('meta-pct-label').textContent = pctMeta + '% da meta';
+
+  const renderTx = (list, el) => {
+    document.getElementById(el).innerHTML = list.length
+      ? list.map(t => `
+          <div class="tx-item">
+            <div class="tx-info">
+              <div class="tx-desc">${t.descricao}</div>
+              <div class="tx-meta">${t.categoria} · ${t.data}</div>
+            </div>
+            <div class="tx-value ${t.tipo}">${t.tipo === 'receita' ? '+' : '-'} ${fmt(t.valor)}</div>
+          </div>`).join('')
+      : `<div style="font-size:13px;color:var(--dim);text-align:center;padding:16px;">Nenhum registro</div>`;
+  };
+
+  renderTx(receitas, 'list-receitas');
+  renderTx(despesas, 'list-despesas');
+
+  const prox = despesas.filter(t => t.vencimento_7d);
+  const totalProx = prox.reduce((s,t) => s + t.valor, 0);
+  document.getElementById('contas7d-total').textContent = totalProx > 0 ? fmt(totalProx) : '';
+  document.getElementById('list-contas7d').innerHTML = prox.length
+    ? prox.map(t => `
+        <div class="tx-item">
+          <div class="tx-info"><div class="tx-desc">${t.descricao}</div><div class="tx-meta">${t.categoria}</div></div>
+          <div class="tx-value despesa">${fmt(t.valor)}</div>
+        </div>`).join('')
+    : `<div style="font-size:13px;color:var(--dim);text-align:center;padding:16px;">Nenhuma conta próxima do vencimento ✓</div>`;
+}
+
+async function runAIAnalysis() {
+  const btn = document.querySelector('.btn-ghost');
+  btn.disabled = true;
+  btn.innerHTML = `<svg class="spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Analisando…`;
+
+  const totalR = txs.filter(t=>t.tipo==='receita').reduce((s,t)=>s+t.valor,0);
+  const totalD = txs.filter(t=>t.tipo==='despesa').reduce((s,t)=>s+t.valor,0);
+  const saldo  = totalR - totalD;
+  const contas7d = txs.filter(t=>t.vencimento_7d).reduce((s,t)=>s+t.valor,0);
+
+  const r = await window.callClaude({
+    systemPrompt:`Você é analista financeiro de ${CLIENT_CONFIG.empresa}. Faturamento meta: ${CLIENT_CONFIG.faturamento_estimado}. Seja direto. O dono não é contador. Retorne APENAS JSON: {"situacao":"saudavel|atencao|critica","resumo":"...","alerta":"...","acao":"..."}`,
+    userPayload:{ periodo:'Junho 2026', receitas:totalR, despesas:totalD, saldo_atual:saldo, contas_a_pagar_7d:contas7d, meta_mes:meta, realizado_mes:totalR },
+    mockResponse: JSON.stringify({ situacao:'saudavel', resumo:'Julho está bem encaminhado. Receitas de R$ 37.500 contra despesas de R$ 2.785 — margem saudável, puxada pelo pedido de Rockface da fachada Duarte. A meta de R$ 55k está no alcance.', alerta:'Atenção com o vencimento dos R$ 1.200 em Google Ads nos próximos 7 dias. Confirme se o retorno em leads está valendo o investimento.', acao:'Fechar o orçamento parado da Camila Duarte essa semana — sozinho ele já cobre mais de um terço da meta do mês.' })
+  });
+
+  try {
+    const ai = JSON.parse(r);
+    const colors = { saudavel:'saudavel', atencao:'atencao', critica:'critica' };
+    const labels = { saudavel:'Situação saudável', atencao:'Atenção necessária', critica:'Situação crítica' };
+    document.getElementById('ai-insight-content').innerHTML = `
+      <div class="ai-insight-card">
+        <div class="ai-insight-header">
+          <span class="ai-insight-badge badge-${colors[ai.situacao]}">${labels[ai.situacao]}</span>
+          <span style="font-size:11px;color:var(--dim);">Análise IA · agora</span>
+        </div>
+        <div class="ai-insight-text">${ai.resumo}</div>
+        ${ai.alerta ? `<div class="ai-insight-text" style="color:var(--amber);margin-top:6px;">⚠ ${ai.alerta}</div>` : ''}
+        ${ai.acao ? `<div class="ai-insight-action">→ ${ai.acao}</div>` : ''}
+      </div>`;
+    document.getElementById('ai-insight-area').style.display = 'block';
+    toast('Análise gerada', 'success');
+  } catch { toast('Erro na análise', 'error'); }
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Análise IA`;
+}
+
+function openModal(id, tipo) {
+  if (tipo) document.getElementById('tx-tipo').value = tipo;
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('tx-data').value = today;
+  document.getElementById('tx-desc').value = '';
+  document.getElementById('tx-valor').value = '';
+  document.getElementById(id).classList.remove('hidden');
+}
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function closeModalBg(e,id) { if(e.target.classList.contains('modal-overlay')) closeModal(id); }
+
+async function saveTx() {
+  const desc  = document.getElementById('tx-desc').value.trim();
+  const valor = parseFloat(document.getElementById('tx-valor').value);
+  if (!desc || !valor) { toast('Preencha descrição e valor', 'warn'); return; }
+  const tx = { id:'t'+Date.now(), tipo:document.getElementById('tx-tipo').value, descricao:desc, valor, data:document.getElementById('tx-data').value, categoria:document.getElementById('tx-cat').value };
+  await DATA_LAYER.addTx(tx);
+  txs = await DATA_LAYER.getTx();
+  render();
+  closeModal('modal-tx');
+  toast(`${tx.tipo === 'receita' ? 'Receita' : 'Despesa'} registrada`, 'success');
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal('modal-tx'); });
+init();
+</script>
+</body>
+</html>
