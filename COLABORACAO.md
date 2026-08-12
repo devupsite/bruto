@@ -63,9 +63,15 @@ Duas regras fixas, sem exceção, pra qualquer sessão (site ou Suíte UP):
    relevante o que ficou pendente e exatamente onde retomar — em vez de
    tentar "terminar rápido" e arriscar perder tudo sem nenhum registro.
 
-Isso vale também pra Suíte UP mesmo enquanto ela ainda não tem código no
-Git — documentar decisão e progresso nos `.md` de referência dela vale como
-"commit" até o pacote em si ser versionado no repositório.
+**Atualização (12/08/2026): a Suíte UP passou a viver no Git.** O código está
+em `interno/suite/` neste mesmo repositório (commit `1e1a24b`, Fase 1 —
+`DEMO_MODE = true`, protegida por Basic Auth herdada). A regra acima
+("documentar vale como commit") deixou de se aplicar à Suíte a partir daqui —
+mudança de código dela agora segue o protocolo normal deste documento
+(clone/pull, diff cirúrgico, `git diff --cached --stat`, confirmação antes de
+push), igual ao site. Só a documentação de decisão/arquitetura
+(`ARQUITETURA-BRUTO.md`, `DEPLOY.md`, `SUITE-briefing-nova-sessao.md`)
+continua fora do código propriamente dito.
 
 ---
 
