@@ -40,6 +40,35 @@ e evita sobrescrever trabalho de outra sessão sem perceber.
 
 ---
 
+## 2.1. Documentação e commit por sessão (regra fixa, 12/08/2026)
+
+Cada sessão de trabalho roda dentro de uma janela de tokens que se renova
+por rodada de aproximadamente 5h. Isso significa que a sessão pode acabar
+a qualquer momento, sem aviso — e trabalho que não foi commitado nesse
+intervalo **se perde de verdade**, não fica "salvo em algum lugar" esperando
+a conversa continuar depois.
+
+Duas regras fixas, sem exceção, pra qualquer sessão (site ou Suíte UP):
+
+1. **Documentar enquanto trabalha, não só no final.** Registrar no arquivo
+   de referência certo — `COLABORACAO.md` pro site, `ARQUITETURA-BRUTO.md`/
+   `DEPLOY.md` pra Suíte UP — o que foi decidido, por quê, e o que ainda
+   falta. Não esperar a tarefa estar 100% pronta pra escrever isso: se a
+   sessão for interrompida no meio, a próxima precisa entender o raciocínio
+   sem reconstruir a conversa inteira do zero.
+2. **Commitar antes que a janela da sessão feche.** Nunca deixar trabalho
+   pronto (ou parcialmente pronto) só no sandbox local sem `git push`. Se a
+   rodada de 5h estiver perto do fim e a tarefa não estiver terminada,
+   commitar o que já está estável, deixar escrito com clareza no `.md`
+   relevante o que ficou pendente e exatamente onde retomar — em vez de
+   tentar "terminar rápido" e arriscar perder tudo sem nenhum registro.
+
+Isso vale também pra Suíte UP mesmo enquanto ela ainda não tem código no
+Git — documentar decisão e progresso nos `.md` de referência dela vale como
+"commit" até o pacote em si ser versionado no repositório.
+
+---
+
 ## 3. Faça diffs cirúrgicos
 
 - Mude **só o que foi pedido**. Não "aproveite" para reformatar, reorganizar
