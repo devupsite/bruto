@@ -76,38 +76,47 @@ Nada aqui é automatizado pelo deploy do Git — são passos manuais no Hostinge
 
 ---
 
-## 3. Bloqueador conhecido — proteção por papel ainda não implementada no backend
+## 3. Checagem de papel — implementada em 12/08/2026, falta subir + atualizar banco
 
-**Atualizado (12/08/2026) após inspecionar o código real de `bruto-secrets/API/`
-(zip baixado direto do servidor):** a função `suite_bloqueia_atendente()`,
-que o briefing e o comentário em `auth-guard.js` descrevem como a proteção
-real no backend, **não existe em nenhum arquivo `suite-*.php`**. O que existe
-é `suite_exige_sessao()` em `suite-auth.php`, que confirma sessão válida
-(login feito, não expirado, mesmo user-agent) mas **não checa `papel` pra
-nada** — nenhum módulo (`suite-base.php`, `suite-team.php`, `suite-vault.php`,
-`suite-voice.php`, `suite-pulso.php`, `suite-ordens.php`) faz essa checagem
-internamente.
+**Atualizado (12/08/2026):** a lacuna descrita na revisão anterior desta
+seção foi corrigida no código. Decisão de negócio confirmada pelo Rafael:
+Gabriel é sócio, deve ter **leitura em tudo, nunca escrita**.
 
-**Isso é mais sério do que "o Gabriel toma 403 por engano":** hoje, qualquer
-usuário autenticado — `atendente` incluso — consegue acessar os endpoints de
-Vault/Team/Voice/Pulso/Ordens direto pela API, mesmo que `auth-guard.js`
-redirecione visualmente quem tenta abrir a página pelo navegador. A proteção
-real por papel ainda **não está implementada no servidor**, não é só uma
-questão do papel do Gabriel estar errado no banco.
+Três papéis agora reconhecidos em `suite-auth.php`:
+- `admin` — acesso total (leitura + escrita) em todos os módulos
+- `socio` — leitura em todos os módulos, escrita **sempre** bloqueada com
+  403, mesmo em Lead/Base
+- `atendente` — leitura + escrita, mas só em Lead e Base (como já era)
 
-**Duas coisas precisam ser resolvidas antes da Fase 1 ir ao ar, não uma:**
-1. Implementar a checagem de `papel` em `suite_exige_sessao()` (ou função
-   equivalente chamada por cada módulo restrito), rejeitando com 403 quem tem
-   `papel === 'atendente'` fora de Lead/Base — igual ao que `auth-guard.js`
-   já faz no front, mas no lugar que realmente protege.
-2. **Decisão pendente do Rafael:** criar papel novo `'socio'` vs. promover o
-   Gabriel pra `'admin'` no banco real — necessária de qualquer forma, mas só
-   resolve o problema depois que o item 1 acima também existir.
+Duas funções novas em `suite-auth.php`: `suite_exige_modulo(string $modulo)`
+substitui `suite_exige_sessao()` puro em cada `suite-<módulo>.php` (bloqueia
+`atendente` fora de Lead/Base) e `suite_bloqueia_escrita_socio($usuario,
+$acao, $acoesEscrita)`, chamada logo após descobrir `$acao`, bloqueia
+`socio` em qualquer ação de escrita do módulo. Aplicado em `suite-vault.php`,
+`suite-team.php`, `suite-base.php`, `suite-leads.php`, `suite-ordens.php`,
+`suite-pulso.php` e `suite-voice.php` — cobrindo `criar`, `mover_etapa`,
+`salvar_pipeline`, `salvar_anexo`, `avancar_status`, `verificar` (insere
+alerta, não é só diagnóstico), `aprovar`, `enviar`, `descartar`.
+`suite-ia.php` (proxy de IA, usado por vários módulos) não recebeu
+restrição própria — não muda dado de negócio diretamente, só gera texto.
 
-Nenhuma sessão consegue confirmar o papel do Gabriel no banco só pelo código
-— esse dado vive no MySQL, não em arquivo. Mas a ausência da função de
-bloqueio, essa sim, é verificável directly no código sempre que alguém tiver
-acesso a `bruto-secrets/API/*.php` (via zip ou FTP/hPanel).
+**Ainda pendente, nível servidor/banco — não fechado só com o código:**
+1. Subir os 8 arquivos atualizados pra `bruto-secrets/API/` no servidor
+   (substituindo os atuais) — `suite-auth.php`, `suite-vault.php`,
+   `suite-team.php`, `suite-base.php`, `suite-leads.php`, `suite-ordens.php`,
+   `suite-pulso.php`, `suite-voice.php`.
+2. Confirmar se a coluna `papel` em `usuarios` aceita o valor novo `'socio'`
+   — se for `ENUM`, precisa de `ALTER TABLE usuarios MODIFY papel ENUM(...)`
+   incluindo `'socio'`; se for `VARCHAR`, não precisa de migração, só do
+   `UPDATE` abaixo.
+3. Atualizar o papel do Gabriel no banco real:
+   `UPDATE usuarios SET papel = 'socio' WHERE usuario = '<usuario_do_gabriel>';`
+4. Front-end (`auth-guard.js`/`nav.js`, esses sim no Git) ainda só trata o
+   caso `atendente` — hoje um `socio` não toma erro de navegação (não é
+   redirecionado de página nenhuma, o que está certo, ele acessa tudo), mas
+   os botões de criar/editar continuam visíveis pra ele e vão falhar com 403
+   só ao clicar. Funciona, mas não é a melhor UX — ajuste de front-end fica
+   como próximo passo, não bloqueador de segurança.
 
 ---
 
@@ -124,12 +133,12 @@ desatualizado — igual à regra que valia pro zip antes do Git existir.
 |---|---|---|---|
 | Rota de acesso ativa (subdomínio vs. domínio principal `/suite/`) | _(preencher)_ | | |
 | `_para-bruto-secrets/*` copiado pra `bruto-secrets/API/` fora do `public_html` | ✅ confirmado — pasta existe e tem os `suite-*.php` reais | 12/08/2026 | zip baixado do servidor, anexado na conversa |
-| Checagem de `papel` (`atendente` bloqueado) implementada no backend | ❌ **não implementada** — `suite_bloqueia_atendente()` não existe em nenhum `suite-*.php`; `suite_exige_sessao()` só valida sessão, não papel | 12/08/2026 | leitura direta do código em `suite-auth.php` |
+| Checagem de `papel` (`atendente`/`socio`/`admin`) implementada no backend | ✅ implementada no código em 12/08/2026 (`suite_exige_modulo`/`suite_bloqueia_escrita_socio`) — ⚠️ ainda **não subiu pro servidor**, arquivos entregues fora do Git pra você aplicar manualmente | 12/08/2026 | leitura/edição direta do código, zip baixado do servidor |
 | `migracao.sql` já rodado no banco de produção | _(preencher — não veio neste zip, só a pasta `api/`)_ | | |
 | Collation `#1267` aplicada em `lead_pipeline`/`amostra_envio` no banco real | _(preencher — precisa de `migracao.sql` ou acesso ao banco, não veio neste zip)_ | | |
 | Tabela `followup_anexos` existe no banco real | _(preencher — mesmo caso acima)_ | | |
 | Hash de senha gerado pra cada pessoa (Rafael/Gabriel/outros) | _(preencher — comando confirmado correto em `suite-auth.php`: `password_hash(..., PASSWORD_BCRYPT, ['cost'=>12])`)_ | | |
-| Papel do Gabriel no banco real (`atendente` / `socio` / `admin`) | _(preencher — dado vive no MySQL, não em arquivo)_ | | |
+| Papel do Gabriel no banco real (`atendente` / `socio` / `admin`) | _(preencher — dado vive no MySQL, não em arquivo; decisão já tomada: deve ser `'socio'`, falta aplicar `UPDATE` + confirmar que a coluna aceita esse valor)_ | | |
 | Deploy automático do Git realmente publicando `interno/suite/` no servidor | _(preencher — não verificável por este zip, que é só `bruto-secrets/API/`)_ | | |
 | `ANTHROPIC_API_KEY` configurada no ambiente do servidor | ⚠️ parcial — código de `suite-ia.php` usa `getenv('ANTHROPIC_API_KEY')` corretamente (sem hardcode), mas não dá pra confirmar se a variável está de fato setada no servidor sem acesso ao painel/SSH | 12/08/2026 | leitura direta do código |
 | `.htaccess` da Suíte (bloqueio de `.md`/`.sql`/HTTPS forçado) já subiu pro servidor | _(preencher)_ | | |
