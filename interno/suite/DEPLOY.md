@@ -138,7 +138,7 @@ desatualizado — igual à regra que valia pro zip antes do Git existir.
 | Collation `#1267` aplicada em `lead_pipeline`/`amostra_envio` no banco real | ✅ confirmado column-level — `sessao_id` em `lead_pipeline`, `amostra_envio` e `followup_anexos` está `utf8mb4_uca1400_ai_ci`, idêntico a `sessoes_atendimento.id`. Consulta: `SELECT TABLE_NAME, COLUMN_NAME, COLLATION_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='u764636502_bruto_interno' AND ((TABLE_NAME IN ('lead_pipeline','amostra_envio','followup_anexos') AND COLUMN_NAME='sessao_id') OR (TABLE_NAME='sessoes_atendimento' AND COLUMN_NAME='id'));` — as 4 linhas vieram `uca1400_ai_ci`. Sem risco de #1267 em JOIN | 12/08/2026 | query direta no phpMyAdmin, resultado colado na conversa |
 | Tabela `followup_anexos` existe no banco real | ✅ confirmado — existe, com 4 linhas (já em uso) | 12/08/2026 | captura de tela do phpMyAdmin, colada na conversa |
 | Hash de senha gerado pra cada pessoa (Rafael/Gabriel/outros) | _(preencher — comando confirmado correto em `suite-auth.php`: `password_hash(..., PASSWORD_BCRYPT, ['cost'=>12])`)_ | | |
-| Papel do Gabriel no banco real (`atendente` / `socio` / `admin`) | _(preencher — dado vive no MySQL, não em arquivo; decisão já tomada: deve ser `'socio'`, falta aplicar `UPDATE` + confirmar que a coluna aceita esse valor)_ | | |
+| Papel do Gabriel no banco real (`atendente` / `socio` / `admin`) | ✅ confirmado — `usuario='gabriel'` agora está `papel='socio'`. **Achado não documentado até aqui:** o ENUM real de `usuarios.papel` já tinha um quarto valor, `'visualizador'`, que não é usado por nenhum dos 4 usuários e não aparece em nenhum código a que esta sessão teve acesso — provavelmente reservado de uma decisão anterior não registrada em lugar nenhum. Não foi reaproveitado pra não conflitar com semântica desconhecida; em vez disso o ENUM foi ampliado (`ALTER TABLE usuarios MODIFY papel ENUM('atendente','admin','visualizador','socio') NOT NULL DEFAULT 'atendente'`), mantendo `visualizador` intacto pra quem descobrir seu propósito depois | 12/08/2026 | `ALTER TABLE` + `UPDATE` rodados no phpMyAdmin, resultado colado na conversa |
 | Deploy automático do Git realmente publicando `interno/suite/` no servidor | _(preencher — não verificável por este zip, que é só `bruto-secrets/API/`)_ | | |
 | `ANTHROPIC_API_KEY` configurada no ambiente do servidor | ⚠️ parcial — código de `suite-ia.php` usa `getenv('ANTHROPIC_API_KEY')` corretamente (sem hardcode), mas não dá pra confirmar se a variável está de fato setada no servidor sem acesso ao painel/SSH | 12/08/2026 | leitura direta do código |
 | `.htaccess` da Suíte (bloqueio de `.md`/`.sql`/HTTPS forçado) já subiu pro servidor | _(preencher)_ | | |
@@ -160,6 +160,12 @@ item.
 - `suite-ordens-CORRIGIDO.php` e `.htaccess` soltos — se reaparecerem em
   algum pacote, descartar; a correção real (`numero_os` derivada do `id`)
   já está em `suite-ordens.php`/no backend de produção.
+- **Investigar origem de `usuarios.papel = 'visualizador'`** — valor existe
+  no ENUM do banco real, não usado por ninguém hoje, não referenciado em
+  nenhum código a que qualquer sessão teve acesso até 12/08/2026. Pode ser
+  resquício de um plano anterior não documentado, ou intencional pra uso
+  futuro — vale perguntar ao Rafael antes de decidir se mescla com `socio`
+  ou mantém separado.
 
 ---
 
