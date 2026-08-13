@@ -134,9 +134,9 @@ desatualizado — igual à regra que valia pro zip antes do Git existir.
 | Rota de acesso ativa (subdomínio vs. domínio principal `/suite/`) | _(preencher)_ | | |
 | `_para-bruto-secrets/*` copiado pra `bruto-secrets/API/` fora do `public_html` | ✅ confirmado — pasta existe e tem os `suite-*.php` reais | 12/08/2026 | zip baixado do servidor, anexado na conversa |
 | Checagem de `papel` (`atendente`/`socio`/`admin`) implementada no backend | ✅ implementada no código em 12/08/2026 (`suite_exige_modulo`/`suite_bloqueia_escrita_socio`) — ⚠️ ainda **não subiu pro servidor**, arquivos entregues fora do Git pra você aplicar manualmente | 12/08/2026 | leitura/edição direta do código, zip baixado do servidor |
-| `migracao.sql` já rodado no banco de produção | _(preencher — não veio neste zip, só a pasta `api/`)_ | | |
-| Collation `#1267` aplicada em `lead_pipeline`/`amostra_envio` no banco real | _(preencher — precisa de `migracao.sql` ou acesso ao banco, não veio neste zip)_ | | |
-| Tabela `followup_anexos` existe no banco real | _(preencher — mesmo caso acima)_ | | |
+| `migracao.sql` já rodado no banco de produção | _(preencher — o arquivo agora está em `interno/suite/migracao.sql` no Git, com a collation `#1267` e a tabela `followup_anexos` já corrigidas; falta só confirmar se já foi executado no banco real)_ | | |
+| Collation `#1267` aplicada em `lead_pipeline`/`amostra_envio` no banco real | _(preencher — a correção já está no `migracao.sql` do Git; falta confirmar se o banco real já reflete isso, seja por essa migração ou pelo `ALTER TABLE` manual anterior)_ | | |
+| Tabela `followup_anexos` existe no banco real | _(preencher — schema já está no `migracao.sql` do Git, conferido linha a linha contra o `SELECT`/`INSERT` de `suite-leads.php`)_ | | |
 | Hash de senha gerado pra cada pessoa (Rafael/Gabriel/outros) | _(preencher — comando confirmado correto em `suite-auth.php`: `password_hash(..., PASSWORD_BCRYPT, ['cost'=>12])`)_ | | |
 | Papel do Gabriel no banco real (`atendente` / `socio` / `admin`) | _(preencher — dado vive no MySQL, não em arquivo; decisão já tomada: deve ser `'socio'`, falta aplicar `UPDATE` + confirmar que a coluna aceita esse valor)_ | | |
 | Deploy automático do Git realmente publicando `interno/suite/` no servidor | _(preencher — não verificável por este zip, que é só `bruto-secrets/API/`)_ | | |
@@ -160,3 +160,24 @@ item.
 - `suite-ordens-CORRIGIDO.php` e `.htaccess` soltos — se reaparecerem em
   algum pacote, descartar; a correção real (`numero_os` derivada do `id`)
   já está em `suite-ordens.php`/no backend de produção.
+
+---
+
+## Nota de sessão (12/08/2026) — reconciliação com trabalho paralelo
+
+Sessão que começou com o zip `Suite Bruto By — UP.zip` original (sem
+Git), fez a mesma consolidação de fases/patches por timestamp, e ao
+tentar commitar encontrou este `interno/suite/` **já criado por outra
+sessão** (commits `1e1a24b` a `209b9d6`) — com acesso real ao servidor
+que esta sessão não tinha, incluindo o papel `socio` novo. `git fetch` +
+comparação confirmaram: **todo arquivo de frente e ponte pública
+(`up-*.html`, `nav.js`, `auth-guard.js`, `.htaccess`, `login.html`,
+`robots.txt`, os 11 `api/*.php`) é byte-idêntico** entre as duas sessões
+— mesma reconstrução por timestamp, mesmo resultado, sem conflito real.
+`config.js` também convergiu (mesmo `DEMO_MODE=true`, mesma correção de
+e-mail/WhatsApp), só o comentário ficou com texto diferente.
+
+**Adicionado por esta sessão, que não estava no commit anterior:**
+`ARQUITETURA-BRUTO.md`, `migracao.sql` (com as duas correções — collation
+`#1267` e tabela `followup_anexos`) e os dois `seed-*.sql`. Nada mais foi
+alterado — nenhum arquivo que já convergia foi tocado ou sobrescrito.
