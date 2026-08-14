@@ -88,10 +88,10 @@
     .priority-dot.filled { background:var(--teal); }
 
     /* Pipeline */
-    .pipeline-panel { flex:1;flex-direction:column;overflow:hidden; }
+    .pipeline-panel { display:flex;flex:1;flex-direction:column;overflow:hidden; }
     .pipeline-toolbar { padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--border); }
-    .pipeline-board { flex:1;display:flex;gap:12px;padding:16px 24px;overflow-x:auto;overflow-y:hidden; }
-    .pipeline-col { min-width:210px;width:210px;display:flex;flex-direction:column;gap:8px; }
+    .pipeline-board { flex:1;display:flex;gap:12px;padding:16px 24px;overflow-x:auto;overflow-y:hidden;min-height:0; }
+    .pipeline-col { min-width:210px;width:210px;height:100%;min-height:0;display:flex;flex-direction:column;gap:8px; } .pipeline-col-cards { flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px; }
     .pipeline-col-header { display:flex;align-items:center;justify-content:space-between;padding:0 4px;margin-bottom:4px; }
     .pipeline-col-desc { font-size:10px;color:var(--dim);line-height:1.4;padding:0 4px;margin-bottom:8px;min-height:26px; }
     .pipeline-col-title { font-size:12px;font-weight:500;color:var(--muted);display:flex;align-items:center;gap:6px; }
@@ -103,7 +103,7 @@
     .pipeline-col.drag-over { background:var(--teal-12);border-radius:8px; }
     .pipeline-card-name { font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px; }
     .pipeline-card-company { font-size:12px;color:var(--muted);margin-bottom:8px; }
-    .pipeline-card-footer { display:flex;align-items:center;justify-content:space-between; }
+    .pipeline-card-footer { display:flex;flex-direction:column;align-items:flex-start;gap:6px; }
     .pipeline-card-value { font-size:13px;font-weight:500;color:var(--teal);font-family:'Barlow Condensed',sans-serif; }
 
     /* Modal */
@@ -754,7 +754,7 @@ function renderPipeline() {
         <span class="pipeline-col-count">${s.deals.length}</span>
       </div>
       ${s.desc ? `<div class="pipeline-col-desc">${s.desc}</div>` : ''}
-      ${s.deals.map(d => `
+      <div class="pipeline-col-cards">${s.deals.map(d => `
         <div class="pipeline-card" draggable="true" id="deal-${d.id}" ondragstart="onDragStart(event,'${d.id}')">
           <div class="pipeline-card-name">${d.titulo}</div>
           <div class="pipeline-card-company">${d.lead}</div>
@@ -762,7 +762,7 @@ function renderPipeline() {
             <span class="pipeline-card-value">${d.valor > 0 ? 'R$ '+d.valor.toLocaleString('pt-BR') : '—'}</span>
             <span class="badge badge-teal" style="font-size:10px;">${d.label||''}</span>
           </div>
-        </div>`).join('')}
+        </div>`).join('')}</div>
     </div>`).join('');
 }
 
@@ -813,11 +813,36 @@ function openNewDealModal() {
   document.getElementById('modal-new-deal').classList.remove('hidden');
 }
 
+function findDealDoLead(leadId) {
+  for (const s of state.pipeline) {
+    const d = s.deals.find(x => x.id === leadId);
+    if (d) return { deal: d, stageId: s.id };
+  }
+  return null;
+}
+
 function openNewDealFromLead(id) {
+  const l = state.leads.find(x => x.id === id);
+  const existente = findDealDoLead(id);
+  // O formulario rapido so cobre as etapas iniciais do funil -- Pedido/Perdido
+  // sao estados avancados/terminais que so devem mudar pelo Pipeline (drag-and-drop).
+  // Sem essa checagem, salvar por aqui reseta silenciosamente a etapa pro default
+  // do <select> (Contato) -- bug real, ja aconteceu com um deal na etapa Pedido.
+  const etapasForm = ['contato','qualificado','amostra','orcamento','fechamento'];
+  if (existente && !etapasForm.includes(existente.stageId)) {
+    toast('Esse lead já tem um deal na etapa "' + (existente.deal.label||existente.stageId) + '" — use o Pipeline para gerenciá-lo.', 'warn');
+    return;
+  }
   openNewDealModal();
   document.getElementById('new-deal-lead').value = id;
-  const l = state.leads.find(x => x.id === id);
-  if (l) document.getElementById('new-deal-titulo').value = `Proposta — ${l.nome}`;
+  if (existente) {
+    document.getElementById('new-deal-titulo').value = existente.deal.titulo;
+    document.getElementById('new-deal-valor').value = existente.deal.valor || '';
+    document.getElementById('new-deal-stage').value = existente.stageId;
+    toast('Esse lead já tem um deal em andamento — mantendo a etapa atual.', 'info');
+  } else if (l) {
+    document.getElementById('new-deal-titulo').value = `Proposta — ${l.nome}`;
+  }
 }
 
 async function saveDeal() {
