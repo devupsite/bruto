@@ -90,6 +90,8 @@
   const globalCSS = `
     @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@300;400;500&display=swap');
 
+    :root { --bg: #0F0F0F; --bg2: #1A1A1A; --bg3: #242424; --text: #F2F2F2; --muted: #888888; --dim: #606060; --teal: #57999B; --border: #2E2E2E; --green: #27AE60; --amber: #F5A623; --red: #E74C3C; --teal-12: rgba(87,153,155,.10); --teal-22: rgba(87,153,155,.20); --green-12: #27AE601f; --red-12: #E74C3C1f; --amber-12: #F5A6231f; }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
@@ -108,11 +110,12 @@
     * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
 
     #suite-refresh-btn {
-      position: fixed; top: 16px; right: 20px; z-index: 9000;
+      position: fixed; bottom: 20px; right: 20px; z-index: 9000;
       width: 30px; height: 30px; border-radius: 7px;
       background: var(--bg2); border: 1px solid var(--border); color: var(--muted);
       display: flex; align-items: center; justify-content: center;
       transition: all .15s;
+      box-shadow: 0 2px 8px rgba(0,0,0,.4);
     }
     #suite-refresh-btn:hover { color: var(--teal); border-color: var(--teal); background: var(--teal-12); }
     #suite-refresh-btn:active svg { animation: suite-spin .5s linear; }
@@ -157,7 +160,7 @@
       align-items: center;
       gap: 9px;
     }
-    .sidebar-brand svg { color: var(--teal); flex-shrink: 0; }
+    .sidebar-brand svg { color: var(--text); flex-shrink: 0; }
     .sidebar-wordmark {
       font-family: 'Barlow Condensed', sans-serif;
       font-weight: 600;
@@ -460,8 +463,9 @@
     return `
     <div class="sidebar-header">
       <div class="sidebar-brand">
-        <svg width="15" height="24" viewBox="0 0 176 286" xmlns="http://www.w3.org/2000/svg">
-          <path fill="currentColor" d="M0,0 L132,0 L132,132 L176,132 L176,286 L0,286 Z M22,22 L110,22 L110,132 L22,132 Z M22,154 L154,154 L154,264 L22,264 Z"/>
+        <svg width="15" height="24" viewBox="0 0 56 90" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="4" width="34" height="41" stroke="currentColor" stroke-width="8" fill="none"/>
+          <rect x="4" y="45" width="48" height="41" stroke="currentColor" stroke-width="8" fill="none"/>
         </svg>
         <div class="sidebar-wordmark">${CLIENT_CONFIG.empresa}</div>
       </div>
@@ -497,7 +501,7 @@
         <button class="sidebar-sair" onclick="window.upLogout && window.upLogout()" title="Sair">Sair</button>
       </div>
       <div class="sidebar-footer-row">
-        <div class="sidebar-poweredby">by <span class="upco-sig">UP — Co.</span></div>
+        <div class="sidebar-poweredby">by <span class="upco-sig"><span style="color:var(--text);font-weight:700;">UP</span> <span style="color:var(--teal);">—</span> Co.</span></div>
         ${DEMO_MODE ? `<span class="sidebar-demo-badge">⚡ Demo</span>` : ''}
       </div>
     </div>
