@@ -1274,7 +1274,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       });
 
-      var JUNTA_M = 0.008; // 8mm de junta de assentamento
+      var JUNTA_M = 0; // junta seca (0mm) — padrão fixo da Bruto, sem opção de alterar na tela
       var areaPecaComJunta = (pecaComprM + JUNTA_M) * (pecaAltM + JUNTA_M);
       var pecasPorM2 = areaPecaComJunta > 0 ? (1 / areaPecaComJunta) : 0;
 
@@ -1296,7 +1296,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         document.getElementById('calc-result').hidden = false;
 
         var noteEl = document.getElementById('calc-note');
-        noteEl.textContent = '≈ ' + pecasPorM2.toFixed(0) + ' peças/m² · considerando junta de 8mm';
+        noteEl.textContent = '≈ ' + pecasPorM2.toFixed(0) + ' peças/m² · junta seca (padrão da Bruto, sem espaçamento entre peças)';
         noteEl.hidden = false;
 
       }

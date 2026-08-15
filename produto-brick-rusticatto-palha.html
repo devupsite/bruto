@@ -483,7 +483,7 @@
     "@type": "Offer",
     "url": "https://brutoceramica.com.br/produto-brick-rusticatto-palha.html",
     "priceCurrency": "BRL",
-    "price": "169.90",
+    "price": "186.90",
     "availability": "https://schema.org/InStock",
     "priceValidUntil": "2026-12-31",
     "validFrom": "2026-07-01",
@@ -722,7 +722,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="product-info">
         <p class="sku">SKU 78</p>
         <h1>Rusticatto Palha</h1>
-        <p class="price">R$ 169,90<span class="price__unit"> /m²</span></p>
+        <p class="price">R$ 186,90<span class="price__unit"> /m²</span></p>
         <div id="parcelamento-info"></div>
         <div class="trust-badge">
           <i class="ti ti-shield-check" aria-hidden="true"></i>
@@ -789,7 +789,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
           </div>
           <p class="calc__note" id="calc-note" hidden></p>
-          <button type="button" class="btn btn--outline lead-pdf__trigger" id="lead-pdf-open" data-product-name="Rusticatto Palha" data-product-line="Brick" data-product-price="169,90">
+          <button type="button" class="btn btn--outline lead-pdf__trigger" id="lead-pdf-open" data-product-name="Rusticatto Palha" data-product-line="Brick" data-product-price="186,90">
             <i class="ti ti-file-download" aria-hidden="true"></i>
             Baixar PDF com meus dados
           </button>
@@ -1276,7 +1276,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       });
 
-      var JUNTA_M = 0.008; // 8mm de junta de assentamento
+      var JUNTA_M = 0; // junta seca (0mm) — padrão fixo da Bruto, sem opção de alterar na tela
       var areaPecaComJunta = (pecaComprM + JUNTA_M) * (pecaAltM + JUNTA_M);
       var pecasPorM2 = areaPecaComJunta > 0 ? (1 / areaPecaComJunta) : 0;
 
@@ -1298,7 +1298,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         document.getElementById('calc-result').hidden = false;
 
         var noteEl = document.getElementById('calc-note');
-        noteEl.textContent = '≈ ' + pecasPorM2.toFixed(0) + ' peças/m² · considerando junta de 8mm';
+        noteEl.textContent = '≈ ' + pecasPorM2.toFixed(0) + ' peças/m² · junta seca (padrão da Bruto, sem espaçamento entre peças)';
         noteEl.hidden = false;
 
       }

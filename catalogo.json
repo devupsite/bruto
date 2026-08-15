@@ -2,7 +2,7 @@
   "_readme": "Fonte única de verdade para preço/dimensão/SKU dos 19 produtos. NÃO é lido em tempo real pelo site (arquitetura estática, sem build). Editar este arquivo e rodar 'python3 scripts/sync-catalogo.py' para propagar as mudanças aos 4 pontos de preço por produto (produto-*.html, JSON-LD, data-product-price, texturas.html) e ao CATALOGO de ordem-servico.js. Ver COLABORACAO.md item 32.",
   "produtos": [
     { "slug": "brick-eco-palha",            "nome": "Eco Palha",             "linha": "brick",      "sku": 57, "preco": 153.90, "dimensoes_mm": [270, 70, 15], "peso_g": 350 },
-    { "slug": "brick-rusticatto-palha",     "nome": "Rusticatto Palha",      "linha": "brick",      "sku": 78, "preco": 169.90, "dimensoes_mm": [270, 70, 25], "peso_g": 650 },
+    { "slug": "brick-rusticatto-palha",     "nome": "Rusticatto Palha",      "linha": "brick",      "sku": 78, "preco": 186.90, "dimensoes_mm": [270, 70, 25], "peso_g": 650 },
     { "slug": "brick-lumus",                "nome": "Lumus",                 "linha": "brick",      "sku": 73, "preco": 164.90, "dimensoes_mm": [270, 70, 15], "peso_g": 405 },
     { "slug": "brick-mescla-prime",         "nome": "Mescla Prime",          "linha": "brick",      "sku": 54, "preco": 153.90, "dimensoes_mm": [250, 70, 15], "peso_g": 360 },
     { "slug": "brick-natura",               "nome": "Natura",                "linha": "brick",      "sku": 48, "preco": 104.90, "dimensoes_mm": [240, 70, 10], "peso_g": 465 },
