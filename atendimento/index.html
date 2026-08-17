@@ -118,6 +118,19 @@ const storage = {
   },
 };
 
+// ── Referência rápida de produtos na sidebar — visual, pra lembrar
+// nomes rápido sem sair da conversa. A KB inteira já vai sempre junto
+// no prompt da IA (ver buildSystemPrompt), então isso não "carrega
+// contexto" nenhum — é só atalho: clicar insere o nome na mensagem.
+const PRODUTOS_CIMENTICIO_ROCKFACE = [
+  { linha: "Cimentício", nome: "Alpino" }, { linha: "Cimentício", nome: "Brisa" }, { linha: "Cimentício", nome: "Urban" },
+  { linha: "Rockface", nome: "Alpino" }, { linha: "Rockface", nome: "Brisa" }, { linha: "Rockface", nome: "Urban" },
+];
+const PRODUTOS_BRICK = [
+  "Eco Palha", "Lumus", "Mescla Prime", "Natura", "Rosso Prime",
+  "Rusticatto Fumê", "Rusticatto Palha", "Rusticatto Rosso", "Rusticatto Terra Negra", "Rusticatto do Sertão", "Terra do Cerrado",
+];
+
 // ── BASE DE CONHECIMENTO ─────────────────────────────────────────────
 const KB = {
   sobre: `SOBRE A BRUTO — CURADORIA, NÃO FABRICAÇÃO
@@ -1546,6 +1559,10 @@ function BrutoAtendimento() {
     }
   }
 
+  function inserirProdutoNoInput(nome) {
+    setInput((prev) => (prev ? prev.trimEnd() + " " + nome : nome));
+  }
+
   function openClientModal() {
     setTmpClient(client);
     setClientModalOpen(true);
@@ -2159,6 +2176,26 @@ function BrutoAtendimento() {
                   ].filter(Boolean).join("<br/>") || "Clique para editar"
                 }} />
                 <button style={S.editBtn} onClick={openClientModal}>Editar Perfil</button>
+              </div>
+            </div>
+
+            <div style={S.sidebarSection}>
+              <div style={S.sectionTitle}>Produtos</div>
+              <div style={{ fontSize: 8, color: mid2, marginBottom: 6, textTransform: "uppercase", letterSpacing: ".06em" }}>Cimentício & Rockface</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 10 }}>
+                {PRODUTOS_CIMENTICIO_ROCKFACE.map((p) => (
+                  <button key={`${p.linha}-${p.nome}`} style={S.produtoChip} onClick={() => inserirProdutoNoInput(`${p.linha} ${p.nome}`)} title={`Inserir "${p.linha} ${p.nome}" na mensagem`}>
+                    {p.linha} {p.nome}
+                  </button>
+                ))}
+              </div>
+              <div style={{ fontSize: 8, color: mid2, marginBottom: 6, textTransform: "uppercase", letterSpacing: ".06em" }}>Brick</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {PRODUTOS_BRICK.map((nome) => (
+                  <button key={nome} style={S.produtoChip} onClick={() => inserirProdutoNoInput(nome)} title={`Inserir "${nome}" na mensagem`}>
+                    {nome}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -2993,6 +3030,7 @@ const S = {
   clientName: { fontFamily: syne, fontWeight: 700, fontSize: 12, color: white, marginBottom: 3 },
   clientDetail: { fontSize: 9, color: mid, lineHeight: 1.4 },
   editBtn: { marginTop: 8, width: "100%", padding: 6, border: "1px solid rgba(87,153,155,.3)", background: "transparent", borderRadius: 4, color: teal, fontSize: 9, cursor: "pointer", fontFamily: dm },
+  produtoChip: { padding: "3px 8px", borderRadius: 20, border: `1px solid ${border}`, background: "transparent", color: mid2, fontSize: 9, fontFamily: dm, cursor: "pointer", whiteSpace: "nowrap" },
   kbGroupLabel: { fontSize: 8, color: mid2, marginBottom: 6, textTransform: "uppercase", letterSpacing: ".08em" },
   kbItem: (active) => ({
     padding: "6px 8px", fontSize: 10, color: active ? teal : mid2,
