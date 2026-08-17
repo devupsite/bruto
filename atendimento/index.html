@@ -118,18 +118,13 @@ const storage = {
   },
 };
 
-// ── Referência rápida de produtos na sidebar — visual, pra lembrar
-// nomes rápido sem sair da conversa. A KB inteira já vai sempre junto
-// no prompt da IA (ver buildSystemPrompt), então isso não "carrega
-// contexto" nenhum — é só atalho: clicar insere o nome na mensagem.
-const PRODUTOS_CIMENTICIO_ROCKFACE = [
-  { linha: "Cimentício", nome: "Alpino" }, { linha: "Cimentício", nome: "Brisa" }, { linha: "Cimentício", nome: "Urban" },
-  { linha: "Rockface", nome: "Alpino" }, { linha: "Rockface", nome: "Brisa" }, { linha: "Rockface", nome: "Urban" },
-];
-const PRODUTOS_BRICK = [
-  "Eco Palha", "Lumus", "Mescla Prime", "Natura", "Rosso Prime",
-  "Rusticatto Fumê", "Rusticatto Palha", "Rusticatto Rosso", "Rusticatto Terra Negra", "Rusticatto do Sertão", "Terra do Cerrado",
-];
+// ── Filtro de linha de produto (botões no header) — quando ativo,
+// restringe a KB enviada pra IA só à linha que o atendente selecionou,
+// com base no que o cliente sugeriu na conversa do WhatsApp. "brick"
+// cobre Brick e Rusticatto (é a mesma linha no catálogo); "cr" cobre
+// Cimentício e Rockface juntos. null (padrão) = sem filtro, KB inteira.
+const KB_KEYS_BRICK = ["brick"];
+const KB_KEYS_CR = ["cimenticio", "rockface"];
 
 // ── BASE DE CONHECIMENTO ─────────────────────────────────────────────
 const KB = {
@@ -674,6 +669,7 @@ function BrutoAtendimento() {
   });
   const [arrastandoSidebar, setArrastandoSidebar] = useState(false);
   const [sugerindoFollowup, setSugerindoFollowup] = useState(false);
+  const [produtoFiltro, setProdutoFiltro] = useState(null); // null | "brick" | "cr"
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [client, setClient] = useState({ name: "Cliente", type: "", project: "", phone: "", tags: ["Consulta Técnica"] });
@@ -1559,10 +1555,6 @@ function BrutoAtendimento() {
     }
   }
 
-  function inserirProdutoNoInput(nome) {
-    setInput((prev) => (prev ? prev.trimEnd() + " " + nome : nome));
-  }
-
   function openClientModal() {
     setTmpClient(client);
     setClientModalOpen(true);
@@ -1605,10 +1597,15 @@ function BrutoAtendimento() {
     // o custo de token em conversas com várias mensagens.
     let staticSys = `Você é especialista técnico de cerâmica e atendimento da Bruto. Responda como alguém respondendo rápido num chat de WhatsApp: direto ao ponto, sem enrolação, sem repetir a pergunta do cliente, sem seções ou listas longas. Máximo 80 palavras — só use mais se a pergunta pedir uma lista curta de itens (ex: passo a passo de instalação). Tom humano e natural, não robótico.\n`;
     staticSys += `\n${KB.escalonamento.trim()}\n`;
-    // Toda a base de conhecimento vai sempre no contexto — sem exigir seleção manual.
-    // Isso permite que qualquer pergunta ou objeção já receba a resposta certa, sem fricção de uso.
-    staticSys += `\nBASE DE CONHECIMENTO COMPLETA:\n`;
-    Object.keys(KB).forEach((kb) => { if (kb !== "escalonamento") staticSys += `\n${KB[kb].trim()}\n`; });
+    // Toda a base de conhecimento vai no contexto por padrão — sem exigir
+    // seleção manual. Só filtra quando o atendente ativa um dos botões
+    // Bricks/C&R no header (produtoFiltro), pra restringir a IA à linha
+    // que o cliente já sugeriu na conversa. As chaves universais (não
+    // amarradas a uma linha específica, ex: frete, instalação, devolução)
+    // continuam sempre incluídas mesmo com o filtro ativo.
+    staticSys += `\nBASE DE CONHECIMENTO${produtoFiltro ? ` (filtrada — só ${produtoFiltro === "brick" ? "Brick/Rusticatto" : "Cimentício/Rockface"}, conforme selecionado pelo atendente)` : " COMPLETA"}:\n`;
+    const chavesExcluidas = produtoFiltro === "brick" ? KB_KEYS_CR : produtoFiltro === "cr" ? KB_KEYS_BRICK : [];
+    Object.keys(KB).forEach((kb) => { if (kb !== "escalonamento" && !chavesExcluidas.includes(kb)) staticSys += `\n${KB[kb].trim()}\n`; });
     staticSys += `\nCite produtos e preços quando relevante. Se a KB não tiver a resposta, seja honesto. Se usar informação do bloco "REGRAS UNIVERSAIS DO SETOR (BENCHMARK)", deixe claro na resposta que é orientação geral do setor — não dado exclusivo/testado da Bruto — e recomende validar com a fábrica parceira em casos de dúvida real ou projeto fora do padrão. Se a situação do cliente se encaixar em algum dos casos de "QUANDO PARAR E CHAMAR O RESPONSÁVEL", diga isso claramente na resposta e recomende que a atendente escale antes de prometer qualquer coisa.`;
     staticSys += `\n\nANÁLISE DE FOTOS: quando o cliente enviar uma ou mais fotos da obra/reforma, observe antes de responder: estado da superfície (limpa, nivelada, com umidade, trincada), estágio da instalação (parede nua, assentamento em andamento, rejuntado, finalizado), produto provável (Brick, Cimentício ou Rockface — lembre que Rockface é só para uso externo) e se algo visível é defeito real ou variação artesanal esperada. Se vierem várias fotos juntas, compare entre elas (ex: ângulos diferentes do mesmo problema, ou antes/depois) antes de concluir. Responda direto à pergunta que vier com a(s) foto(s), no mesmo tom curto de WhatsApp. Se a imagem estiver escura, borrada ou de longe demais para concluir com segurança, diga isso e peça uma foto mais próxima em vez de adivinhar.`;
 
@@ -2110,6 +2107,8 @@ function BrutoAtendimento() {
             <button style={S.newChatBtn} onClick={startNewSession} title="Nova Conversa"><Plus size={13} strokeWidth={2}/> {!isMobile && "Nova"}</button>
             {!isMobile && (<>
               <button style={S.newChatBtn} onClick={() => setRecommendModalOpen(true)} title="Recomendar linha para um projeto"><Target size={13} strokeWidth={2}/> Recomendar</button>
+              <div style={S.modeToggle(produtoFiltro === "brick")} onClick={() => setProdutoFiltro((v) => (v === "brick" ? null : "brick"))} title="Restringir a IA só ao contexto de Brick/Rusticatto (clique de novo pra tirar o filtro)">Bricks</div>
+              <div style={S.modeToggle(produtoFiltro === "cr")} onClick={() => setProdutoFiltro((v) => (v === "cr" ? null : "cr"))} title="Restringir a IA só ao contexto de Cimentício/Rockface (clique de novo pra tirar o filtro)">C&R</div>
               <button style={S.newChatBtn} onClick={carregarTemas} title="Temas mais perguntados"><BarChart3 size={13} strokeWidth={2}/> Temas</button>
               <button style={S.newChatBtn} onClick={openHandoffModal} title="Gerar resumo para WhatsApp"><ClipboardList size={13} strokeWidth={2}/> Resumo</button>
               {currentUser.papel === "admin" && (
@@ -2127,6 +2126,8 @@ function BrutoAtendimento() {
                 {mobileMenuOpen && (
                   <div style={S.mobileMenu}>
                     <div style={S.mobileMenuItem} onClick={() => { setMobileMenuOpen(false); setRecommendModalOpen(true); }}><Target size={14} strokeWidth={1.75}/> Recomendar</div>
+                    <div style={{ ...S.mobileMenuItem, color: produtoFiltro === "brick" ? teal : white }} onClick={() => { setProdutoFiltro((v) => (v === "brick" ? null : "brick")); setMobileMenuOpen(false); }}>{produtoFiltro === "brick" ? "✓ " : ""}Filtro: Bricks</div>
+                    <div style={{ ...S.mobileMenuItem, color: produtoFiltro === "cr" ? teal : white }} onClick={() => { setProdutoFiltro((v) => (v === "cr" ? null : "cr")); setMobileMenuOpen(false); }}>{produtoFiltro === "cr" ? "✓ " : ""}Filtro: C&R</div>
                     <div style={S.mobileMenuItem} onClick={() => { setMobileMenuOpen(false); carregarTemas(); }}><BarChart3 size={14} strokeWidth={1.75}/> Temas</div>
                     <div style={S.mobileMenuItem} onClick={() => { setMobileMenuOpen(false); openHandoffModal(); }}><ClipboardList size={14} strokeWidth={1.75}/> Resumo</div>
                     {currentUser.papel === "admin" && (
@@ -2176,26 +2177,6 @@ function BrutoAtendimento() {
                   ].filter(Boolean).join("<br/>") || "Clique para editar"
                 }} />
                 <button style={S.editBtn} onClick={openClientModal}>Editar Perfil</button>
-              </div>
-            </div>
-
-            <div style={S.sidebarSection}>
-              <div style={S.sectionTitle}>Produtos</div>
-              <div style={{ fontSize: 8, color: mid2, marginBottom: 6, textTransform: "uppercase", letterSpacing: ".06em" }}>Cimentício & Rockface</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 10 }}>
-                {PRODUTOS_CIMENTICIO_ROCKFACE.map((p) => (
-                  <button key={`${p.linha}-${p.nome}`} style={S.produtoChip} onClick={() => inserirProdutoNoInput(`${p.linha} ${p.nome}`)} title={`Inserir "${p.linha} ${p.nome}" na mensagem`}>
-                    {p.linha} {p.nome}
-                  </button>
-                ))}
-              </div>
-              <div style={{ fontSize: 8, color: mid2, marginBottom: 6, textTransform: "uppercase", letterSpacing: ".06em" }}>Brick</div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-                {PRODUTOS_BRICK.map((nome) => (
-                  <button key={nome} style={S.produtoChip} onClick={() => inserirProdutoNoInput(nome)} title={`Inserir "${nome}" na mensagem`}>
-                    {nome}
-                  </button>
-                ))}
               </div>
             </div>
 
@@ -3030,7 +3011,6 @@ const S = {
   clientName: { fontFamily: syne, fontWeight: 700, fontSize: 12, color: white, marginBottom: 3 },
   clientDetail: { fontSize: 9, color: mid, lineHeight: 1.4 },
   editBtn: { marginTop: 8, width: "100%", padding: 6, border: "1px solid rgba(87,153,155,.3)", background: "transparent", borderRadius: 4, color: teal, fontSize: 9, cursor: "pointer", fontFamily: dm },
-  produtoChip: { padding: "3px 8px", borderRadius: 20, border: `1px solid ${border}`, background: "transparent", color: mid2, fontSize: 9, fontFamily: dm, cursor: "pointer", whiteSpace: "nowrap" },
   kbGroupLabel: { fontSize: 8, color: mid2, marginBottom: 6, textTransform: "uppercase", letterSpacing: ".08em" },
   kbItem: (active) => ({
     padding: "6px 8px", fontSize: 10, color: active ? teal : mid2,
