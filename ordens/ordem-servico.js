@@ -36,7 +36,8 @@
     { slug: "cimenticio-urban", categoria: "Cimentício", nome: "Urban", sku: "82", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "438g" },
     { slug: "rockface-alpino", categoria: "Rockface", nome: "Alpino", sku: "91", preco: 252.90, dimensoes: "290mm x 95mm x 20mm", peso: "1325g" },
     { slug: "rockface-brisa", categoria: "Rockface", nome: "Brisa", sku: "90", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "764g" },
-    { slug: "rockface-urban", categoria: "Rockface", nome: "Urban", sku: "92", preco: 252.90, dimensoes: "290mm x 95mm x 20mm", peso: "966g" }
+    { slug: "rockface-urban", categoria: "Rockface", nome: "Urban", sku: "92", preco: 252.90, dimensoes: "290mm x 95mm x 20mm", peso: "966g" },
+    { slug: "piso-lastra-nonna", categoria: "Piso", nome: "Lastra Nonna", sku: "", preco: 110.90, dimensoes: "240mm x 115mm x 10mm", peso: "580g" }
   ];
 
   var PADROES = [
@@ -76,7 +77,7 @@
 
   /* ── Monta os <option> do select de produto, agrupado por categoria ── */
   function montarSelectProdutos(select) {
-    var categorias = ['Brick', 'Cimentício', 'Rockface'];
+    var categorias = ['Brick', 'Cimentício', 'Rockface', 'Piso'];
     select.innerHTML = '<option value="">Selecione um produto</option>';
     categorias.forEach(function (cat) {
       var grupo = document.createElement('optgroup');
