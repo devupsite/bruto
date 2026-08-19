@@ -54,7 +54,7 @@
           <h1 class="module-title">UP <span class="dash">—</span> Base</h1>
           <p class="module-subtitle">Documentação & SOPs · conhecimento da operação</p>
         </div>
-        <button class="btn btn-primary" onclick="openModal()" style="margin-top:4px;">
+        <button class="btn btn-primary" onclick="openModal()" style="margin-top:4px;" data-write-action>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Novo documento
         </button>
@@ -102,7 +102,7 @@
     <div class="form-group"><label class="form-label">Responsável</label><input class="input" id="d-resp" type="text" placeholder="Ex: Atendimento, Gestão, Dev"/></div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveDoc()">Salvar</button>
+      <button class="btn btn-primary" onclick="saveDoc()" data-write-action>Salvar</button>
     </div>
   </div>
 </div>

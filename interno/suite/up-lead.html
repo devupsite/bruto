@@ -128,7 +128,7 @@
           <h1 class="module-title">UP <span class="dash">—</span> Lead</h1>
           <p class="module-subtitle">CRM & vendas · pipeline comercial</p>
         </div>
-        <button class="btn btn-primary" onclick="openNewLeadModal()" style="margin-top:4px;">
+        <button class="btn btn-primary" onclick="openNewLeadModal()" style="margin-top:4px;" data-write-action>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Novo lead
         </button>
@@ -223,7 +223,7 @@
                 <option value="morno">Morno</option>
                 <option value="frio">Frio</option>
               </select>
-              <button class="btn btn-primary btn-sm" onclick="openNewLeadModal()">
+              <button class="btn btn-primary btn-sm" onclick="openNewLeadModal()" data-write-action>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Novo lead
               </button>
@@ -251,7 +251,7 @@
               <span id="pipeline-total-value" style="color:var(--text);font-weight:600;font-family:'Barlow Condensed',sans-serif;"></span>
               <span> em pipeline</span>
             </div>
-            <button class="btn btn-primary btn-sm" onclick="openNewDealModal()">
+            <button class="btn btn-primary btn-sm" onclick="openNewDealModal()" data-write-action>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Novo deal
             </button>
@@ -278,7 +278,7 @@
     <div class="form-group"><label class="form-label">Mensagem inicial</label><textarea class="input" id="new-lead-mensagem" rows="3" placeholder="O que o lead disse…" style="resize:vertical;"></textarea></div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-new-lead')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveLead()">Classificar com IA →</button>
+      <button class="btn btn-primary" onclick="saveLead()" data-write-action>Classificar com IA →</button>
     </div>
   </div>
 </div>
@@ -298,7 +298,7 @@
     <div class="form-group"><label class="form-label">Valor estimado (R$)</label><input class="input" id="new-deal-valor" type="number" placeholder="12400"/></div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-new-deal')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveDeal()">Criar deal</button>
+      <button class="btn btn-primary" onclick="saveDeal()" data-write-action>Criar deal</button>
     </div>
   </div>
 </div>
@@ -524,7 +524,7 @@ function selectConv(id) {
   document.getElementById('conv-chat-sub').textContent = temFollowupReal
     ? `${l.canal} · WhatsApp real · Score ${l.lead_score}/100`
     : `${l.canal} · Score ${l.lead_score}/100`;
-  document.getElementById('conv-header-actions').innerHTML = `<span class="badge badge-${l.temperatura}">${l.temperatura}</span><button class="btn btn-ghost btn-sm" onclick="openNewDealFromLead('${l.id}')">Criar deal</button>`;
+  document.getElementById('conv-header-actions').innerHTML = `<span class="badge badge-${l.temperatura}">${l.temperatura}</span><button class="btn btn-ghost btn-sm" onclick="openNewDealFromLead('${l.id}')"${window.isSocio && window.isSocio() ? ' class="write-blocked" title="Sócio tem acesso somente leitura"' : ''}>Criar deal</button>`;
   const msgs = document.getElementById('conv-messages');
   msgs.innerHTML = mensagensExibidas.map(m => `<div class="msg ${m.dir}"><div class="msg-bubble">${m.text}</div><div class="msg-time">${m.time}</div></div>`).join('');
   msgs.scrollTop = msgs.scrollHeight;
@@ -766,7 +766,7 @@ function renderPipeline() {
     </div>`).join('');
 }
 
-function onDragStart(e, id) { state.dragDealId = id; setTimeout(()=>e.target.classList.add('dragging'),0); }
+function onDragStart(e, id) { if (window.isSocio && window.isSocio()) { e.preventDefault(); toast('Sócio tem acesso somente leitura — não é possível mover etapa.', 'warn'); return; } state.dragDealId = id; setTimeout(()=>e.target.classList.add('dragging'),0); }
 function onDragOver(e, id)  { e.preventDefault(); document.getElementById('col-'+id)?.classList.add('drag-over'); }
 function onDragLeave(e, id) { document.getElementById('col-'+id)?.classList.remove('drag-over'); }
 async function onDrop(e, id) {

@@ -80,7 +80,7 @@
           <h1 class="module-title">UP <span class="dash">—</span> Flow</h1>
           <p class="module-subtitle">Projetos & processos · execução e entregas</p>
         </div>
-        <button class="btn btn-primary" onclick="openModal()" style="margin-top:4px;">
+        <button class="btn btn-primary" onclick="openModal()" style="margin-top:4px;" data-write-action>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Novo projeto
         </button>
@@ -122,7 +122,7 @@
     <div class="form-group"><label class="form-label">Etapas (uma por linha)</label><textarea class="input" id="p-etapas" rows="5" placeholder="Confirmação de pedido e pagamento&#10;Produção/separação na fábrica parceira&#10;Controle de qualidade e embalagem&#10;Frete e transporte&#10;Confirmação de entrega" style="resize:vertical;"></textarea></div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveProject()">Criar projeto</button>
+      <button class="btn btn-primary" onclick="saveProject()" data-write-action>Criar projeto</button>
     </div>
   </div>
 </div>
@@ -378,6 +378,7 @@ function toggleProject(id) {
 }
 
 async function toggleEtapa(projId, etapaId) {
+  if (window.isSocio && window.isSocio()) { toast('Sócio tem acesso somente leitura.', 'warn'); return; }
   await DATA_LAYER.toggleEtapa(projId, etapaId);
   projects = await DATA_LAYER.getProjects();
   renderStats(); renderProjects();

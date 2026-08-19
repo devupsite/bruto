@@ -79,7 +79,7 @@
           <h1 class="module-title">UP <span class="dash">—</span> Voice</h1>
           <p class="module-subtitle">Alertas proativos por e-mail · equipe Bruto</p>
         </div>
-        <button class="btn btn-primary" onclick="runVoiceCheck()" id="btn-check" style="margin-top:4px;">
+        <button class="btn btn-primary" onclick="runVoiceCheck()" id="btn-check" style="margin-top:4px;" data-write-action>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           Verificar agora
         </button>
@@ -221,11 +221,13 @@ async function carregarAlertasReais() {
 }
 
 async function aprovarAlerta(id) {
+  if (window.isSocio && window.isSocio()) { toast('Sócio tem acesso somente leitura.', 'warn'); return; }
   await fetch('api/voice.php', { method:'POST', credentials:'same-origin',
     headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'aprovar', id }) });
   await carregarAlertasReais(); renderAlerts();
 }
 async function enviarAlerta(id) {
+  if (window.isSocio && window.isSocio()) { toast('Sócio tem acesso somente leitura.', 'warn'); return; }
   // Manda e-mail de verdade pra contato@brutoceramica.com.br — ver
   // suite-voice.php. WhatsApp foi trocado por e-mail porque a
   // integração Evolution API estava banindo contas (decisão 08/08/2026).
@@ -236,6 +238,7 @@ async function enviarAlerta(id) {
   toast(data.email_enviado ? 'E-mail enviado para contato@brutoceramica.com.br' : 'Marcado como enviado, mas o e-mail pode não ter saído — confira.', data.email_enviado ? 'success' : 'warn');
 }
 async function descartarAlerta(id) {
+  if (window.isSocio && window.isSocio()) { toast('Sócio tem acesso somente leitura.', 'warn'); return; }
   await fetch('api/voice.php', { method:'POST', credentials:'same-origin',
     headers:{'Content-Type':'application/json'}, body: JSON.stringify({ acao:'descartar', id }) });
   await carregarAlertasReais(); renderAlerts();
@@ -323,6 +326,7 @@ function toggleSwitch(id) {
 // A mensagem gravada é um template determinístico, não escrita por IA
 // nesta chamada — dá pra evoluir depois, não é essencial agora.
 async function runVoiceCheck() {
+  if (window.isSocio && window.isSocio()) { toast('Sócio tem acesso somente leitura.', 'warn'); return; }
   const btn = document.getElementById('btn-check');
   btn.disabled = true;
   btn.innerHTML = `<svg class="spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Verificando…`;

@@ -118,6 +118,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,.4);
     }
     #suite-refresh-btn:hover { color: var(--teal); border-color: var(--teal); background: var(--teal-12); }
+    .write-blocked { opacity: .4 !important; cursor: not-allowed !important; pointer-events: none !important; }
     #suite-refresh-btn:active svg { animation: suite-spin .5s linear; }
     @keyframes suite-spin { to { transform: rotate(360deg); } }
 
@@ -518,6 +519,24 @@
     box.hidden = false;
   }
 
+  // ── Bloqueio de escrita pro papel 'sócio' ──────────────────
+  // Sócio tem leitura em tudo, escrita sempre bloqueada (mesma regra já
+  // aplicada no backend em suite-auth.php). Aqui é só UX: evita que a
+  // pessoa clique num botão que o servidor vai recusar com 403 de
+  // qualquer forma. Cobre elementos ESTÁTICOS marcados com
+  // data-write-action; elementos gerados dinamicamente (ex: pipeline
+  // do UP·Lead) tratam o próprio caso na função que os desenha.
+  window.isSocio = function () { return window.UP_AUTH?.user?.papel === 'socio'; };
+
+  window.aplicarBloqueioEscritaSocio = function () {
+    if (!window.isSocio()) return;
+    document.querySelectorAll('[data-write-action]').forEach(el => {
+      el.classList.add('write-blocked');
+      el.title = 'Sócio tem acesso somente leitura';
+      if ('disabled' in el) el.disabled = true;
+    });
+  };
+
   function mountNav() {
     const sidebar = document.getElementById('suite-sidebar');
     if (sidebar) {
@@ -526,10 +545,11 @@
       // por isso trata os dois casos em vez de assumir uma ordem. Se o
       // papel só chegar depois, o menu é reconstruído ANTES de pintar
       // o usuário (senão a reconstrução apagaria a pintura).
-      if (window.UP_AUTH?.pronto) { sidebar.innerHTML = buildNavHTML(); pintaUsuario(window.UP_AUTH.user); }
+      if (window.UP_AUTH?.pronto) { sidebar.innerHTML = buildNavHTML(); pintaUsuario(window.UP_AUTH.user); window.aplicarBloqueioEscritaSocio(); }
       else document.addEventListener('up-auth-ready', (e) => {
         sidebar.innerHTML = buildNavHTML();
         pintaUsuario(e.detail);
+        window.aplicarBloqueioEscritaSocio();
       }, { once: true });
     }
     mountBotaoAtualizar();
