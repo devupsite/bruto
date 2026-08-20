@@ -1,6 +1,6 @@
 # ════════════════════════════════════════════════════════════════
 # Suíte UP · BRUTO — endurecimento do subdomínio
-# Destino: raiz da pasta do subdomínio (ex: public_html/suite/.htaccess)
+# Destino: public_html/up/.htaccess (domínio principal, não subdomínio — decisão de 12/08/2026)
 # ════════════════════════════════════════════════════════════════
 
 # ── Nunca aparecer em buscador ──────────────────────────────────
