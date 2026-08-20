@@ -7,7 +7,7 @@
 // fora deste bloco.
 // ============================================================
 
-const DEMO_MODE = true; // true = Fase 1 do DEPLOY.md (suíte no ar, protegida, backend ainda não copiado pro servidor). Resetado para true em 12/08/2026 na preparação deste deploy — só voltar a false depois que TODAS as pontes (Lead, Vault, Base, Team, Dash/GOS, Voice) estiverem testadas isoladamente com o backend já no servidor.
+const DEMO_MODE = false; // false em produção real. A suíte já operou em produção (backend real, todas as pontes testadas) por mais de uma semana antes de public_html/up/ ser apagado por um deploy Git que mirava um estado desatualizado do repo (ver COLABORACAO.md, item sobre pastas fora do Git). bruto-secrets/API/ fica FORA de public_html — não foi tocado por esse deploy, então o backend real deve seguir intacto no servidor. Confirmar isso ao subir esta versão antes de assumir que está tudo certo.
 
 const CLIENT_CONFIG = {
   // ── Identidade ──────────────────────────────────────────
