@@ -174,14 +174,14 @@ window.DEMO_MODE     = DEMO_MODE;
 // Fonte: bruto-brandbook.html — Ferro / Grafite / Concreto / Titânio / Argamassa
 // Tipografia: Barlow Condensed (headings) + Barlow (corpo)
 const BRAND = {
-  bg:     '#0A0A0A', // Ferro
-  bg2:    '#141414', // Ferro → Grafite, um degrau acima
-  bg3:    '#1C1C1C', // Grafite
-  text:   '#F0EEEC', // Argamassa
-  muted:  '#B2AFAB', // Titânio
-  dim:    '#5C5956', // Concreto escurecido p/ contraste em fundo escuro
-  teal:   '#D44000', // Accent BRUTO (cor viva da marca, tom terracota/queimado)
-  border: '#2A2724',
+  bg:     '#0F0F0F', // Ferro
+  bg2:    '#1A1A1A', // Ferro → Grafite, um degrau acima
+  bg3:    '#242424', // Grafite
+  text:   '#F2F2F2', // Argamassa
+  muted:  '#888888', // Titânio
+  dim:    '#606060', // Concreto escurecido p/ contraste em fundo escuro
+  teal:   '#57999B', // Accent BRUTO (teal oficial da marca UP Co., aplicado em 14/08/2026 — antes disso a suíte usava terracota/queimado por engano)
+  border: '#2E2E2E',
   green:  '#27AE60',
   amber:  '#F5A623',
   red:    '#E74C3C',

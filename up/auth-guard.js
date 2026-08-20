@@ -23,7 +23,7 @@
   shield.id = 'auth-shield';
   shield.style.cssText = `
     position:fixed; inset:0; z-index:99999;
-    background:#0A0A0A; color:#B2AFAB;
+    background:#0F0F0F; color:#888888;
     display:flex; align-items:center; justify-content:center;
     font-family:'Barlow',system-ui,sans-serif; font-size:13px;
     letter-spacing:.02em;
@@ -87,11 +87,11 @@
       shield.innerHTML = `
         <div style="text-align:center;max-width:340px;line-height:1.6;">
           <div style="color:#E74C3C;font-weight:500;margin-bottom:8px;">Não consegui confirmar seu acesso</div>
-          <div style="font-size:12px;color:#5C5956;">
+          <div style="font-size:12px;color:#606060;">
             O backend de autenticação não respondeu. Por segurança, nada é exibido.<br>
             Verifique se <code>bruto-secrets/API/auth.php</code> está no servidor.
           </div>
-          <a href="${LOGIN_PAGE}" style="display:inline-block;margin-top:16px;color:#D44000;font-size:12px;">Ir para o login</a>
+          <a href="${LOGIN_PAGE}" style="display:inline-block;margin-top:16px;color:#57999B;font-size:12px;">Ir para o login</a>
         </div>`;
     });
 
