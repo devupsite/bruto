@@ -746,6 +746,7 @@ function BrutoAtendimento() {
 
   const msgEndRef = useRef(null);
   const saveTimerRef = useRef(null);
+  const suprimirProximoAutoSaveRef = useRef(false); // evita que abrir/visualizar uma conversa dispare "salvar", truncando o índice local em 30 itens à toa
   const fileInputRef = useRef(null);
 
   // ── Barra lateral redimensionável — puxar e arrastar ao vivo. Só
@@ -975,8 +976,17 @@ function BrutoAtendimento() {
   }
 
   // ── Auto-save: persiste sessão corrente 800ms após cada mudança ────
+  // Ignora a mudança de estado causada por ABRIR uma conversa existente
+  // (loadSession) — isso não é uma edição, é só visualização, e antes
+  // disparava um "salvar" desnecessário que truncava o índice local em
+  // 30 itens (setSessionIndex com .slice(0,30) dentro de persistSession),
+  // sobrescrevendo a lista completa (~70) que tinha vindo do servidor.
   useEffect(() => {
     if (messages.length === 0) return;
+    if (suprimirProximoAutoSaveRef.current) {
+      suprimirProximoAutoSaveRef.current = false;
+      return;
+    }
     clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => persistSession(messages, client), 800);
     return () => clearTimeout(saveTimerRef.current);
@@ -997,8 +1007,14 @@ function BrutoAtendimento() {
     try {
       await storage.set(`session:${id}`, payload);
       setSessionIndex((prev) => {
-        const updated = [meta, ...prev.filter((s) => s.id !== id)].slice(0, 30);
-        storage.set("session-index", JSON.stringify(updated));
+        const updated = [meta, ...prev.filter((s) => s.id !== id)];
+        // O cache local (armazenamento do navegador) fica limitado a 30 —
+        // é só uma reserva pra funcionar offline, não precisa da lista
+        // inteira. MAS o estado em memória (o que a tela mostra) usa a
+        // lista completa "updated", sem cortar — o servidor é quem manda
+        // na lista real (~70+), cortar aqui já causou bug antes (lista
+        // encolhendo de 70 pra ~20 conforme o atendente abria conversas).
+        storage.set("session-index", JSON.stringify(updated.slice(0, 30)));
         return updated;
       });
     } catch (_) {}
@@ -1065,6 +1081,7 @@ function BrutoAtendimento() {
     if (!parsed) return;
     try {
       const { client: cli, messages: msgs } = parsed;
+      suprimirProximoAutoSaveRef.current = true; // essa mudança de estado é "abrir conversa", não "editar" — não deve disparar auto-save
       setClient(cli);
       setMessages(msgs);
       setCurrentSessionId(id);
@@ -1470,8 +1487,10 @@ function BrutoAtendimento() {
         const merged = [
           ...newMetas,
           ...existingIndex.filter((p) => !newMetas.find((n) => n.id === p.id)),
-        ].slice(0, 30);
-        await storage.set("session-index", JSON.stringify(merged));
+        ];
+        // Mesmo cuidado do persistSession: armazenamento local capado em
+        // 30 (só cache offline), estado em memória com a lista completa.
+        await storage.set("session-index", JSON.stringify(merged.slice(0, 30)));
         setSessionIndex(merged);
         setHistoryOpen(true);
         alert(`${newMetas.length} sessão(ões) importada(s) com sucesso.`);
