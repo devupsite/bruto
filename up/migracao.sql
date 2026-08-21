@@ -162,6 +162,16 @@ CREATE TABLE IF NOT EXISTS pulse_semanal (
   UNIQUE KEY uq_semana (semana)
 );
 
+-- ── 9. UP·Lead — sincronização seletiva com o Atendimento (21/08/2026) ──
+-- Até aqui TODA sessão não-arquivada do Atendimento virava lead
+-- automaticamente (suite-leads.php, ação 'listar', sem filtro nenhum).
+-- Passa a exigir opt-in explícito: um botão na própria conversa do
+-- Atendimento (historico.php, ação 'sincronizar') marca essa coluna;
+-- só quem tem sincronizado=1 aparece no UP·Lead dali em diante.
+-- ALTER, não CREATE — a tabela lead_pipeline já existe em produção.
+ALTER TABLE lead_pipeline
+  ADD COLUMN sincronizado TINYINT(1) NOT NULL DEFAULT 0 AFTER sessao_id;
+
 -- ════════════════════════════════════════════════════════════════
 -- Fim. Depois de rodar, confira com:
 --   SHOW TABLES LIKE '%suite%'; SHOW TABLES LIKE '%pipeline%';

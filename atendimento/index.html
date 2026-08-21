@@ -60,7 +60,7 @@ import {
   X, MessageCircle, Lightbulb, Copy, Check, History, Plus, Trash2, Download, Upload,
   Image as ImageIcon, Camera, FileText,
   Target, ClipboardList, GraduationCap, Dices, MessageSquareShare, Users, Pencil, BarChart3,
-  Menu, MoreVertical, Archive, ArchiveRestore, Tag, AlertTriangle,
+  Menu, MoreVertical, Archive, ArchiveRestore, Tag, AlertTriangle, RefreshCw,
 } from "lucide-react";
 
 // ── CONFIG DE DEPLOY (fora do Claude.ai) ───────────────────────────
@@ -1054,6 +1054,25 @@ function BrutoAtendimento() {
     try {
       await apiCall("api/historico.php", { acao: "arquivar", id, arquivado: novoValor });
     } catch (_) { /* depende do backend aceitar "acao: arquivar" — ver nota de integração */ }
+  }
+
+  // ── Sincronizar/dessincronizar com o UP·Lead. Só conversas marcadas
+  // aqui aparecem lá — ver suite-leads.php (WHERE lp.sincronizado = 1).
+  async function toggleSincronizarSession(id, e) {
+    if (e) e.stopPropagation();
+    let novoValor = true;
+    setSessionIndex((prev) => {
+      const updated = prev.map((s) => {
+        if (s.id !== id) return s;
+        novoValor = !s.sincronizado;
+        return { ...s, sincronizado: novoValor };
+      });
+      return updated;
+    });
+    setAdminIndex((prev) => prev.map((s) => s.id === id ? { ...s, sincronizado: novoValor } : s));
+    try {
+      await apiCall("api/historico.php", { acao: "sincronizar", id, sincronizado: novoValor });
+    } catch (_) { /* mesma tolerância da ação "arquivar" acima */ }
   }
 
   async function startNewSession() {
@@ -2334,6 +2353,9 @@ function BrutoAtendimento() {
                             )}
                           </div>
                           <button style={S.histDelete} onClick={(e) => openEditClient(s, e)} title="Editar perfil do cliente"><Pencil size={10} strokeWidth={1.75}/></button>
+                          <button style={S.histDelete} onClick={(e) => toggleSincronizarSession(s.id, e)} title={s.sincronizado ? "Sincronizado com o UP·Lead — clique para remover de lá" : "Sincronizar com o UP·Lead"}>
+                            {s.sincronizado ? <CheckCircle2 size={10} strokeWidth={1.75}/> : <RefreshCw size={10} strokeWidth={1.75}/>}
+                          </button>
                           <button style={S.histDelete} onClick={(e) => toggleArchiveSession(s.id, e)} title={s.arquivado ? "Desarquivar" : "Arquivar"}>
                             {s.arquivado ? <ArchiveRestore size={10} strokeWidth={1.75}/> : <Archive size={10} strokeWidth={1.75}/>}
                           </button>
