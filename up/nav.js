@@ -736,13 +736,17 @@
   // visível no código-fonte da página pra qualquer visitante. A chamada
   // passa por api/ia.php, que é uma ponte pra bruto-secrets/ — mesmo
   // padrão que o Atendimento Técnico já usa em api/chat.php.
-  window.callClaude = async function({ systemPrompt, userPayload, mockResponse, maxTokens }) {
+  window.callClaude = async function({ systemPrompt, userPayload, mockResponse, maxTokens, images }) {
     if (DEMO_MODE) {
       // Em modo demo, simula latência e retorna mock
       await new Promise(r => setTimeout(r, 900 + Math.random() * 600));
       return mockResponse;
     }
     try {
+      // images: array opcional de data URIs (base64) — usado por quem lê
+      // arquivo/foto (ex: UP·Vault). Sem isso, comportamento idêntico ao
+      // de antes; api/ia.php ainda precisa aceitar esse campo do lado de
+      // lá pra virar um pedido de visão de verdade pra Anthropic.
       const res = await fetch('api/ia.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -751,6 +755,7 @@
           system: systemPrompt,
           payload: userPayload,
           max_tokens: maxTokens || 1000,
+          images: images || undefined,
         })
       });
       const data = await res.json().catch(() => ({}));

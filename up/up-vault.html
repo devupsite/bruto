@@ -63,6 +63,23 @@
     .form-actions { display:flex;gap:8px;justify-content:flex-end;margin-top:20px; }
     @keyframes spin { to { transform:rotate(360deg); } }
     .spin { animation:spin 1s linear infinite; }
+
+    /* Importação em lote via IA (recibos/notas) */
+    .ai-import-drop { border:1.5px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s; }
+    .ai-import-drop:hover, .ai-import-drop.dragover { border-color:var(--teal);background:var(--teal-12); }
+    .ai-import-drop svg { color:var(--dim);margin-bottom:8px; }
+    .ai-import-drop-text { font-size:13px;color:var(--muted); }
+    .ai-import-drop-sub { font-size:11px;color:var(--dim);margin-top:4px; }
+    .ai-review-list { margin-top:16px;max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:10px; }
+    .ai-review-item { background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px; }
+    .ai-review-item.erro { border-color:var(--red); }
+    .ai-review-filename { font-size:11px;color:var(--dim);margin-bottom:8px;display:flex;align-items:center;gap:6px;justify-content:space-between; }
+    .ai-review-remove { cursor:pointer;color:var(--dim);transition:color .15s; }
+    .ai-review-remove:hover { color:var(--red); }
+    .ai-review-fields { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+    .ai-review-fields .full { grid-column:1 / -1; }
+    .ai-review-erro-msg { font-size:12px;color:var(--red); }
+    .ai-import-loading { display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding:16px 0; }
   </style>
 </head>
 <body>
@@ -79,6 +96,10 @@
           <button class="btn btn-ghost" onclick="runAIAnalysis()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             Análise IA
+          </button>
+          <button class="btn btn-ghost" onclick="openAIImportModal()" data-write-action>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Importar com IA
           </button>
           <button class="btn btn-primary" onclick="openModal('modal-tx')" data-write-action>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -198,6 +219,27 @@
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-tx')">Cancelar</button>
       <button class="btn btn-primary" onclick="saveTx()" data-write-action>Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modal-ai-import" onclick="closeModalBg(event,'modal-ai-import')">
+  <div class="modal" style="width:520px;">
+    <div class="modal-title">Importar transações com IA</div>
+    <div class="ai-import-drop" id="ai-drop-zone" onclick="document.getElementById('ai-file-input').click()">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <div class="ai-import-drop-text">Clique ou arraste fotos de recibos, notas fiscais ou PDFs</div>
+      <div class="ai-import-drop-sub">A IA lê e sugere tipo, valor, descrição e categoria — você confere antes de salvar</div>
+      <input type="file" id="ai-file-input" accept="image/*,.pdf" multiple style="display:none;" onchange="handleAIFiles(this.files)"/>
+    </div>
+    <div id="ai-import-loading" class="ai-import-loading hidden">
+      <svg class="spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+      <span id="ai-import-loading-text">Lendo arquivos…</span>
+    </div>
+    <div class="ai-review-list" id="ai-review-list"></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeAIImportModal()">Cancelar</button>
+      <button class="btn btn-primary hidden" id="ai-import-save-btn" onclick="confirmAllAITx()" data-write-action>Salvar tudo</button>
     </div>
   </div>
 </div>
@@ -376,7 +418,136 @@ async function saveTx() {
   toast(`${tx.tipo === 'receita' ? 'Receita' : 'Despesa'} registrada`, 'success');
 }
 
-document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal('modal-tx'); });
+// ── Importação em lote via IA (recibos/notas/comprovantes) ──────────
+// Fluxo: usuário sobe 1+ arquivos -> cada um vira uma linha editável
+// com o palpite da IA já preenchido -> usuário confere/corrige -> só
+// aí grava, um addTx() por linha confirmada. Nunca salva sem revisão.
+let aiReviewItems = []; // [{ id, filename, tipo, descricao, valor, data, categoria, erro }]
+
+function openAIImportModal() {
+  aiReviewItems = [];
+  document.getElementById('ai-review-list').innerHTML = '';
+  document.getElementById('ai-import-save-btn').classList.add('hidden');
+  document.getElementById('ai-import-loading').classList.add('hidden');
+  document.getElementById('ai-file-input').value = '';
+  document.getElementById('modal-ai-import').classList.remove('hidden');
+}
+function closeAIImportModal() { closeModal('modal-ai-import'); }
+
+// Arrastar-e-soltar sobre a área de upload
+const aiDropZone = document.getElementById('ai-drop-zone');
+if (aiDropZone) {
+  ['dragover','dragenter'].forEach(ev => aiDropZone.addEventListener(ev, e => { e.preventDefault(); aiDropZone.classList.add('dragover'); }));
+  ['dragleave','drop'].forEach(ev => aiDropZone.addEventListener(ev, e => { e.preventDefault(); aiDropZone.classList.remove('dragover'); }));
+  aiDropZone.addEventListener('drop', e => { if (e.dataTransfer?.files?.length) handleAIFiles(e.dataTransfer.files); });
+}
+
+function fileParaDataURI(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleAIFiles(fileList) {
+  const files = Array.from(fileList || []);
+  if (!files.length) return;
+  const loading = document.getElementById('ai-import-loading');
+  const loadingText = document.getElementById('ai-import-loading-text');
+  loading.classList.remove('hidden');
+
+  const categorias = ['Vendas de produto','Amostras','Software / Ferramentas','Marketing','Pessoal','Infraestrutura','Outros'];
+  const hoje = new Date().toISOString().slice(0,10);
+
+  for (let i = 0; i < files.length; i++) {
+    loadingText.textContent = `Lendo arquivo ${i+1} de ${files.length}…`;
+    const file = files[i];
+    const id = 'ai'+Date.now()+i;
+    try {
+      const dataUri = await fileParaDataURI(file);
+      const r = await window.callClaude({
+        systemPrompt: `Você extrai dados de recibos, notas fiscais e comprovantes financeiros da empresa ${CLIENT_CONFIG.empresa}. Retorne APENAS JSON válido, sem texto antes ou depois: {"tipo":"receita|despesa","valor":0000.00,"descricao":"...","data":"AAAA-MM-DD","categoria":"uma destas: ${categorias.join('|')}"}. Sem confiança total em algum campo, ainda assim dê sua melhor estimativa -- o usuário revisa antes de salvar. Se o arquivo não for um documento financeiro reconhecível, retorne {"erro":"não é um documento financeiro"}.`,
+        userPayload: { nome_arquivo: file.name },
+        images: [dataUri],
+        mockResponse: JSON.stringify({ tipo:'despesa', valor:0, descricao:file.name, data:hoje, categoria:'Outros' }),
+      });
+      const ai = JSON.parse(r);
+      if (ai.erro) {
+        aiReviewItems.push({ id, filename: file.name, erro: ai.erro });
+      } else {
+        aiReviewItems.push({
+          id, filename: file.name, erro: null,
+          tipo: ai.tipo === 'receita' ? 'receita' : 'despesa',
+          descricao: ai.descricao || file.name,
+          valor: parseFloat(ai.valor) || 0,
+          data: /^\d{4}-\d{2}-\d{2}$/.test(ai.data) ? ai.data : hoje,
+          categoria: categorias.includes(ai.categoria) ? ai.categoria : 'Outros',
+        });
+      }
+    } catch (e) {
+      aiReviewItems.push({ id, filename: file.name, erro: 'Não consegui ler este arquivo.' });
+    }
+    renderAIReviewList();
+  }
+  loading.classList.add('hidden');
+  document.getElementById('ai-file-input').value = '';
+}
+
+function renderAIReviewList() {
+  const categorias = ['Vendas de produto','Amostras','Software / Ferramentas','Marketing','Pessoal','Infraestrutura','Outros'];
+  const list = document.getElementById('ai-review-list');
+  list.innerHTML = aiReviewItems.map(item => {
+    if (item.erro) {
+      return `<div class="ai-review-item erro">
+        <div class="ai-review-filename">${item.filename}<span class="ai-review-remove" onclick="removeAIReviewItem('${item.id}')">✕</span></div>
+        <div class="ai-review-erro-msg">${item.erro}</div>
+      </div>`;
+    }
+    return `<div class="ai-review-item">
+      <div class="ai-review-filename">${item.filename}<span class="ai-review-remove" onclick="removeAIReviewItem('${item.id}')">✕</span></div>
+      <div class="ai-review-fields">
+        <select class="input" onchange="updateAIReviewItem('${item.id}','tipo',this.value)">
+          <option value="receita" ${item.tipo==='receita'?'selected':''}>Receita</option>
+          <option value="despesa" ${item.tipo==='despesa'?'selected':''}>Despesa</option>
+        </select>
+        <input class="input" type="number" value="${item.valor}" placeholder="Valor" onchange="updateAIReviewItem('${item.id}','valor',parseFloat(this.value)||0)"/>
+        <input class="input full" type="text" value="${item.descricao.replace(/"/g,'&quot;')}" placeholder="Descrição" onchange="updateAIReviewItem('${item.id}','descricao',this.value)"/>
+        <input class="input" type="date" value="${item.data}" onchange="updateAIReviewItem('${item.id}','data',this.value)"/>
+        <select class="input" onchange="updateAIReviewItem('${item.id}','categoria',this.value)">
+          ${categorias.map(cat => `<option ${cat===item.categoria?'selected':''}>${cat}</option>`).join('')}
+        </select>
+      </div>
+    </div>`;
+  }).join('');
+  const temValidos = aiReviewItems.some(i => !i.erro);
+  document.getElementById('ai-import-save-btn').classList.toggle('hidden', !temValidos);
+}
+
+function updateAIReviewItem(id, campo, valor) {
+  const item = aiReviewItems.find(i => i.id === id);
+  if (item) item[campo] = valor;
+}
+function removeAIReviewItem(id) {
+  aiReviewItems = aiReviewItems.filter(i => i.id !== id);
+  renderAIReviewList();
+}
+
+async function confirmAllAITx() {
+  const validos = aiReviewItems.filter(i => !i.erro);
+  if (!validos.length) return;
+  for (const item of validos) {
+    if (!item.descricao || !item.valor) continue;
+    await DATA_LAYER.addTx({ id:'t'+Date.now()+Math.random().toString(36).slice(2,6), tipo:item.tipo, descricao:item.descricao, valor:item.valor, data:item.data, categoria:item.categoria });
+  }
+  txs = await DATA_LAYER.getTx();
+  render();
+  closeAIImportModal();
+  toast(`${validos.length} transaç${validos.length>1?'ões':'ão'} importada${validos.length>1?'s':''}`, 'success');
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Escape') { closeModal('modal-tx'); closeAIImportModal(); } });
 init();
 </script>
 </body>
