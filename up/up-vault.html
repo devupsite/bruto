@@ -445,6 +445,14 @@ if (aiDropZone) {
   aiDropZone.addEventListener('drop', e => { if (e.dataTransfer?.files?.length) handleAIFiles(e.dataTransfer.files); });
 }
 
+// Modelos às vezes envolvem a resposta em ```json ... ``` mesmo pedindo
+// explicitamente só JSON puro no prompt. Limpa isso antes de parsear,
+// em vez de confiar cegamente no formato.
+function extrairJSON(texto) {
+  const limpo = String(texto || '').replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/,'').trim();
+  return JSON.parse(limpo);
+}
+
 function fileParaDataURI(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -471,12 +479,23 @@ async function handleAIFiles(fileList) {
     try {
       const dataUri = await fileParaDataURI(file);
       const r = await window.callClaude({
-        systemPrompt: `Você extrai dados de recibos, notas fiscais e comprovantes financeiros da empresa ${CLIENT_CONFIG.empresa}. Retorne APENAS JSON válido, sem texto antes ou depois: {"tipo":"receita|despesa","valor":0000.00,"descricao":"...","data":"AAAA-MM-DD","categoria":"uma destas: ${categorias.join('|')}"}. Sem confiança total em algum campo, ainda assim dê sua melhor estimativa -- o usuário revisa antes de salvar. Se o arquivo não for um documento financeiro reconhecível, retorne {"erro":"não é um documento financeiro"}.`,
+        systemPrompt: `Você extrai dados de recibos, notas fiscais e comprovantes financeiros da empresa ${CLIENT_CONFIG.empresa}. Retorne APENAS JSON válido, sem texto antes ou depois, sem marcação de bloco de código: {"tipo":"receita|despesa","valor":0000.00,"descricao":"...","data":"AAAA-MM-DD","categoria":"uma destas: ${categorias.join('|')}"}. Sem confiança total em algum campo, ainda assim dê sua melhor estimativa -- o usuário revisa antes de salvar. Se o arquivo não for um documento financeiro reconhecível, retorne {"erro":"não é um documento financeiro"}.`,
         userPayload: { nome_arquivo: file.name },
         images: [dataUri],
         mockResponse: JSON.stringify({ tipo:'despesa', valor:0, descricao:file.name, data:hoje, categoria:'Outros' }),
       });
-      const ai = JSON.parse(r);
+      let ai;
+      try {
+        ai = extrairJSON(r);
+      } catch (parseErr) {
+        // Chegou resposta, mas não deu pra ler como JSON -- mostra um
+        // pedaço do que voltou, pra dar pra diagnosticar de verdade em
+        // vez de só "não consegui", que não diz onde foi o problema.
+        console.error('Resposta da IA não é JSON válido:', r);
+        aiReviewItems.push({ id, filename: file.name, erro: 'Resposta da IA veio num formato inesperado: "' + String(r).slice(0,80) + '..."' });
+        renderAIReviewList();
+        continue;
+      }
       if (ai.erro) {
         aiReviewItems.push({ id, filename: file.name, erro: ai.erro });
       } else {
@@ -490,7 +509,8 @@ async function handleAIFiles(fileList) {
         });
       }
     } catch (e) {
-      aiReviewItems.push({ id, filename: file.name, erro: 'Não consegui ler este arquivo.' });
+      console.error('Falha ao processar arquivo:', file.name, e);
+      aiReviewItems.push({ id, filename: file.name, erro: 'Não consegui ler este arquivo: ' + (e?.message || e) });
     }
     renderAIReviewList();
   }
