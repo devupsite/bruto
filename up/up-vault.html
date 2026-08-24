@@ -97,7 +97,7 @@
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             Análise IA
           </button>
-          <button class="btn btn-ghost" onclick="openAIImportModal()" data-write-action>
+          <button class="btn btn-ghost" onclick="openAIImportModal()" title="Sócio pode importar recibo via IA, mesmo sem poder criar transação manual">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             Importar com IA
           </button>
@@ -239,7 +239,7 @@
     <div class="ai-review-list" id="ai-review-list"></div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeAIImportModal()">Cancelar</button>
-      <button class="btn btn-primary hidden" id="ai-import-save-btn" onclick="confirmAllAITx()" data-write-action>Salvar tudo</button>
+      <button class="btn btn-primary hidden" id="ai-import-save-btn" onclick="confirmAllAITx()">Salvar tudo</button>
     </div>
   </div>
 </div>
@@ -284,9 +284,12 @@ const DATA_LAYER = window.createDataLayer(
       return data.transacoes || [];
     },
     addTx: async (tx) => {
+      // origem: 'manual' (padrão) ou 'ia' -- o backend usa isso pra saber
+      // se libera a exceção do sócio (só pode importar recibo via IA,
+      // não criar transação manual). Ver suite-vault.php.
       const res = await fetch('api/vault.php', { method:'POST', credentials:'same-origin',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ acao:'criar', tipo:tx.tipo, descricao:tx.descricao, valor:tx.valor, data:tx.data, categoria:tx.categoria }) });
+        body: JSON.stringify({ acao:'criar', tipo:tx.tipo, descricao:tx.descricao, valor:tx.valor, data:tx.data, categoria:tx.categoria, origem: tx.origem || 'manual' }) });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { window.toast?.(data.erro || 'Não consegui salvar a transação.', 'error'); return null; }
       return tx;
@@ -539,7 +542,7 @@ async function confirmAllAITx() {
   if (!validos.length) return;
   for (const item of validos) {
     if (!item.descricao || !item.valor) continue;
-    await DATA_LAYER.addTx({ id:'t'+Date.now()+Math.random().toString(36).slice(2,6), tipo:item.tipo, descricao:item.descricao, valor:item.valor, data:item.data, categoria:item.categoria });
+    await DATA_LAYER.addTx({ id:'t'+Date.now()+Math.random().toString(36).slice(2,6), tipo:item.tipo, descricao:item.descricao, valor:item.valor, data:item.data, categoria:item.categoria, origem:'ia' });
   }
   txs = await DATA_LAYER.getTx();
   render();
