@@ -278,7 +278,6 @@
   <div class="secao-titulo secao-titulo--clicavel" id="leads-toggle">
     <span>Leads recentes <span class="secao-chevron" id="leads-chevron">▾</span></span>
     <button class="exportar-btn" id="exportar-btn" type="button" onclick="event.stopPropagation()">Exportar conversões (Google Ads)</button>
-    <button class="exportar-btn" id="exportar-btn-meta" type="button" onclick="event.stopPropagation()">Exportar conversões (Meta Ads)</button>
   </div>
 
   <div id="leads-conteudo" class="leads-conteudo" style="display:none">
@@ -356,7 +355,6 @@
   var novoBtn = document.getElementById('novo-btn');
   var leadsLista = document.getElementById('leads-lista');
   var exportarBtn = document.getElementById('exportar-btn');
-  var exportarBtnMeta = document.getElementById('exportar-btn-meta');
   var leadsCache = [];
 
   var filtroPeriodoEl = document.getElementById('filtro-periodo');
@@ -998,59 +996,6 @@
       pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + sinal + offH + ':' + offM;
   }
 
-  function formatarDataConversaoMeta(iso) {
-    // Meta exige ISO 8601 em UTC com "Z" no final (ex:
-    // "2026-08-26T21:07:00Z") — formato diferente do Google, que usa
-    // o fuso local (-03:00) em vez de converter pra UTC.
-    var d = new Date(iso);
-    if (isNaN(d.getTime())) return '';
-    var pad = function (n) { return String(n).padStart(2, '0'); };
-    return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()) + 'T' +
-      pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds()) + 'Z';
-  }
-
-  function exportarConversoesMeta() {
-    // Só usa telefone_hash_meta (JÁ hasheado) — nunca guardamos
-    // telefone em texto puro (decisão de privacidade, 26/08/2026), por
-    // isso não dá pra preencher o formato "cru" que a Meta pede por
-    // padrão. Ao importar esse CSV no Gerenciador de Eventos, marque a
-    // opção "os dados já estão hasheados" (se aparecer na tela de
-    // upload) — sem isso, a Meta pode tentar hashear de novo um valor
-    // que já é hash, e o casamento nunca vai bater com nada.
-    var elegiveis = leadsCache.filter(function (l) {
-      return l.resultado === 'fechou' && l.telefone_hash_meta;
-    });
-    if (!elegiveis.length) {
-      alert('Nenhum lead fechado com telefone hasheado (formato Meta) pra exportar ainda.');
-      return;
-    }
-
-    var linhas = ['email,email,email,phone,phone,phone,madid,fn,ln,zip,ct,st,country,dob,doby,gen,age,event_name,event_time,value,currency'];
-    elegiveis.forEach(function (l) {
-      linhas.push([
-        '', '', '', // email x3 — não coletamos e-mail no painel hoje
-        csvEscape(l.telefone_hash_meta), '', '', // phone x3 — só temos 1 hash por lead
-        '', // madid — não coletamos
-        '', '', // fn, ln — não coletamos nome no painel hoje
-        '', '', '', '', // zip, ct, st, country
-        '', '', '', '', // dob, doby, gen, age
-        csvEscape('Purchase'),
-        csvEscape(formatarDataConversaoMeta(l.resultado_marcado_em || l.recebido_em)),
-        l.valor != null ? csvEscape(l.valor) : '',
-        'BRL'
-      ].join(','));
-    });
-
-    var blob = new Blob(['\ufeff' + linhas.join('\n')], { type: 'text/csv;charset=utf-8' });
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'bruto-conversoes-meta-ads.csv';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(a.href);
-  }
-
   function exportarConversoes() {
     var elegiveis = leadsCache.filter(function (l) {
       return l.resultado === 'fechou' && (l.gclid || l.telefone_hash);
@@ -1083,7 +1028,6 @@
   }
 
   exportarBtn.addEventListener('click', exportarConversoes);
-  exportarBtnMeta.addEventListener('click', exportarConversoesMeta);
 
   carregar();
   carregarLeads();
