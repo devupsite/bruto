@@ -703,12 +703,13 @@
           '<div class="lead-codigo">' + (lead.codigo_referencia || '') + '</div>';
 
         topo.appendChild(info);
-        if (lead.gclid || lead.utm_source) {
+        if (lead.gclid || lead.fbclid || lead.utm_source) {
           var selo = document.createElement('span');
           selo.className = 'lead-anuncio';
-          // gclid = confirmado clique pago (Google Ads); só utm_source = campanha
-          // rastreada mas sem gclid (auto-tagging desligado, outra plataforma, etc.)
-          selo.textContent = lead.gclid ? 'Anúncio' : 'Campanha';
+          // gclid/fbclid = confirmado clique pago (Google ou Meta Ads);
+          // só utm_source = campanha rastreada sem nenhum dos dois
+          // (auto-tagging desligado, outra plataforma, etc.)
+          selo.textContent = (lead.gclid || lead.fbclid) ? 'Anúncio' : 'Campanha';
           topo.appendChild(selo);
           if (lead.utm_campaign) {
             var selCampanha = document.createElement('span');
@@ -803,7 +804,7 @@
   function aplicarFiltros() {
     var filtrados = leadsCache.filter(function (l) {
       if (!dentroDoPeriodo(l)) return false;
-      var deAnuncio = !!(l.gclid || l.utm_source);
+      var deAnuncio = !!(l.gclid || l.fbclid || l.utm_source);
       if (filtros.origem === 'anuncio' && !deAnuncio) return false;
       if (filtros.origem === 'organico' && deAnuncio) return false;
       if (filtros.pagina !== 'tudo' && normalizarPagina(l.pagina) !== filtros.pagina) return false;
@@ -920,6 +921,20 @@
       );
     }
 
+    // Também pede o valor da venda — sem isso, o evento de conversão
+    // mandado pra Meta (e o registro em geral) fica sem saber QUANTO
+    // vendeu, só QUE vendeu. Opcional também, mesmo raciocínio do
+    // telefone: não travar o fluxo de marcar "fechou" por causa disso.
+    var valorVenda = null;
+    if (novoResultado === 'fechou') {
+      var valorDigitado = window.prompt(
+        'Valor da venda em R$ (opcional, ex: 1489.00 — ajuda a otimizar os anúncios pelo valor real, não só pela quantidade de vendas):',
+        ''
+      );
+      var valorNumerico = parseFloat((valorDigitado || '').replace(',', '.'));
+      if (!isNaN(valorNumerico) && valorNumerico > 0) valorVenda = valorNumerico;
+    }
+
     var todosBotoes = btn.parentElement.querySelectorAll('.res-btn');
     todosBotoes.forEach(function (b) { b.disabled = true; });
 
@@ -930,6 +945,7 @@
       resultado: novoResultado
     };
     if (telefoneCliente) corpoRequisicao.telefone = telefoneCliente;
+    if (valorVenda) corpoRequisicao.valor = valorVenda;
 
     fetch(API_MARCAR_LEAD, {
       method: 'POST',

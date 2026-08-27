@@ -27,7 +27,8 @@
    WhatsApp funcionando, só perde a garantia de equilíbrio entre
    visitantes diferentes enquanto o servidor estiver fora.
 
-   5) Rastreio de origem (22/07/2026): captura gclid (Google Ads) e
+   5) Rastreio de origem (22/07/2026, ampliado 26/08/2026 com fbclid):
+      captura gclid (Google Ads), fbclid (Meta Ads) e
       utm_source/medium/campaign da URL na primeira página vista,
       guarda em sessionStorage (first-touch — não sobrescreve se o
       visitante já entrou por um clique de anúncio nesta sessão).
@@ -35,8 +36,8 @@
       de referência curto (produto_tipo-cta_origem_hash) na própria
       mensagem, e dispara um beacon pra api/registrar-lead.php com
       esses dados + o atendente sorteado, ANTES de abrir o WhatsApp
-      — é isso que permite cruzar depois: clique de anúncio (gclid)
-      -> lead específico -> atendente -> resultado da conversa.
+      — é isso que permite cruzar depois: clique de anúncio (gclid
+      ou fbclid) -> lead específico -> atendente -> resultado da conversa.
 ════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -56,7 +57,7 @@
 
   var promessaNumero = null;
 
-  // ─── Contexto de anúncio (gclid/UTM) — first-touch por sessão ───
+  // ─── Contexto de anúncio (gclid/fbclid/UTM) — first-touch por sessão ───
 
   function lerContextoAds() {
     try {
@@ -79,18 +80,23 @@
     }
 
     var gclid = params.get('gclid');
+    var fbclid = params.get('fbclid'); // clique de anúncio da Meta — mesmo princípio do gclid
     var utmSource = params.get('utm_source');
     var utmMedium = params.get('utm_medium');
     var utmCampaign = params.get('utm_campaign');
 
-    if (!gclid && !utmSource) return null; // visita direta, sem rastro de campanha
+    if (!gclid && !fbclid && !utmSource) return null; // visita direta, sem rastro de campanha
 
     var contexto = {
       gclid: gclid || null,
+      fbclid: fbclid || null,
       utm_source: utmSource || null,
       utm_medium: utmMedium || null,
       utm_campaign: utmCampaign || null,
-      origem: gclid ? 'google-ads' : (utmSource || 'desconhecida'),
+      // gclid tem prioridade se os dois vierem juntos (caso raríssimo,
+      // ex: link compartilhado entre plataformas) — só pra ter uma
+      // regra clara de desempate, não porque uma origem importa mais.
+      origem: gclid ? 'google-ads' : (fbclid ? 'meta-ads' : (utmSource || 'desconhecida')),
       capturado_em: new Date().toISOString()
     };
 
@@ -134,6 +140,7 @@
         atendente: (dadosAtendente && dadosAtendente.atendente) || null,
         numero: (dadosAtendente && dadosAtendente.numero) || null,
         gclid: contextoAds.gclid || null,
+        fbclid: contextoAds.fbclid || null,
         utm_campaign: contextoAds.utm_campaign || null,
         utm_source: contextoAds.utm_source || null,
         utm_medium: contextoAds.utm_medium || null,
