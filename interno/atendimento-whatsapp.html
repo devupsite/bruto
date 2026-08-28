@@ -706,10 +706,7 @@
         if (lead.gclid || lead.fbclid || lead.utm_source) {
           var selo = document.createElement('span');
           selo.className = 'lead-anuncio';
-          // gclid/fbclid = confirmado clique pago (Google ou Meta Ads);
-          // só utm_source = campanha rastreada sem nenhum dos dois
-          // (auto-tagging desligado, outra plataforma, etc.)
-          selo.textContent = (lead.gclid || lead.fbclid) ? 'Anúncio' : 'Campanha';
+          selo.textContent = ehAnuncioPagoConfirmado(lead) ? 'Anúncio' : 'Campanha';
           topo.appendChild(selo);
           if (lead.utm_campaign) {
             var selCampanha = document.createElement('span');
@@ -774,6 +771,31 @@
     return pagina;
   }
 
+  // ── Anúncio pago confirmado vs. só rastreado ────────────────────────
+  // CORREÇÃO (27/08/2026): gclid e fbclid NÃO são equivalentes aqui.
+  // O Google só adiciona gclid em clique de anúncio pago de verdade
+  // (auto-tagging). Já a Meta adiciona fbclid em QUALQUER clique vindo
+  // de dentro do Facebook/Instagram/Messenger/WhatsApp — post orgânico,
+  // link compartilhado entre amigos, Story, DM — não só anúncio pago
+  // (confirmado, documentação da própria Meta e múltiplas fontes
+  // técnicas). Tratar fbclid sozinho como "Anúncio confirmado" (como
+  // ficou por um tempo) inflava a contagem com tráfego social orgânico
+  // gratuito — foi a causa da anomalia de leads de anúncio que o
+  // Rafael notou.
+  //
+  // A Meta também não tem auto-tagging de UTM como o Google: só existe
+  // utm_medium indicando pago se alguém configurou isso manualmente no
+  // anúncio. Por isso, só considera "Anúncio" confirmado quando:
+  //   - tem gclid (sempre confiável, é só de anúncio pago), OU
+  //   - tem fbclid E o utm_medium indica claramente pago
+  // fbclid sozinho (sem UTM de pago) vira "Campanha" — rastreado, mas
+  // não confirmado como anúncio pago.
+  function ehAnuncioPagoConfirmado(lead) {
+    if (lead.gclid) return true;
+    if (lead.fbclid && lead.utm_medium && /paid|cpc|ads/i.test(lead.utm_medium)) return true;
+    return false;
+  }
+
   function popularFiltroPagina() {
     var paginas = {};
     leadsCache.forEach(function (l) {
@@ -804,7 +826,7 @@
   function aplicarFiltros() {
     var filtrados = leadsCache.filter(function (l) {
       if (!dentroDoPeriodo(l)) return false;
-      var deAnuncio = !!(l.gclid || l.fbclid || l.utm_source);
+      var deAnuncio = ehAnuncioPagoConfirmado(l);
       if (filtros.origem === 'anuncio' && !deAnuncio) return false;
       if (filtros.origem === 'organico' && deAnuncio) return false;
       if (filtros.pagina !== 'tudo' && normalizarPagina(l.pagina) !== filtros.pagina) return false;
