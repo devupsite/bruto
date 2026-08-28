@@ -26,6 +26,11 @@
   bar.target = '_blank';
   bar.rel = 'noopener';
   bar.setAttribute('aria-label', 'Falar no WhatsApp');
+  // Marca que esse link já dispara whatsapp_click manualmente aqui embaixo —
+  // sem isso, o listener genérico de analytics.js (que pega QUALQUER link
+  // wa.me) também dispara o mesmo evento pro mesmo clique, duplicando a
+  // contagem de conversão no Google Ads (bug real encontrado em 27/08/2026).
+  bar.dataset.waTrackManual = '1';
   bar.innerHTML =
     '<i class="ti ti-brand-whatsapp" aria-hidden="true"></i>' +
     '<span>Falar no WhatsApp</span>';

@@ -25,8 +25,20 @@
   document.addEventListener('DOMContentLoaded', function () {
 
     // ── WhatsApp: qualquer link wa.me na página ──
+    // Pula links marcados com data-wa-track-manual="1" (ex: o botão fixo
+    // do celular, mobile-cta-bar.js) — esses já disparam whatsapp_click
+    // manualmente no próprio clique, com mais contexto (produto,
+    // atendente). Sem esse pulo, o mesmo clique dispararia o evento
+    // DUAS vezes, duplicando a contagem de conversão no Google Ads/Meta
+    // (bug real encontrado em 27/08/2026, causava conversões registradas
+    // sem conversa real correspondente no WhatsApp). A checagem acontece
+    // no momento do CLIQUE, não no carregamento da página — isso evita
+    // depender de qual script termina de rodar primeiro (o href do botão
+    // fixo é preenchido de forma assíncrona, então checar só no
+    // carregamento poderia perder a marcação dependendo da ordem).
     document.querySelectorAll('a[href*="wa.me"]').forEach(function (link) {
       link.addEventListener('click', function () {
+        if (link.dataset.waTrackManual) return;
         track('whatsapp_click', {
           link_text: link.textContent.trim().slice(0, 60),
           page_path: window.location.pathname
