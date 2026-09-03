@@ -105,10 +105,43 @@
     'brick-rusticatto-terra-negra-verso': 'brick-rusticatto-terra-negra-verso-swatch.webp'
   };
 
-  function textureUrl(id)  { return id + '-frontal.webp'; }
+  function textureUrl(id)  { return (ID_PARA_SLUG_IMAGEM[id] || id) + '-frontal.webp'; }
+
+  // Mapa id (nome comercial novo) -> slug de imagem (nome antigo, ainda
+  // usado nos arquivos físicos de miniatura) — os arquivos de imagem
+  // NUNCA foram renomeados na troca de nomenclatura comercial (decisão
+  // consciente, pra não mexer em centenas de referências de imagem
+  // espalhadas pelo site). thumbUrl() e SWATCH_OVERRIDES abaixo dependiam
+  // do id bater com o nome do arquivo — sem essa tradução, toda miniatura
+  // do simulador quebrava (id novo, arquivo com nome antigo). Bug
+  // reportado pelo Rafael via mobile em 03/09/2026.
+  var ID_PARA_SLUG_IMAGEM = {
+    'brick-zulko-claro': 'brick-eco-palha',
+    'brick-ostrek-claro': 'brick-rusticatto-palha',
+    'brick-ostrek-claro-verso': 'brick-rusticatto-palha-verso',
+    'brick-nardek-rosado': 'brick-lumus',
+    'brick-vaskir-fundo': 'brick-mescla-prime',
+    'brick-yandel-ambar': 'brick-natura',
+    'brick-kelvar-aceso': 'brick-rosso-prime',
+    'brick-kharun-funda': 'brick-rusticatto-sertao',
+    'brick-thavrin-cinza': 'brick-rusticatto-fume',
+    'brick-thavrin-cinza-verso': 'brick-rusticatto-fume-verso',
+    'brick-vanrik-rosso': 'brick-rusticatto-rosso',
+    'brick-ulvren-negro': 'brick-rusticatto-terra-negra',
+    'brick-ulvren-negro-verso': 'brick-rusticatto-terra-negra-verso',
+    'brick-zendral-cobre': 'brick-terra-cerrado',
+    'cimenticio-naevel-claro': 'cimenticio-alpino',
+    'cimenticio-sorvel-leve': 'cimenticio-brisa',
+    'cimenticio-thurgo-denso': 'cimenticio-urban',
+    'rockface-kelthar-branco': 'rockface-alpino',
+    'rockface-yavrin-ameno': 'rockface-brisa',
+    'rockface-rundak-bruto': 'rockface-urban'
+  };
+
   function thumbUrl(id) {
-    if (SWATCH_OVERRIDES[id]) return SWATCH_OVERRIDES[id] + '?v=' + SWATCH_V;
-    return id + '-frontal-thumb.webp?v=' + THUMB_V;
+    var slugImagem = ID_PARA_SLUG_IMAGEM[id] || id;
+    if (SWATCH_OVERRIDES[slugImagem]) return SWATCH_OVERRIDES[slugImagem] + '?v=' + SWATCH_V;
+    return slugImagem + '-frontal-thumb.webp?v=' + THUMB_V;
   }
   function findItem(id) {
     var col = colecaoDe(id);
