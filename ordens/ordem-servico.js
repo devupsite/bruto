@@ -412,7 +412,7 @@
     doc.text('Gerado em ' + new Date().toLocaleString('pt-BR') + ' · uso interno BRUTO · brutoceramica.com.br · contato@brutoceramica.com.br', 20, 285);
 
     var pdfBase64 = doc.output('datauristring');
-    var sufixo = destino === 'faion' ? '-faion' : '';
+    var sufixo = destino === 'faion' ? '-Faion' : '';
     doc.save(numeroOS.toLowerCase() + sufixo + '.pdf');
     return pdfBase64;
   }

@@ -770,8 +770,12 @@
     // então cada peça ocupa a fração proporcional à sua dimensão
     var mw = Math.max(40, wallW * (peca.w / WALL_MM));
     var mh = mw * (peca.h / peca.w);
-    // converte a junta real (mm) para pixels usando a largura da peça como régua
-    var gap = Math.max(1, mw * ((juntaMm || 8) / peca.w));
+    // converte a junta real (mm) para pixels usando a largura da peça como
+    // régua. Checagem explícita de tipo (não "|| 8") porque 0 é um valor
+    // válido de propósito (junta seca) — "||" trataria 0 como falsy e
+    // silenciosamente substituiria por 8, quebrando a opção de junta seca.
+    var juntaValida = typeof juntaMm === 'number' && !isNaN(juntaMm) ? juntaMm : 8;
+    var gap = Math.max(1, mw * (juntaValida / peca.w));
     var rects = (function () {
       switch (patternId) {
         case 'corrido13': return genCorrido(wallW, wallH, mw, mh, gap, 1 / 3);
@@ -1141,8 +1145,9 @@
   function updateGroutNote(root, state) {
     var note = root.querySelector('.pgn-grout-note');
     if (!note) return;
+    var juntaTexto = state.junta === 0 ? 'Junta seca' : 'Junta de ' + state.junta + ' mm';
     note.innerHTML = '<i class="ti ti-line-dashed" aria-hidden="true"></i> ' +
-      'Junta de ' + state.junta + ' mm · rejunte ' + state.rejunte.nome.toLowerCase();
+      juntaTexto + ' · rejunte ' + state.rejunte.nome.toLowerCase();
   }
 
   function buildGroutControls(root, state, onChange) {
@@ -1163,16 +1168,16 @@
     var range = document.createElement('input');
     range.type = 'range';
     range.className = 'pgn-junta-range';
-    range.min = '3'; range.max = '15'; range.step = '1';
+    range.min = '0'; range.max = '15'; range.step = '1';
     range.value = String(state.junta);
-    range.setAttribute('aria-label', 'Espessura da junta em milímetros');
+    range.setAttribute('aria-label', 'Espessura da junta em milímetros, de junta seca a 15mm');
     var val = document.createElement('span');
     val.className = 'pgn-junta-val';
-    val.textContent = state.junta + ' mm';
+    val.textContent = state.junta === 0 ? 'Junta seca' : state.junta + ' mm';
     var raf = null;
     range.addEventListener('input', function () {
-      state.junta = parseInt(range.value, 10) || 8;
-      val.textContent = state.junta + ' mm';
+      state.junta = parseInt(range.value, 10) || 0;
+      val.textContent = state.junta === 0 ? 'Junta seca' : state.junta + ' mm';
       updateGroutNote(root, state);
       if (raf) cancelAnimationFrame(raf);
       raf = requestAnimationFrame(onChange);
