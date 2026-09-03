@@ -24,7 +24,7 @@
           texturas: ['brick-lumus-face1.webp?v=4', 'brick-lumus-face2.webp?v=4'] },
         { id: 'brick-vaskir-fundo',           nome: 'Vaskir Fundo',          w: 250, h: 70,
           texturas: ['brick-mescla-prime-face1.webp?v=3', 'brick-mescla-prime-face2.webp?v=3'] },
-        { id: 'brick-yandel-rosado',                 nome: 'Yandel Rosado',                w: 240, h: 70,
+        { id: 'brick-yandel-ambar',                 nome: 'Yandel Âmbar',                w: 240, h: 70,
           texturas: ['brick-natura-face1.webp?v=4', 'brick-natura-face2.webp?v=4'] },
         { id: 'brick-kelvar-aceso',            nome: 'Kelvar Aceso',           w: 240, h: 65,
           texturas: ['brick-rosso-prime-face1.webp?v=3', 'brick-rosso-prime-face2.webp?v=3'] },
