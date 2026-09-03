@@ -783,6 +783,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <span class="calc__stat-val" id="calc-total">—</span>
               <span class="calc__stat-key">valor estimado</span>
             </div>
+            <div class="calc__stat">
+              <span class="calc__stat-val" id="calc-peso">—</span>
+              <span class="calc__stat-key">peso total</span>
+            </div>
           </div>
           <p class="calc__note" id="calc-note" hidden></p>
           <button type="button" class="btn btn--outline lead-pdf__trigger" id="lead-pdf-open" data-product-name="Kelvar Aceso" data-product-line="Brick" data-product-price="153,89">
@@ -1272,6 +1276,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
       });
 
+      // Lê o peso real da peça direto da ficha técnica (ex: "470g") — mesmo
+      // princípio da leitura de dimensão acima, pra nunca ficar dessincronizado
+      // se o peso do produto mudar. Fallback conservador se a ficha não tiver
+      // esse campo por algum motivo.
+      var pecaPesoG = 470; // fallback
+      document.querySelectorAll('.product-specs .spec-item').forEach(function(item) {
+        var label = item.querySelector('strong');
+        if (label && /Peso/i.test(label.textContent)) {
+          var span = item.querySelector('span');
+          var num = span ? span.textContent.match(/\d+(?:[.,]\d+)?/) : null;
+          if (num) pecaPesoG = parseFloat(num[0].replace(',', '.'));
+        }
+      });
+
       var JUNTA_M = 0; // junta seca (0mm) — padrão fixo da Bruto, sem opção de alterar na tela
       var areaPecaComJunta = (pecaComprM + JUNTA_M) * (pecaAltM + JUNTA_M);
       var pecasPorM2 = areaPecaComJunta > 0 ? (1 / areaPecaComJunta) : 0;
@@ -1287,10 +1305,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         var total = area * perda;
         var custo = total * pricePerM2;
         var pecas = Math.ceil(total * pecasPorM2);
+        var pesoTotalG = pecas * pecaPesoG;
+        var pesoTexto = pesoTotalG >= 1000
+          ? (pesoTotalG / 1000).toLocaleString('pt-BR', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' kg'
+          : Math.round(pesoTotalG) + ' g';
 
         document.getElementById('calc-m2').textContent    = total.toFixed(2).replace('.',',') + ' m²';
         document.getElementById('calc-pecas').textContent = pecas.toLocaleString('pt-BR') + ' un.';
         document.getElementById('calc-total').textContent = 'R$ ' + custo.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+        document.getElementById('calc-peso').textContent  = pesoTexto;
         document.getElementById('calc-result').hidden = false;
 
         var noteEl = document.getElementById('calc-note');

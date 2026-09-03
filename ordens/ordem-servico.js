@@ -20,24 +20,24 @@
   var API_ENVIAR_EMAIL = 'api/enviar-email.php';
 
   var CATALOGO = [
-    { slug: "brick-eco-palha", categoria: "Brick", nome: "Eco Palha", sku: "57", preco: 153.90, dimensoes: "270mm x 70mm x 15mm", peso: "350g" },
-    { slug: "brick-rusticatto-palha", categoria: "Brick", nome: "Rusticatto Palha", sku: "78", preco: 169.90, dimensoes: "270mm x 70mm x 25mm", peso: "650g" },
-    { slug: "brick-lumus", categoria: "Brick", nome: "Lumus", sku: "73", preco: 164.90, dimensoes: "270mm x 70mm x 15mm", peso: "405g" },
-    { slug: "brick-mescla-prime", categoria: "Brick", nome: "Mescla Prime", sku: "54", preco: 153.90, dimensoes: "250mm x 70mm x 15mm", peso: "360g" },
-    { slug: "brick-natura", categoria: "Brick", nome: "Natura", sku: "48", preco: 104.90, dimensoes: "240mm x 70mm x 10mm", peso: "465g" },
-    { slug: "brick-rosso-prime", categoria: "Brick", nome: "Rosso Prime", sku: "53", preco: 142.90, dimensoes: "270mm x 70mm x 15mm", peso: "470g" },
-    { slug: "brick-rusticatto-fume", categoria: "Brick", nome: "Rusticatto Fumê", sku: "72", preco: 186.90, dimensoes: "270mm x 70mm x 20mm", peso: "570g" },
-    { slug: "brick-rusticatto-rosso", categoria: "Brick", nome: "Rusticatto Rosso", sku: "77", preco: 159.90, dimensoes: "270mm x 70mm x 20mm", peso: "590g" },
-    { slug: "brick-rusticatto-sertao", categoria: "Brick", nome: "Rusticatto do Sertão", sku: "61", preco: 164.90, dimensoes: "255mm x 70mm x 22mm", peso: "610g" },
-    { slug: "brick-rusticatto-terra-negra", categoria: "Brick", nome: "Rusticatto Terra Negra", sku: "60", preco: 197.90, dimensoes: "265mm x 65mm x 20mm", peso: "585g" },
-    { slug: "brick-terra-cerrado", categoria: "Brick", nome: "Terra do Cerrado", sku: "47", preco: 148.90, dimensoes: "260mm x 70mm x 15mm", peso: "375g" },
-    { slug: "cimenticio-alpino", categoria: "Cimentício", nome: "Alpino", sku: "80", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "447g" },
-    { slug: "cimenticio-brisa", categoria: "Cimentício", nome: "Brisa", sku: "81", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "432g" },
-    { slug: "cimenticio-urban", categoria: "Cimentício", nome: "Urban", sku: "82", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "438g" },
-    { slug: "rockface-alpino", categoria: "Rockface", nome: "Alpino", sku: "91", preco: 252.90, dimensoes: "290mm x 95mm x 20mm", peso: "1325g" },
-    { slug: "rockface-brisa", categoria: "Rockface", nome: "Brisa", sku: "90", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "764g" },
-    { slug: "rockface-urban", categoria: "Rockface", nome: "Urban", sku: "92", preco: 252.90, dimensoes: "290mm x 95mm x 20mm", peso: "966g" },
-    { slug: "piso-lastra-nonna", categoria: "Piso", nome: "Lastra Nonna", sku: "", preco: 110.90, dimensoes: "240mm x 115mm x 10mm", peso: "580g" }
+    { slug: "brick-eco-palha", categoria: "Brick", nome: "Zulko Claro", nomeFaion: "Eco Palha", sku: "57", preco: 164.89, dimensoes: "270mm x 70mm x 15mm", peso: "350g" },
+    { slug: "brick-rusticatto-palha", categoria: "Brick", nome: "Ostrek Claro", nomeFaion: "Rusticatto Palha", sku: "78", preco: 169.90, dimensoes: "270mm x 70mm x 25mm", peso: "650g" },
+    { slug: "brick-lumus", categoria: "Brick", nome: "Nardek Rosado", nomeFaion: "Lumus", sku: "73", preco: 164.90, dimensoes: "270mm x 70mm x 15mm", peso: "405g" },
+    { slug: "brick-mescla-prime", categoria: "Brick", nome: "Vaskir Fundo", nomeFaion: "Mescla Prime", sku: "54", preco: 164.89, dimensoes: "250mm x 70mm x 15mm", peso: "360g" },
+    { slug: "brick-natura", categoria: "Brick", nome: "Yandel Âmbar", nomeFaion: "Natura", sku: "48", preco: 115.39, dimensoes: "240mm x 70mm x 10mm", peso: "465g" },
+    { slug: "brick-rosso-prime", categoria: "Brick", nome: "Kelvar Aceso", nomeFaion: "Rosso Prime", sku: "53", preco: 153.89, dimensoes: "270mm x 70mm x 15mm", peso: "470g" },
+    { slug: "brick-rusticatto-fume", categoria: "Brick", nome: "Thavrin Cinza", nomeFaion: "Rusticatto Fumê", sku: "72", preco: 186.90, dimensoes: "270mm x 70mm x 20mm", peso: "570g" },
+    { slug: "brick-rusticatto-rosso", categoria: "Brick", nome: "Vanrik Rosso", nomeFaion: "Rusticatto Rosso", sku: "77", preco: 175.89, dimensoes: "270mm x 70mm x 20mm", peso: "590g" },
+    { slug: "brick-rusticatto-sertao", categoria: "Brick", nome: "Kharun Funda", nomeFaion: "Rusticatto do Sertão", sku: "61", preco: 175.89, dimensoes: "255mm x 70mm x 22mm", peso: "610g" },
+    { slug: "brick-rusticatto-terra-negra", categoria: "Brick", nome: "Ulvren Negro", nomeFaion: "Rusticatto Terra Negra", sku: "60", preco: 197.90, dimensoes: "265mm x 65mm x 20mm", peso: "585g" },
+    { slug: "brick-terra-cerrado", categoria: "Brick", nome: "Zendral Cobre", nomeFaion: "Terra do Cerrado", sku: "47", preco: 159.39, dimensoes: "260mm x 70mm x 15mm", peso: "375g" },
+    { slug: "cimenticio-alpino", categoria: "Cimentício", nome: "Naevel Claro", nomeFaion: "Alpino", sku: "80", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "447g" },
+    { slug: "cimenticio-brisa", categoria: "Cimentício", nome: "Sorvel Leve", nomeFaion: "Brisa", sku: "81", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "432g" },
+    { slug: "cimenticio-urban", categoria: "Cimentício", nome: "Thurgo Denso", nomeFaion: "Urban", sku: "82", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "438g" },
+    { slug: "rockface-alpino", categoria: "Rockface", nome: "Kelthar Branco", nomeFaion: "Alpino", sku: "91", preco: 252.90, dimensoes: "290mm x 95mm x 20mm", peso: "1325g" },
+    { slug: "rockface-brisa", categoria: "Rockface", nome: "Yavrin Ameno", nomeFaion: "Brisa", sku: "90", preco: 186.90, dimensoes: "260mm x 75mm x 10mm", peso: "764g" },
+    { slug: "rockface-urban", categoria: "Rockface", nome: "Rundak Bruto", nomeFaion: "Urban", sku: "92", preco: 252.90, dimensoes: "290mm x 95mm x 20mm", peso: "966g" },
+    { slug: "piso-lastra-nonna", categoria: "Piso", nome: "Lastra Nonna", nomeFaion: "Lastra Nonna", sku: "87", preco: 110.90, dimensoes: "240mm x 115mm x 10mm", peso: "580g" }
   ];
 
   var PADROES = [
@@ -85,7 +85,7 @@
       CATALOGO.filter(function (p) { return p.categoria === cat; }).forEach(function (p) {
         var opt = document.createElement('option');
         opt.value = p.slug;
-        opt.textContent = p.nome + ' — ' + fmtMoeda(p.preco) + '/m²';
+        opt.textContent = p.nome + ' (SKU ' + (p.sku || '—') + ') — ' + fmtMoeda(p.preco) + '/m²';
         grupo.appendChild(opt);
       });
       select.appendChild(grupo);
@@ -165,7 +165,7 @@
       var obs = row.querySelector('.os-item-obs').value.trim();
       if (!prod || qtd <= 0) return;
       itens.push({
-        nome: prod.nome, categoria: prod.categoria, sku: prod.sku,
+        nome: prod.nome, nomeFaion: prod.nomeFaion, categoria: prod.categoria, sku: prod.sku,
         preco: preco, qtd: qtd, subtotal: preco * qtd,
         padrao: padrao, obs: obs
       });
@@ -268,7 +268,14 @@
     doc.rect(px(74), py(184), (206 - 74) * escala, (294 - 184) * escala, 'F');
   }
 
-  function gerarPDF(dados, numeroOS) {
+  // destino: 'faion' usa o nome que a Faion reconhece nos produtos dela
+  // (a OS enviada pro fornecedor precisa bater com o catálogo DELA, senão
+  // o pedido não faz sentido pra quem recebe) — 'cliente' (padrão) usa o
+  // nome comercial novo da Bruto, que é o que aparece no site e em todo
+  // o resto da documentação. O SKU aparece nas duas versões, já que é o
+  // elo neutro entre os dois sistemas de nome (Rafael pediu, 03/09/2026).
+  function gerarPDF(dados, numeroOS, destino) {
+    destino = destino || 'cliente';
     var jsPDF = window.jspdf.jsPDF;
     var doc = new jsPDF();
     var y = 20;
@@ -338,9 +345,10 @@
     doc.rect(20, y - 5, 170, 7, 'F');
     doc.setFontSize(8);
     doc.text('Produto', 23, y);
-    doc.text('Padrão', 78, y);
-    doc.text('m²', 120, y);
-    doc.text('Preço/m²', 138, y);
+    doc.text('SKU', 68, y);
+    doc.text('Padrão', 82, y);
+    doc.text('m²', 122, y);
+    doc.text('Preço/m²', 140, y);
     doc.text('Subtotal', 168, y);
     y += 6;
 
@@ -351,11 +359,13 @@
         doc.setFillColor(248, 247, 246);
         doc.rect(20, y - 4, 170, 7, 'F');
       }
+      var nomeExibido = destino === 'faion' ? (item.nomeFaion || item.nome) : item.nome;
       doc.setFontSize(8);
-      doc.text(item.categoria + ' ' + item.nome, 23, y);
-      doc.text(item.padrao || '—', 78, y);
-      doc.text(String(item.qtd), 120, y);
-      doc.text(fmtMoeda(item.preco), 138, y);
+      doc.text(item.categoria + ' ' + nomeExibido, 23, y);
+      doc.text(item.sku || '—', 68, y);
+      doc.text(item.padrao || '—', 82, y);
+      doc.text(String(item.qtd), 122, y);
+      doc.text(fmtMoeda(item.preco), 140, y);
       doc.text(fmtMoeda(item.subtotal), 168, y);
       y += 7;
       if (item.obs) {
@@ -402,7 +412,8 @@
     doc.text('Gerado em ' + new Date().toLocaleString('pt-BR') + ' · uso interno BRUTO · brutoceramica.com.br · contato@brutoceramica.com.br', 20, 285);
 
     var pdfBase64 = doc.output('datauristring');
-    doc.save(numeroOS.toLowerCase() + '.pdf');
+    var sufixo = destino === 'faion' ? '-faion' : '';
+    doc.save(numeroOS.toLowerCase() + sufixo + '.pdf');
     return pdfBase64;
   }
 
@@ -446,7 +457,12 @@
   }
 
   /* ── Mensagem do pedido — reutilizada no WhatsApp e no e-mail ──── */
-  function montarMensagemPedido(dados, numeroOS) {
+  // Mesmo raciocínio do gerarPDF: 'faion' usa o nome que o fornecedor
+  // reconhece no catálogo dele, 'cliente' (padrão) usa o nome comercial
+  // novo da Bruto. SKU incluído nos dois — é o elo neutro entre os
+  // dois sistemas de nome.
+  function montarMensagemPedido(dados, numeroOS, destino) {
+    destino = destino || 'cliente';
     var linhas = [
       'Pedido ' + numeroOS + ' — BRUTO',
       '',
@@ -456,8 +472,10 @@
       'Itens:'
     ];
     dados.itens.forEach(function (item) {
+      var nomeExibido = destino === 'faion' ? (item.nomeFaion || item.nome) : item.nome;
       linhas.push(
-        '• ' + item.categoria + ' ' + item.nome + ' — ' + item.qtd + 'm²' +
+        '• ' + item.categoria + ' ' + nomeExibido + (item.sku ? ' (SKU ' + item.sku + ')' : '') +
+        ' — ' + item.qtd + 'm²' +
         (item.padrao ? ' (' + item.padrao + ')' : '')
       );
     });
@@ -468,7 +486,7 @@
 
   /* ── Mensagem de WhatsApp pro fornecedor ──────────────────────── */
   function abrirWhatsAppFornecedor(dados, numeroOS) {
-    var msg = montarMensagemPedido(dados, numeroOS);
+    var msg = montarMensagemPedido(dados, numeroOS, 'faion');
 
     // Abre a aba já (dentro do clique do usuário, senão o navegador
     // bloqueia como pop-up) e só troca a URL dela quando o número
@@ -520,9 +538,16 @@
 
   function gerarTudo(dados, numeroOS) {
     return loadJsPDF().then(function () {
-      var pdfBase64 = gerarPDF(dados, numeroOS);
+      // Dois PDFs distintos: um com o nome que a Faion reconhece (vai só
+      // pro WhatsApp do fornecedor), outro com o nome comercial novo da
+      // Bruto (fica salvo localmente e vai por e-mail — é a cópia que
+      // representa o pedido pro cliente/uso interno). Pedido do Rafael,
+      // 03/09/2026: nome novo em tudo, com o SKU como elo confiável pra
+      // Faion continuar reconhecendo o pedido mesmo com o nome mudado.
+      var pdfCliente = gerarPDF(dados, numeroOS, 'cliente');
+      gerarPDF(dados, numeroOS, 'faion');
       abrirWhatsAppFornecedor(dados, numeroOS);
-      enviarCopiaPorEmail(dados, numeroOS, pdfBase64);
+      enviarCopiaPorEmail(dados, numeroOS, pdfCliente);
       document.getElementById('os-numero-atual').textContent = 'Nova OS';
     });
   }
