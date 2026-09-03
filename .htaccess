@@ -17,6 +17,25 @@ ErrorDocument 404 /404.html
   RewriteRule ^produto-rockface-grigio\.html$ /produto-rockface-urban.html [R=301,L]
   RewriteRule ^produto-brick-branco-rose\.html$ /texturas.html [R=301,L]
   RewriteRule ^produto-brick-vulcano\.html$ /texturas.html [R=301,L]
+
+  # Renomeação comercial 02/09/2026 (nomes inventados, código Faion mantido internamente)
+  RewriteRule ^produto-brick-eco-palha\.html$ /produto-brick-zulko-claro.html [R=301,L]
+  RewriteRule ^produto-brick-lumus\.html$ /produto-brick-nardek-rosado.html [R=301,L]
+  RewriteRule ^produto-brick-mescla-prime\.html$ /produto-brick-vaskir-fundo.html [R=301,L]
+  RewriteRule ^produto-brick-natura\.html$ /produto-brick-yandel-rosado.html [R=301,L]
+  RewriteRule ^produto-brick-rosso-prime\.html$ /produto-brick-kelvar-aceso.html [R=301,L]
+  RewriteRule ^produto-brick-rusticatto-fume\.html$ /produto-brick-thavrin-cinza.html [R=301,L]
+  RewriteRule ^produto-brick-rusticatto-palha\.html$ /produto-brick-ostrek-claro.html [R=301,L]
+  RewriteRule ^produto-brick-rusticatto-rosso\.html$ /produto-brick-vanrik-rosso.html [R=301,L]
+  RewriteRule ^produto-brick-rusticatto-sertao\.html$ /produto-brick-kharun-funda.html [R=301,L]
+  RewriteRule ^produto-brick-rusticatto-terra-negra\.html$ /produto-brick-ulvren-negro.html [R=301,L]
+  RewriteRule ^produto-brick-terra-cerrado\.html$ /produto-brick-zendral-cobre.html [R=301,L]
+  RewriteRule ^produto-cimenticio-alpino\.html$ /produto-cimenticio-naevel-claro.html [R=301,L]
+  RewriteRule ^produto-cimenticio-brisa\.html$ /produto-cimenticio-sorvel-leve.html [R=301,L]
+  RewriteRule ^produto-cimenticio-urban\.html$ /produto-cimenticio-thurgo-denso.html [R=301,L]
+  RewriteRule ^produto-rockface-alpino\.html$ /produto-rockface-kelthar-branco.html [R=301,L]
+  RewriteRule ^produto-rockface-brisa\.html$ /produto-rockface-yavrin-ameno.html [R=301,L]
+  RewriteRule ^produto-rockface-urban\.html$ /produto-rockface-rundak-bruto.html [R=301,L]
 </IfModule>
 
 # ── Forçar HTTPS ──

@@ -14,55 +14,55 @@
     brick: {
       nome: 'Brick',
       itens: [
-        { id: 'brick-eco-palha',              nome: 'Eco Palha',             w: 265, h: 65,
+        { id: 'brick-zulko-claro',              nome: 'Zulko Claro',             w: 265, h: 65,
           texturas: ['brick-eco-palha-face1.webp?v=4', 'brick-eco-palha-face2.webp?v=4'] },
-        { id: 'brick-rusticatto-palha',        nome: 'Rusticatto Palha',      w: 270, h: 70,
+        { id: 'brick-ostrek-claro',        nome: 'Ostrek Claro',      w: 270, h: 70,
           texturas: ['brick-rusticatto-palha-face1.webp?v=2', 'brick-rusticatto-palha-face2.webp?v=2'] },
-        { id: 'brick-rusticatto-palha-verso',  nome: 'Rusticatto Palha Verso', w: 270, h: 70,
+        { id: 'brick-ostrek-claro-verso',  nome: 'Ostrek Claro Verso', w: 270, h: 70,
           texturas: ['brick-rusticatto-palha-verso.webp?v=1', 'brick-rusticatto-palha-verso.webp?v=1'] },
-        { id: 'brick-lumus',                  nome: 'Lumus',                 w: 265, h: 65,
+        { id: 'brick-nardek-rosado',                  nome: 'Nardek Rosado',                 w: 265, h: 65,
           texturas: ['brick-lumus-face1.webp?v=4', 'brick-lumus-face2.webp?v=4'] },
-        { id: 'brick-mescla-prime',           nome: 'Mescla Prime',          w: 250, h: 70,
+        { id: 'brick-vaskir-fundo',           nome: 'Vaskir Fundo',          w: 250, h: 70,
           texturas: ['brick-mescla-prime-face1.webp?v=3', 'brick-mescla-prime-face2.webp?v=3'] },
-        { id: 'brick-natura',                 nome: 'Natura',                w: 240, h: 70,
+        { id: 'brick-yandel-rosado',                 nome: 'Yandel Rosado',                w: 240, h: 70,
           texturas: ['brick-natura-face1.webp?v=4', 'brick-natura-face2.webp?v=4'] },
-        { id: 'brick-rosso-prime',            nome: 'Rosso Prime',           w: 240, h: 65,
+        { id: 'brick-kelvar-aceso',            nome: 'Kelvar Aceso',           w: 240, h: 65,
           texturas: ['brick-rosso-prime-face1.webp?v=3', 'brick-rosso-prime-face2.webp?v=3'] },
-        { id: 'brick-rusticatto-sertao',      nome: 'Rusticatto do Sertão',  w: 255, h: 70,
+        { id: 'brick-kharun-funda',      nome: 'Kharun Funda',  w: 255, h: 70,
           texturas: ['brick-rusticatto-sertao-face1.webp?v=4', 'brick-rusticatto-sertao-face2.webp?v=4'] },
-        { id: 'brick-rusticatto-fume',        nome: 'Rusticatto Fumê',       w: 240, h: 65,
+        { id: 'brick-thavrin-cinza',        nome: 'Thavrin Cinza',       w: 240, h: 65,
           texturas: ['brick-rusticatto-fume-face1.webp?v=3', 'brick-rusticatto-fume-face2.webp?v=3'] },
-        { id: 'brick-rusticatto-fume-verso',  nome: 'Rusticatto Fumê Verso', w: 240, h: 65,
+        { id: 'brick-thavrin-cinza-verso',  nome: 'Thavrin Cinza Verso', w: 240, h: 65,
           texturas: ['brick-rusticatto-fume-verso.webp?v=1', 'brick-rusticatto-fume-verso.webp?v=1'] },
-        { id: 'brick-rusticatto-rosso',       nome: 'Rusticatto Rosso',      w: 270, h: 70,
+        { id: 'brick-vanrik-rosso',       nome: 'Vanrik Rosso',      w: 270, h: 70,
           texturas: ['brick-rusticatto-rosso-face1.webp?v=4', 'brick-rusticatto-rosso-face2.webp?v=6'] },
-        { id: 'brick-rusticatto-terra-negra', nome: 'Rusticatto Terra Negra', w: 260, h: 65,
+        { id: 'brick-ulvren-negro', nome: 'Ulvren Negro', w: 260, h: 65,
           texturas: ['brick-rusticatto-terra-negra-face1.webp?v=4', 'brick-rusticatto-terra-negra-face2.webp?v=5'] },
-        { id: 'brick-rusticatto-terra-negra-verso', nome: 'Rusticatto Terra Negra Verso', w: 260, h: 65,
+        { id: 'brick-ulvren-negro-verso', nome: 'Ulvren Negro Verso', w: 260, h: 65,
           texturas: ['brick-rusticatto-terra-negra-verso.webp?v=1', 'brick-rusticatto-terra-negra-verso.webp?v=1'] },
-        { id: 'brick-terra-cerrado',          nome: 'Terra do Cerrado',      w: 260, h: 70,
+        { id: 'brick-zendral-cobre',          nome: 'Zendral Cobre',      w: 260, h: 70,
           texturas: ['brick-terra-cerrado-face1.webp?v=4', 'brick-terra-cerrado-face2.webp?v=4'] }
       ]
     },
     cimenticio: {
       nome: 'Cimentício',
       itens: [
-        { id: 'cimenticio-alpino', nome: 'Alpino', w: 260, h: 75,
+        { id: 'cimenticio-naevel-claro', nome: 'Naevel Claro', w: 260, h: 75,
           texturas: ['cimenticio-alpino-face1.webp?v=3', 'cimenticio-alpino-face2.webp?v=3'] },
-        { id: 'cimenticio-brisa',  nome: 'Brisa',  w: 260, h: 75,
+        { id: 'cimenticio-sorvel-leve',  nome: 'Sorvel Leve',  w: 260, h: 75,
           texturas: ['cimenticio-brisa-face1.webp?v=2', 'cimenticio-brisa-face2.webp?v=3'] },
-        { id: 'cimenticio-urban',  nome: 'Urban',  w: 260, h: 75,
+        { id: 'cimenticio-thurgo-denso',  nome: 'Thurgo Denso',  w: 260, h: 75,
           texturas: ['cimenticio-urban-face1.webp?v=2', 'cimenticio-urban-face2.webp?v=3'] }
       ]
     },
     rockface: {
       nome: 'Rockface',
       itens: [
-        { id: 'rockface-alpino', nome: 'Alpino', w: 290, h: 95,
+        { id: 'rockface-kelthar-branco', nome: 'Kelthar Branco', w: 290, h: 95,
           texturas: ['rockface-alpino-face1.webp?v=3', 'rockface-alpino-face2.webp?v=3'] },
-        { id: 'rockface-brisa',  nome: 'Brisa',  w: 260, h: 75,
+        { id: 'rockface-yavrin-ameno',  nome: 'Yavrin Ameno',  w: 260, h: 75,
           texturas: ['rockface-brisa-face1.webp?v=2', 'rockface-brisa-face2.webp?v=3'] },
-        { id: 'rockface-urban',  nome: 'Urban',  w: 290, h: 95,
+        { id: 'rockface-rundak-bruto',  nome: 'Rundak Bruto',  w: 290, h: 95,
           texturas: ['rockface-urban-face1.webp?v=3', 'rockface-urban-face2.webp?v=1'] }
       ]
     }
@@ -87,12 +87,12 @@
     'cimenticio-alpino': 'cimenticio-alpino-swatch.webp',
     'cimenticio-brisa':  'cimenticio-brisa-swatch.webp',
     'cimenticio-urban':  'cimenticio-urban-swatch.webp',
-    // Rusticatto do Sertão não tinha miniatura própria -- o seletor de cor
+    // Kharun Funda não tinha miniatura própria -- o seletor de cor
     // (e o de segunda cor, nos padrões bicolor) caía no frontal-thumb
     // compartilhado, que na prática reaproveitava uma foto do array geral
     // do produto em vez de uma textura de perto de verdade. Reportado pelo
     // Rafael em 02/08/2026, foto nova fornecida por ele.
-    // Rusticatto do Sertão não tinha miniatura própria -- o seletor de cor
+    // Kharun Funda não tinha miniatura própria -- o seletor de cor
     // (e o de segunda cor, nos padrões bicolor) caía no frontal-thumb
     // compartilhado, que na prática reaproveitava uma foto do array geral
     // do produto em vez de uma textura de perto de verdade. Reportado pelo
