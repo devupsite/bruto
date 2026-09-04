@@ -27,7 +27,7 @@
     { slug: "brick-natura", categoria: "Brick", nome: "Yandel Âmbar", nomeFaion: "Natura", sku: "48", preco: 115.39, dimensoes: "240mm x 70mm x 10mm", peso: "465g" },
     { slug: "brick-rosso-prime", categoria: "Brick", nome: "Kelvar Aceso", nomeFaion: "Rosso Prime", sku: "53", preco: 153.89, dimensoes: "270mm x 70mm x 15mm", peso: "470g" },
     { slug: "brick-rusticatto-fume", categoria: "Brick", nome: "Thavrin Cinza", nomeFaion: "Rusticatto Fumê", sku: "72", preco: 186.90, dimensoes: "270mm x 70mm x 20mm", peso: "570g" },
-    { slug: "brick-rusticatto-rosso", categoria: "Brick", nome: "Vanrik Rosso", nomeFaion: "Rusticatto Rosso", sku: "77", preco: 175.89, dimensoes: "270mm x 70mm x 20mm", peso: "590g" },
+    { slug: "brick-rusticatto-rosso", categoria: "Brick", nome: "Vanrik Terroso", nomeFaion: "Rusticatto Rosso", sku: "77", preco: 175.89, dimensoes: "270mm x 70mm x 20mm", peso: "590g" },
     { slug: "brick-rusticatto-sertao", categoria: "Brick", nome: "Kharun Funda", nomeFaion: "Rusticatto do Sertão", sku: "61", preco: 175.89, dimensoes: "255mm x 70mm x 22mm", peso: "610g" },
     { slug: "brick-rusticatto-terra-negra", categoria: "Brick", nome: "Ulvren Negro", nomeFaion: "Rusticatto Terra Negra", sku: "60", preco: 197.90, dimensoes: "265mm x 65mm x 20mm", peso: "585g" },
     { slug: "brick-terra-cerrado", categoria: "Brick", nome: "Zendral Cobre", nomeFaion: "Terra do Cerrado", sku: "47", preco: 159.39, dimensoes: "260mm x 70mm x 15mm", peso: "375g" },
