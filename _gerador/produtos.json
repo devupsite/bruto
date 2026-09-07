@@ -1,0 +1,955 @@
+[
+  {
+    "slug_pagina": "brick-kelvar-aceso",
+    "nome": "Kelvar Aceso",
+    "sku": "53",
+    "preco": "153,89",
+    "preco_json": "153.89",
+    "descricao": "Brick Kelvar Aceso é o mais vendido da linha, oferecendo vermelho terracota uniforme com versatilidade comprovada. Ideal para projetos residenciais e comerciais.",
+    "dimensoes": "270mm x 70mm x 15mm",
+    "peso": "470g",
+    "acabamento": "Natural",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Fachada, Varanda, Área gourmet",
+    "categoria": "Revestimento Brick",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "building",
+        "label": "Fachada"
+      },
+      {
+        "principal": false,
+        "icone": "door",
+        "label": "Varanda"
+      },
+      {
+        "principal": false,
+        "icone": "flame",
+        "label": "Área gourmet"
+      }
+    ],
+    "galeria": [
+      "brick-rosso-prime-mao-1.webp",
+      "brick-rosso-prime-mao-2.webp",
+      "brick-rosso-prime-mao-3.webp",
+      "brick-rosso-prime-mao-4.webp",
+      "brick-rosso-prime-mao-5.webp",
+      "brick-rosso-prime-mao-6.webp",
+      "brick-rosso-prime-mao-7.webp",
+      "brick-rosso-prime-mao-8.webp",
+      "brick-rosso-prime-mao-9.webp"
+    ],
+    "combina_com": [
+      "cimenticio-sorvel-leve",
+      "rockface-rundak-bruto",
+      "brick-vaskir-fundo"
+    ],
+    "cross_sell_ordem": []
+  },
+  {
+    "slug_pagina": "brick-kharun-funda",
+    "nome": "Kharun Funda",
+    "sku": "61",
+    "preco": "175,89",
+    "preco_json": "175.89",
+    "descricao": "Brick Kharun Funda combina laranja claro com textura alta, oferecendo acabamento artesanal exclusivo. Ideal para projetos que exigem caráter e personalidade.",
+    "dimensoes": "255mm x 70mm x 22mm",
+    "peso": "610g",
+    "acabamento": "Rústico alto",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Fachada, Área gourmet, Cozinha",
+    "categoria": "Revestimento Brick",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "building",
+        "label": "Fachada"
+      },
+      {
+        "principal": false,
+        "icone": "flame",
+        "label": "Área gourmet"
+      },
+      {
+        "principal": false,
+        "icone": "tools-kitchen-2",
+        "label": "Cozinha"
+      }
+    ],
+    "galeria": [
+      "brick-rusticatto-sertao-mao-3.webp",
+      "brick-rusticatto-sertao-mao-4.webp",
+      "brick-rusticatto-sertao-mao-5.webp",
+      "brick-rusticatto-sertao-mao-6.webp",
+      "brick-rusticatto-sertao-mao-7.webp",
+      "brick-rusticatto-sertao-mao-8.webp",
+      "brick-rusticatto-sertao-mao-9.webp",
+      "brick-rusticatto-sertao-mao-10.webp",
+      "brick-rusticatto-sertao-mao-11.webp"
+    ],
+    "combina_com": [
+      "cimenticio-sorvel-leve",
+      "rockface-rundak-bruto",
+      "brick-yandel-ambar"
+    ],
+    "cross_sell_ordem": []
+  },
+  {
+    "slug_pagina": "brick-nardek-rosado",
+    "nome": "Nardek Rosado",
+    "sku": "73",
+    "preco": "164,90",
+    "preco_json": "164.90",
+    "descricao": "Brick Nardek Rosado combina tons terrosos com nuances acinzentadas, criando profundidade visual. Perfeito para projetos que exigem sofisticação e caráter.",
+    "dimensoes": "270mm x 70mm x 15mm",
+    "peso": "405g",
+    "acabamento": "Natural",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Sala de estar, Cozinha, Área gourmet",
+    "categoria": "Revestimento Brick",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "armchair",
+        "label": "Sala de estar"
+      },
+      {
+        "principal": false,
+        "icone": "tools-kitchen-2",
+        "label": "Cozinha"
+      },
+      {
+        "principal": false,
+        "icone": "flame",
+        "label": "Área gourmet"
+      }
+    ],
+    "galeria": [
+      "brick-lumus-frontal-6.webp",
+      "brick-lumus-frontal-7.webp",
+      "brick-lumus-frontal-8.webp",
+      "brick-lumus-frontal-9.webp",
+      "brick-lumus-frontal-10.webp",
+      "brick-lumus-frontal-11.webp",
+      "brick-lumus-frontal-12.webp",
+      "brick-lumus-frontal-13.webp",
+      "brick-lumus-frontal-14.webp",
+      "brick-lumus-frontal-15.webp",
+      "brick-lumus-frontal-16.webp",
+      "brick-lumus-frontal-17.webp",
+      "brick-lumus-frontal-18.webp"
+    ],
+    "combina_com": [
+      "cimenticio-sorvel-leve",
+      "rockface-rundak-bruto",
+      "brick-zendral-cobre"
+    ],
+    "cross_sell_ordem": []
+  },
+  {
+    "slug_pagina": "brick-ostrek-claro",
+    "nome": "Ostrek Claro",
+    "sku": "78",
+    "preco": "186,90",
+    "preco_json": "186.90",
+    "descricao": "Brick Ostrek Claro traz o mesmo tom palha claro com pontos minerais naturais do Zulko Claro, em versão mais espessa e rústica — ideal para quem busca a mesma neutralidade de cor com textura mais marcante.",
+    "dimensoes": "270mm x 70mm x 25mm",
+    "peso": "650g",
+    "acabamento": "Natural",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Sala de estar, Cozinha, Varanda",
+    "categoria": "Revestimento Brick",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "armchair",
+        "label": "Sala de estar"
+      },
+      {
+        "principal": false,
+        "icone": "tools-kitchen-2",
+        "label": "Cozinha"
+      },
+      {
+        "principal": false,
+        "icone": "door",
+        "label": "Varanda"
+      }
+    ],
+    "galeria": [
+      "brick-rusticatto-palha-mao-1.webp",
+      "brick-rusticatto-palha-mao-2.webp",
+      "brick-rusticatto-palha-mao-3.webp",
+      "brick-rusticatto-palha-mao-4.webp",
+      "brick-rusticatto-palha-mao-5.webp",
+      "brick-rusticatto-palha-mao-6.webp",
+      "brick-rusticatto-palha-mao-7.webp",
+      "brick-rusticatto-palha-mao-8.webp",
+      "brick-rusticatto-palha-mao-9.webp",
+      "brick-rusticatto-palha-mao-10.webp"
+    ],
+    "combina_com": [
+      "cimenticio-naevel-claro",
+      "rockface-yavrin-ameno",
+      "brick-vaskir-fundo"
+    ],
+    "cross_sell_ordem": []
+  },
+  {
+    "slug_pagina": "brick-thavrin-cinza",
+    "nome": "Thavrin Cinza",
+    "sku": "72",
+    "preco": "186,90",
+    "preco_json": "186.90",
+    "descricao": "Brick Thavrin Cinza é extra rústico com tonalidade fumê escura, criando impacto visual marcante. Perfeito para fachadas de destaque.",
+    "dimensoes": "270mm x 70mm x 20mm",
+    "peso": "570g",
+    "acabamento": "Rústico muito alto",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Fachada principal, Entrada",
+    "categoria": "Revestimento Brick",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "building",
+        "label": "Fachada principal"
+      },
+      {
+        "principal": false,
+        "icone": "door-enter",
+        "label": "Entrada"
+      }
+    ],
+    "galeria": [
+      "brick-rusticatto-fume-mao-1.webp",
+      "brick-rusticatto-fume-mao-2.webp",
+      "brick-rusticatto-fume-mao-3.webp",
+      "brick-rusticatto-fume-mao-4.webp",
+      "brick-rusticatto-fume-mao-5.webp",
+      "brick-rusticatto-fume-mao-6.webp",
+      "brick-rusticatto-fume-mao-7.webp",
+      "brick-rusticatto-fume-mao-8.webp",
+      "brick-rusticatto-fume-mao-9.webp",
+      "brick-rusticatto-fume-mao-10.webp"
+    ],
+    "combina_com": [
+      "cimenticio-thurgo-denso",
+      "rockface-yavrin-ameno",
+      "brick-nardek-rosado"
+    ],
+    "cross_sell_ordem": []
+  },
+  {
+    "slug_pagina": "brick-ulvren-negro",
+    "nome": "Ulvren Negro",
+    "sku": "60",
+    "preco": "197,90",
+    "preco_json": "197.90",
+    "descricao": "Brick Ulvren Negro traz tonalidade escura inspirada em tijolos de demolição europeus, oferecendo sofisticação e história.",
+    "dimensoes": "265mm x 65mm x 20mm",
+    "peso": "585g",
+    "acabamento": "Rústico muito alto",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Fachada, Sala de estar moderna",
+    "categoria": "Revestimento Brick",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "building",
+        "label": "Fachada"
+      },
+      {
+        "principal": false,
+        "icone": "armchair",
+        "label": "Sala de estar moderna"
+      }
+    ],
+    "galeria": [
+      "brick-rusticatto-terra-negra-mao-1.webp",
+      "brick-rusticatto-terra-negra-mao-3.webp",
+      "brick-rusticatto-terra-negra-mao-4.webp",
+      "brick-rusticatto-terra-negra-mao-5.webp",
+      "brick-rusticatto-terra-negra-mao-6.webp",
+      "brick-rusticatto-terra-negra-mao-7.webp",
+      "brick-rusticatto-terra-negra-mao-8.webp",
+      "brick-rusticatto-terra-negra-mao-9.webp",
+      "brick-rusticatto-terra-negra-mao-10.webp"
+    ],
+    "combina_com": [
+      "cimenticio-thurgo-denso",
+      "rockface-yavrin-ameno",
+      "brick-nardek-rosado"
+    ],
+    "cross_sell_ordem": []
+  },
+  {
+    "slug_pagina": "brick-vanrik-terroso",
+    "nome": "Vanrik Terroso",
+    "sku": "77",
+    "preco": "175,89",
+    "preco_json": "175.89",
+    "descricao": "Brick Vanrik Terroso oferece vermelho intenso com textura irregular e expressiva, ideal para projetos que buscam destaque.",
+    "dimensoes": "270mm x 70mm x 20mm",
+    "peso": "590g",
+    "acabamento": "Rústico alto",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Fachada, Área gourmet",
+    "categoria": "Revestimento Brick",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "building",
+        "label": "Fachada"
+      },
+      {
+        "principal": false,
+        "icone": "flame",
+        "label": "Área gourmet"
+      }
+    ],
+    "galeria": [
+      "brick-rusticatto-rosso-mao-2.webp",
+      "brick-rusticatto-rosso-mao-3.webp",
+      "brick-rusticatto-rosso-mao-4.webp",
+      "brick-rusticatto-rosso-mao-5.webp",
+      "brick-rusticatto-rosso-mao-6.webp",
+      "brick-rusticatto-rosso-mao-7.webp",
+      "brick-rusticatto-rosso-mao-8.webp",
+      "brick-rusticatto-rosso-mao-9.webp",
+      "brick-rusticatto-rosso-mao-10.webp"
+    ],
+    "combina_com": [
+      "cimenticio-sorvel-leve",
+      "rockface-rundak-bruto",
+      "brick-thavrin-cinza"
+    ],
+    "cross_sell_ordem": []
+  },
+  {
+    "slug_pagina": "brick-vaskir-fundo",
+    "nome": "Vaskir Fundo",
+    "sku": "54",
+    "preco": "164,89",
+    "preco_json": "164.89",
+    "descricao": "Brick Vaskir Fundo apresenta mesclas escuras sobre base terrosa, oferecendo profundidade visual única. Cada peça mantém característica artesanal.",
+    "dimensoes": "250mm x 70mm x 15mm",
+    "peso": "360g",
+    "acabamento": "Natural",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Sala de estar, Escritório, Cozinha",
+    "categoria": "Revestimento Brick",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "armchair",
+        "label": "Sala de estar"
+      },
+      {
+        "principal": false,
+        "icone": "briefcase",
+        "label": "Escritório"
+      },
+      {
+        "principal": false,
+        "icone": "tools-kitchen-2",
+        "label": "Cozinha"
+      }
+    ],
+    "galeria": [
+      "brick-mescla-prime-mao-1.webp",
+      "brick-mescla-prime-mao-2.webp",
+      "brick-mescla-prime-mao-3.webp",
+      "brick-mescla-prime-mao-4.webp",
+      "brick-mescla-prime-mao-5.webp",
+      "brick-mescla-prime-mao-6.webp",
+      "brick-mescla-prime-mao-7.webp",
+      "brick-mescla-prime-mao-8.webp",
+      "brick-mescla-prime-mao-9.webp"
+    ],
+    "combina_com": [
+      "cimenticio-sorvel-leve",
+      "rockface-rundak-bruto",
+      "brick-zendral-cobre"
+    ],
+    "cross_sell_ordem": []
+  },
+  {
+    "slug_pagina": "brick-yandel-ambar",
+    "nome": "Yandel Âmbar",
+    "sku": "48",
+    "preco": "115,39",
+    "preco_json": "115.39",
+    "descricao": "Brick Yandel Âmbar é terracota uniforme, extrudada industrialmente e queimada a 950°C, garantindo alta resistência e consistência. Promoção especial com excelente custo-benefício.",
+    "dimensoes": "240mm x 70mm x 10mm",
+    "peso": "465g",
+    "acabamento": "Natural",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Área externa, Garagem, Fachada",
+    "categoria": "Revestimento Brick",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "sun",
+        "label": "Área externa"
+      },
+      {
+        "principal": false,
+        "icone": "car",
+        "label": "Garagem"
+      },
+      {
+        "principal": false,
+        "icone": "building",
+        "label": "Fachada"
+      }
+    ],
+    "galeria": [
+      "brick-natura-mao-1.webp",
+      "brick-natura-mao-2.webp",
+      "brick-natura-mao-3.webp",
+      "brick-natura-mao-4.webp",
+      "brick-natura-mao-5.webp",
+      "brick-natura-mao-6.webp",
+      "brick-natura-mao-7.webp",
+      "brick-natura-mao-8.webp",
+      "brick-natura-mao-9.webp"
+    ],
+    "combina_com": [
+      "cimenticio-sorvel-leve",
+      "rockface-rundak-bruto",
+      "brick-ulvren-negro"
+    ],
+    "cross_sell_ordem": []
+  },
+  {
+    "slug_pagina": "brick-zendral-cobre",
+    "nome": "Zendral Cobre",
+    "sku": "47",
+    "preco": "159,39",
+    "preco_json": "159.39",
+    "descricao": "Brick Zendral Cobre oferece mescla única de laranja, vermelho e tons terrosos, criando paginação visual acolhedora.",
+    "dimensoes": "260mm x 70mm x 15mm",
+    "peso": "375g",
+    "acabamento": "Natural",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Sala de estar, Cozinha, Varanda",
+    "categoria": "Revestimento Brick",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "armchair",
+        "label": "Sala de estar"
+      },
+      {
+        "principal": false,
+        "icone": "tools-kitchen-2",
+        "label": "Cozinha"
+      },
+      {
+        "principal": false,
+        "icone": "door",
+        "label": "Varanda"
+      }
+    ],
+    "galeria": [
+      "brick-terra-cerrado-mao-1.webp",
+      "brick-terra-cerrado-mao-2.webp",
+      "brick-terra-cerrado-mao-3.webp",
+      "brick-terra-cerrado-mao-4.webp",
+      "brick-terra-cerrado-mao-5.webp",
+      "brick-terra-cerrado-mao-6.webp",
+      "brick-terra-cerrado-mao-7.webp",
+      "brick-terra-cerrado-mao-8.webp",
+      "brick-terra-cerrado-mao-9.webp",
+      "brick-terra-cerrado-mao-10.webp"
+    ],
+    "combina_com": [
+      "cimenticio-sorvel-leve",
+      "rockface-rundak-bruto",
+      "brick-zulko-claro"
+    ],
+    "cross_sell_ordem": []
+  },
+  {
+    "slug_pagina": "brick-zulko-claro",
+    "nome": "Zulko Claro",
+    "sku": "57",
+    "preco": "164,89",
+    "preco_json": "164.89",
+    "descricao": "Brick Zulko Claro oferece um tom palha claro com pontos minerais naturais característicos. Ideal para projetos que buscam acabamento artesanal com neutralidade de cor.",
+    "dimensoes": "270mm x 70mm x 15mm",
+    "peso": "350g",
+    "acabamento": "Natural",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Sala de estar, Cozinha, Varanda",
+    "categoria": "Revestimento Brick",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "armchair",
+        "label": "Sala de estar"
+      },
+      {
+        "principal": false,
+        "icone": "tools-kitchen-2",
+        "label": "Cozinha"
+      },
+      {
+        "principal": false,
+        "icone": "door",
+        "label": "Varanda"
+      }
+    ],
+    "galeria": [
+      "brick-eco-palha-mao-6.webp",
+      "brick-eco-palha-mao-7.webp",
+      "brick-eco-palha-mao-8.webp",
+      "brick-eco-palha-mao-9.webp",
+      "brick-eco-palha-mao-10.webp",
+      "brick-eco-palha-mao-11.webp",
+      "brick-eco-palha-mao-12.webp",
+      "brick-eco-palha-mao-13.webp",
+      "brick-eco-palha-mao-14.webp",
+      "brick-eco-palha-mao-15.webp"
+    ],
+    "combina_com": [
+      "cimenticio-naevel-claro",
+      "rockface-yavrin-ameno",
+      "brick-vaskir-fundo"
+    ],
+    "cross_sell_ordem": []
+  },
+  {
+    "slug_pagina": "cimenticio-naevel-claro",
+    "nome": "Naevel Claro",
+    "sku": "80",
+    "preco": "186,90",
+    "preco_json": "186.90",
+    "descricao": "Cimentício Naevel Claro oferece estética contemporânea em tons cinzento claro, perfeito para projetos modernos que exigem limpeza visual.",
+    "dimensoes": "260mm x 75mm x 10mm",
+    "peso": "447g",
+    "acabamento": "Liso",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Banheiro, Cozinha moderna, Fachada",
+    "categoria": "Revestimento Cimentício",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "bath",
+        "label": "Banheiro"
+      },
+      {
+        "principal": false,
+        "icone": "tools-kitchen-2",
+        "label": "Cozinha moderna"
+      },
+      {
+        "principal": false,
+        "icone": "building",
+        "label": "Fachada"
+      }
+    ],
+    "galeria": [
+      "cimenticio-alpino-frontal.webp",
+      "cimenticio-alpino-frontal-1.webp",
+      "cimenticio-alpino-frontal-2.webp",
+      "cimenticio-alpino-frontal-3.webp",
+      "cimenticio-alpino-frontal-4.webp"
+    ],
+    "combina_com": [
+      "brick-kharun-funda",
+      "rockface-yavrin-ameno",
+      "cimenticio-sorvel-leve"
+    ],
+    "cross_sell_ordem": [
+      "cimenticio-sorvel-leve",
+      "cimenticio-thurgo-denso"
+    ]
+  },
+  {
+    "slug_pagina": "cimenticio-sorvel-leve",
+    "nome": "Sorvel Leve",
+    "sku": "81",
+    "preco": "186,90",
+    "preco_json": "186.90",
+    "descricao": "Cimentício Sorvel Leve oferece estética contemporânea em tons cinzento médio, com acabamento industrial sofisticado.",
+    "dimensoes": "260mm x 75mm x 10mm",
+    "peso": "432g",
+    "acabamento": "Liso",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Banheiro, Cozinha moderna, Escritório",
+    "categoria": "Revestimento Cimentício",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "bath",
+        "label": "Banheiro"
+      },
+      {
+        "principal": false,
+        "icone": "tools-kitchen-2",
+        "label": "Cozinha moderna"
+      },
+      {
+        "principal": false,
+        "icone": "briefcase",
+        "label": "Escritório"
+      }
+    ],
+    "galeria": [
+      "cimenticio-brisa-frontal.webp",
+      "cimenticio-brisa-frontal-1.webp",
+      "cimenticio-brisa-frontal-2.webp",
+      "cimenticio-brisa-frontal-3.webp",
+      "cimenticio-brisa-frontal-4.webp"
+    ],
+    "combina_com": [
+      "brick-nardek-rosado",
+      "rockface-rundak-bruto",
+      "cimenticio-naevel-claro"
+    ],
+    "cross_sell_ordem": [
+      "cimenticio-naevel-claro",
+      "cimenticio-thurgo-denso"
+    ]
+  },
+  {
+    "slug_pagina": "cimenticio-thurgo-denso",
+    "nome": "Thurgo Denso",
+    "sku": "82",
+    "preco": "186,90",
+    "preco_json": "186.90",
+    "descricao": "Cimentício Thurgo Denso combina estética urbana contemporânea com acabamento robusto, ideal para fachadas modernas.",
+    "dimensoes": "260mm x 75mm x 10mm",
+    "peso": "438g",
+    "acabamento": "Texturizado",
+    "resistencia": "Classe A",
+    "aplicacao": "Interno e externo",
+    "ambientes_texto": "Fachada, Cozinha, Área gourmet",
+    "categoria": "Revestimento Cimentício",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "home",
+        "label": "Interno"
+      },
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "building",
+        "label": "Fachada"
+      },
+      {
+        "principal": false,
+        "icone": "tools-kitchen-2",
+        "label": "Cozinha"
+      },
+      {
+        "principal": false,
+        "icone": "flame",
+        "label": "Área gourmet"
+      }
+    ],
+    "galeria": [
+      "cimenticio-urban-frontal.webp",
+      "cimenticio-urban-frontal-1.webp",
+      "cimenticio-urban-frontal-2.webp",
+      "cimenticio-urban-frontal-3.webp",
+      "cimenticio-urban-frontal-4.webp",
+      "cimenticio-urban-frontal-5.webp"
+    ],
+    "combina_com": [
+      "brick-thavrin-cinza",
+      "rockface-yavrin-ameno",
+      "cimenticio-naevel-claro"
+    ],
+    "cross_sell_ordem": [
+      "cimenticio-naevel-claro",
+      "cimenticio-sorvel-leve"
+    ]
+  },
+  {
+    "slug_pagina": "rockface-kelthar-branco",
+    "nome": "Kelthar Branco",
+    "sku": "91",
+    "preco": "252,90",
+    "preco_json": "252.90",
+    "descricao": "Rockface Kelthar Branco oferece versão texturizada com custo-benefício otimizado e aparência de pedra natural autêntica.",
+    "dimensoes": "290mm x 95mm x 20mm",
+    "peso": "1325g",
+    "acabamento": "Texturizado pedra",
+    "resistencia": "Classe A",
+    "aplicacao": "Externo",
+    "ambientes_texto": "Fachada, Parede de destaque",
+    "categoria": "Revestimento Rockface",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "building",
+        "label": "Fachada"
+      },
+      {
+        "principal": false,
+        "icone": "frame",
+        "label": "Parede de destaque"
+      }
+    ],
+    "galeria": [
+      "rockface-alpino-frontal.webp",
+      "rockface-alpino-frontal-1.webp",
+      "rockface-alpino-frontal-2.webp",
+      "rockface-alpino-frontal-3.webp"
+    ],
+    "combina_com": [
+      "brick-kelvar-aceso",
+      "cimenticio-naevel-claro",
+      "rockface-rundak-bruto"
+    ],
+    "cross_sell_ordem": [
+      "rockface-yavrin-ameno",
+      "rockface-rundak-bruto"
+    ]
+  },
+  {
+    "slug_pagina": "rockface-rundak-bruto",
+    "nome": "Rundak Bruto",
+    "sku": "92",
+    "preco": "252,90",
+    "preco_json": "252.90",
+    "descricao": "Rockface Rundak Bruto oferece cinzento texturizado com profundidade visual natural e excelente custo-benefício.",
+    "dimensoes": "290mm x 95mm x 20mm",
+    "peso": "966g",
+    "acabamento": "Texturizado pedra",
+    "resistencia": "Classe A",
+    "aplicacao": "Externo",
+    "ambientes_texto": "Fachada, Parede de destaque",
+    "categoria": "Revestimento Rockface",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "building",
+        "label": "Fachada"
+      },
+      {
+        "principal": false,
+        "icone": "frame",
+        "label": "Parede de destaque"
+      }
+    ],
+    "galeria": [
+      "rockface-urban-frontal.webp",
+      "rockface-urban-frontal-1.webp",
+      "rockface-urban-frontal-2.webp",
+      "rockface-urban-frontal-3.webp"
+    ],
+    "combina_com": [
+      "brick-nardek-rosado",
+      "cimenticio-sorvel-leve",
+      "rockface-kelthar-branco"
+    ],
+    "cross_sell_ordem": [
+      "rockface-kelthar-branco",
+      "rockface-yavrin-ameno"
+    ]
+  },
+  {
+    "slug_pagina": "rockface-yavrin-ameno",
+    "nome": "Yavrin Ameno",
+    "sku": "90",
+    "preco": "186,90",
+    "preco_json": "186.90",
+    "descricao": "Rockface Yavrin Ameno oferece acabamento contemporâneo com textura de pedra natural, perfeito para fachadas sofisticadas.",
+    "dimensoes": "260mm x 75mm x 10mm",
+    "peso": "764g",
+    "acabamento": "Texturizado",
+    "resistencia": "Classe A",
+    "aplicacao": "Externo",
+    "ambientes_texto": "Fachada principal",
+    "categoria": "Revestimento Rockface",
+    "ambientes_chips": [
+      {
+        "principal": true,
+        "icone": "sun",
+        "label": "Externo"
+      },
+      {
+        "principal": false,
+        "icone": "building",
+        "label": "Fachada principal"
+      }
+    ],
+    "galeria": [
+      "rockface-brisa-frontal.webp",
+      "rockface-brisa-frontal-1.webp",
+      "rockface-brisa-frontal-2.webp",
+      "rockface-brisa-frontal-3.webp"
+    ],
+    "combina_com": [
+      "brick-vanrik-terroso",
+      "cimenticio-naevel-claro",
+      "rockface-rundak-bruto"
+    ],
+    "cross_sell_ordem": [
+      "rockface-kelthar-branco",
+      "rockface-rundak-bruto"
+    ]
+  }
+]
