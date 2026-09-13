@@ -2155,9 +2155,22 @@ const num=v=>Math.round(v).toLocaleString('pt-BR');
 const pct=v=>parseFloat(v).toFixed(1)+'%';
 const $=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined)e.textContent=v;return e;};
 
+// As etiquetas dos <option> eram texto fixo, digitado à mão -- e tinham
+// ficado desalinhadas de CUSTO_FORNECEDOR (a fonte real usada no cálculo)
+// pros 14 produtos, sem exceção. Corrigido de forma que não pode mais
+// desalinhar: a etiqueta é sempre regerada a partir da mesma tabela que
+// o cálculo usa, nunca mais digitada solta em dois lugares.
+function corrigirEtiquetasProdutos(){
+  document.querySelectorAll('#p-prod option, #cb-prod option').forEach(opt=>{
+    const custo=CUSTO_FORNECEDOR[opt.value],nome=NOMES[opt.value];
+    if(custo!==undefined&&nome) opt.textContent=nome+' — R$ '+custo.toFixed(2)+'/m²';
+  });
+}
+
 function startApp(){
   $('ob').style.display='none';
   $('app').style.display='block';
+  corrigirEtiquetasProdutos();
   calcPrec();calcV();
 }
 
@@ -2314,7 +2327,7 @@ function calcPrec(){
   const bar=$('r-bar');
   bar.style.width=Math.min(Math.max(ml*1.8,0),100)+'%';
   bar.style.background=ml<10?'var(--er)':ml<18?'var(--wn)':'var(--t)';
-  S.pm2=pm2;S.ticket=vp;S.ll=ll;S.ml=ml;S.custo=c;S.prodName=prodName;
+  S.pm2=pm2;S.ticket=vp;S.ll=ll;S.ml=ml;S.custo=c;S.custoTotal=cp;S.prodName=prodName;
   $('b-tkt').value=Math.round(vp);$('b-lp').value=Math.round(ll);
   $('l-mg').value=ml.toFixed(1);$('l-mh',pct(ml));
   $('d-tkt').value=Math.round(vp);$('d-mg').value=ml.toFixed(1);
@@ -2860,7 +2873,20 @@ function salvarCenarioAtual(){
     nome_cenario: nome.trim(),
     modulo: modulo,
     parametros: coletarEstadoAtual(),
-    resultado: { modulo_label: MODULO_LABELS[modulo] || modulo, resumo: capturarResumoVisual() }
+    resultado: {
+      modulo_label: MODULO_LABELS[modulo] || modulo,
+      resumo: capturarResumoVisual(),
+      // Números já calculados por calcPrec(), prontos pra uso programático
+      // (ex: OS que referencia este cenário) -- só existe quando o cenário
+      // foi salvo com o módulo "01 · Precificação" ativo, que é quem
+      // popula S.ticket/S.ll/S.ml/S.custoTotal.
+      estruturado: modulo === 'prec' ? {
+        preco_venda: S.ticket,
+        custo_total: S.custoTotal,
+        lucro_liquido: S.ll,
+        margem_liquida_pct: S.ml,
+      } : null,
+    }
   };
 
   const statusEl = document.getElementById('salvos-status');
