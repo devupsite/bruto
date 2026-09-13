@@ -18,6 +18,7 @@
   var API_ATUALIZAR_STATUS = 'api/atualizar-status.php';
   var API_WHATSAPP_FORNECEDOR = 'api/whatsapp-fornecedor.php';
   var API_ENVIAR_EMAIL = 'api/enviar-email.php';
+  var API_LISTAR_CENARIOS = 'https://brutoceramica.com.br/api/listar-cenarios.php';
 
   var CATALOGO = [
     { slug: "brick-eco-palha", categoria: "Brick", nome: "Zulko Claro", nomeFaion: "Eco Palha", sku: "57", preco: 164.89, dimensoes: "270mm x 70mm x 15mm", peso: "350g" },
@@ -195,6 +196,7 @@
       endereco: enderecoPartes.join(', '),
       prazo: document.getElementById('os-prazo').value.trim(),
       observacoes: document.getElementById('os-observacoes').value.trim(),
+      cenario_id: document.getElementById('os-cenario-id').value || null,
       itens: itens
     };
   }
@@ -439,7 +441,8 @@
       cliente_contato: contatoPartes.join(' · '),
       itens: dados.itens,
       total_geral: totalGeral,
-      observacoes: obsPartes.join(' | ')
+      observacoes: obsPartes.join(' | '),
+      cenario_id: dados.cenario_id
     };
 
     return fetch(API_SALVAR_ORDEM, {
@@ -730,7 +733,27 @@
     }
   })();
 
+  /* ── Cenário de precificação (opcional, vínculo com o Precificador) ── */
+  function carregarCenariosParaSelect() {
+    var sel = document.getElementById('os-cenario-id');
+    if (!sel) return;
+    fetch(API_LISTAR_CENARIOS)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.sucesso || !data.cenarios) return;
+        data.cenarios.forEach(function (cen) {
+          var opt = document.createElement('option');
+          opt.value = cen.id;
+          var data_fmt = new Date(cen.criado_em.replace(' ', 'T')).toLocaleDateString('pt-BR');
+          opt.textContent = cen.nome_cenario + ' (' + data_fmt + ')';
+          sel.appendChild(opt);
+        });
+      })
+      .catch(function () { /* select sem opções extras não impede criar a OS */ });
+  }
+
   /* ── Inicialização ─────────────────────────────────────────────── */
   document.getElementById('os-numero-atual').textContent = 'Nova OS';
   addItemRow();
+  carregarCenariosParaSelect();
 })();

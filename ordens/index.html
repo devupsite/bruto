@@ -438,6 +438,16 @@
         <span>Observações <em>(opcional)</em></span>
         <textarea id="os-observacoes" placeholder="Qualquer informação adicional pro fornecedor"></textarea>
       </label>
+      <label class="os-field os-field--full">
+        <span>Cenário de precificação usado <em>(opcional)</em></span>
+        <select id="os-cenario-id">
+          <option value="">Nenhum — não vincular a um cenário salvo</option>
+        </select>
+        <small style="display:block;margin-top:4px;color:var(--g,#888);font-size:12px;">
+          Se essa OS veio de um cálculo salvo no Precificador, selecione aqui — o custo/margem
+          negociados ficam gravados junto com o pedido, pra entrar certo no financeiro depois.
+        </small>
+      </label>
     </section>
 
     <p class="os-error" id="os-error" hidden></p>
