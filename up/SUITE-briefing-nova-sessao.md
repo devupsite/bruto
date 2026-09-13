@@ -366,24 +366,30 @@ a seção 8, dizer explicitamente se foi só **validado estaticamente**
   - `up/up-vault.html` (commit anterior a este) — categoria nova "Custo de
     mercadoria" adicionada nos 3 lugares onde a lista aparece.
   - Migração: `ALTER TABLE ordens_servico ADD cenario_id, custo_congelado,
-    margem_congelada` + `ALTER TABLE transacoes ADD origem` (a segunda já
-    confirmada rodada com sucesso pelo Rafael via phpMyAdmin; a primeira
-    entregue mas status de execução não confirmado nesta sessão).
-- Status: **EM ANDAMENTO**. Front-end do site principal commitado e
-  enviado. Backend (3 arquivos PHP) entregue ao Rafael, mas **upload real
-  no servidor ainda não confirmado** nesta sessão. Migração SQL parcial-
-  mente confirmada (só a parte de `transacoes.origem`).
+    margem_congelada` + `ALTER TABLE transacoes ADD origem` — **as duas
+    confirmadas rodadas com sucesso pelo Rafael via phpMyAdmin** (a de
+    `ordens_servico` inicialmente pareceu dar erro `#1060 - coluna
+    duplicada`, mas isso só confirmava que já tinha rodado antes).
+  - **Os 3 arquivos PHP confirmados no servidor**: o Rafael colou de volta
+    o conteúdo de `salvar-ordem.php` (bateu exatamente com o entregue) e
+    confirmou verbalmente os outros dois (`atualizar-status.php`,
+    `suite-vault.php`) sem colar o conteúdo — não conferido byte a byte,
+    só por confirmação direta dele.
+- Status: **deploy completo** (front-end + backend + banco, todas as
+  peças no lugar) — mas **ainda EM ANDAMENTO no sentido de teste
+  funcional**: ninguém rodou o fluxo real de ponta a ponta ainda.
 - Validação: **só estática** (`php -l` em todos os PHPs, `node --check` no
-  JS/HTML) — nada testado de ponta a ponta ainda (criar OS com cenário
-  vinculado → avançar status até concluído → conferir se aparecem as 2
-  transações certas no Vault).
-- Notas para a próxima sessão: antes de considerar isso pronto, confirmar
-  (a) os 3 PHPs estão mesmo em `bruto-secrets/API/` no servidor, (b) a
-  migração completa rodou (`DESCRIBE ordens_servico` deve mostrar as 3
-  colunas novas), (c) teste real: criar uma OS vinculando um cenário
-  salvo, avançar pra "concluído" no UP·Flow, e conferir se o Vault mostra
-  as 2 transações (receita + custo) automaticamente, sem duplicar se o
-  status for setado como concluído mais de uma vez.
+  JS/HTML) + confirmação de presença dos arquivos/colunas. **Nada testado
+  funcionalmente** — não sabemos ainda se o fluxo realmente funciona
+  quando executado de verdade.
+- Notas para a próxima sessão: falta só o teste real, nada de deploy.
+  Roteiro: (1) salvar um cenário no Precificador com o módulo "01 ·
+  Precificação" ativo; (2) criar uma OS nova selecionando esse cenário no
+  campo novo; (3) avançar o status dessa OS até "concluído" no UP·Flow;
+  (4) conferir no UP·Vault se apareceram automaticamente 2 transações
+  (receita bruta + despesa "Custo de mercadoria") vinculadas àquela OS;
+  (5) avançar o status de novo (ou tentar) pra confirmar que não duplica
+  as transações na segunda vez (idempotência via `ordem_servico_id`).
 
 ### 20/08/2026 – 24/08/2026 — Rodada extensa de correções e features (resumo consolidado)
 - Contexto: a Suíte tinha acabado de ser recuperada de um apagão total em
